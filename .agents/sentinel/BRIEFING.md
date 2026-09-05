@@ -1,13 +1,13 @@
-# BRIEFING — 2026-09-05T19:30:55+07:00
+# BRIEFING — 2026-09-05T19:57:30+07:00
 
 ## Mission
-Oversee the execution of MorphoMesh project by dispatching to teamwork_preview_orchestrator, monitoring progress, running liveness and reporting crons, and coordinating independent Victory Audit.
+Oversee the execution of MorphoMesh Open-Source Integration Hub by dispatching to teamwork_preview_orchestrator, monitoring progress, running liveness and reporting crons, and coordinating independent Victory Audit.
 
 ## 🔒 My Identity
 - Archetype: sentinel
 - Working directory: /Users/duongnad/Documents/tool/MorphoMesh/.agents/sentinel
-- Orchestrator: 3a4e8e2b-d5e4-45a8-86a2-528d768e62e0
-- Victory Auditor: 414b2fef-faf1-49e2-9622-3d1bf7f61c13
+- Orchestrator: 419e2607-121e-4267-b352-b2449fff6c92
+- Victory Auditor: 05cb80a3-9d80-4a46-b035-6aa012c67fa4
 
 ## 🔒 Key Constraints
 - No technical decisions — relay only
@@ -16,14 +16,10 @@ Oversee the execution of MorphoMesh project by dispatching to teamwork_preview_o
 - Do not write code or analyze problems directly; maintain ultra-light context
 
 ## User Context
-- **Last user request**: Phase 1 of MorphoMesh: Research & Benchmark docs (>= 20 models), Architecture design (hybrid local/remote), MCP specification with full schemas for 7 tools, runnable PoC skeleton (MCP server + blender bridge + inference adapter + blender addon), and automated test suite.
+- **Last user request**: Xây dựng hệ thống Tham khảo và Tích hợp Mã nguồn mở Tối ưu (Open-Source Integration Hub) cho MorphoMesh: Playbook kỹ thuật (`docs/OPEN_SOURCE_INTEGRATION_PLAYBOOK.md` >40 KB) cho 5 dự án SOTA (TRELLIS.2, 3DAnimals/SMAL, anyCreature, MeshAnything V2, Hunyuan3D-2.1), Production Connectors trong `src/morphomesh/connectors/`, Tích hợp InferenceAdapter & FastMCP tools, Automated Tests `tests/test_connectors.py`, và Demo script `examples/open_source_pipeline_demo.py`.
 - **Pending clarifications**: none
 - **Delivered results**:
-  * `docs/RESEARCH_BENCHMARK.md` (R1)
-  * `docs/ARCHITECTURE.md` (R2)
-  * `docs/MCP_SPECIFICATION.md` & `docs/ROADMAP.md` (R3)
-  * `src/morphomesh/`, `blender_addon/`, `README.md`, `SETUP_GUIDE.md` (R4)
-  * `tests/` with 148 passing tests (100% pass, 0 fail, 84% coverage)
+  * Phase 1 completed & verified (Docs, MCP server PoC skeleton, Blender bridge, test suite).
 
 ## Project Status
 - **Phase**: complete
@@ -36,12 +32,9 @@ Oversee the execution of MorphoMesh project by dispatching to teamwork_preview_o
 ## Artifact Index
 - /Users/duongnad/Documents/tool/MorphoMesh/ORIGINAL_REQUEST.md — Authoritative record of user request
 - /Users/duongnad/Documents/tool/MorphoMesh/.agents/ORIGINAL_REQUEST.md — Mirror of user request
-- /Users/duongnad/Documents/tool/MorphoMesh/docs/RESEARCH_BENCHMARK.md — Benchmark docs (R1)
-- /Users/duongnad/Documents/tool/MorphoMesh/docs/ARCHITECTURE.md — System architecture (R2)
-- /Users/duongnad/Documents/tool/MorphoMesh/docs/MCP_SPECIFICATION.md — MCP specification (R3)
-- /Users/duongnad/Documents/tool/MorphoMesh/docs/ROADMAP.md — Roadmap (R3)
-- /Users/duongnad/Documents/tool/MorphoMesh/src/morphomesh/ — Python MCP server package (R4)
-- /Users/duongnad/Documents/tool/MorphoMesh/blender_addon/ — Blender addon package & zip (R4)
-- /Users/duongnad/Documents/tool/MorphoMesh/tests/ — Pytest suite (R4)
-- /Users/duongnad/Documents/tool/MorphoMesh/README.md — Project guide
-- /Users/duongnad/Documents/tool/MorphoMesh/SETUP_GUIDE.md — Setup guide
+- /Users/duongnad/Documents/tool/MorphoMesh/docs/OPEN_SOURCE_INTEGRATION_PLAYBOOK.md — Engineering Playbook & Licensing Governance (R1, 82.5 KB)
+- /Users/duongnad/Documents/tool/MorphoMesh/src/morphomesh/connectors/ — Production Open-Source Connectors (R2, 8 modules)
+- /Users/duongnad/Documents/tool/MorphoMesh/tests/test_connectors.py — Connector automated test suite (R3, 47 tests)
+- /Users/duongnad/Documents/tool/MorphoMesh/examples/open_source_pipeline_demo.py — Open-source pipeline demo (R3)
+- /Users/duongnad/Documents/tool/MorphoMesh/.agents/orchestrator_hub_1/handoff.md — Orchestrator handoff report
+- /Users/duongnad/Documents/tool/MorphoMesh/.agents/victory_auditor_2/handoff.md — Victory Auditor handoff report

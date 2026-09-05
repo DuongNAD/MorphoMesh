@@ -1,0 +1,29 @@
+{
+  "verdict": "APPROVE",
+  "total_suites": 4,
+  "suites_passed": 4,
+  "suites_failed": 0,
+  "total_duration_seconds": 1.033,
+  "suite_details": {
+    "test_math_transform_empirical.py": {
+      "status": "PASSED",
+      "exit_code": 0,
+      "duration_seconds": 0.408
+    },
+    "test_topology_budget_empirical.py": {
+      "status": "PASSED",
+      "exit_code": 0,
+      "duration_seconds": 0.104
+    },
+    "test_dag_schema_empirical.py": {
+      "status": "PASSED",
+      "exit_code": 0,
+      "duration_seconds": 0.071
+    },
+    "test_pbr_textures_empirical.py": {
+      "status": "PASSED",
+      "exit_code": 0,
+      "duration_seconds": 0.45
+    }
+  }
+}

@@ -1,0 +1,206 @@
+{
+  "raw_prompt": "Mythical armored quadruped dire-wolf with twin shoulder horns and venomous bite",
+  "inferred_type": "quadruped",
+  "body_graph": {
+    "creature_name": "MythicalArmored",
+    "archetype": "quadruped",
+    "parts": {
+      "pelvis": {
+        "part_id": "pelvis",
+        "part_type": "root",
+        "parent_id": null,
+        "length": 0.4,
+        "radius_start": 0.25,
+        "radius_end": 0.22,
+        "subdivisions": 4,
+        "symmetry": false
+      },
+      "chest": {
+        "part_id": "chest",
+        "part_type": "torso",
+        "parent_id": "pelvis",
+        "length": 0.6,
+        "radius_start": 0.28,
+        "radius_end": 0.24,
+        "subdivisions": 4,
+        "symmetry": false
+      },
+      "neck": {
+        "part_id": "neck",
+        "part_type": "neck",
+        "parent_id": "chest",
+        "length": 0.35,
+        "radius_start": 0.18,
+        "radius_end": 0.14,
+        "subdivisions": 4,
+        "symmetry": false
+      },
+      "head": {
+        "part_id": "head",
+        "part_type": "head",
+        "parent_id": "neck",
+        "length": 0.3,
+        "radius_start": 0.16,
+        "radius_end": 0.12,
+        "subdivisions": 4,
+        "symmetry": false
+      },
+      "tail": {
+        "part_id": "tail",
+        "part_type": "tail",
+        "parent_id": "pelvis",
+        "length": 0.7,
+        "radius_start": 0.12,
+        "radius_end": 0.04,
+        "subdivisions": 4,
+        "symmetry": false
+      },
+      "left_horn": {
+        "part_id": "left_horn",
+        "part_type": "horn",
+        "parent_id": "head",
+        "length": 0.25,
+        "radius_start": 0.06,
+        "radius_end": 0.01,
+        "subdivisions": 4,
+        "symmetry": false
+      },
+      "right_horn": {
+        "part_id": "right_horn",
+        "part_type": "horn",
+        "parent_id": "head",
+        "length": 0.25,
+        "radius_start": 0.06,
+        "radius_end": 0.01,
+        "subdivisions": 4,
+        "symmetry": false
+      }
+    },
+    "limbs": [
+      {
+        "limb_id": "front_left_leg",
+        "limb_type": "leg",
+        "side": "left",
+        "attachment_joint": "chest",
+        "segment_lengths": [
+          0.35,
+          0.35,
+          0.1
+        ],
+        "joint_constraints": {
+          "knee": {
+            "min_deg": 0.0,
+            "max_deg": 120.0
+          },
+          "ankle": {
+            "min_deg": -45.0,
+            "max_deg": 60.0
+          }
+        }
+      },
+      {
+        "limb_id": "front_right_leg",
+        "limb_type": "leg",
+        "side": "right",
+        "attachment_joint": "chest",
+        "segment_lengths": [
+          0.35,
+          0.35,
+          0.1
+        ],
+        "joint_constraints": {
+          "knee": {
+            "min_deg": 0.0,
+            "max_deg": 120.0
+          },
+          "ankle": {
+            "min_deg": -45.0,
+            "max_deg": 60.0
+          }
+        }
+      },
+      {
+        "limb_id": "rear_left_leg",
+        "limb_type": "leg",
+        "side": "left",
+        "attachment_joint": "pelvis",
+        "segment_lengths": [
+          0.4,
+          0.4,
+          0.12
+        ],
+        "joint_constraints": {
+          "knee": {
+            "min_deg": 0.0,
+            "max_deg": 120.0
+          },
+          "ankle": {
+            "min_deg": -45.0,
+            "max_deg": 60.0
+          }
+        }
+      },
+      {
+        "limb_id": "rear_right_leg",
+        "limb_type": "leg",
+        "side": "right",
+        "attachment_joint": "pelvis",
+        "segment_lengths": [
+          0.4,
+          0.4,
+          0.12
+        ],
+        "joint_constraints": {
+          "knee": {
+            "min_deg": 0.0,
+            "max_deg": 120.0
+          },
+          "ankle": {
+            "min_deg": -45.0,
+            "max_deg": 60.0
+          }
+        }
+      }
+    ],
+    "root_id": "pelvis"
+  },
+  "animation_bindings": [
+    {
+      "action_name": "idle",
+      "gait_frequency": 0.5,
+      "phase_offsets": {
+        "all": 0.0
+      },
+      "stride_length": 0.0,
+      "body_undulation_amplitude": 0.05
+    },
+    {
+      "action_name": "walk_cycle",
+      "gait_frequency": 1.2,
+      "phase_offsets": {
+        "front_left": 0.0,
+        "rear_right": 0.25,
+        "front_right": 0.5,
+        "rear_left": 0.75
+      },
+      "stride_length": 1.1,
+      "body_undulation_amplitude": 0.12
+    },
+    {
+      "action_name": "run_cycle",
+      "gait_frequency": 2.2,
+      "phase_offsets": {
+        "front_left": 0.0,
+        "front_right": 0.1,
+        "rear_left": 0.5,
+        "rear_right": 0.6
+      },
+      "stride_length": 1.8,
+      "body_undulation_amplitude": 0.22
+    }
+  ],
+  "procedural_parameters": {
+    "symmetry_axis": "X",
+    "scale_factor": 1.0
+  }
+}
