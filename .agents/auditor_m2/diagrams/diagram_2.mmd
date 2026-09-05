@@ -1,0 +1,71 @@
+sequenceDiagram
+    autonumber
+    actor User as Google Antigravity 2.0 (Agent)
+    participant MCP as MorphoMesh FastMCP Server
+    participant Inf as Inference Adapter (inference_adapter.py)
+    participant Cloud as Remote GPU Node (CUDA 12.x)
+    participant Bridge as Blender Bridge (blender_bridge.py)
+    participant Blender as Blender 5.2.1 LTS Runtime
+
+    %% Stage 1: Concept Generation
+    Note over User,Blender: STAGE 1: CONCEPT GENERATION
+    User->>MCP: morphomesh_generate_concept(prompt, creature_type, view_mode)
+    MCP->>Inf: generate_concept(ConceptRequest)
+    alt Remote Backend Active
+        Inf->>Cloud: POST /generate-concept (Prompt + Anatomical Priors)
+        Cloud-->>Inf: 2D Concept Image (RGB)
+    else Mock / Offline Mode
+        Inf->>Inf: Procedural 2D Concept Synthesis
+    end
+    Inf->>Inf: Alpha Mask Extraction (Rembg / BiRefNet)
+    Inf-->>MCP: ConceptResult (concept_id, rgba_image_path)
+    MCP-->>User: Concept Generated (Image Path & Metadata)
+
+    %% Stage 2: 3D Asset Creation
+    Note over User,Blender: STAGE 2: SINGLE-IMAGE TO 3D GENERATION
+    User->>MCP: morphomesh_create_3d_asset(concept_id, quality_tier, generate_pbr)
+    MCP->>Inf: generate_3d_asset(MeshGenerationRequest)
+    alt Remote Backend Active
+        Inf->>Cloud: POST /generate-3d (RGBA Image, TRELLIS.2 4B)
+        Cloud-->>Inf: High-Poly GLB (300k Tris) + PBR Textures
+    else Mock / Offline Mode
+        Inf->>Inf: Generate Procedural Creature GLB (Quadruped/Winged)
+    end
+    Inf-->>MCP: MeshResult (asset_id, raw_mesh_path, texture_paths)
+    MCP-->>User: Raw 3D Asset Created (Polycount & Paths)
+
+    %% Stage 3: Topology Optimization
+    Note over User,Blender: STAGE 3: TOPOLOGY OPTIMIZATION
+    User->>MCP: morphomesh_optimize_topology(raw_mesh_path, target_polycount=8000)
+    MCP->>Bridge: execute("morphomesh.optimize_topology", params)
+    Bridge->>Bridge: AST Validation & Safety Check
+    Bridge->>Blender: JSON-RPC over TCP / Headless Subprocess
+    Blender->>Blender: Execute QuadriFlow Remesh & Hole Healing
+    Blender->>Blender: Unwrap Non-Overlapping UV Atlas
+    Blender-->>Bridge: RetopoResult (8000 Quads, Quad Ratio 0.98)
+    Bridge-->>MCP: Normalized Response
+    MCP-->>User: Optimized Quad Mesh Ready
+
+    %% Stage 4: Rigging Automation
+    Note over User,Blender: STAGE 4: SKELETON & RIGGING AUTOMATION
+    User->>MCP: morphomesh_auto_rig(mesh_name, creature_type="quadruped")
+    MCP->>Bridge: execute("morphomesh.create_armature", params)
+    Bridge->>Blender: JSON-RPC Request
+    Blender->>Blender: Landmark Detection (Spine, Neck, Limbs, Tail)
+    Blender->>Blender: Instantiate Rigify Wolf/Cat Metarig & Align Joints
+    Blender->>Blender: Generate Animator Rig & Bind Automatic Bone Heat
+    Blender-->>Bridge: RigResult (Armature Name, Bone Count, Bind Status)
+    Bridge-->>MCP: Normalized Response
+    MCP-->>User: Armature Rigged & Skinned Successfully
+
+    %% Stage 5: Scene Assembly & Render
+    Note over User,Blender: STAGE 5: BLENDER SCENE ASSEMBLY
+    User->>MCP: morphomesh_render_preview(camera_angle="turnaround", engine="BLENDER_EEVEE")
+    MCP->>Bridge: execute("morphomesh.render_preview", params)
+    Bridge->>Blender: JSON-RPC Request
+    Blender->>Blender: Setup 3-Point Studio Lights & Principled BSDF Tree
+    Blender->>Blender: Frame Camera to Creature Bounding Sphere
+    Blender->>Blender: Render Frame via Apple Metal EEVEE Next
+    Blender-->>Bridge: PreviewResult (image_path, render_time)
+    Bridge-->>MCP: Normalized Response + Image Binary Buffer
+    MCP-->>User: Return ImageContent (Base64 PNG Preview)

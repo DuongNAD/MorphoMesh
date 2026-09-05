@@ -1,0 +1,49 @@
+stateDiagram-v2
+    [*] --> Uninitialized
+
+    state "Stage 1: Prompt & Concept" as S1 {
+        Uninitialized --> PromptExpansion : Receive User Prompt
+        PromptExpansion --> ConceptSynthesized : Run FLUX / Mock
+        ConceptSynthesized --> AlphaMasked : Run Rembg / BiRefNet
+        ConceptSynthesized --> ConceptFailed : Diffusion Error
+    }
+
+    state "Stage 2: 3D Reconstruction" as S2 {
+        AlphaMasked --> LatentDiffusion : Input Clean RGBA
+        LatentDiffusion --> IsosurfaceExtracted : Marching Tetrahedra / FlexiCubes
+        IsosurfaceExtracted --> RawGLBGenerated : Export High-Poly Mesh & PBR
+        LatentDiffusion --> Gen3DFailed : Out of VRAM / Timeout
+    }
+
+    state "Stage 3: Topology Optimization" as S3 {
+        RawGLBGenerated --> MeshSanitization : Import into Blender
+        MeshSanitization --> QuadRemeshing : Heal Holes & Non-Manifold Edges
+        QuadRemeshing --> UVUnwrapped : Execute QuadriFlow / MeshAnything
+        UVUnwrapped --> TextureBaking : Smart UV Project & Normal Map Bake
+        QuadRemeshing --> RetopoFailed : Solver Non-Convergence
+    }
+
+    state "Stage 4: Skeleton & Rigging" as S4 {
+        TextureBaking --> LandmarkDetection : Volumetric Skeleton Analysis
+        LandmarkDetection --> MetarigAlignment : Snap Joints & Recalculate Roll
+        MetarigAlignment --> BoneHeatSkinning : Execute ARMATURE_AUTO
+        BoneHeatSkinning --> DistanceWeightFallback : Heat Equation Fails
+        DistanceWeightFallback --> RiggedAsset : Assign Vertex Weights
+        BoneHeatSkinning --> RiggedAsset : Heat Weights Converged
+        MetarigAlignment --> RiggingFailed : Morphological Mismatch
+    }
+
+    state "Stage 5: Scene Assembly" as S5 {
+        RiggedAsset --> MaterialNodeWiring : Principled BSDF 2.0 Network
+        MaterialNodeWiring --> StudioLightingSetup : 3-Point Key/Fill/Rim Rig
+        StudioLightingSetup --> CameraFraming : Bounding Sphere Target
+        CameraFraming --> ViewportRender : EEVEE Next Metal Render
+        ViewportRender --> FinalAssembledScene : Return ImageContent & Stats
+    }
+
+    ConceptFailed --> PromptExpansion : Retry with Enhanced Priors
+    Gen3DFailed --> AlphaMasked : Fallback to TripoSR / Mock
+    RetopoFailed --> MeshSanitization : Fallback to Voxel Remesh + Decimate
+    RiggingFailed --> LandmarkDetection : Fallback to Generic Bone Chain
+
+    FinalAssembledScene --> [*]

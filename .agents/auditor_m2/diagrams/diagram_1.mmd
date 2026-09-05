@@ -1,0 +1,98 @@
+graph TB
+    subgraph ClientHost["macOS Apple Silicon Workstation (Darwin ARM64)"]
+        subgraph AgentHost["AI Agent Environment"]
+            AG["Google Antigravity 2.0<br/>(Autonomous Agent Host)"]
+        end
+
+        subgraph MCPLayer["Layer 1: Client & Coordination Layer"]
+            STDIO["Standard I/O Streams<br/>(stdin / stdout)"]
+            FAST_MCP["MorphoMesh FastMCP Server<br/>(Python 3.11+ / mcp 1.28.1)"]
+            ORCH["Pipeline Orchestrator &<br/>State Machine Engine"]
+            VAL["Pydantic v2 Schema<br/>Validation Engine"]
+        end
+
+        subgraph BridgeLayer["Layer 2: Blender Communication Layer"]
+            BRIDGE["BlenderBridge Client<br/>(blender_bridge.py)"]
+            AST_SEC["Two-Tier AST Security<br/>Validator (ast.NodeVisitor)"]
+            TCP_CLIENT["Localhost TCP Client<br/>(127.0.0.1:9876)"]
+            CLI_RUNNER["Headless CLI Runner<br/>(blender --background --python)"]
+        end
+
+        subgraph BlenderHost["Blender 5.2.1 LTS Execution Environment"]
+            TCP_SRV["Socket Listener Thread<br/>(server_listener.py)"]
+            TIMER_Q["bpy.app.timers Event Loop<br/>(Non-Blocking Main Thread Queue)"]
+            BMESH["Bmesh & Mesh Engine<br/>(QuadriFlow Remesher)"]
+            RIGIFY["Rigify Creature Armature<br/>& Auto-Weight Solver"]
+            SHADER["Principled BSDF 2.0<br/>PBR Shader Tree"]
+            METAL_EEVEE["EEVEE Next Viewport Render<br/>(Apple Metal Hardware RT)"]
+        end
+
+        subgraph LocalInf["Layer 3A: Local Inference & Fallback Engine"]
+            MOCK_ADAPT["MockInferenceAdapter<br/>(Procedural 3D Geometry)"]
+            REMBG_LOCAL["Rembg / BiRefNet<br/>(ONNX Runtime / CoreML)"]
+            QUAD_LOCAL["Local Blender QuadriFlow<br/>(Zero-CUDA Fallback)"]
+        end
+    end
+
+    subgraph CloudInf["Layer 3B: Remote Cloud GPU Infrastructure (Linux x86_64 / CUDA 12.x)"]
+        subgraph CloudAdapters["Remote GPU Adapters"]
+            REP_ADAPT["ReplicateInferenceAdapter<br/>(REST API Client)"]
+            HF_ADAPT["HuggingFaceInferenceAdapter<br/>(Inference Endpoints)"]
+            CUSTOM_ADAPT["CustomServerAdapter<br/>(gRPC / FastMCP Proxy)"]
+        end
+
+        subgraph CloudModels["Dedicated Compute Nodes (NVIDIA RTX 4090 / A10G / A100)"]
+            FLUX_NODE["Stage 1: 2D Concept Synthesis<br/>(FLUX.1-schnell / SD-XL)"]
+            TRELLIS_NODE["Stage 2: 3D Diffusion Engine<br/>(TRELLIS.2 4B / Hunyuan3D-2.1)"]
+            SPCONV["Submanifold Sparse 3D Conv<br/>(spconv / CUTLASS Kernels)"]
+            RETOP_NODE["Stage 3: Autoregressive Retopo<br/>(MeshAnything V2 / nvdiffrast)"]
+        end
+    end
+
+    %% Communications and Dataflows
+    AG <-->|JSON-RPC 2.0 Protocol| STDIO
+    STDIO <--> FAST_MCP
+    FAST_MCP --> VAL
+    VAL --> ORCH
+
+    ORCH -->|1. Coordinate Inference| MOCK_ADAPT
+    ORCH -->|1. Coordinate Inference| REP_ADAPT
+    ORCH -->|1. Coordinate Inference| HF_ADAPT
+    ORCH -->|1. Coordinate Inference| CUSTOM_ADAPT
+    ORCH -->|2. Coordinate Blender Scene| BRIDGE
+
+    REP_ADAPT -->|HTTPS REST| FLUX_NODE
+    REP_ADAPT -->|HTTPS REST| TRELLIS_NODE
+    HF_ADAPT -->|HTTPS REST| TRELLIS_NODE
+    CUSTOM_ADAPT -->|gRPC / HTTP2| CloudModels
+    TRELLIS_NODE --- SPCONV
+    CloudModels --- RETOP_NODE
+
+    BRIDGE --> AST_SEC
+    AST_SEC -->|Validated AST| TCP_CLIENT
+    AST_SEC -->|Fallback / Offline CI| CLI_RUNNER
+
+    TCP_CLIENT <-->|Localhost TCP Socket| TCP_SRV
+    TCP_SRV <-->|Thread-Safe Queue| TIMER_Q
+    TIMER_Q --> BMESH
+    TIMER_Q --> RIGIFY
+    TIMER_Q --> SHADER
+    TIMER_Q --> METAL_EEVEE
+
+    CLI_RUNNER <-->|Subprocess stdio / Sentinel Tokens| BlenderHost
+
+    MOCK_ADAPT -.->|Local 3D Proxies| BRIDGE
+    REMBG_LOCAL -.->|Clean Alpha Masks| ORCH
+    QUAD_LOCAL -.->|Local Topology| BMESH
+
+    classDef client fill:#e1f5fe,stroke:#0288d1,stroke-width:2px;
+    classDef bridge fill:#fff3e0,stroke:#f57c00,stroke-width:2px;
+    classDef blender fill:#e8f5e9,stroke:#388e3c,stroke-width:2px;
+    classDef cloud fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px;
+    classDef local fill:#ede7f6,stroke:#512da8,stroke-width:2px;
+
+    class ClientHost,AgentHost,MCPLayer client;
+    class BridgeLayer bridge;
+    class BlenderHost blender;
+    class CloudInf,CloudAdapters,CloudModels cloud;
+    class LocalInf local;

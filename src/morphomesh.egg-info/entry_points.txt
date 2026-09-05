@@ -1,0 +1,3 @@
+[console_scripts]
+morphomesh = morphomesh.main:main
+morphomesh-server = morphomesh.main:main
