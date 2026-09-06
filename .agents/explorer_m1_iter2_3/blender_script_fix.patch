@@ -1,0 +1,57 @@
+--- a/src/morphomesh/creature_generator.py
++++ b/src/morphomesh/creature_generator.py
+@@ -448,12 +448,12 @@
+     ]
+     verts.extend(corners)
+     box_faces = [
+-        (s_idx, s_idx+1, s_idx+2), (s_idx, s_idx+2, s_idx+3),
+-        (s_idx+4, s_idx+6, s_idx+5), (s_idx+4, s_idx+7, s_idx+6),
+-        (s_idx, s_idx+4, s_idx+5), (s_idx, s_idx+5, s_idx+1),
+-        (s_idx+2, s_idx+6, s_idx+7), (s_idx+2, s_idx+7, s_idx+3),
+-        (s_idx, s_idx+3, s_idx+7), (s_idx, s_idx+7, s_idx+4),
+-        (s_idx+1, s_idx+5, s_idx+6), (s_idx+1, s_idx+6, s_idx+2),
++        (s_idx, s_idx+2, s_idx+1), (s_idx, s_idx+3, s_idx+2),
++        (s_idx+4, s_idx+5, s_idx+6), (s_idx+4, s_idx+6, s_idx+7),
++        (s_idx, s_idx+5, s_idx+4), (s_idx, s_idx+1, s_idx+5),
++        (s_idx+2, s_idx+7, s_idx+6), (s_idx+2, s_idx+3, s_idx+7),
++        (s_idx, s_idx+7, s_idx+3), (s_idx, s_idx+4, s_idx+7),
++        (s_idx+1, s_idx+6, s_idx+5), (s_idx+1, s_idx+2, s_idx+6),
+     ]
+     faces.extend(box_faces)
+     new_indices = list(range(s_idx, len(verts)))
+@@ -465,8 +465,10 @@
+     cx, cy, cz = center
+     rx, ry, rz = radii
+     s_idx = len(verts)
++    north_idx = len(verts)
++    verts.append((cx, cy, cz + rz))
+     ring_indices = []
+-    for r in range(rings + 1):
++    for r in range(1, rings):
+         theta = math.pi * r / rings
+         sin_t, cos_t = math.sin(theta), math.cos(theta)
+         c_ring = []
+@@ -479,13 +481,22 @@
+             verts.append((px, py, pz))
+             c_ring.append(idx)
+         ring_indices.append(c_ring)
+-    for r in range(rings):
++    south_idx = len(verts)
++    verts.append((cx, cy, cz - rz))
++    for s in range(sectors):
++        next_s = (s + 1) % sectors
++        faces.append((north_idx, ring_indices[0][s], ring_indices[0][next_s]))
++    for r in range(len(ring_indices) - 1):
+         for s in range(sectors):
+             next_s = (s + 1) % sectors
+             i0, i1 = ring_indices[r][s], ring_indices[r+1][s]
+             i2, i3 = ring_indices[r+1][next_s], ring_indices[r][next_s]
+             faces.append((i0, i1, i2))
+             faces.append((i0, i2, i3))
++    last_ring = ring_indices[-1]
++    for s in range(sectors):
++        next_s = (s + 1) % sectors
++        faces.append((last_ring[s], south_idx, last_ring[next_s]))
+     new_indices = list(range(s_idx, len(verts)))
+     if group_name and group_name in vgs:
+         vgs[group_name].extend(new_indices)

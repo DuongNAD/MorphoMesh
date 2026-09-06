@@ -1,7 +1,7 @@
-# BRIEFING — 2026-09-05T11:33:15Z
+# BRIEFING — 2026-09-05T16:07:00Z
 
 ## Mission
-Forensic integrity verification of `docs/RESEARCH_BENCHMARK.md` for MorphoMesh Milestone M1.
+Forensic integrity audit for Milestone M1 (Reusable Anatomy Generator & Claw Inversion Fix) in MorphoMesh.
 
 ## 🔒 My Identity
 - Archetype: forensic_auditor
@@ -9,52 +9,61 @@ Forensic integrity verification of `docs/RESEARCH_BENCHMARK.md` for MorphoMesh M
 - Working directory: /Users/duongnad/Documents/tool/MorphoMesh/.agents/auditor_m1_1
 - Original parent: 3a4e8e2b-d5e4-45a8-86a2-528d768e62e0
 - Target: Milestone M1 (Research & Benchmark Docs)
+- Current Parent / Invoker: 504d045c-25c5-48a2-a65a-2a5b368eafa7
+- Target: Milestone M1 (Anatomy Generator & Claw Inversion Fix)
 
 ## 🔒 Key Constraints
 - Audit-only — do NOT modify implementation code or docs under audit
 - Trust NOTHING — verify everything independently
-- Integrity Mode: development (from ORIGINAL_REQUEST.md line 8)
+- Integrity Mode: development (from ORIGINAL_REQUEST.md line 8 & 127)
 - Verify authentic research vs dummy placeholders ("TODO", "TBD", lipsum, template residue)
 - Verify mathematical formulations, technical architectures, parameters, citations, and model details
 - Deliver binary verdict: CLEAN or INTEGRITY VIOLATION
+- Zero tolerance for cheating: hardcoded test results, fake coordinates, mock shortcuts, stub vertex groups
+- Verify blender_bridge.py line 472 fix is authentic
+- Verify tests genuinely exercise production code and assert real mathematical/anatomical properties
 
 ## Current Parent
-- Conversation ID: 3a4e8e2b-d5e4-45a8-86a2-528d768e62e0
-- Updated: 2026-09-05T11:33:15Z
+- Conversation ID: 504d045c-25c5-48a2-a65a-2a5b368eafa7
+- Updated: 2026-09-05T16:07:00Z
 
 ## Audit Scope
-- **Work product**: `/Users/duongnad/Documents/tool/MorphoMesh/docs/RESEARCH_BENCHMARK.md`
+- **Work product**:
+  - `src/morphomesh/creature_generator.py`
+  - `src/morphomesh/inference_adapter.py`
+  - `src/morphomesh/blender_bridge.py`
+  - `tests/test_anatomy_generator.py`
 - **Profile loaded**: General Project (Integrity Mode: development)
 - **Audit type**: forensic integrity check
 
 ## Audit Progress
 - **Phase**: reporting
 - **Checks completed**:
-  - Phase 1: Source code & text analysis of docs/RESEARCH_BENCHMARK.md (0 placeholders, 0 TODOs/TBDs, 1316 lines, 12,934 words).
-  - Phase 2: Detailed model verification (35 models evaluated across all 3 required categories, exceeding R1 requirement of >=20 models).
-  - Phase 3: Mathematical formulation verification (LBS skinning, Kajiya PBR equation, harmonic heat weights, SMAL parameterization, latency formulations).
-  - Phase 4: Use-case recommendation verification (All 3 use-cases covered with executable Python/`bpy` scripts, verified via AST parser).
-  - Phase 5: Adversarial review & stress testing of assumptions (Blender 4.x/5.x API compatibility, Rigify metarig grafting, hardware asymmetry proof).
-- **Findings so far**: CLEAN — No integrity violations found. Genuine, exhaustive, publication-grade benchmark.
+  - Check 1: No hardcoded test results or mock shortcuts (dynamic math & Frenet-Serret frame verified; adversarial test flips is_valid to False).
+  - Check 2: Vertex groups contain real vertex indices (3337 vertices, all 18 vertex groups populated, 100% in-bounds, spatial centroids verified in Blender 5.2.1 LTS).
+  - Check 3: `blender_bridge.py` line 472 fix is authentic (evaluated live on socket 127.0.0.1:9876 with 0.0930s latency).
+  - Check 4: Tests genuinely exercise production code (35 tests, 0 `assert True`, 85% coverage on creature_generator, 230/230 tests pass).
+- **Findings so far**: **CLEAN** — Zero integrity violations found.
 
 ## Key Decisions Made
-- Confirmed Integrity Mode is `development` per ORIGINAL_REQUEST.md line 8.
-- Validated AST parsing of all 4 embedded Python/`bpy` scripts (100% syntactically valid).
-- Verified citations against real academic publications (CVPR, ECCV, NeurIPS, arXiv).
+- Issued binary verdict: **CLEAN**.
+- Verified in both python runtime and headless Blender 5.2.1 LTS.
+- Documented empirical proofs and raw outputs in `handoff.md`.
 
 ## Artifact Index
-- `/Users/duongnad/Documents/tool/MorphoMesh/docs/RESEARCH_BENCHMARK.md` — Target work product
-- `/Users/duongnad/Documents/tool/MorphoMesh/ORIGINAL_REQUEST.md` — Ground truth constraints
-- `/Users/duongnad/Documents/tool/MorphoMesh/.agents/orchestrator_1/PROJECT.md` — Project architecture & plan
-- `/Users/duongnad/Documents/tool/MorphoMesh/.agents/auditor_m1_1/handoff.md` — Final audit report
+- `/Users/duongnad/Documents/tool/MorphoMesh/src/morphomesh/creature_generator.py` — Anatomy & creature generator
+- `/Users/duongnad/Documents/tool/MorphoMesh/src/morphomesh/inference_adapter.py` — Procedural mesh geometry & mock adapter
+- `/Users/duongnad/Documents/tool/MorphoMesh/src/morphomesh/blender_bridge.py` — Socket & headless bridge
+- `/Users/duongnad/Documents/tool/MorphoMesh/tests/test_anatomy_generator.py` — Test suite
+- `/Users/duongnad/Documents/tool/MorphoMesh/.agents/auditor_m1_1/handoff.md` — Final Forensic Audit Report
 
 ## Attack Surface
 - **Hypotheses tested**:
-  - Hypothesis 1: `docs/RESEARCH_BENCHMARK.md` contains placeholder tokens or incomplete sections -> Disproved. Grep search for TODO/TBD/FIXME/lipsum returned 0 matches.
-  - Hypothesis 2: Embedded Python code blocks are non-functional pseudocode -> Disproved. All 4 scripts parsed cleanly via Python `ast.parse()`.
-  - Hypothesis 3: Hardware comparison lacks empirical basis -> Disproved. Benchmarks account for specific CUDA-only kernels (`spconv`, `flash-attn`, `nvdiffrast`) lacking MPS support.
+  - Hypothesis 1: Claw orientation validity is hardcoded -> Disproved. Adversarial curve parameter `-0.5` causes `is_anatomically_valid: False` and `claws_valid: 0`.
+  - Hypothesis 2: Vertex groups contain dummy index ranges -> Disproved. Centroids and bounding boxes map to precise anatomical 3D locations (snout, eyes, claws, spine, tail).
+  - Hypothesis 3: Bridge line 472 fix is superficial -> Disproved. Interactive socket RPC succeeds in 0.09s returning `vertex_groups_count: 18`.
 - **Vulnerabilities found**: None.
-- **Untested angles**: Runtime execution of `bpy` scripts inside an active Blender process (belongs to Milestone M4/M5 verification).
+- **Untested angles**: Volumetric hair grooming curves and 4-channel PBR shaders (deferred to Milestones M2 and M3).
 
 ## Loaded Skills
-- None requested or required for this audit.
+- None requested.

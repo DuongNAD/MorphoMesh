@@ -1,0 +1,78 @@
+--- a/src/morphomesh/inference_adapter.py
++++ b/src/morphomesh/inference_adapter.py
+@@ -138,17 +138,17 @@
+         sx, sy, sz = size[0] / 2.0, size[1] / 2.0, size[2] / 2.0
+ 
+         faces_def = [
+-            # Front (+Y)
+-            ([(cx - sx, cy + sy, cz - sz), (cx + sx, cy + sy, cz - sz), (cx + sx, cy + sy, cz + sz), (cx - sx, cy + sy, cz + sz)], (0.0, 1.0, 0.0)),
+-            # Back (-Y)
+-            ([(cx + sx, cy - sy, cz - sz), (cx - sx, cy - sy, cz - sz), (cx - sx, cy - sy, cz + sz), (cx + sx, cy - sy, cz + sz)], (0.0, -1.0, 0.0)),
+-            # Left (-X)
+-            ([(cx - sx, cy - sy, cz - sz), (cx - sx, cy + sy, cz - sz), (cx - sx, cy + sy, cz + sz), (cx - sx, cy - sy, cz + sz)], (-1.0, 0.0, 0.0)),
+-            # Right (+X)
+-            ([(cx + sx, cy + sy, cz - sz), (cx + sx, cy - sy, cz - sz), (cx + sx, cy - sy, cz + sz), (cx + sx, cy + sy, cz + sz)], (1.0, 0.0, 0.0)),
+-            # Top (+Z)
++            # Front (+Y): CCW viewed from +Y looking along -Y
++            ([(cx + sx, cy + sy, cz - sz), (cx - sx, cy + sy, cz - sz), (cx - sx, cy + sy, cz + sz), (cx + sx, cy + sy, cz + sz)], (0.0, 1.0, 0.0)),
++            # Back (-Y): CCW viewed from -Y looking along +Y
++            ([(cx - sx, cy - sy, cz - sz), (cx + sx, cy - sy, cz - sz), (cx + sx, cy - sy, cz + sz), (cx - sx, cy - sy, cz + sz)], (0.0, -1.0, 0.0)),
++            # Left (-X): CCW viewed from -X looking along +X
++            ([(cx - sx, cy + sy, cz - sz), (cx - sx, cy - sy, cz - sz), (cx - sx, cy - sy, cz + sz), (cx - sx, cy + sy, cz + sz)], (-1.0, 0.0, 0.0)),
++            # Right (+X): CCW viewed from +X looking along -X
++            ([(cx + sx, cy - sy, cz - sz), (cx + sx, cy + sy, cz - sz), (cx + sx, cy + sy, cz + sz), (cx + sx, cy - sy, cz + sz)], (1.0, 0.0, 0.0)),
++            # Top (+Z): CCW viewed from +Z looking along -Z
+             ([(cx - sx, cy - sy, cz + sz), (cx + sx, cy - sy, cz + sz), (cx + sx, cy + sy, cz + sz), (cx - sx, cy + sy, cz + sz)], (0.0, 0.0, 1.0)),
+-            # Bottom (-Z)
++            # Bottom (-Z): CCW viewed from -Z looking along +Z
+             ([(cx - sx, cy + sy, cz - sz), (cx + sx, cy + sy, cz - sz), (cx + sx, cy - sy, cz - sz), (cx - sx, cy - sy, cz - sz)], (0.0, 0.0, -1.0)),
+         ]
+ 
+@@ -203,12 +203,20 @@
+         # Connect side quads
+         for s in range(segments):
+             next_s = (s + 1) % segments
+-            self.add_quad(
+-                bottom_indices[s],
+-                bottom_indices[next_s],
+-                top_indices[next_s],
+-                top_indices[s],
+-            )
++            if axis == "Y":
++                self.add_quad(
++                    bottom_indices[next_s],
++                    bottom_indices[s],
++                    top_indices[s],
++                    top_indices[next_s],
++                )
++            else:
++                self.add_quad(
++                    bottom_indices[s],
++                    bottom_indices[next_s],
++                    top_indices[next_s],
++                    top_indices[s],
++                )
+ 
+     def add_sphere(
+         self,
+--- a/src/morphomesh/creature_generator.py
++++ b/src/morphomesh/creature_generator.py
+@@ -448,12 +448,12 @@
+     ]
+     verts.extend(corners)
+     box_faces = [
+-        (s_idx, s_idx+1, s_idx+2), (s_idx, s_idx+2, s_idx+3),
+-        (s_idx+4, s_idx+6, s_idx+5), (s_idx+4, s_idx+7, s_idx+6),
+-        (s_idx, s_idx+4, s_idx+5), (s_idx, s_idx+5, s_idx+1),
+-        (s_idx+2, s_idx+6, s_idx+7), (s_idx+2, s_idx+7, s_idx+3),
+-        (s_idx, s_idx+3, s_idx+7), (s_idx, s_idx+7, s_idx+4),
+-        (s_idx+1, s_idx+5, s_idx+6), (s_idx+1, s_idx+6, s_idx+2),
++        (s_idx, s_idx+2, s_idx+1), (s_idx, s_idx+3, s_idx+2),
++        (s_idx+4, s_idx+5, s_idx+6), (s_idx+4, s_idx+6, s_idx+7),
++        (s_idx, s_idx+5, s_idx+4), (s_idx, s_idx+1, s_idx+5),
++        (s_idx+2, s_idx+7, s_idx+6), (s_idx+2, s_idx+3, s_idx+7),
++        (s_idx, s_idx+7, s_idx+3), (s_idx, s_idx+4, s_idx+7),
++        (s_idx+1, s_idx+6, s_idx+5), (s_idx+1, s_idx+2, s_idx+6),
+     ]
+     faces.extend(box_faces)
+     new_indices = list(range(s_idx, len(verts)))

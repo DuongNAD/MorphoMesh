@@ -1,43 +1,42 @@
-# BRIEFING — 2026-09-05T11:29:00Z
+# BRIEFING — 2026-09-05T15:54:00Z
 
 ## Mission
-Survey and evaluate 3D animal and creature generation models, general 3D generators, and retopology/auto-rigging frameworks for MorphoMesh R1.
+Investigate MorphoMesh codebase, Python environment, Blender CLI/bridge infrastructure, and bpy capabilities for the Armored War Bear synthesis task.
 
 ## 🔒 My Identity
 - Archetype: explorer
-- Roles: Survey Explorer, Literature and Model Benchmark Specialist
+- Roles: Survey Explorer, Literature and Model Benchmark Specialist, Codebase and Blender Infrastructure Specialist
 - Working directory: /Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_survey_1
 - Original parent: 3a4e8e2b-d5e4-45a8-86a2-528d768e62e0
-- Milestone: R1 (Comprehensive Research & Benchmark Docs)
+- Milestone: R1 (Comprehensive Research & Benchmark Docs); Armored War Bear Synthesis (Survey & Infrastructure)
 
 ## 🔒 Key Constraints
 - Read-only investigation — do NOT implement or modify source code files outside agent directory.
 - All reports, findings, and handoffs must be written to /Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_survey_1/
 - Produce survey_models_report.md, progress.md, and handoff.md.
 - Send completion message to parent orchestrator via send_message.
+- Produce survey_report.md and handoff.md for Armored War Bear task.
 
 ## Current Parent
-- Conversation ID: 3a4e8e2b-d5e4-45a8-86a2-528d768e62e0
-- Updated: not yet
+- Conversation ID: 504d045c-25c5-48a2-a65a-2a5b368eafa7
+- Updated: 2026-09-05T15:47:00Z
 
 ## Investigation State
-- **Explored paths**: ORIGINAL_REQUEST.md, web literature, research papers, GitHub repositories.
+- **Explored paths**: `src/morphomesh/`, `blender_addon/`, `tests/`, `examples/`, Blender 5.2.1 LTS binary, interactive TCP socket, MCP server schemas.
 - **Key findings**:
-  1. Surveyed and benchmarked 29 distinct models/frameworks (33 variants) across 3 primary categories.
-  2. Built exhaustive master comparison matrix across 6 criteria (License, VRAM, Geometry fidelity, PBR texture, Rigging status, Deployment feasibility).
-  3. Identified TRELLIS.2 (4B, O-Voxel) and Hunyuan3D-2.1 (PBR) as leading general creature generators.
-  4. Identified MeshAnything V2 as the premier controllable artist-topology retopology model.
-  5. Identified SMAL/SMALify/3D Fauna/BARC as leading realistic animal articulators, and Blender Rigify procedural creatures (`bpy`) as the premier execution armature generator.
-  6. Formulated 3 end-to-end pipelines for: (A) Diverse Fantasy Creatures, (B) Realistic Animals with Animation/Rig, and (C) Game-ready Low-poly Assets.
-  7. Demonstrated why a Hybrid Architecture (Remote Linux GPU for inference, Local Apple Silicon for Blender + MCP) is mathematically and practically necessary.
-- **Unexplored areas**: None within R1 scope. Ready to inform R1 final doc `docs/RESEARCH_BENCHMARK.md` and R2/R3 architecture.
+  1. Blender 5.2.1 LTS verified at `/Applications/Blender.app/Contents/MacOS/Blender` (bundles Python 3.13.13). Headless EEVEE and Cycles execution verified (< 0.8s).
+  2. Active interactive Blender session (PID 8791) listening on `127.0.0.1:9876` with `Armored_Bear_Studio` loaded (50 objects).
+  3. Identified silent fallback bug in `blender_bridge.py` line 472 (`res.get("status") == "success"` vs line 634 `"success": True`).
+  4. Verified Blender 5.2.1 Hair Curves (`bpy.data.hair_curves`, `curves_empty_hair_add`), Principled BSDF v2 sockets (`"Specular IOR Level"`, `"Subsurface Weight"`, `"Coat Weight"`), and glTF export constraint (requires curve-to-mesh evaluation for `.glb`).
+  5. Formulated engine-level upgrade plan across 4 pillars in `survey_report.md`.
+- **Unexplored areas**: None within Explorer 1 scope. Codebase and infrastructure survey complete.
 
 ## Key Decisions Made
-- Authored full survey benchmark report at `/Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_survey_1/survey_models_report.md`.
-- Recommended TRELLIS.2 and Hunyuan3D-2.1 for primary remote cloud endpoints, with TripoSR as local Apple Silicon fallback.
-- Recommended Blender Rigify (`quadruped`, `wolf`, `cat`, `horse`, `bird`, `shark`) + custom modular chains for auto-rigging.
+- Authored full survey report at `/Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_survey_1/survey_report.md`.
+- Recommended bug fix for `blender_bridge.py` line 472.
+- Outlined Geometry Nodes Curve-to-Mesh ribbon evaluation for glTF export.
 
 ## Artifact Index
-- /Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_survey_1/survey_models_report.md — Comprehensive Survey and Benchmark Report (MM-R1-SURVEY-001)
-- /Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_survey_1/progress.md — Progress and heartbeat
+- /Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_survey_1/survey_report.md — Comprehensive Survey Report (MM-SURVEY-INFRA-001)
+- /Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_survey_1/progress.md — Progress tracker
 - /Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_survey_1/handoff.md — 5-component handoff report

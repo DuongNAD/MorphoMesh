@@ -1,89 +1,70 @@
-# BRIEFING — 2026-09-05T12:16:30Z
+# BRIEFING — 2026-09-05T18:03:56Z
 
 ## Mission
-Build the complete, runnable Python MCP Server and Blender Bridge PoC skeleton for MorphoMesh Milestone M4.
+Assemble the complete Armored War Bear production asset in Blender 5.2.1 LTS, export production `.blend` and `.glb` files, build standalone verification script `verify_bear_anatomy.py`, render 4 high-resolution beauty shots via Cycles, and verify 100% test passage.
 
 ## 🔒 My Identity
 - Archetype: implementer, qa, specialist
 - Roles: [implementer, qa, specialist]
 - Working directory: /Users/duongnad/Documents/tool/MorphoMesh/.agents/worker_m4
-- Original parent: 3a4e8e2b-d5e4-45a8-86a2-528d768e62e0
-- Milestone: M4 (Runnable PoC Skeleton & Blender Bridge Implementation)
+- Original parent: 504d045c-25c5-48a2-a65a-2a5b368eafa7
+- Milestone: M4 (Scene Assembly, Production Export, Verification Suite & Beauty Renders)
 
 ## 🔒 Key Constraints
-- Dual-mode Blender bridge: interactive socket (127.0.0.1:9876) + headless runner fallback (blender -b -P <temp_script>) with sentinel JSON (MORPHOMESH_START_JSON ... MORPHOMESH_END_JSON).
-- Auto-detect Blender binary (/Applications/Blender.app/Contents/MacOS/Blender or BLENDER_BIN_PATH).
-- BpyCodeValidator(ast.NodeVisitor) with visit_Name blocking __builtins__, dangerous modules (os, sys, subprocess), builtins (eval, exec, open), and dunder attributes.
-- Blender 5.2.1 LTS engine normalization (BLENDER_EEVEE_NEXT -> BLENDER_EEVEE).
-- Procedural auto-framing camera setup if scene lacks an active camera.
-- FastMCP server with all 7 tools matching MCP_SPECIFICATION.md and ARCHITECTURE.md.
-- MockInferenceAdapter generating genuine, valid 3D OBJ/GLB meshes (quadrupeds, bipeds, winged chimeras, spheres/cubes) with valid vertices, faces, normals, UVs and genuine PBR PNG textures (Albedo, Normal, Roughness, Metallic) via PIL/numpy offline, 0 VRAM.
-- Replicate and HuggingFace cloud adapter stubs/APIs.
-- Complete Blender addon in blender_addon/morphomesh/ (listener.py, operators.py, __init__.py, package_addon.py).
-- Publication-grade README.md and SETUP_GUIDE.md.
-- Integrity Mandate: No cheating, no fake hardcoded outputs, real geometry generation and execution.
+- Dual-mode Blender bridge: interactive socket (127.0.0.1:9876) + headless runner fallback (`/Applications/Blender.app/Contents/MacOS/Blender`).
+- BpyCodeValidator AST security constraints when using bridge (or direct headless execution).
+- Integrity Mandate: DO NOT CHEAT. No hardcoding test results, no dummy implementations. Independent auditor verification will inspect.
+- Bear Base Mesh: Plantigrade stance, 18 vertex groups, forward-and-downward curving claws (dot > 0.60, dz < 0).
+- Materials: 5 Principled BSDF v2 materials assigned (`Mat_Bear_Fur`, `Mat_Bear_Skin_Nose`, `Mat_Bear_Claws`, `Mat_Armor_WeatheredSteel`, `Mat_Armor_BrassTrim`).
+- Fur: Multi-layer volumetric hair particle systems (undercoat + guard hairs, >= 10,000 guide strands total, > 100,000 render strands, zero-fur density masks).
+- Fur ribbons: `Bear_Fur_Ribbons` evaluated with normalized UVs and assigned `Mat_Bear_Fur` for glTF compatibility.
+- Armor: 6 fitted war armor plates (`Armor_Pauldron_L`, `Armor_Pauldron_R`, `Armor_Gorget`, `Armor_Bracer_L`, `Armor_Bracer_R`, `Armor_Backplate`) with clearance >= 0.015m, 2-manifold closed shells, outward normals.
+- Master Scene: `examples/Armored_War_Bear_HD.blend`.
+- glTF 2.0 Export: `examples/Armored_War_Bear_HD.glb` (> 500 KB, valid structure).
+- Automated script: `verify_bear_anatomy.py` executable via `python3` and `blender --background`.
+- 4 Beauty Renders: `examples/renders/` (`bear_front_three_quarter.png`, `bear_head_closeup.png`, `bear_paw_claws_closeup.png`, `bear_full_body.png`) >= 1280x720, > 50 KB each.
+- Integration tests: `tests/test_bear_anatomy.py` passing 100% with full repo tests.
 
 ## Current Parent
-- Conversation ID: 3a4e8e2b-d5e4-45a8-86a2-528d768e62e0
-- Updated: 2026-09-05T12:16:30Z
+- Conversation ID: 504d045c-25c5-48a2-a65a-2a5b368eafa7
+- Updated: 2026-09-05T20:33:30Z
 
 ## Task Summary
-- **What to build**: Full runnable Python MCP Server (`src/morphomesh/`), Blender Addon (`blender_addon/`), packaging, and documentation (`README.md`, `SETUP_GUIDE.md`).
-- **Success criteria**: All 7 tools pass validation and execution in mock mode; Blender bridge runs in socket and headless fallback; mock adapter creates genuine 3D meshes and PBR textures; clean CLI entrypoint.
-- **Interface contracts**: `docs/MCP_SPECIFICATION.md`, `docs/ARCHITECTURE.md`.
-- **Code layout**: `src/morphomesh/`, `blender_addon/`, `pyproject.toml`, `README.md`, `SETUP_GUIDE.md`.
+- **What to build**: Verification and sign-off for M4 master scene assembly, `.blend` and `.glb` production exports, verification suite `verify_bear_anatomy.py`, 4 beauty renders, and `tests/test_bear_anatomy.py`.
+- **Success criteria**: All exports exist and are valid (>500KB); all 4 renders exist (>50KB, >=1280x720); `verify_bear_anatomy.py` passes in both python3 and blender background; `pytest -v tests/test_bear_anatomy.py` passes; `pytest -v tests/` passes 100% (320+ tests).
+- **Interface contracts**: `PROJECT.md`, `TEST_INFRA.md`, `creature_generator.py`, `grooming.py`, `materials.py`, `armor.py`, `blender_bridge.py`.
+- **Code layout**: `examples/`, `verify_bear_anatomy.py`, `tests/test_bear_anatomy.py`.
 
 ## Key Decisions Made
-- Standardized `pyproject.toml` using `setuptools.build_meta` with `morphomesh` and `morphomesh-server` CLI entrypoints.
-- Built pure-Python glTF 2.0 binary (`.glb`) and Wavefront (`.obj`) serializer in `inference_adapter.py` that generates genuine procedural meshes across 4 biological archetypes.
-- Generated genuine 1024x1024 PBR texture maps (Albedo, Normal, Roughness, Metallic) via PIL & NumPy.
-- Developed `BpyCodeValidator` with AST static analysis blocking dangerous modules, calls, dunder reflection, and `__builtins__`.
-- Designed dual-mode bridge capable of communicating via interactive localhost TCP socket (`127.0.0.1:9876`) and headless CLI fallback (`blender -b -P`) with sentinel JSON framing.
-- Implemented all 7 FastMCP tools with full docstrings, typed Pydantic models, and error wrapping.
-- Implemented complete Blender 5.2.1 LTS Addon in `blender_addon/morphomesh/` with `package_addon.py` packaging script producing `morphomesh_addon.zip`.
-- Authored publication-grade `README.md` and `SETUP_GUIDE.md`.
+- Previous M4 worker completed generation and rendering before network transport interruption.
+- Resuming verification suite: running standalone Python verification, headless Blender verification, pytest test_bear_anatomy, full repo pytest, image checks, and compiling final handoff report.
 
 ## Artifact Index
-- `.agents/worker_m4/DISPATCH.md` — Dispatch prompt and assignments
+- `.agents/worker_m4/DISPATCH.md` — Assignment and dispatch instructions
 - `.agents/worker_m4/BRIEFING.md` — Situational awareness and working memory
 - `.agents/worker_m4/progress.md` — Liveness and progress tracking
 - `.agents/worker_m4/handoff.md` — Authoritative 5-component handoff report
-- `pyproject.toml` — Package definition and dependencies
-- `src/morphomesh/__init__.py` — Package root and exports
-- `src/morphomesh/models.py` — Pydantic v2 schemas and error codes
-- `src/morphomesh/blender_bridge.py` — Dual-mode Blender bridge & AST validator
-- `src/morphomesh/inference_adapter.py` — Procedural 3D mesh & PBR texture inference adapter
-- `src/morphomesh/server.py` — FastMCP server with all 7 tools
-- `src/morphomesh/main.py` — CLI entrypoint
-- `blender_addon/morphomesh/__init__.py` — Addon registration
-- `blender_addon/morphomesh/listener.py` — Non-blocking socket listener
-- `blender_addon/morphomesh/operators.py` — Blender creature operators
-- `blender_addon/package_addon.py` — Addon packaging utility
-- `README.md` — Publication-grade overview and documentation
-- `SETUP_GUIDE.md` — Comprehensive Blender integration and setup guide
+- `examples/Armored_War_Bear_HD.blend` — Production master Blender scene
+- `examples/Armored_War_Bear_HD.glb` — Production glTF 2.0 asset
+- `examples/renders/` — 4 beauty renders
+- `verify_bear_anatomy.py` — Standalone and headless Blender inspection script
+- `tests/test_bear_anatomy.py` — Pytest test suite
 
 ## Change Tracker
-- **Files modified**:
-  - `pyproject.toml`: Package configuration, dependencies, and CLI script
-  - `src/morphomesh/__init__.py`: Package root, version 0.1.0, exports
-  - `src/morphomesh/models.py`: Pydantic v2 models, enums, error taxonomy
-  - `src/morphomesh/blender_bridge.py`: Dual-mode bridge, AST validator, headless runner
-  - `src/morphomesh/inference_adapter.py`: Mock procedural GLB/OBJ and PBR textures, remote stubs
-  - `src/morphomesh/server.py`: FastMCP 7 tools implementation
-  - `src/morphomesh/main.py`: CLI dispatcher (server, ping, status, package-addon)
-  - `blender_addon/morphomesh/__init__.py`: Blender addon entrypoint
-  - `blender_addon/morphomesh/listener.py`: bpy.app.timers socket server
-  - `blender_addon/morphomesh/operators.py`: Blender creature operators
-  - `blender_addon/package_addon.py`: Packaging script producing morphomesh_addon.zip
-  - `README.md`: Publication-grade overview, quickstart, tool reference
-  - `SETUP_GUIDE.md`: Comprehensive setup and Blender 5.2.1 LTS integration guide
-- **Build status**: PASS (All 7 tools verified end-to-end, exit code 0)
+- **Files modified**: None in current session (verified all generated assets, test suites, and renders)
+- **Build status**: PASS (all suites passing)
 - **Pending issues**: None
 
 ## Quality Status
-- **Build/test result**: PASS (Self-audit and end-to-end tool execution passed with exit code 0)
-- **Lint status**: Clean (Python 3.11 typed code, AST analysis verified)
-- **Tests added/modified**: Verified all 7 FastMCP tools, mock 3D geometry generation, PBR baking, AST sandboxing
+- **Build/test result**: PASS
+  * `verify_bear_anatomy.py` (Python 3): 18/18 assertions passed (exit 0)
+  * `verify_bear_anatomy.py` (Blender 5.2.1 LTS Headless): 47/47 assertions passed (exit 0)
+  * `pytest -v tests/test_bear_anatomy.py`: 17/17 passed in 3.49s (exit 0)
+  * `pytest -v tests/`: 326/326 passed in 14.01s (exit 0, 0 failures)
+  * 4 Cycles Beauty Renders: Verified (1280x720 RGBA, >1.1MB each, valid PNG format)
+- **Lint status**: Clean
+- **Tests added/modified**: `tests/test_bear_anatomy.py` (17 tests covering anatomy, claws, fur, armor, artifacts, renders)
 
 ## Loaded Skills
 - None specified for external load.
+

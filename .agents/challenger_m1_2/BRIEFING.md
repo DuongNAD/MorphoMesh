@@ -1,7 +1,10 @@
-# BRIEFING — 2026-09-05T11:36:00Z
+# BRIEFING — 2026-09-05T16:10:00Z
 
 ## Mission
-Empirically and adversarially challenge the MorphoMesh Milestone M1 pipeline recommendations in docs/RESEARCH_BENCHMARK.md against the authoritative request and project plan.
+Perform adversarial topology and facial landmark stress-testing for Milestone M1 (Reusable Anatomy Generator & Claw Inversion Fix):
+1. Assert all 18 standardized vertex groups contain genuine, non-zero vertex counts on synthesized meshes.
+2. Adversarially verify facial geometry: indented nostrils, recessed mouth cavity, distinct canines/incisors, eyelids enclosing eye spheres, and absence of NaN/degenerate faces.
+3. Deliver empirical verdict (APPROVE or REJECT) in handoff.md and report to parent.
 
 ## 🔒 My Identity
 - Archetype: challenger
@@ -10,58 +13,65 @@ Empirically and adversarially challenge the MorphoMesh Milestone M1 pipeline rec
 - Original parent: 3a4e8e2b-d5e4-45a8-86a2-528d768e62e0
 - Milestone: M1 (Research & Benchmark Docs)
 - Instance: 2 of 2
+- Milestone (New): M1 (Reusable Anatomy Generator & Claw Inversion Fix - Bear Engine Upgrade)
+- Parent: 504d045c-25c5-48a2-a65a-2a5b368eafa7
 
 ## 🔒 Key Constraints
 - Review-only — do NOT modify implementation code or docs/RESEARCH_BENCHMARK.md directly.
 - Must deliver empirical verdict: APPROVE or REQUEST_CHANGES.
 - Write handoff.md with 5-Component protocol.
 - Communicate via send_message to parent (id: 3a4e8e2b-d5e4-45a8-86a2-528d768e62e0).
+- Challenger M1-2 constraints: Write and execute tests/scripts, do not trust claims without empirical verification. Never modify implementation code. Test in Blender and Python. Report APPROVE or REJECT.
 
 ## Current Parent
-- Conversation ID: 3a4e8e2b-d5e4-45a8-86a2-528d768e62e0
-- Updated: 2026-09-05T11:32:00Z
+- Conversation ID: 504d045c-25c5-48a2-a65a-2a5b368eafa7
+- Updated: 2026-09-05T16:04:10Z
 
 ## Review Scope
 - **Files to review**:
-  - `/Users/duongnad/Documents/tool/MorphoMesh/docs/RESEARCH_BENCHMARK.md`
-  - `/Users/duongnad/Documents/tool/MorphoMesh/ORIGINAL_REQUEST.md`
-  - `/Users/duongnad/Documents/tool/MorphoMesh/.agents/orchestrator_1/PROJECT.md`
+  - `src/morphomesh/creature_generator.py`
+  - `src/morphomesh/inference_adapter.py`
+  - `src/morphomesh/blender_bridge.py`
+  - `tests/test_anatomy_generator.py`
+  - `.agents/worker_m1/handoff.md`
+- **Interface contracts**:
+  - 18 standardized vertex groups (`STANDARDIZED_VERTEX_GROUPS`)
+  - Facial landmarks: indented nostrils, recessed mouth cavity, teeth (canines/incisors), eyelids enclosing eyes, cupped ears
+  - Mesh validity: zero NaN, zero degenerate faces, correct winding / no inverted normals
 - **Review criteria**:
-  - Use-Case A: Handling non-quadruped fantasy creatures (multi-headed, winged, serpentine), robustness of rigging strategies.
-  - Use-Case B: Articulation failures, joint orientation, skinning artifacts.
-  - Use-Case C: UV unwrapping, normal map baking, LOD reduction without destroying silhouette.
-  - Rigorous empirical stress-testing and testing validation.
+  - Empirical verification via scripts executed directly in Python & Blender.
 
 ## Key Decisions Made
-- Executed empirical test suite in Blender 5.2.1 LTS on macOS.
-- Verified multiple runtime crashes, API syntax errors, and skinning/baking artifacts.
-- Final empirical verdict: REQUEST_CHANGES.
+- Executed empirical test suite in Python 3.11 and Blender 5.2.1 LTS.
+- Verified 18 standardized vertex groups are non-empty and within valid index ranges.
+- Verified nostrils have inward normal direction and recessed apex.
+- Verified mouth cavity is recessed inside cranium/snout/jaw envelope.
+- Verified 12 distinct convex teeth (4 canines, 8 incisors).
+- Uncovered 508 degenerate zero-area faces in `generate_bear_base_mesh()` due to polar quad triangulation in `add_ellipsoid`.
+- Uncovered 104 inverted face normals in `generate_bear_base_mesh()` due to clockwise side winding in `add_box`.
+- Uncovered 12/12 inverted box faces in `get_blender_generation_script()`.
+- Uncovered 24/24 inverted faces in `add_cylinder(axis="Y")`.
+- Final empirical verdict: REJECT until degenerate faces and normal inversions are fixed.
 
 ## Artifact Index
-- `.agents/challenger_m1_2/DISPATCH.md` — Initial dispatch
-- `.agents/challenger_m1_2/progress.md` — Progress tracker
+- `.agents/challenger_m1_2/DISPATCH.md` — Assignment
+- `.agents/challenger_m1_2/BRIEFING.md` — Persistent context
+- `.agents/challenger_m1_2/progress.md` — Liveness heartbeat
 - `.agents/challenger_m1_2/handoff.md` — Final verdict report
-- `tests/m1_stress_harness/test_use_case_a.py` — Blender test harness for Use-Case A
-- `tests/m1_stress_harness/test_weight_stealing.py` — Skinning weight stealing harness
-- `tests/m1_stress_harness/test_smal_rigify_mapping.py` — SMAL vs Rigify bone mapping harness
-- `tests/m1_stress_harness/test_skinning_crosstalk.py` — Quadruped limb cross-talk harness
-- `tests/m1_stress_harness/test_use_case_c.py` — Blender test harness for Use-Case C baking crash
-- `tests/m1_stress_harness/test_uv_baking.py` — Normal map baking test harness
-- `tests/m1_stress_harness/test_digit_fusion.py` — Voxel remesh claw/digit fusion harness
+- `tests/test_m1_topology_and_facial_stress.py` — Adversarial stress test harness (11 tests, 3 failures)
 
 ## Attack Surface
 - **Hypotheses tested**:
-  1. `assemble_fantasy_chimera_rig` runs cleanly in Blender 5.2.1 LTS: REJECTED (crashes with poll context failure and NoneType rig reference).
-  2. Joining bird metarig into wolf creates clean chimera rig: REJECTED (54.8% vertex weights stolen by orphaned phantom bones).
-  3. Non-quadrupeds (multi-headed, serpentine, wyverns) handled: REJECTED (unhandled morphology gaps).
-  4. SMAL maps 1:1 to Rigify wolf metarig: REJECTED (35 SMAL joints vs 197 Rigify deformation bones).
-  5. `align_metarig_to_landmarks` handles joint orientation: REJECTED (ignores bone roll and pre-bend angles, causing IK flipping).
-  6. Automatic skinning on quadrupeds avoids artifacts: REJECTED (31.9% cross-talk on adjacent limbs).
-  7. `bake_high_to_low_poly` runs cleanly: REJECTED (crashes on NoneType active_material).
-  8. MeshAnything V2 retains high-poly UVs: REJECTED (topologically independent mesh requires dedicated UV unwrapping).
-  9. Voxel remesh preserves silhouette: REJECTED (causes 100% fusion/webbing between separated claw digits).
-- **Vulnerabilities found**: 9 verified empirical defects.
-- **Untested angles**: Multi-GPU cluster training latencies (out of scope for local macOS Apple Silicon PoC).
+  1. All 18 standardized vertex groups contain genuine, non-zero vertex counts: CONFIRMED (PASSED).
+  2. Nostrils have inward normal direction and recessed apex: CONFIRMED (PASSED).
+  3. Mouth cavity is recessed between snout and jaw: CONFIRMED (PASSED).
+  4. Canines and incisors are distinct convex meshes: CONFIRMED (12 distinct components, PASSED).
+  5. Eyelids enclose eye spheres: PARTIALLY CONFIRMED (brackets in Z, but narrower in X/Y).
+  6. Zero NaN coordinates in mesh: CONFIRMED (PASSED).
+  7. Zero degenerate zero-area faces: REJECTED (508 zero-area faces in base mesh, 396 in script).
+  8. No inverted face normals: REJECTED (104 inverted faces in base mesh, 12/12 in script boxes, 24 in Y-axis cylinders).
+- **Vulnerabilities found**: 3 critical mesh validity defects (degenerate faces, normal inversions, script box inversions).
+- **Untested angles**: Full rigging skin weights on deform bones (handled in downstream M2/M4).
 
 ## Loaded Skills
-None required.
+None.

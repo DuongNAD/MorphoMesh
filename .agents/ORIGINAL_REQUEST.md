@@ -119,3 +119,65 @@ Integrity mode: development
 - [ ] Kịch bản chạy mẫu `examples/open_source_pipeline_demo.py` thực thi thành công.
 - [ ] Toàn bộ bộ test mới `tests/test_connectors.py` và bộ test hiện có chạy thành công 100% với `pytest` (exit code 0, 0 failures).
 
+## 2026-09-05T15:44:52Z
+
+Re-engineer and synthesize a photorealistic, anatomically authentic Armored War Bear in MorphoMesh and Blender, featuring organically sculpted facial features, forward-curving claws, a full volumetric fur grooming system, and battle-hardened PBR war armor.
+
+Working directory: /Users/duongnad/Documents/tool/MorphoMesh
+Integrity mode: development
+
+## Requirements
+
+### R1. Anatomical Accuracy & Organic Facial Detailing
+The bear geometry must accurately embody plantigrade ursine anatomy. All claws on front and hind paws must curve naturally forward and downward toward the ground (correcting inverted claw orientations). The head must feature fully articulated facial structures: a sculpted snout with distinct nostrils, an anatomically defined mouth with jaw and teeth, dimensional eyes with eyelids, and natural cupped ears.
+
+### R2. Volumetric Fur & Hair Grooming System
+The creature must possess a multi-layer volumetric fur system (dense undercoat and coarse guard hairs) rather than flat polygon faces or low-poly approximations. The hair flow must follow authentic biological growth patterns radiating from the dorsal spine down across the torso, shoulders, and limbs, with realistic strand thickness, clumping, and tapering.
+
+### R3. High-Fidelity PBR Material Suite & War Armor Integration
+The asset must feature genuine PBR shading: organic coat scattering/roughness, high specular gloss and moisture on the nose and corneas, sharp keratin on claws, and weathered metallic armor (steel plates and brass/gold accents) cleanly fitted to the bear's shoulders and forelegs without severe clipping.
+
+### R4. Multi-Angle Verification & Production Export
+The complete creature must be assembled into a dedicated Blender scene, exported into high-quality 3D formats (.glb and .blend), and accompanied by an automated programmatic test script verifying claw orientation vectors, facial mesh landmark presence, and fur strand metrics.
+
+## Acceptance Criteria
+
+### Anatomical & Geometric Precision
+- [ ] Claw orientation check: Claws on all four paws point forward in the direction of travel (dot product of claw tip vector with character forward axis > 0.6) and curve downward.
+- [ ] Facial features check: Snout, nostrils, opened/modeled mouth cavity with teeth, eyes with eyelids, and ears are distinct geometric elements.
+- [ ] Tail and plantigrade paw pads are anatomically proportioned and positioned.
+
+### Fur Grooming & Hair Simulation
+- [ ] Volumetric hair/fur curves system is active with visible depth and clumping (strand count >= 10,000 guide/render strands).
+- [ ] Fur grooming flows smoothly along biological lines without chaotic intersecting spikes or bald artifact patches.
+
+### Shading & Armor
+- [ ] 4-channel PBR material workflow applied (Albedo, Normal/Displacement, Roughness, Metallic) with distinct physical properties for fur, skin, claws, and armor.
+- [ ] War armor plates fit the dorsal shoulders and wrists without degenerate self-intersection.
+
+### Programmatic & Visual Verification
+- [ ] An automated inspection script (verify_bear_anatomy.py) executes and asserts: claw forward orientation, feature vertex groups/objects presence, and fur curve density.
+- [ ] High-resolution multi-angle beauty renders (Front 3/4 perspective, Head close-up, Paw/claw close-up, and Full body) are saved to disk.
+- [ ] Asset successfully saved as examples/Armored_War_Bear_HD.glb and active in the Blender session.
+
+## 2026-09-05T15:47:35Z
+
+CRITICAL SCOPE CLARIFICATION DIRECTLY FROM USER:
+The user has clarified the scope: The objective is NOT merely to create one static/hardcoded Armored War Bear model. The primary goal is to upgrade the MorphoMesh ENGINE ITSELF (`src/morphomesh/` - procedural mesh generators in `inference_adapter.py`, connectors such as `anycreature_connector.py` & `trellis_connector.py`, `blender_bridge.py`, and fur/grooming pipelines) so that MorphoMesh can generate high-fidelity, photorealistic creatures in general!
+
+Key engine requirements:
+1. Reusable Anatomy Generator: Upgrade procedural mesh generation across biological archetypes (quadrupeds including Ursine/Canine/Feline, bipeds, chimeras) with:
+   - Proper paw & claw anatomy: Claws MUST curve forward & downward (correcting the inverted claw bug globally).
+   - Organic facial features: Detailed snout, distinct nostrils, articulated mouth/jaw cavity with teeth, spherical eyes with eyelids, cupped ears.
+   - Proportional tail, limb musculature, and plantigrade/digitigrade pads.
+2. Volumetric Fur & Hair Curves Pipeline: Implement a reusable Geometry Nodes / Hair Curves grooming system in the MorphoMesh Blender Bridge/pipeline, allowing any creature to be equipped with realistic multi-layer volumetric fur following natural growth flow.
+3. Organic PBR Shader Engine: Upgrade texture baking and shader setups with organic coat scattering, specular gloss on wet facial areas, and sharp keratin on claws.
+4. Validation & Demonstration: The Armored War Bear serves as the canonical test benchmark and demonstration verifying that the upgraded MorphoMesh engine successfully produces photorealistic, detailed creatures with correct claw orientation and realistic fur.
+
+## 2026-09-06T04:00:05Z
+
+Server has restarted. Please resume execution, revive the active orchestrator (Gen 2 in `.agents/orchestrator_bear_gen2/`), and complete Milestone M4 Iteration 2 remediation:
+1. Anatomical continuity and smooth organic transitions in `creature_generator.py` (connecting paws, capping/blending limb junctions, organic muzzle and head contours).
+2. Pauldron repositioning and true BVH clearance ($d_{\min} \ge 0.015\text{m}$).
+3. Verification test suites update and re-running master assembly and beauty renders.
+4. Final Victory Audit and handoff.

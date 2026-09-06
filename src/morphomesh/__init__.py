@@ -73,7 +73,11 @@ from morphomesh.inference_adapter import (
     HuggingFaceInferenceAdapter,
     get_inference_adapter,
 )
-from morphomesh.server import mcp, create_mcp_server
+try:
+    from morphomesh.server import mcp, create_mcp_server
+except ImportError:
+    mcp = None  # type: ignore[assignment]
+    create_mcp_server = None  # type: ignore[assignment]
 
 __version__ = "0.1.0"
 

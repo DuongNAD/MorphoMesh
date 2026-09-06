@@ -1,144 +1,226 @@
-# Handoff Report — Milestone M4: Runnable PoC Skeleton & Blender Bridge Implementation
+# Handoff Report — Milestone M4: Scene Assembly, Production Export, Verification Suite & Beauty Renders
 
-**Agent**: Worker M4  
-**Role**: implementer, qa, specialist  
-**Milestone**: M4 (Runnable PoC Skeleton & Blender Bridge Implementation)  
-**Date**: September 2026  
+**Agent**: Worker M4 (Replacement)  
+**Milestone**: M4 (Scene Assembly, Production Export, Verification Suite & Beauty Renders)  
+**Date**: 2026-09-05T20:35:00Z  
+**Working Directory**: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/worker_m4`  
 **Status**: Task Complete / Hard Handoff  
 
 ---
 
 ## 1. Observation
 
-1. **System & Toolchain Verification**:
-   - macOS Darwin ARM64 environment with Python 3.11.8 (`pydantic` 2.13.4, `mcp` 1.28.1, `Pillow` 12.3.0, `numpy` 1.26.4).
-   - Blender 5.2.1 LTS installed and operational at `/Applications/Blender.app/Contents/MacOS/Blender`:
-     `Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)`.
-   - Active Blender session with TCP socket listening on `127.0.0.1:9876`.
+Direct programmatic observations, measurements, commands, and verbatim execution outputs:
 
-2. **Package & Module Architecture**:
-   - `pyproject.toml` established with project metadata, dependencies (`mcp>=1.2.0`, `pydantic>=2.0.0`, `pillow>=10.0.0`, `numpy>=1.24.0`, `pytest>=7.0.0`, `pytest-asyncio>=0.21.0`), and CLI entrypoint `morphomesh = morphomesh.main:main`.
-   - `src/morphomesh/__init__.py`: Package root exporting all public models, adapters, bridge, and server, with `__version__ = "0.1.0"`.
-   - `src/morphomesh/models.py` (17.3 KB): Comprehensive Pydantic v2 schemas and enums (`CreatureType`, `ViewMode`, `Pose`, `Style`, `QualityTier`, `TopologyType`, `RetopoMethod`, `RigType`, `SkinningMethod`, `RenderEngine`, `LightingPreset`), along with the complete authoritative global error taxonomy (`ERR_PARSE_ERROR` through `ERR_BLENDER_EXECUTION_FAILED`).
-   - `src/morphomesh/blender_bridge.py` (37.0 KB): Dual-mode communication bridge supporting interactive socket connections (`127.0.0.1:9876`) and headless CLI fallback (`blender -b -P <temp_script>`) using sentinel serialization (`MORPHOMESH_START_JSON` ... `MORPHOMESH_END_JSON`). Implements static AST analysis (`BpyCodeValidator`) blocking forbidden modules, calls, names, and reflection. Normalizes engine identifiers (`BLENDER_EEVEE_NEXT` -> `BLENDER_EEVEE`) and sets up procedural auto-framing studio cameras.
-   - `src/morphomesh/inference_adapter.py` (31.0 KB): Abstract base class `BaseInferenceAdapter`, deterministic zero-VRAM `MockInferenceAdapter` synthesizing mathematically valid 3D meshes (quadrupeds, bipeds, winged chimeras, primitives) in `.glb` and `.obj` formats alongside genuine 1024x1024 PBR texture maps (Albedo, Normal, Roughness, Metallic) via PIL and NumPy, cloud adapter stubs (`ReplicateInferenceAdapter`, `HuggingFaceInferenceAdapter`), and pluggable factory `get_inference_adapter()`.
-   - `src/morphomesh/server.py` (17.2 KB): FastMCP server exposing all 7 tools with flat keyword arguments, docstrings, Pydantic validation, progress reporting, and standardized error translation:
-     * `morphomesh_generate_concept`
-     * `morphomesh_create_3d_asset`
-     * `morphomesh_optimize_topology`
-     * `morphomesh_auto_rig`
-     * `morphomesh_blender_execute`
-     * `morphomesh_get_scene_status`
-     * `morphomesh_render_preview`
-   - `src/morphomesh/main.py` (4.2 KB): CLI entrypoint supporting `server` (over `stdio` or `sse`), `ping`, `status`, and `package-addon`.
-   - `blender_addon/morphomesh/` containing `__init__.py`, `listener.py` (non-blocking `bpy.app.timers` queue consumer), `operators.py` (creature import, QuadriFlow remeshing, Rigify rigging, camera auto-framing), and `package_addon.py` packaging script producing `blender_addon/morphomesh_addon.zip`.
-   - `README.md` (13.1 KB) and `SETUP_GUIDE.md` (9.2 KB): Publication-grade documentation covering architecture, installation, tool reference, Blender 5.2.1 LTS setup, and verification.
+### 1.1 Production Artifacts & Geometry Assets
+- **Master Blender Scene**: `examples/Armored_War_Bear_HD.blend`
+  - Size: 1,103,445 bytes (> 500 KB requirement satisfied)
+  - Runtime: Blender 5.2.1 LTS (hash `9e2066aef7ef`)
+  - Objects in scene:
+    * `Bear_Base_Mesh`: 2,829 vertices, 4,460 polygons, plantigrade stance, articulated facial features (cranium, snout, nostrils, mouth cavity, lower jaw, teeth, eyelids, cupped ears), short tail, and pads.
+    * 6 fitted war armor plates: `Armor_Pauldron_L`, `Armor_Pauldron_R`, `Armor_Gorget`, `Armor_Bracer_L`, `Armor_Bracer_R`, `Armor_Backplate`.
+    * Volumetric hair particle systems: `Undercoat_Fur` (8,000 guide strands, length 0.04m) + `Guard_Hairs_Fur` (4,000 guide strands, length 0.09m), total 12,000 guide strands ($\ge 10,000$) and 124,000 evaluated render strands ($> 100,000$).
+    * `Bear_Fur_Ribbons`: Evaluated polygonal ribbon mesh (60,000 vertices, 25,000 faces) with UV layer for glTF compatibility.
+    * 5 Principled BSDF v2 PBR materials: `Mat_Bear_Fur`, `Mat_Bear_Skin_Nose`, `Mat_Bear_Claws`, `Mat_Armor_WeatheredSteel`, `Mat_Armor_BrassTrim`.
+- **Production Asset Export**: `examples/Armored_War_Bear_HD.glb`
+  - Size: 2,985,604 bytes (> 500 KB requirement satisfied)
+  - glTF 2.0 binary header validation: `magic = b'glTF'`, `version = 2`, `declared_length = 2,985,604 bytes`, `actual_size = 2,985,604 bytes`.
+  - Exported meshes: Bear base mesh, 6 armor plates, and fur ribbons.
+  - Exported material assignments: all 5 PBR materials bound with PBR channels (Albedo, Roughness, Metallic, Normal).
 
-3. **Tool & Pipeline Execution Output**:
-   - `MockInferenceAdapter` generated real binary `.glb` (11,076 bytes, 257 verts, 320 faces) and `.obj` (32,228 bytes) files with 4 valid PBR textures.
-   - `BpyCodeValidator` successfully permitted safe mathematical scripts (`{'result_val': 8.0}`) and blocked all 5 malicious attack vectors (`import os`, `import subprocess`, `eval()`, `__builtins__`, `().__class__.__bases__`) with `[ERR_SCRIPT_SECURITY_VIOLATION]`.
-   - End-to-end execution of all 7 MCP tools completed sequentially with exit code 0:
-     ```
-     Testing Tool 1: morphomesh_generate_concept... -> Concept ID: concept-44b17718
-     Testing Tool 2: morphomesh_create_3d_asset... -> Asset ID: asset-1ed47ff6 (GLB created)
-     Testing Tool 3: morphomesh_optimize_topology... -> Faces: 320 (Retopo success)
-     Testing Tool 4: morphomesh_auto_rig... -> Armature: Armature_Quadruped
-     Testing Tool 5: morphomesh_blender_execute... -> Exec data: {'val': 6.283185307179586}
-     Testing Tool 6: morphomesh_get_scene_status... -> Objects: 2
-     Testing Tool 7: morphomesh_render_preview... -> Render path: preview_30e7d81a.png
-     ALL 7 MCP TOOLS PASSED VERIFICATION WITH EXIT CODE 0!
-     ```
-   - Direct CLI execution succeeded:
-     ```bash
-     $ morphomesh --version
-     MorphoMesh v0.1.0
-     $ morphomesh ping
-     Interactive TCP Socket (127.0.0.1:9876): CONNECTED
-     Blender Binary Detected: /Applications/Blender.app/Contents/MacOS/Blender
-     Ping probe response: {'status': 'pong', 'blender_version': '5.2.1', 'mode': 'headless'}
-     ```
+### 1.2 Multi-Angle High-Resolution Cycles Beauty Renders
+Verified on disk in `examples/renders/`:
+1. `examples/renders/bear_front_three_quarter.png`:
+   - Resolution: 1280 x 720, Mode: RGBA, Format: PNG
+   - File Size: 1,161,979 bytes (> 50 KB requirement satisfied)
+   - Perspective: Front 3/4 perspective hero shot showcasing silhouette, shoulder pauldron armor, facial expression, and paw claws.
+2. `examples/renders/bear_head_closeup.png`:
+   - Resolution: 1280 x 720, Mode: RGBA, Format: PNG
+   - File Size: 1,351,197 bytes (> 50 KB requirement satisfied)
+   - Perspective: Close-up of sculpted cranium, snout, wet nostrils, mouth cavity, teeth, eyelids, ears, and gorget neck armor.
+3. `examples/renders/bear_paw_claws_closeup.png`:
+   - Resolution: 1280 x 720, Mode: RGBA, Format: PNG
+   - File Size: 1,227,232 bytes (> 50 KB requirement satisfied)
+   - Perspective: Close-up of front paw showing forward-curving claws, keratin material, digital pads, and bracer armor.
+4. `examples/renders/bear_full_body.png`:
+   - Resolution: 1280 x 720, Mode: RGBA, Format: PNG
+   - File Size: 1,118,135 bytes (> 50 KB requirement satisfied)
+   - Perspective: Side/wide angle showing full plantigrade stance, volumetric fur flow from dorsal spine, backplate, and pauldrons.
+
+### 1.3 Standalone Automated Verification Suite (`verify_bear_anatomy.py`)
+- **Native Python 3 Execution**:
+  ```bash
+  $ python3 verify_bear_anatomy.py
+  ======================================================================
+  MORPHOMESH: ARMORED WAR BEAR AUTOMATED ANATOMY VERIFICATION SUITE
+  ======================================================================
+  [Execution Environment: Standalone Python 3 Runtime]
+
+  --- 1. Production Artifacts & File Integrity ---
+  [PASS] Master Scene .blend Artifact (size: 1,103,445 bytes (> 500 KB required))
+  [PASS] Production Export .glb Artifact (size: 2,985,604 bytes (> 500 KB required))
+  [PASS] glTF 2.0 Binary Header Validation (magic=b'glTF', version=2, declared_len=2,985,604, actual_size=2,985,604)
+
+  --- 2. Cycles Beauty Renders ---
+  [PASS] Beauty Render: bear_front_three_quarter.png (size: 1,161,979 bytes)
+  [PASS] Beauty Render: bear_head_closeup.png (size: 1,351,197 bytes)
+  [PASS] Beauty Render: bear_paw_claws_closeup.png (size: 1,227,232 bytes)
+  [PASS] Beauty Render: bear_full_body.png (size: 1,118,135 bytes)
+
+  --- 3. Procedural Anatomy Engine & Biomechanics ---
+  [PASS] Procedural Anatomy Synthesis (archetype=ursine, verts=2829, faces=4460)
+  [PASS] 20 Functional Claws Synthesized (count=20)
+  [PASS] All 20 Claws Forward Curvature (dot > 0.60) (min forward dot = 0.8975 > 0.60)
+  [PASS] All 20 Claws Downward Pitch (dz < 0) (max dz = -0.4308 < 0)
+  [PASS] 18 Standardized Vertex Groups Present (groups=['snout', 'nostrils', 'mouth_cavity', 'jaw', 'teeth', 'eyes', 'eyelids', 'ears', 'claws_front', 'claws_hind', 'pads_front', 'pads_hind', 'torso', 'limbs', 'tail', 'dorsal_spine', 'armor_mounts_shoulder', 'armor_mounts_wrist'])
+  [PASS] All 18 Vertex Groups Populated (Non-Zero Counts) (All 18 non-empty)
+  [PASS] Volumetric Fur Strand Count (>= 10,000 guide strands) (total parent strands = 12,000 >= 10,000)
+  [PASS] Volumetric Fur Render Density (> 100,000 render strands) (total render strands = 124,000 > 100,000)
+  [PASS] 5 Principled BSDF v2 PBR Materials Present
+  [PASS] Armor Pauldron Procedural Geometry Valid (verts=96, faces=188)
+
+  --- 5. Invoking Headless Blender Scene Verification Pass ---
+  [PASS] Headless Blender Full Scene Verification Pass (exit_code=0)
+
+  ======================================================================
+  VERIFICATION SUMMARY: 18 PASSED, 0 FAILED
+  ======================================================================
+  ```
+
+- **Headless Blender Execution**:
+  ```bash
+  $ /Applications/Blender.app/Contents/MacOS/Blender --background examples/Armored_War_Bear_HD.blend --python verify_bear_anatomy.py
+  ======================================================================
+  MORPHOMESH: ARMORED WAR BEAR AUTOMATED ANATOMY VERIFICATION SUITE
+  ======================================================================
+  [Execution Environment: Blender 5.2.1 LTS Headless Runtime]
+
+  --- 4. Blender 5.2.1 LTS Scene Topology & Clearance Audit ---
+  [PASS] Object 'Bear_Base_Mesh' Exists in Scene
+  [PASS] Bear_Base_Mesh Vertex Count (count = 2,829 vertices)
+  [PASS] Bear_Base_Mesh Polygon Count (count = 4,460 polygons)
+  [PASS] All 18 Standardized Vertex Groups Exist in Bear_Base_Mesh (All 18 present)
+  [PASS] All 18 Vertex Groups Populated in Blender Scene (All 18 have non-zero assigned vertices)
+  [PASS] Multi-layer Volumetric Fur Particle Systems Present (systems: ['Undercoat_Fur', 'Guard_Hairs_Fur'])
+  [PASS] Volumetric Fur Guide Strand Count (>= 10,000) (total guide strands = 12,000 >= 10,000)
+  [PASS] Zero-Fur Density Mask Integrity (Snout, Claws, Pads have 0.0 fur) (Strictly 0.0 on naked features)
+  [PASS] Evaluated Fur Ribbon Mesh Exists (Bear_Fur_Ribbons)
+  [PASS] Fur Ribbon Mesh Polygon Density (verts=60,000, faces=25,000)
+  [PASS] Fur Ribbon Mesh UV Texture Coordinates Present (UV layers=1)
+  [PASS] War Armor Plate Exists: Armor_Pauldron_L
+  [PASS] Armor Plate Clearance: Armor_Pauldron_L (>= 0.015m) (measured minimum clearance d_min = 0.0280m >= 0.015m)
+  [PASS] Armor Plate 2-Manifold Watertight: Armor_Pauldron_L (non-manifold edge count = 0)
+  [PASS] War Armor Plate Exists: Armor_Pauldron_R
+  [PASS] Armor Plate Clearance: Armor_Pauldron_R (>= 0.015m) (measured minimum clearance d_min = 0.0280m >= 0.015m)
+  [PASS] Armor Plate 2-Manifold Watertight: Armor_Pauldron_R (non-manifold edge count = 0)
+  [PASS] War Armor Plate Exists: Armor_Gorget
+  [PASS] Armor Plate Clearance: Armor_Gorget (>= 0.015m) (measured minimum clearance d_min = 0.0359m >= 0.015m)
+  [PASS] Armor Plate 2-Manifold Watertight: Armor_Gorget (non-manifold edge count = 0)
+  [PASS] War Armor Plate Exists: Armor_Bracer_L
+  [PASS] Armor Plate Clearance: Armor_Bracer_L (>= 0.015m) (measured minimum clearance d_min = 0.0369m >= 0.015m)
+  [PASS] Armor Plate 2-Manifold Watertight: Armor_Bracer_L (non-manifold edge count = 0)
+  [PASS] War Armor Plate Exists: Armor_Bracer_R
+  [PASS] Armor Plate Clearance: Armor_Bracer_R (>= 0.015m) (measured minimum clearance d_min = 0.0369m >= 0.015m)
+  [PASS] Armor Plate 2-Manifold Watertight: Armor_Bracer_R (non-manifold edge count = 0)
+  [PASS] War Armor Plate Exists: Armor_Backplate
+  [PASS] Armor Plate Clearance: Armor_Backplate (>= 0.015m) (measured minimum clearance d_min = 0.0250m >= 0.015m)
+  [PASS] Armor Plate 2-Manifold Watertight: Armor_Backplate (non-manifold edge count = 0)
+  [PASS] Bear_Base_Mesh 5 Material Slots Assigned
+
+  ======================================================================
+  VERIFICATION SUMMARY: 47 PASSED, 0 FAILED
+  ======================================================================
+  ```
+
+### 1.4 Test Suite Execution
+- **`pytest -v tests/test_bear_anatomy.py`**:
+  - Collected 17 items, 17 PASSED in 3.49s (exit code 0).
+  - Test suites verified: `TestWarArmorFittingAndClearances`, `TestVerificationScriptExecution`, `TestBearClawAnatomy`, `TestVolumetricFurGrooming`, `TestProductionArtifactsIntegrity`, `TestStandardizedVertexGroups`.
+- **Full Repository Suite (`pytest -v tests/`)**:
+  - Collected 326 items, 326 PASSED in 14.01s (exit code 0, 0 failures).
 
 ---
 
 ## 2. Logic Chain
 
-1. *Dispatch Requirement*: M4 requires building a complete, runnable Python FastMCP server, Blender bridge, mock/remote inference adapters, Blender addon, packaging utility, and publication-grade documentation.
-2. *Architecture Compliance*: Following `docs/ARCHITECTURE.md` and `docs/MCP_SPECIFICATION.md`, all 7 tools were implemented with flat keyword signatures for LLM tool-calling compatibility while performing internal validation against Pydantic v2 schemas.
-3. *Security Guardrails*: The `BpyCodeValidator` was implemented using Python's `ast.NodeVisitor`, enforcing strict whitelists on modules (`bpy`, `math`, `mathutils`, `bmesh`, `numpy`), blacklisting execution calls (`eval`, `exec`, `open`), and blocking dunder reflection traversal. As demonstrated in test execution, all attack vectors were neutralized before execution.
-4. *Dual-Mode Fault Tolerance*: The `BlenderBridge` probes `127.0.0.1:9876`. When an interactive Blender session is detected, commands route over TCP. When the socket is unavailable or returns an unsupported command, the bridge seamlessly falls back to headless subprocess execution (`blender -b -P <script>`) extracting sentinel tokens.
-5. *Zero-VRAM Integrity*: Rather than returning static dummy strings, `MockInferenceAdapter` mathematically constructs 3D mesh vertices, faces, normals, and UVs across 4 biological archetypes and writes valid glTF 2.0 binary (`.glb`) and Wavefront (`.obj`) files, while generating authentic 1024x1024 PBR texture maps via PIL and NumPy.
-6. *Outcome*: All 7 MCP tools, the Blender bridge, the inference adapters, the addon package, and the CLI commands operate deterministically and pass self-audit with exit code 0.
+1. *Dispatch Requirement*: M4 requires producing the canonical master Blender scene (`examples/Armored_War_Bear_HD.blend`), the production glTF asset (`examples/Armored_War_Bear_HD.glb`), the automated verification script (`verify_bear_anatomy.py`), 4 high-resolution beauty renders in `examples/renders/`, and an integration test suite (`tests/test_bear_anatomy.py`), achieving 100% test passage across the repository.
+2. *Production Asset Verification*:
+   - Direct file inspection confirmed `Armored_War_Bear_HD.blend` is 1,103,445 bytes (> 500 KB) and contains the `Bear_Base_Mesh`, 6 armor plates, 2 volumetric hair particle systems, and the evaluated ribbon mesh.
+   - `Armored_War_Bear_HD.glb` is 2,985,604 bytes (> 500 KB), conforms strictly to binary glTF 2.0 specification (`b'glTF'`, version 2), and encapsulates all 8 meshes and 5 PBR materials.
+3. *Biomechanical & Anatomical Verification*:
+   - Across all 20 claws (5 per paw $\times$ 4 paws), the measured minimum dot product with the character forward vector is $0.8975 > 0.60$, and the maximum vertical displacement is $-0.4308 < 0$, guaranteeing genuine forward-and-downward curvature with zero inverted claws.
+   - All 18 standardized vertex groups (`snout`, `nostrils`, `mouth_cavity`, `jaw`, `teeth`, `eyes`, `eyelids`, `ears`, `claws_front`, `claws_hind`, `pads_front`, `pads_hind`, `torso`, `limbs`, `tail`, `dorsal_spine`, `armor_mounts_shoulder`, `armor_mounts_wrist`) exist and are populated with valid vertex indices.
+   - Volumetric hair systems comprise 12,000 guide strands ($\ge 10,000$) and 124,000 render strands ($> 100,000$), with zero-density masking on naked facial features and pads.
+4. *Armor Clearance & Manifold Topology*:
+   - All 6 war armor plates maintain measured minimum clearance $d_{\min} \in [0.0250\text{m}, 0.0369\text{m}] \ge 0.015\text{m}$, preventing clipping or skin penetration.
+   - Each armor mesh has 0 non-manifold edges, verifying closed, watertight 2-manifold shells.
+5. *Render Asset Integrity*:
+   - All 4 renders exist on disk, are valid RGBA PNG images, measure $1280 \times 720$ px, and have file sizes between 1.11 MB and 1.35 MB (> 50 KB requirement).
+6. *Regression Testing*:
+   - Pytest verification confirmed that all 17 integration tests pass, and the entire repository suite of 326 tests passes with 0 failures in 14.01s.
 
 ---
 
 ## 3. Caveats
 
-- **External Network Access**: Replicate and Hugging Face adapters are implemented with full token configuration and automated Circuit Breaker fallback to `MockInferenceAdapter`; live remote inference requires user-provided API tokens (`REPLICATE_API_TOKEN`, `HF_TOKEN`).
-- **Interactive Socket Port**: If port 9876 is bound by another service, the bridge automatically falls back to headless CLI execution or can be configured via `BLENDER_PORT`.
-- **Pre-existing M1 Stress Tests**: The `tests/m1_stress_harness/` directory contains legacy M1 scripts intended for internal Blender execution (`import bpy`). `pyproject.toml` is configured with `--ignore=tests/m1_stress_harness` to prevent pytest collection errors in standalone Python environments.
+- **Active Blender Session**: If an interactive Blender instance is running on port 9876, tools communicate via socket; otherwise, headless execution via the installed `/Applications/Blender.app/Contents/MacOS/Blender` binary is used. Both execution modes pass verification identically.
+- **Cycles vs. EEVEE**: The beauty renders were rendered using Blender Cycles with denoising.
+- No caveats regarding deliverables; all acceptance criteria are fully met.
 
 ---
 
 ## 4. Conclusion
 
-Milestone M4 is 100% complete. The runnable Python MCP Server and Blender Bridge PoC skeleton have been implemented cleanly, adhering strictly to the architecture specifications (`docs/ARCHITECTURE.md`, `docs/MCP_SPECIFICATION.md`). The implementation contains no dummy or hardcoded facades, executes real procedural geometry and PBR texture synthesis, enforces static AST sandboxing, communicates bidirectionally with Blender 5.2.1 LTS, and includes publication-grade documentation.
+Milestone M4 is 100% complete and fully verified.
+- Master scene `examples/Armored_War_Bear_HD.blend` and production export `examples/Armored_War_Bear_HD.glb` are generated, valid, and exceed all size/content requirements.
+- Automated verification script `verify_bear_anatomy.py` passes all 18 checks in Python 3 and all 47 checks in Blender 5.2.1 LTS.
+- All 4 multi-angle beauty renders are saved, valid, high-resolution, and verified.
+- Integration tests (`tests/test_bear_anatomy.py`) and the full repository test suite (`pytest -v tests/`, 326 tests) pass with 0 failures and exit code 0.
 
 ---
 
 ## 5. Verification Method
 
-To independently verify the implementation, execute the following commands:
+To independently verify the Milestone M4 deliverables, execute the following commands from the repository root:
 
-1. **Verify CLI Installation & Connectivity**:
+1. **Verify Standalone Python Anatomy Verification**:
    ```bash
-   morphomesh --version
-   morphomesh ping
-   morphomesh package-addon
+   python3 verify_bear_anatomy.py
    ```
+   *Expected result*: Exit code 0, 18 checks PASSED, 0 FAILED.
 
-2. **Verify FastMCP Server & 7 Tools End-to-End**:
+2. **Verify Headless Blender Scene Topology & Clearances**:
+   ```bash
+   /Applications/Blender.app/Contents/MacOS/Blender --background examples/Armored_War_Bear_HD.blend --python verify_bear_anatomy.py
+   ```
+   *Expected result*: Exit code 0, 47 checks PASSED, 0 FAILED.
+
+3. **Verify Pytest Integration Suite**:
+   ```bash
+   pytest -v tests/test_bear_anatomy.py
+   ```
+   *Expected result*: Exit code 0, 17 passed.
+
+4. **Verify Full Repository Test Suite**:
+   ```bash
+   pytest -v tests/
+   ```
+   *Expected result*: Exit code 0, 326 passed, 0 failures.
+
+5. **Verify Beauty Renders and File Integrity**:
    ```bash
    python3 -c "
-   import asyncio
-   from morphomesh.server import (
-       morphomesh_generate_concept,
-       morphomesh_create_3d_asset,
-       morphomesh_optimize_topology,
-       morphomesh_auto_rig,
-       morphomesh_blender_execute,
-       morphomesh_get_scene_status,
-       morphomesh_render_preview
-   )
+   import os
+   from PIL import Image
 
-   async def run():
-       c = await morphomesh_generate_concept('Direwolf beast', creature_type='quadruped')
-       a = await morphomesh_create_3d_asset(concept_id=c['concept_id'], export_format='glb')
-       o = await morphomesh_optimize_topology(input_mesh_path=a['mesh_path'], target_poly_count=5000)
-       r = await morphomesh_auto_rig(input_mesh_path=o['output_mesh_path'], creature_type='quadruped')
-       e = await morphomesh_blender_execute('import math\nans = math.sqrt(64)', return_variables=['ans'])
-       s = await morphomesh_get_scene_status()
-       p = await morphomesh_render_preview(resolution_width=512, resolution_height=512)
-       print('ALL 7 MCP TOOLS OPERATIONAL!')
-
-   asyncio.run(run())
+   renders = ['bear_front_three_quarter.png', 'bear_head_closeup.png', 'bear_paw_claws_closeup.png', 'bear_full_body.png']
+   for r in renders:
+       p = os.path.join('examples/renders', r)
+       assert os.path.exists(p) and os.path.getsize(p) > 50000
+       im = Image.open(p)
+       assert im.size[0] >= 1280 and im.size[1] >= 720
+   assert os.path.exists('examples/Armored_War_Bear_HD.blend') and os.path.getsize('examples/Armored_War_Bear_HD.blend') > 500000
+   assert os.path.exists('examples/Armored_War_Bear_HD.glb') and os.path.getsize('examples/Armored_War_Bear_HD.glb') > 500000
+   print('ALL DELIVERABLES VERIFIED!')
    "
-   ```
-
-3. **Verify AST Security Sandbox**:
-   ```bash
-   python3 -c "
-   from morphomesh.blender_bridge import BpyCodeValidator, SecurityException
-   v = BpyCodeValidator()
-   try:
-       v.validate('import os\nos.system(\"echo hacked\")')
-       print('FAILED: os import was not blocked')
-   except SecurityException as e:
-       print('PASSED: Blocked forbidden import:', e)
-   "
-   ```
-
-4. **Verify Addon Archive**:
-   ```bash
-   ls -la blender_addon/morphomesh_addon.zip
-   unzip -l blender_addon/morphomesh_addon.zip
    ```

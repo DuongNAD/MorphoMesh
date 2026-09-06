@@ -1,29 +1,35 @@
-# Survey Explorer 1 Dispatch
+# Dispatch Assignment: Explorer Survey 1 (Codebase & Blender Infrastructure)
 
-Assigned Role: Survey Explorer (R1 Research & Benchmark focus)
-Working Directory: /Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_survey_1
-Original Request: /Users/duongnad/Documents/tool/MorphoMesh/ORIGINAL_REQUEST.md
+**Identity**: teamwork_preview_explorer
+**Assigned Task**: Codebase and Blender Bridge Survey for Armored War Bear Task
+**Working Directory**: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_survey_1`
+**Authoritative Request**: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/ORIGINAL_REQUEST.md` (read section `## 2026-09-05T15:44:52Z` carefully)
+**Project Root**: `/Users/duongnad/Documents/tool/MorphoMesh`
 
-## 2026-09-05T11:23:40Z
+## Objectives
+1. Read `/Users/duongnad/Documents/tool/MorphoMesh/.agents/ORIGINAL_REQUEST.md`.
+2. Inspect the MorphoMesh codebase (`src/morphomesh/`, `blender_addon/`, `tests/`, `examples/`).
+3. Determine how Blender is accessed and executed: check `blender_bridge.py`, MCP tools, CLI availability (`blender` command), python environment, and headless execution capabilities.
+4. Check Blender version and API capabilities (specifically support for Curves / new Hair system vs legacy hair particles, Principled BSDF v2, glTF export).
+5. Document all technical constraints, execution entry points, and dependencies.
+6. Write a comprehensive report to `/Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_survey_1/survey_report.md` and deliver `handoff.md`.
 
-You are Survey Explorer 1 for the MorphoMesh project.
-Your working directory is: /Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_survey_1
-The authoritative user request is: /Users/duongnad/Documents/tool/MorphoMesh/ORIGINAL_REQUEST.md
-Please read ORIGINAL_REQUEST.md first!
-
-Your mission:
-Survey and investigate all models, frameworks, and research papers required for R1 (Comprehensive Research & Benchmark Docs):
-1. Articulated Animals: 3DAnimals (MagicPony, 3D Fauna, Ponymation), 4D-Animal, Animal Avatar, YouDream, GART, LASSIE, SAOR, BARC, BITE, anyCreature, Meow-Generator, animalclub, Muses.
-2. General High-Quality 3D for Creatures: TRELLIS / TRELLIS.2, Hunyuan3D-2 / 2.1, Step1X-3D, Hi3DGen / Stable3DGen, SPAR3D, Stable Fast 3D, TripoSR, InstantMesh, Unique3D, OpenLRM, LGM, CRM.
-3. Retopology & Auto-rigging: MeshAnything / MeshAnything V2, Mesh2Motion, SMAL / SMALify, Blender Rigify procedural creatures.
+## 2026-09-05T15:46:54Z
+You are Explorer 1 (Codebase & Blender Infrastructure Specialist) for the Armored War Bear task.
+Your working directory is `/Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_survey_1`.
+Please read `/Users/duongnad/Documents/tool/MorphoMesh/.agents/ORIGINAL_REQUEST.md` (specifically section `## 2026-09-05T15:44:52Z`) and your dispatch assignment at `/Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_survey_1/DISPATCH.md`.
 
 Investigate:
-- Exact criteria: License, Hardware/VRAM requirements, Geometry fidelity, Export formats (Mesh OBJ/GLB/FBX, 3DGS, PBR materials), Rigging/Skeleton status, Deployment feasibility (Local Apple Silicon vs Remote GPU Cloud API).
-- Optimal combination recommendations for 3 distinct use-cases:
-  (A) Diverse Fantasy Creatures
-  (B) Realistic Animals with Animation/Rig
-  (C) Game-ready Low-poly Assets
+1. The MorphoMesh repository structure, python environment, MCP tools, and `blender_bridge.py`.
+2. Availability and version of Blender CLI (`blender` command), headless execution, python `bpy` capabilities.
+3. Determine how scripts can be safely and reproducibly run in Blender to generate assets and tests.
+4. Document all findings in `/Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_survey_1/survey_report.md` and write a standard `handoff.md`.
+Communicate back to orchestrator via send_message when done.
 
-Write your comprehensive findings to `/Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_survey_1/survey_models_report.md` and update your `progress.md` and `handoff.md`.
-Communicate your completion back to the parent orchestrator via `send_message`.
-Remember: Read-only exploration. Do not modify or create source code files.
+## 2026-09-05T15:48:04Z
+**Sender**: 504d045c-25c5-48a2-a65a-2a5b368eafa7 (parent)
+**Context**: Armored War Bear Task Scope Clarification
+**Content**: Urgent scope clarification from User/Sentinel: The objective is NOT merely to create one static Armored War Bear model. The primary goal is to upgrade the MorphoMesh ENGINE ITSELF (`src/morphomesh/` - procedural mesh generators in `inference_adapter.py`, connectors like `anycreature_connector.py`, `trellis_connector.py`, `blender_bridge.py`, and fur/grooming pipelines) so that MorphoMesh can generate high-fidelity, photorealistic creatures in general! Key engine requirements: (1) Reusable Anatomy Generator with forward-curving claws and organic facial structures, (2) Volumetric Fur/Hair Curves pipeline in Blender bridge, (3) Organic PBR shader engine, (4) Armored War Bear as canonical test benchmark and demonstration. See `ORIGINAL_REQUEST.md` § 2026-09-05T15:47:35Z.
+**Action**: Factor this engine-level architectural requirement into your investigation, findings, and survey report.
+
+

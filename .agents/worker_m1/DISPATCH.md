@@ -1,36 +1,63 @@
-## 2026-09-05T11:28:30Z
-You are Worker 1 for MorphoMesh Milestone M1 (Research & Benchmark Docs).
-Your working directory is: /Users/duongnad/Documents/tool/MorphoMesh/.agents/worker_m1
-The authoritative user request is at: /Users/duongnad/Documents/tool/MorphoMesh/ORIGINAL_REQUEST.md
-The project plan is at: /Users/duongnad/Documents/tool/MorphoMesh/.agents/orchestrator_1/PROJECT.md
-The detailed model survey is at: /Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_survey_1/survey_models_report.md
-The survey handoff is at: /Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_survey_1/handoff.md
+# Dispatch Assignment: Worker M1 (Anatomy Generator & Claw Fix)
 
-READ ORIGINAL_REQUEST.md and the survey report FIRST before writing any files!
+**Identity**: teamwork_preview_worker
+**Assigned Task**: Milestone M1 Implementation — Reusable Anatomy Generator & Claw Inversion Fix
+**Working Directory**: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/worker_m1`
+**Authoritative Request**: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/ORIGINAL_REQUEST.md` (read sections `## 2026-09-05T15:44:52Z` and `## 2026-09-05T15:47:35Z` carefully)
+**Project Plan**: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/orchestrator_bear_1/PROJECT.md`
+**Input Findings**:
+- Explorer 1 Survey Report: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_survey_1/survey_report.md`
+- Explorer 2 Survey Report: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_survey_2/survey_report.md`
 
-Your exclusive write ownership:
-`docs/RESEARCH_BENCHMARK.md`
+## Mandatory Integrity Warning
+DO NOT CHEAT. All implementations must be genuine. DO NOT hardcode test results, create dummy/facade implementations, or circumvent the intended task. A teamwork_preview_auditor will independently verify your work. Integrity violations WILL be detected and your work WILL be rejected.
+
+## File Ownership
+You exclusively own and may edit/create:
+- `src/morphomesh/blender_bridge.py`
+- `src/morphomesh/inference_adapter.py`
+- `src/morphomesh/creature_generator.py`
+- `tests/test_anatomy_generator.py`
+
+## Objectives & Deliverables
+1. **Fix Blender Bridge Socket Dispatch**:
+   - In `src/morphomesh/blender_bridge.py` line 472, update the condition to recognize `"success": True` from interactive socket responses (`res.get("success") is True or res.get("status") == "success"`).
+2. **Upgrade `MeshGeometry` in `src/morphomesh/inference_adapter.py`**:
+   - Add `add_curved_claw(base_pos, forward_dir, downward_dir, length, base_radius, curve_factor, segments, radial_segments)` generating lofted rings along a parabolic arc with mathematical guarantee: $\vec{d}_{\text{claw}} \cdot \vec{u}_{\text{fwd}} > 0.60$ and $d_z < 0$.
+   - Add `add_plantigrade_paw(heel_pos, forward_dir, is_front, scale)` generating broad ursine paws with calcaneus heel, plantar/palmar pads, and 5 digital pads.
+   - Add `add_articulated_head(head_center, forward_dir, scale)` generating cranium, rostrum, indented nostrils, mouth cavity with jaw and teeth, eyelids, and cupped ears.
+   - Add `add_anatomical_torso(center, forward_dir, scale)` generating muscular quadruped torso, dorsal spine, and short tail.
+   - Upgrade `InferenceAdapter._synthesize_procedural_mesh()` to use these methods.
+3. **Reusable Creature Generator (`src/morphomesh/creature_generator.py`)**:
+   - Create a reusable module providing high-level procedural synthesis for Ursine and general quadrupeds, assigning 18 standardized vertex groups (`snout`, `nostrils`, `mouth_cavity`, `jaw`, `teeth`, `eyes`, `eyelids`, `ears`, `claws_front`, `claws_hind`, `pads_front`, `pads_hind`, `torso`, `limbs`, `tail`, `dorsal_spine`, `armor_mounts_shoulder`, `armor_mounts_wrist`).
+4. **Unit & Verification Tests (`tests/test_anatomy_generator.py`)**:
+   - Write comprehensive tests asserting claw forward dot product > 0.6, downward pitch, pad counts, and facial features.
+   - Run `pytest -v tests/` and verify all tests pass with 0 failures.
+5. **Verify with Blender**:
+   - Execute the anatomy generator in Blender (either via bridge or headless CLI) and verify base bear geometry is successfully synthesized with correct claw orientations and vertex groups.
+6. **Handoff**:
+   - Write comprehensive handoff to `/Users/duongnad/Documents/tool/MorphoMesh/.agents/worker_m1/handoff.md` and notify orchestrator via `send_message`.
+
+## 2026-09-05T15:54:07Z
+You are Worker M1 (Anatomy Generator & Claw Fix Specialist).
+Your working directory is `/Users/duongnad/Documents/tool/MorphoMesh/.agents/worker_m1`.
+Read your dispatch assignment at `/Users/duongnad/Documents/tool/MorphoMesh/.agents/worker_m1/DISPATCH.md`, `/Users/duongnad/Documents/tool/MorphoMesh/.agents/ORIGINAL_REQUEST.md` (sections ## 2026-09-05T15:44:52Z and ## 2026-09-05T15:47:35Z), and `/Users/duongnad/Documents/tool/MorphoMesh/.agents/orchestrator_bear_1/PROJECT.md`.
+Also consult:
+- `/Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_survey_1/survey_report.md`
+- `/Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_survey_2/survey_report.md`
 
 MANDATORY INTEGRITY WARNING:
 DO NOT CHEAT. All implementations must be genuine. DO NOT hardcode test results, create dummy/facade implementations, or circumvent the intended task. A teamwork_preview_auditor will independently verify your work. Integrity violations WILL be detected and your work WILL be rejected.
 
-Your task:
-Author the comprehensive, publication-grade benchmark document `docs/RESEARCH_BENCHMARK.md` covering all requirements in ORIGINAL_REQUEST.md R1:
-1. Executive Summary & Problem Formulation for AI Creature Generation.
-2. Master Benchmark Matrix evaluating all 29 SOTA models/repos (33 variants) across 3 key categories:
-   Category 1: Articulated Animals (3DAnimals: MagicPony, 3D Fauna, Ponymation; 4D-Animal, Animal Avatar, YouDream, GART, LASSIE / Hi-LASSIE, SAOR, BARC, BITE, anyCreature, Meow-Generator, animalclub, Muses).
-   Category 2: General High-Quality 3D for Creatures (TRELLIS, TRELLIS.2, Hunyuan3D-2, Hunyuan3D-2.1, Step1X-3D, Hi3DGen / Stable3DGen, SPAR3D, Stable Fast 3D, TripoSR, InstantMesh, Unique3D, OpenLRM, LGM, CRM).
-   Category 3: Retopology & Auto-rigging (MeshAnything, MeshAnything V2, Mesh2Motion, SMAL / SMALify, Blender Rigify procedural creatures).
-3. In-depth analysis of each model across all 6 core criteria:
-   - License (Commercial vs Non-commercial, MIT, Apache 2.0, Tencent, Stability)
-   - Hardware & VRAM requirements (Training & Inference minimum and recommended VRAM)
-   - Geometry fidelity (Watertightness, genus, thin structures like wings/horns, surface continuity)
-   - Export formats & Material fidelity (OBJ/GLB/FBX, 3DGS, NeRF, PBR maps: Albedo, Normal, Roughness, Metallic)
-   - Rigging / Skeleton status (Joint count, LBS weights, parametric models, Rigify compatibility)
-   - Deployment feasibility (Local Apple Silicon M-series vs Remote GPU Cloud API: Replicate, Hugging Face, RunPod)
-4. Hardware Architecture Tradeoff Analysis: Quantitative comparison of local Apple Silicon MPS/CPU latency vs Cloud GPU (A10G/RTX 4090/A100) proving the necessity of a Hybrid Architecture.
-5. Optimal Pipeline Recommendations for the 3 distinct use-cases:
-   - Use-Case A: Diverse Fantasy Creatures (Dragons, Chimeras, Multi-limbed beasts)
-   - Use-Case B: Realistic Animals with Animation/Rig (Quadrupeds, Birds, Aquatic)
-   - Use-Case C: Game-Ready Low-Poly Assets (Mobile/VR budget, LODs, PBR baking)
-6. Future Roadmap & Emerging Frontiers (4D creature animation, Gaussian splat skinning, multimodal physics).
+File Ownership:
+- `src/morphomesh/blender_bridge.py`
+- `src/morphomesh/inference_adapter.py`
+- `src/morphomesh/creature_generator.py`
+- `tests/test_anatomy_generator.py`
+
+Execute the implementation:
+1. Fix line 472 in `src/morphomesh/blender_bridge.py` to handle `"success": True`.
+2. Add `add_curved_claw`, `add_plantigrade_paw`, `add_articulated_head`, `add_anatomical_torso` to `MeshGeometry` in `src/morphomesh/inference_adapter.py`.
+3. Implement `src/morphomesh/creature_generator.py` to procedurally synthesize the authentic bear base mesh with forward/downward curving claws (dot product > 0.6), plantigrade paws with pads, articulated facial geometry (mouth, jaw, teeth, nostrils, eyelids, ears), and 18 standardized vertex groups.
+4. Add automated tests in `tests/test_anatomy_generator.py`. Run `pytest -v tests/` and verify in Blender.
+5. Deliver handoff report at `/Users/duongnad/Documents/tool/MorphoMesh/.agents/worker_m1/handoff.md` and message orchestrator when done.
