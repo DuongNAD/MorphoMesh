@@ -1,260 +1,118 @@
-# Forensic Audit Report: Milestone M1 — Reusable Anatomy Generator & Claw Inversion Fix
+# Forensic Audit Report: Milestone 1 — Interactive Socket Bridge Parity & Reliability
 
-**Document ID**: `MM-AUDIT-M1-001`  
-**Auditor**: Forensic Auditor M1-1 (`auditor_m1_1`)  
-**Work Product**:
-- `src/morphomesh/creature_generator.py`
-- `src/morphomesh/inference_adapter.py`
-- `src/morphomesh/blender_bridge.py`
-- `tests/test_anatomy_generator.py`
+**Work Product**: Milestone 1 Deliverables (`blender_addon/morphomesh/listener.py`, `src/morphomesh/blender_bridge.py`, `tests/test_bridge_socket_parity.py`)  
 **Profile**: General Project  
-**Integrity Mode**: `development` (per `ORIGINAL_REQUEST.md` line 127)  
+**Integrity Mode**: `development` (per `ORIGINAL_REQUEST.md` § 2026-09-07T03:34:32Z)  
+**Auditor**: Auditor M1_1 (Forensic Integrity Auditor)  
+**Target Milestone**: Milestone 1  
 **Verdict**: **CLEAN**
+
+---
+
+### Phase Results
+- **Constraint & Mode Verification**: PASS — `ORIGINAL_REQUEST.md` specifies `Integrity mode: development` and R3 interactive socket bridge parity requirements.
+- **Static AST Analysis**: PASS — All 21 test functions in `tests/test_bridge_socket_parity.py` contain authentic assertions. 0 tautologies (`assert True`), 0 empty test functions, 0 skipped tests.
+- **Hardcoded Output & Leaked Constant Detection**: PASS — 0 test request IDs, test strings, or synthetic fixtures detected in `listener.py` or `blender_bridge.py`.
+- **Facade & Stub Implementation Detection**: PASS — All RPC dispatch methods and bridge client methods contain genuine logic, BVH computations, AABB solvers, and error barriers.
+- **Test Suite Execution**: PASS — 21/21 tests in `tests/test_bridge_socket_parity.py` passed in 14.06s; 79/79 tests in `tests/test_blender_bridge.py` passed in 0.19s (100% total pass rate).
+- **Adversarial Stress Testing**: PASS — Independent test suite verified concurrency (10 concurrent threads x 10 requests), 200KB payload transmission, escaped newline handling, and timer immortality under catastrophic client network exceptions.
 
 ---
 
 ## 1. Observation
 
-### 1.1 Mandate Checklist & Forensic Status
-| # | Check Item | Forensic Status | Key Evidence / Code Citation |
-|---|------------|-----------------|------------------------------|
-| 1 | No hardcoded test results or mock shortcuts | **PASS** | `src/morphomesh/creature_generator.py` lines 440–560; `inference_adapter.py` lines 404–560. Parabolic lofting rings computed via Frenet-Serret frame. |
-| 2 | Real vertex indices in all 18 vertex groups | **PASS** | 3,337 vertices, 4,968 faces. All 18 vertex groups non-empty, 100% in-bounds indices `[0..3336]`, spatially verified centroids matching biological anatomy. |
-| 3 | `blender_bridge.py` line 472 fix authentic | **PASS** | `blender_bridge.py` lines 472–477 & 638–645. Socket returns `{"success": True, ...}`, bridge dispatches in 0.0930s without fallback. |
-| 4 | Tests genuinely exercise production code | **PASS** | `tests/test_anatomy_generator.py` (35 tests, 0 `assert True`). Coverage: 85% on `creature_generator.py`, 64% on `inference_adapter.py`. 230/230 tests pass. |
+### 1.1 Ground-Truth Constraints
+- Inspected `ORIGINAL_REQUEST.md` lines 230–267 (§ 2026-09-07T03:34:32Z):
+  - Line 234: `Integrity mode: development`.
+  - Line 245: "All high-level MCP preview, grooming, wardrobe, and scene inspection methods must be cleanly dispatched and executed in Blender's main thread via timers without dropped connections, race conditions, or unhandled exceptions."
+  - Line 261: "All MCP preview and execution commands run through the Blender socket listener without unhandled method errors."
 
-### 1.2 Direct Observations and Raw Tool Outputs
+### 1.2 Static AST Inspection
+- Executed AST parser script against `tests/test_bridge_socket_parity.py`:
+  - Exactly 21 `test_*` functions detected.
+  - Zero tautological assertions (`assert True`, `assert 1 == 1`, `assert x == x`).
+  - Zero empty functions (`pass` or empty bodies).
+  - Every test verifies returned IDs, socket state, response dictionaries, or catches expected exceptions with `pytest.raises`.
+- Scanned `blender_addon/morphomesh/listener.py` and `src/morphomesh/blender_bridge.py` for test harness patterns (`req-life`, `req-stream`, `req-frag`, `mix-`, `req-valid`, `Scene_MorphoMesh_QA`, `Hero_Body_Mesh`, `Armature_Rigify_Human`):
+  - Result: 0 matches found in production code.
 
-#### A. Empirical Verification of Dynamic vs Hardcoded Validation
-Running adversarial configurations through `generate_bear_base_mesh`:
-```bash
-python3 -c "
-from morphomesh.creature_generator import generate_bear_base_mesh, UrsineAnatomyConfig
+### 1.3 Implementation Analysis
+- **NDJSON Streaming** (`blender_addon/morphomesh/listener.py` lines 151–216):
+  - Uses continuous line buffering `buffer += data` split on `b"\n"`.
+  - Parses each complete line with `json.loads`.
+  - Provides fallback JSON decoder via `json.JSONDecoder().raw_decode` for un-delimited legacy streams.
+- **Timer Immortality Guard** (`blender_addon/morphomesh/listener.py` lines 225–305):
+  - In `_drain_queue`: Top-level `try...except Exception as e_immortal:` with `finally: if self.running: return 0.02; return None`.
+  - Inner per-command `try...except Exception as e_dispatch:` catches method-level errors and returns a formatted JSON-RPC error response rather than bubbling up.
+- **Dispatch Parity** (`blender_addon/morphomesh/listener.py` lines 306–1310):
+  - Supports `morphomesh.ping`, `morphomesh.get_scene_status`, `morphomesh.execute_custom_script`, `morphomesh.render_preview`, `morphomesh.setup_inspector_camera`, `morphomesh.capture_viewport`, `morphomesh.critique_visual_quality`, `morphomesh.create_human_asset`, `morphomesh.auto_rig_human`, `morphomesh.setup_human_materials`, `morphomesh.groom_human`, `morphomesh.dress_human`, `morphomesh.assemble_master_character`.
+  - Includes real BVH distance penetration checks, bounding box mathematics, camera creation/tracking, and scene hierarchy traversal.
+- **Client Headless Fallback Predicate** (`src/morphomesh/blender_bridge.py` lines 537–560):
+  - Corrected predicate recognizes `"image_path" in res`, `"camera_name" in res`, `"defects" in res`, `"defect_count" in res`, `"scene_name" in res`, preventing false fallbacks to headless CLI execution.
 
-# Test 1: Baseline valid bear
-res = generate_bear_base_mesh()
-print('Default bear valid:', res.is_anatomically_valid)
-print('Claws count:', len(res.claws), 'Claws valid:', sum(c.is_valid for c in res.claws))
-print('Total vertices:', len(res.mesh.vertices), 'Total faces:', len(res.mesh.faces))
+### 1.4 Test Execution Evidence
+- Command: `.venv\Scripts\pytest tests/test_bridge_socket_parity.py -v`
+  - Output: `21 passed in 14.06s` (exit code 0).
+- Command: `.venv\Scripts\pytest tests/test_blender_bridge.py -v`
+  - Output: `79 passed in 0.19s` (exit code 0).
+- Total baseline + parity test count: `100 passed in 14.25s` with 0 failures, 0 warnings.
 
-# Test 2: Adversarial configuration with inverted claw curve (curve_factor = -0.5)
-cfg_bad = UrsineAnatomyConfig(claw_curve_factor=-0.5)
-res_bad = generate_bear_base_mesh(cfg_bad)
-print('Adversarial bear valid:', res_bad.is_anatomically_valid)
-print('Bad claws valid count:', sum(c.is_valid for c in res_bad.claws))
-assert res_bad.is_anatomically_valid is False
-assert sum(c.is_valid for c in res_bad.claws) == 0
-
-# Test 3: 4 digits configuration
-cfg_4 = UrsineAnatomyConfig(num_digits=4)
-res_4 = generate_bear_base_mesh(cfg_4)
-print('4 digits claws count:', len(res_4.claws), 'is_valid:', res_4.is_anatomically_valid)
-assert res_4.is_anatomically_valid is False
-assert len(res_4.claws) == 16
-"
-```
-**Raw Output**:
-```
-Default bear valid: True
-Claws count: 20 Claws valid: 20
-Total vertices: 3337 Total faces: 4968
-Adversarial bear valid: False
-Bad claws valid count: 0
-4 digits claws count: 16 is_valid: False
-```
-*Finding*: Validation is 100% computed dynamically based on geometric dot products and array lengths. It immediately flags inverted claws and non-standard digit counts.
-
-#### B. Spatial Coordinate & Centroid Audit of All 18 Standardized Vertex Groups
-```bash
-python3 -c "
-from morphomesh.creature_generator import generate_bear_base_mesh, STANDARDIZED_VERTEX_GROUPS
-res = generate_bear_base_mesh()
-mesh, vgs, total_v = res.mesh, res.vertex_groups, len(res.mesh.vertices)
-for name in STANDARDIZED_VERTEX_GROUPS:
-    indices = vgs.get(name, [])
-    pts = [mesh.vertices[i] for i in indices]
-    cx, cy, cz = sum(p[0] for p in pts)/len(pts), sum(p[1] for p in pts)/len(pts), sum(p[2] for p in pts)/len(pts)
-    min_x, max_x = min(p[0] for p in pts), max(p[0] for p in pts)
-    min_y, max_y = min(p[1] for p in pts), max(p[1] for p in pts)
-    min_z, max_z = min(p[2] for p in pts), max(p[2] for p in pts)
-    print(f'VG [{name:<22}] Count={len(indices):<4} Centroid=({cx:+.3f}, {cy:+.3f}, {cz:+.3f}) BBox=[X: {min_x:+.2f}..{max_x:+.2f}, Y: {min_y:+.2f}..{max_y:+.2f}, Z: {min_z:+.2f}..{max_z:+.2f}]')
-"
-```
-**Raw Output**:
-```
-VG [snout                 ] Count=48   Centroid=(-0.000, -1.055, +1.195) BBox=[X: -0.09..+0.09, Y: -1.12..-0.90, Z: +1.10..+1.26]
-VG [nostrils              ] Count=16   Centroid=(+0.000, -1.121, +1.216) BBox=[X: -0.04..+0.04, Y: -1.13..-1.09, Z: +1.20..+1.23]
-VG [mouth_cavity          ] Count=24   Centroid=(+0.000, -1.010, +1.130) BBox=[X: -0.07..+0.07, Y: -1.08..-0.94, Z: +1.11..+1.14]
-VG [jaw                   ] Count=24   Centroid=(+0.000, -1.000, +1.080) BBox=[X: -0.07..+0.07, Y: -1.09..-0.91, Z: +1.05..+1.11]
-VG [teeth                 ] Count=80   Centroid=(-0.000, -1.066, +1.120) BBox=[X: -0.06..+0.06, Y: -1.08..-1.04, Z: +1.09..+1.15]
-VG [eyes                  ] Count=126  Centroid=(+0.002, -0.900, +1.260) BBox=[X: -0.18..+0.18, Y: -0.93..-0.87, Z: +1.23..+1.29]
-VG [eyelids               ] Count=96   Centroid=(-0.000, -0.900, +1.260) BBox=[X: -0.17..+0.17, Y: -0.92..-0.88, Z: +1.23..+1.29]
-VG [ears                  ] Count=108  Centroid=(+0.002, -0.680, +1.380) BBox=[X: -0.22..+0.22, Y: -0.71..-0.65, Z: +1.32..+1.44]
-VG [claws_front           ] Count=500  Centroid=(-0.000, -0.739, +0.002) BBox=[X: -0.49..+0.49, Y: -0.81..-0.69, Z: -0.03..+0.04]
-VG [claws_hind            ] Count=500  Centroid=(-0.000, +0.155, +0.006) BBox=[X: -0.46..+0.46, Y: +0.10..+0.20, Z: -0.02..+0.04]
-VG [pads_front            ] Count=510  Centroid=(+0.002, -0.636, +0.013) BBox=[X: -0.49..+0.49, Y: -0.71..-0.47, Z: -0.01..+0.03]
-VG [pads_hind             ] Count=440  Centroid=(+0.002, +0.231, +0.013) BBox=[X: -0.46..+0.46, Y: +0.18..+0.45, Z: -0.01..+0.03]
-VG [torso                 ] Count=428  Centroid=(+0.013, +0.085, +0.922) BBox=[X: -0.36..+0.36, Y: -0.50..+0.72, Z: +0.55..+1.21]
-VG [limbs                 ] Count=160  Centroid=(-0.009, -0.064, +0.126) BBox=[X: -0.50..+0.50, Y: -0.68..+0.51, Z: +0.00..+0.43]
-VG [tail                  ] Count=8    Centroid=(-0.000, +0.635, +0.940) BBox=[X: -0.04..+0.04, Y: +0.60..+0.74, Z: +0.87..+0.98]
-VG [dorsal_spine          ] Count=24   Centroid=(+0.000, +0.050, +1.090) BBox=[X: -0.03..+0.03, Y: -0.48..+0.58, Z: +1.07..+1.11]
-VG [armor_mounts_shoulder ] Count=77   Centroid=(+0.011, -0.180, +1.070) BBox=[X: -0.22..+0.22, Y: -0.37..+0.01, Z: +0.93..+1.21]
-VG [armor_mounts_wrist    ] Count=16   Centroid=(+0.015, -0.407, +0.255) BBox=[X: -0.42..+0.44, Y: -0.42..-0.39, Z: +0.08..+0.43]
-```
-*Finding*: Every vertex group maps precisely to genuine biological features.
-
-#### C. Headless Blender Object and Vertex Group Assignment Verification
-Command:
-```bash
-/Applications/Blender.app/Contents/MacOS/Blender --background --factory-startup --python-expr "
-import sys, site
-sys.path.insert(0, site.getusersitepackages())
-sys.path.insert(0, '/Users/duongnad/Documents/tool/MorphoMesh/src/morphomesh')
-import bpy
-from creature_generator import build_bear_in_blender, STANDARDIZED_VERTEX_GROUPS
-res = build_bear_in_blender(object_name='Forensic_Audit_Bear')
-obj = bpy.data.objects.get('Forensic_Audit_Bear')
-assert obj is not None
-assert len(obj.vertex_groups) == 18
-mesh = obj.data
-assigned_vgs = set()
-for v in mesh.vertices:
-    for g in v.groups:
-        assigned_vgs.add(obj.vertex_groups[g.group].name)
-assert len(assigned_vgs) == 18
-print('BLENDER AUDIT SUCCESS: 18 vertex groups verified on Blender mesh object.')
-"
-```
-**Raw Output**:
-```
-=== BLENDER BUILD RESULT ===
-status: success
-object_name: Forensic_Audit_Bear
-vertex_count: 3337
-face_count: 4968
-vertex_groups_count: 18
-vertex_groups: ['snout', 'nostrils', 'mouth_cavity', 'jaw', 'teeth', 'eyes', 'eyelids', 'ears', 'claws_front', 'claws_hind', 'pads_front', 'pads_hind', 'torso', 'limbs', 'tail', 'dorsal_spine', 'armor_mounts_shoulder', 'armor_mounts_wrist']
-claws_count: 20
-claws_valid_count: 20
-is_anatomically_valid: True
-BLENDER AUDIT SUCCESS: 18 vertex groups verified on Blender mesh object.
-Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
-Blender quit
-```
-
-#### D. Live Socket Bridge Dispatch Fix (Line 472)
-Command:
-```bash
-python3 -c "
-import time
-from morphomesh.blender_bridge import BlenderBridge
-from morphomesh.creature_generator import get_blender_generation_script
-
-bridge = BlenderBridge(host='127.0.0.1', port=9876)
-assert bridge.is_interactive_connected()
-script = get_blender_generation_script('Live_Audit_Bear', scale=1.0)
-t0 = time.time()
-res = bridge.execute_custom_script(script, return_variables=['out_vars'])
-t1 = time.time()
-print(f'Execution success: {res.success}, Latency: {t1 - t0:.4f}s')
-print('Returned data:', res.returned_data)
-assert res.success is True
-assert res.returned_data['out_vars']['vertex_groups_count'] == 18
-"
-```
-**Raw Output**:
-```
-Execution success: True, Latency: 0.0930s
-Returned data: {'out_vars': {'status': 'success', 'object_name': 'Live_Audit_Bear', 'vertex_count': 1746, 'face_count': 2808, 'vertex_groups_count': 18}}
-```
-*Finding*: The bridge correctly recognizes `{"success": True, ...}` from the socket server on port 9876, avoiding the 2.5s headless process spawn.
-
-#### E. Test Suite Execution & Code Coverage
-Commands:
-```bash
-pytest -v tests/test_anatomy_generator.py
-pytest tests/test_anatomy_generator.py --cov=morphomesh.creature_generator --cov-report=term
-pytest -v tests/
-```
-**Raw Output**:
-- `tests/test_anatomy_generator.py`: 35 passed in 0.13s (0 failures).
-- Coverage on `creature_generator.py`: 85%.
-- Full test suite: **230 passed in 2.08s** (0 failures).
+### 1.5 Adversarial Verification Evidence
+- Executed `.venv\Scripts\python.exe .agents/auditor_m1_1/test_adversarial_integrity.py`:
+  - Check 1 (Concurrency 10 threads x 10 requests = 100 requests): PASS.
+  - Check 2 (Large payload 200KB transfer in execute_custom_script): PASS.
+  - Check 3 (Escaped newlines `\n` inside JSON payload values vs delimiter `\n`): PASS.
+  - Check 4 (Timer immortality when client socket throws `RuntimeError` during response sending): PASS (`_drain_queue` returned `0.02`).
+  - Check 5 (Clean timer deregistration on `server.stop()`): PASS (`_drain_queue` returned `None`).
 
 ---
 
 ## 2. Logic Chain
 
-1. **Absence of Hardcoding**:
-   - Observations 1.2.A and 1.2.B demonstrate that the geometry coordinates, vertex counts, and claw metrics are derived through parametric mathematical functions ($t \mapsto \vec{c}(t)$ parabolic arc and Frenet-Serret frame).
-   - Injecting an adversarial curve parameter ($\text{curve\_factor} = -0.5$) immediately causes `is_anatomically_valid` to evaluate to `False` and valid claws to drop from 20 to 0. This proves the validation is evaluating actual geometric results, not returning hardcoded `True`.
-2. **Authenticity of Vertex Groups**:
-   - Observation 1.2.B empirically proves that all 18 standardized vertex groups contain vertices with geometric coordinates centered exactly where expected: snout at $(-0.000, -1.055, 1.195)$, nares recessed into rhinarium at $(-0.000, -1.121, 1.216)$, claws at paws with $Z \in [-0.03, 0.04]$, tail at $Y = 0.635$, and dorsal spine along $X \in [-0.03, 0.03], Z = 1.090$.
-   - Observation 1.2.C proves that in Blender 5.2.1 LTS, all 18 vertex groups are physically created on the `b_obj` and referenced by polygons and vertices.
-3. **Authenticity of Bridge Fix**:
-   - Observation 1.2.D confirms that prior to updating line 472 in `blender_bridge.py`, the bridge discarded responses without `status == "success"` even if `success is True` was returned, forcing an unnecessary subprocess spawn. The updated condition evaluates `res.get("success") is True` directly and completes the round-trip RPC in $0.0930\,\text{s}$.
-4. **Authentic Test Coverage**:
-   - Observation 1.2.E confirms 35 unit/integration tests with zero `assert True` trivialities, exercising 85% of `creature_generator.py` and 64% of `inference_adapter.py`. 100% of tests pass across the entire repository.
+1. **Premise 1 (Mode and Ground Truth)**: Per `ORIGINAL_REQUEST.md` (§ 2026-09-07T03:34:32Z), integrity mode is `development`. The explicit requirements demand that NDJSON streaming, timer immortality, and dispatch parity be authentically implemented without facade stubs or hardcoded bypasses.
+2. **Premise 2 (Static Integrity)**: AST analysis of `tests/test_bridge_socket_parity.py` proves all 21 test functions exercise real code paths and perform genuine, non-tautological assertions. Scans of `listener.py` and `blender_bridge.py` confirm absence of hardcoded test identifiers or synthetic bypasses.
+3. **Premise 3 (Behavioral Authenticity)**: Direct test execution confirms that real TCP socket connections on `127.0.0.1` transmit newline-delimited JSON payloads, process queue drains on the simulated main thread, handle malformed and fragmented frames, and correctly serialize responses.
+4. **Premise 4 (Adversarial Robustness)**: Under multi-threaded concurrent bombardment, 200KB payload sizes, and catastrophic socket network failures, the listener's timer barrier preserves the 0.02s callback without dropping the timer or crashing.
+5. **Conclusion**: The implementation satisfies all Milestone 1 integrity criteria. There is no evidence of cheating, hardcoding, facade patterns, or test circumvention.
 
 ---
 
 ## 3. Caveats
 
-1. **Active Blender Port Dependency for Interactive Mode**:
-   Live socket execution requires port 9876 to be bound by an active Blender instance with the MorphoMesh addon running. When port 9876 is unavailable, `BlenderBridge` safely and automatically falls back to headless execution via `/Applications/Blender.app/Contents/MacOS/Blender --background`.
-2. **Downstream Milestones (Fur Grooming & PBR Shaders)**:
-   This audit confirms Milestone M1 (procedural anatomy generation, 18 vertex groups, claw curvature, and socket bridge fix). Subsequent milestones M2 (volumetric fur grooming curves) and M3 (Principled BSDF v2 shaders & armor fitting) build on top of these verified foundations.
+1. **Headless Offscreen Buffer Context**: In automated testing environments lacking a physical GPU display session, tests utilize `mock_bpy_environment` with real TCP sockets and multithreading. Full GPU hardware OpenGL grab testing requires a running interactive Blender window on a machine with display capabilities.
+2. **Feature Coverage Scope**: The scope of this audit is strictly Milestone 1 (Interactive Socket Bridge Parity & Reliability). Upstream subsystems scheduled for subsequent milestones (M2 Inspector Camera Rig, M3 Visual Critic standalone modules) are audited for bridge interface compatibility and fallback integrity, but their core mathematical engines belong to their respective milestones.
 
 ---
 
 ## 4. Conclusion
 
-**Verdict: CLEAN**
-
-Milestone M1 satisfies all ground-truth constraints specified in `ORIGINAL_REQUEST.md` and the audit mandate:
-1. Zero hardcoded test results, fake coordinates, or mock shortcuts exist.
-2. All 18 standardized vertex groups contain genuine, geometrically verified vertex indices.
-3. The `blender_bridge.py` line 472 fix is genuine, verified, and operational with 0.09s latency.
-4. All 35 anatomy tests and all 230 test cases in the test suite genuinely execute production code and pass with exit code 0.
+**Verdict**: **CLEAN**  
+Work Product for Milestone 1 is approved. No integrity violations, facades, or hardcoded shortcuts were found.
 
 ---
 
 ## 5. Verification Method
 
-### 5.1 Pytest Suite Verification
-```bash
-pytest -v tests/test_anatomy_generator.py
-pytest -v tests/
+### 5.1 Run Parity Test Suite
+```powershell
+.venv\Scripts\pytest tests/test_bridge_socket_parity.py -v
 ```
-*Expected Result*: 35/35 anatomy tests pass; 230/230 total tests pass with exit code 0.
+*Expected Result*: 21 passed (exit code 0).
 
-### 5.2 Adversarial Dynamic Validation Check
-```bash
-python3 -c "
-from morphomesh.creature_generator import generate_bear_base_mesh, UrsineAnatomyConfig
-bad_res = generate_bear_base_mesh(UrsineAnatomyConfig(claw_curve_factor=-0.5))
-assert bad_res.is_anatomically_valid is False
-assert sum(c.is_valid for c in bad_res.claws) == 0
-print('PASS: Dynamic validation confirmed.')
-"
+### 5.2 Run Baseline Bridge Test Suite
+```powershell
+.venv\Scripts\pytest tests/test_blender_bridge.py -v
 ```
+*Expected Result*: 79 passed (exit code 0).
 
-### 5.3 Live Socket Bridge Verification
-```bash
-python3 -c "
-from morphomesh.blender_bridge import BlenderBridge
-from morphomesh.creature_generator import get_blender_generation_script
-bridge = BlenderBridge(host='127.0.0.1', port=9876)
-script = get_blender_generation_script('Verify_Bear')
-res = bridge.execute_custom_script(script, return_variables=['out_vars'])
-assert res.success is True
-assert res.returned_data['out_vars']['vertex_groups_count'] == 18
-print('PASS: Live socket execution confirmed.')
-"
+### 5.3 Run Adversarial Stress Harness
+```powershell
+.venv\Scripts\python.exe .agents/auditor_m1_1/test_adversarial_integrity.py
 ```
+*Expected Result*: All 5 adversarial checks PASS (exit code 0).
 
 ### 5.4 Invalidation Conditions
-- Any claw where $\vec{d}_{\text{claw}} \cdot (0, -1, 0) \le 0.60$ or $d_z \ge 0$.
-- Any standardized vertex group missing or having 0 vertices.
-- `blender_bridge.py` failing to recognize socket responses with `success: True`.
-- Any test failures in `pytest tests/`.
+- Any occurrence of `_drain_queue()` returning `None` or raising an unhandled exception while `self.running` is True.
+- Any JSONDecodeError on valid NDJSON streams delimited by `\n`.
+- Any false fallback to headless CLI execution when socket returns valid `"image_path"`, `"camera_name"`, or `"defects"` payloads.
+- Any failure in the 100-test suite across `tests/test_bridge_socket_parity.py` or `tests/test_blender_bridge.py`.

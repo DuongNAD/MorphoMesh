@@ -61,3 +61,20 @@ coverage.xml
 .vscode/
 *.swp
 *.swo
+
+# Temporary test & generator outputs
+output/tripo/
+output/test_adv_temp/
+output/**/test_*.png
+output/**/slot*.png
+output/**/audit_*.png
+output/**/master_*.png
+output/**/liva_*.png
+output/**/skin_*.png
+output/**/clean_*.png
+output/**/direct_*.png
+output/**/seamless_*.png
+output/**/bodice_*.png
+output/**/denoise_*.png
+output/**/human_*.png
+output/**/yu_nian_an_test_*.png

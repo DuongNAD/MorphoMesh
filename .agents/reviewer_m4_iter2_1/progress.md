@@ -1,18 +1,18 @@
-# Progress — Reviewer M4-Iter2-1
+# Progress - Reviewer M4 Iter 2 - 1
 
-Last visited: 2026-09-06T04:29:30Z
+Last visited: 2026-09-07T07:22:00Z
+Status: COMPLETED
 
-## Status
-Independent verification and adversarial stress-testing complete. Synthesizing handoff report.
-
-## Steps
-- [x] Received dispatch instructions and initialized workspace
-- [x] Initialized BRIEFING.md and progress.md
-- [x] Read reference documents (ORIGINAL_REQUEST.md, PROJECT.md, reviewer_m4 handoff, worker_m4_remediation handoff)
-- [x] Verify Finding 1: Inspected tests/test_bear_anatomy.py; verified authentic 2-manifold and signed volume checks; ran pytest -v tests/test_bear_anatomy.py (17 passed) and full pytest suite (326 passed)
-- [x] Verify Finding 2: Headless Blender BVH point-to-surface checks on examples/Armored_War_Bear_HD.blend and .glb confirmed d_min >= 0.015m and 0 inside vertices across all 6 armor plates; verify_bear_anatomy.py audited and confirmed using true BVHTree.FromPolygons
-- [x] Verify Finding 3: Inspected src/morphomesh/creature_generator.py and src/morphomesh/inference_adapter.py; verified wrist attachment with 5cm overlap, capped cylinder ends, and 4-ring lofted rostrum with rhinarium cap
-- [x] Verify Finding 4: Visually inspected all 4 beauty renders in examples/renders/ using view_file; verified attached paws, capped limbs, forward/downward curved claws, and fitted armor
-- [x] Adversarial stress-testing & integrity check: 0 non-manifold edges across all armor plates, positive signed volume, 0 loose vertices, 0 zero-area faces
-- [ ] Synthesize findings, update BRIEFING.md, and write handoff.md
-- [ ] Message orchestrator with review summary and verdict
+- [x] Initialized DISPATCH.md and BRIEFING.md
+- [x] Read ORIGINAL_REQUEST.md, PROJECT.md, GATE_STATUS.md, and worker_m4_iter2/handoff.md
+- [x] Inspect implementation: server.py, models.py, camera_rig.py, visual_critic.py
+  - [x] Viewpoint validation: ToolError regex match confirmed; "bottom", "turntable", "turntable_4views" in models.py & camera_rig.py
+  - [x] Shading mode & color type validation: ToolError regex match confirmed; field validators in CaptureViewportInput confirmed
+  - [x] Target preset validation: ToolError regex match confirmed; "realistic_female", "heroic_male", "chibi" in visual_critic.py ANTHROPOMETRIC_PRESETS
+- [x] Ran validation tests: `.venv\Scripts\pytest.exe -v tests/test_adversarial_error_injection_m4.py -k "Validation"` -> 41 passed, 0 failed
+- [x] Ran inspection tool tests: `.venv\Scripts\pytest.exe -v tests/test_fastmcp_inspection_tools.py` -> 21 passed, 0 failed
+- [x] Ran full adversarial suite: `.venv\Scripts\pytest.exe -v tests/test_adversarial_error_injection_m4.py` -> 46 passed, 0 failed
+- [x] Ran full repository regression: 527 passed, 3 skipped, 0 failed
+- [x] Adversarial stress test & integrity check -> 0 integrity violations, 0 facades
+- [x] Updated BRIEFING.md
+- [ ] Write handoff.md & send message to parent orchestrator

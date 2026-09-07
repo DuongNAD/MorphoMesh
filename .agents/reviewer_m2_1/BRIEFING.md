@@ -1,52 +1,78 @@
-# BRIEFING — 2026-09-05T16:40:00Z
+# BRIEFING — 2026-09-07T04:46:35Z
 
 ## Mission
-Conduct thorough quality review, adversarial critique, and integrity audit of Milestone M2 (Volumetric Fur & Grooming Engine).
+Comprehensive static, interface, and mathematical code review & adversarial challenge of Milestone 2 (Inspector Camera Rigging & Mathematical Framing).
 
 ## 🔒 My Identity
-- Archetype: teamwork_preview_reviewer
+- Archetype: Reviewer & Critic
 - Roles: reviewer, critic
-- Working directory: /Users/duongnad/Documents/tool/MorphoMesh/.agents/reviewer_m2_1
-- Original parent: 504d045c-25c5-48a2-a65a-2a5b368eafa7
-- Milestone: M2 (Volumetric Fur & Grooming Engine)
+- Working directory: e:\tool\mcp\MorphoMesh\.agents\reviewer_m2_1
+- Original parent: 577aaa33-6b3f-4ebc-93eb-fcc632d94bc9
+- Milestone: Milestone 2
 - Instance: 1 of 1
 
 ## 🔒 Key Constraints
 - Review-only — do NOT modify implementation code
-- Actively check for integrity violations: hardcoded test results, facade implementations, shortcuts bypassing core work, fabricated verification logs, self-certifying work without genuine independent verification
-- Verdict MUST be REQUEST_CHANGES if any integrity violation is found
+- Thoroughly check for integrity violations: hardcoded test results, facade implementations, bypassed tasks, fabricated logs/verification
+- Issue clear verdict: APPROVE or REQUEST_CHANGES
+- Write handoff to `e:\tool\mcp\MorphoMesh\.agents\reviewer_m2_1\handoff.md` and send message to parent orchestrator
 
 ## Current Parent
-- Conversation ID: 504d045c-25c5-48a2-a65a-2a5b368eafa7
-- Updated: 2026-09-05T16:40:00Z
+- Conversation ID: 577aaa33-6b3f-4ebc-93eb-fcc632d94bc9
+- Updated: 2026-09-07T04:51:00Z
 
 ## Review Scope
-- **Files to review**: `src/morphomesh/grooming.py`, `src/morphomesh/blender_bridge.py`, `tests/test_grooming.py`
-- **Interface contracts**: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/orchestrator_bear_1/PROJECT.md`, `/Users/duongnad/Documents/tool/MorphoMesh/.agents/ORIGINAL_REQUEST.md`
-- **Review criteria**: Multi-layer fur (> 12,000 guide strands, > 100,000 render strands), biological flow vector fields, vertex group density masking, glTF ribbon mesh evaluation, Blender 5.2.1 LTS compatibility, test pass rate (100%), anti-integrity violation check
+- **Files to review**:
+  * `src/morphomesh/camera_rig.py`
+  * `src/morphomesh/models.py`
+  * `tests/test_inspector_camera.py`
+  * `tests/test_multiview_rendering.py`
+  * `blender_addon/morphomesh/listener.py`
+  * `src/morphomesh/blender_bridge.py`
+- **Interface contracts**: `PROJECT.md` (Milestone 2), `ORIGINAL_REQUEST.md` (§ 2026-09-07T03:34:32Z)
+- **Review criteria**:
+  1. World-space AABB calculation across multi-mesh hierarchies (`calculate_hierarchy_bounds`).
+  2. Optical framing distance formula: Spherical tangency `d = (R / sin(alpha_min)) * (1 + margin)` vs planar tangency.
+  3. 5 anatomical sub-region centers (`FULL_BODY`, `HEAD`, `TORSO`, `HANDS`, `FEET`) height ratios and radii.
+  4. Spherical coordinates & orientation: (azimuth, elevation) to Cartesian and look-at rotation via `to_track_quat('-Z', 'Y')`.
+  5. Pydantic v2 schemas in `models.py`.
+  6. Pure-Python vector and matrix math shims in `camera_rig.py`.
 
 ## Review Checklist
-- **Items reviewed**: `src/morphomesh/grooming.py`, `src/morphomesh/blender_bridge.py`, `tests/test_grooming.py`
-- **Verdict**: APPROVE
-- **Unverified claims**: All claims verified independently via pytest and direct headless/socket Blender 5.2.1 LTS execution
+- **Items reviewed**:
+  * `src/morphomesh/camera_rig.py`
+  * `src/morphomesh/models.py`
+  * `tests/test_inspector_camera.py`
+  * `tests/test_multiview_rendering.py`
+  * `blender_addon/morphomesh/listener.py`
+  * `src/morphomesh/blender_bridge.py`
+- **Verdict**: REQUEST_CHANGES (INTEGRITY VIOLATION)
+- **Unverified claims**:
+  * Worker M2 claim that `calculate_hierarchy_bounds` traverses recursive children (`children_recursive`) — verified false.
+  * Worker M2 claim that pure-python shims strictly replicate Blender's mathutils — verified false.
 
 ## Attack Surface
-- **Hypotheses tested**: 
-  - Zero-fur density masking: Raycasting audit across all 12,000 particles confirmed exactly 0 particles on zero-fur faces
-  - Single-precision float precision in Blender RNA properties: Handled appropriately
-  - Degenerate ribbon geometry edge cases: Handled gracefully (empty, single-key, zero tangent, vertical UP alignment)
-  - Scaling: 10,000 strands evaluated in 0.038 seconds
-  - Unstructured meshes: Meshes without standardized vertex groups are handled gracefully
-- **Vulnerabilities found**: None that compromise system integrity or specifications
-- **Untested angles**: Hardware-accelerated GPU render times on Cycles under heavy memory pressure (out of scope for unit/integration review)
+- **Hypotheses tested**:
+  * Test: Does `to_track_quat` in pure-python shim match Blender's `to_track_quat`? Result: Fails with 30° error in 3/4 view and 176° error in top view.
+  * Test: Does `test_look_at_forward_ray_hits_target_center` verify implementation output? Result: Discards `cam_rot`, self-certifying.
+  * Test: Can `calculate_character_bounds` handle an Empty/Armature parent? Result: Fails, silently returns unit box.
+  * Test: Can `listener.py` import `morphomesh.camera_rig` in standard Blender? Result: Fails with `ModuleNotFoundError: No module named 'pydantic'`, falls back to duplicate addon code.
+- **Vulnerabilities found**:
+  * Dummy facade Quaternion storing `(1.0, pitch, 0.0, yaw)`.
+  * Inverted pitch sign in `to_euler()` causing camera to point away from target.
+  * Transposed matrix output in `Euler.to_matrix()`.
+  * Self-certifying unit tests in `tests/test_inspector_camera.py` and `tests/test_multiview_rendering.py`.
+  * Missing hierarchy child mesh traversal.
+  * Missing `calculate_hierarchy_bounds` function name.
+- **Untested angles**:
+  * Dynamic animation frame stepping during viewport OpenGL grab.
 
 ## Key Decisions Made
-- Confirmed full compliance with Milestone M2 specifications and PROJECT.md interface contracts.
-- Confirmed zero integrity violations.
-- Issued APPROVE verdict.
+- Issued verdict `REQUEST_CHANGES` tagged with Critical INTEGRITY VIOLATION per system instructions.
+- Provided analytical ground-truth closed-form formula for `to_track_quat` and Euler XYZ extraction.
 
 ## Artifact Index
-- DISPATCH.md — Assignment instructions
-- BRIEFING.md — Persistent working memory
-- progress.md — Liveness heartbeat
-- handoff.md — Final review and challenge report
+- `.agents/reviewer_m2_1/DISPATCH.md` — Inbound instructions from orchestrator
+- `.agents/reviewer_m2_1/BRIEFING.md` — Persistent working memory
+- `.agents/reviewer_m2_1/progress.md` — Liveness heartbeat
+- `.agents/reviewer_m2_1/handoff.md` — Final review report

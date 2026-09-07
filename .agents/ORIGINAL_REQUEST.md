@@ -181,3 +181,87 @@ Server has restarted. Please resume execution, revive the active orchestrator (G
 2. Pauldron repositioning and true BVH clearance ($d_{\min} \ge 0.015\text{m}$).
 3. Verification test suites update and re-running master assembly and beauty renders.
 4. Final Victory Audit and handoff.
+
+## 2026-09-06T17:35:53Z
+
+# Teamwork Project Prompt
+
+Nâng cấp MorphoMesh thành pipeline tạo mô hình người 3D chân thực đạt chuẩn công nghiệp (Photorealistic Digital Human Pipeline) kết nối Blender qua FastMCP/Socket Bridge, đồng thời tạo mô hình 3D hoàn chỉnh của nhân vật Dư Niệm An (余念安 - Yu Nian An) theo phong cách bán thực tế cao cấp (Semi-Realistic / Stylized Photorealism) bám sát tuyệt đối bản vẽ tham chiếu.
+
+Working directory: E:\tool\mcp\MorphoMesh
+Integrity mode: development
+Reference Image: C:/Users/Admin/.gemini/antigravity/brain/df2fd097-8a99-4a14-8a06-9aa137171d4e/.user_uploaded/media_1788716034772.jpg
+
+## Requirements
+
+### R1. MorphoMesh Digital Human Engine Upgrade
+- Xây dựng module tạo dựng và nắn chỉnh giải phẫu cơ thể người (`src/morphomesh/human_generator.py` & `src/morphomesh/human_rigging.py`) tích hợp khung xương Rigify Human Metarig (163 xương DEF, 10 ngón tay và các khớp xoay chuẩn hoạt họa).
+- Xây dựng hệ thống vật liệu da người PBR với Subsurface Scattering (Random Walk), mắt 2 buồng khúc xạ, tóc sợi hạt (Geometry Nodes Curves) và trang phục động (`src/morphomesh/human_materials.py`, `src/morphomesh/human_grooming.py`, `src/morphomesh/wardrobe.py`).
+- Cập nhật Blender Socket Bridge (port 9876) và FastMCP server (`src/morphomesh/server.py`) để cung cấp bộ công cụ tự động hóa quá trình dựng hình, rigging, gán vật liệu và kết xuất trực tiếp trên Blender 4.5+.
+
+### R2. Tạo Mô Hình 3D Nhân Vật Dư Niệm An (Yu Nian An) Đạt Đỉnh Cao Thẩm Mỹ
+- Dựng mô hình 3D toàn diện cho nhân vật Dư Niệm An theo phong cách Semi-Realistic / High-End Stylized Photorealism: giữ trọn vẹn nét thanh tú thuần khiết, đôi mắt có hồn và biểu cảm tĩnh lặng/u buồn từ bản vẽ 4 góc nhìn (chính diện, 3/4, góc ngang, lưng).
+- Dựng trang phục váy hai dây trắng thắt đai eo và dép bệt chuẩn phom dáng bản vẽ với độ rủ và nếp gấp vải tự nhiên.
+- Dựng hệ thống đạo cụ đặc trưng: bàn tay mảnh mai gắn các sợi chỉ đỏ ma thuật điều khiển đàn bướm trắng phát sáng theo concept.
+- Xây dựng hệ thống tóc đen dài mái bằng (hime cut / straight bangs) dạng sợi Curves tự nhiên, bóng mượt.
+- Thiết lập hệ thống xương Rigify hoàn chỉnh, gắn trọng số da (vertex weighting) chuẩn xác, cùng bộ Shape Keys biểu cảm khuôn mặt (52 ARKit FACS blendshapes) sẵn sàng cho mocap/lip-sync.
+
+### R3. Kiểm Thử và Đóng Gói Tự Động
+- Bộ kiểm thử tự động xác thực tính toàn vẹn của mã nguồn, socket bridge và quy trình tạo mesh người.
+- Xuất file mô hình 3D hoàn chỉnh sang các định dạng chuẩn (.blend sẵn shader Cycles/EEVEE, .fbx, .gltf) kèm đầy đủ bộ texture maps PBR (4K resolution).
+
+## Acceptance Criteria
+
+### MorphoMesh Core Engine
+- [ ] Module `human_rigging.py` tự động sinh và nắn chỉnh armature Rigify Human 163 xương DEF trực tiếp trên Blender qua socket bridge 127.0.0.1:9876 mà không gặp bất kỳ lỗi thực thi nào.
+- [ ] FastMCP server cung cấp và đăng ký thành công các công cụ quản lý human pipeline (`morphomesh_create_human_asset`, `morphomesh_auto_rig_human`, `morphomesh_setup_human_materials`, `morphomesh_groom_human`, `morphomesh_dress_human`).
+- [ ] Toàn bộ unit tests mới và tests hiện tại (`pytest tests/`) đạt 100% pass.
+
+### Mô Hình 3D Dư Niệm An
+- [ ] Tỷ lệ nhân trắc học, mắt, mũi, miệng, đường viền hàm và góc nhìn 3/4 đối chiếu trùng khớp với bản vẽ thiết kế `media_1788716034772.jpg`.
+- [ ] Lưới cơ thể và trang phục hoàn toàn là quads (tối thiểu 95% quads ở các vùng cử động, không có non-manifold edges, không có inverted normals).
+- [ ] Shader da hiển thị tán xạ dưới bề mặt SSS chân thực, mắt có độ sâu khúc xạ và phản xạ ánh sáng tự nhiên khi render trong Blender.
+- [ ] Mái tóc đen dài được cấu hình bằng hệ thống Hair Curves với độ bồng bềnh và mượt mà.
+- [ ] Đạo cụ chỉ đỏ và bướm trắng gắn chính xác vào các ngón tay theo đúng tư thế biểu diễn rối/phép thuật trong ảnh.
+- [ ] Khung xương hoạt động trơn tru, uốn gập tay chân không bị móp/méo bất thường tại khớp khuỷu tay, đầu gối và vai.
+- [ ] File dự án `.blend` hoàn chỉnh được lưu lại với cấu trúc phân tầng rõ ràng (Collection: Body, Hair, Dress, Accessories, Armature, Lights/Camera).
+
+## 2026-09-07T03:34:32Z
+
+Nâng cấp toàn diện dự án MorphoMesh (Blender MCP Server) với hệ thống Camera giám sát đa góc tự động (Auto-Inspector Camera Rig), khả năng bắt khung hình Viewport siêu tốc, cơ chế phản hồi khuyết điểm trực quan tự động (Closed-Loop Visual Quality Critique), và hoàn thiện kết nối socket tương tác 2 chiều với Blender.
+
+Working directory: e:\tool\mcp\MorphoMesh
+Integrity mode: development
+
+## Requirements
+
+### R1. Multi-Angle Inspector Camera & Fast Viewport Capture
+The system must support an automated inspection camera rig in Blender that frames the active 3D character/mesh based on its bounding box and anatomical center. It must support standard inspection viewpoints (Front, Side, Back, Three-Quarter Perspective, and Close-ups for head/hands) and provide fast image capture in both interactive socket mode (e.g. Viewport OpenGL grab) and headless batch rendering mode.
+
+### R2. Closed-Loop Visual Quality Critique (Auto-Critic QA)
+The MCP server must expose an automated visual quality inspection mechanism. This system must trigger multi-angle captures of the character, evaluate structural integrity (such as garment clipping/mesh penetration, abnormal body proportions, unnatural rig/skinning pinching, and grooming intersections), and output structured, actionable diagnostic feedback to guide automated remediation.
+
+### R3. Interactive Blender Socket Bridge Parity & Reliability
+The interactive socket listener (`blender_addon/morphomesh/listener.py`) and the bridge client (`src/morphomesh/blender_bridge.py`) must achieve full parity. All high-level MCP preview, grooming, wardrobe, and scene inspection methods must be cleanly dispatched and executed in Blender's main thread via timers without dropped connections, race conditions, or unhandled exceptions.
+
+### R4. Automated Verification Suite & Visual Preview Artifacts
+The project must include comprehensive automated tests validating the camera positioning mathematics, multi-view rendering pipeline, socket RPC communications, and visual critique diagnostic outputs.
+
+## Acceptance Criteria
+
+### Camera Rig & Viewport Capture
+- [ ] Camera rig automatically calculates bounding box and positions cameras correctly for at least `front`, `side`, `three_quarter`, and `turntable_4views` without clipping the character.
+- [ ] Viewport capture functions seamlessly in interactive mode and saves valid image files (PNG) with correct metadata and base64 preview encoding.
+
+### Visual Quality Critique
+- [ ] Auto-critic tool returns a structured report including defect classifications (e.g., `clipping`, `proportion_deviation`, `skinning_artifact`), affected mesh objects, confidence scores, and pass/fail recommendations.
+- [ ] A baseline verification demo confirms that intentionally introduced clipping or deformations are accurately flagged in the diagnostic report.
+
+### Socket Listener & Bridge Parity
+- [ ] All MCP preview and execution commands run through the Blender socket listener without unhandled method errors.
+- [ ] Ping and scene status queries return complete scene statistics (cameras, lights, meshes, polycounts, materials).
+
+### Testing & Verification
+- [ ] Automated test suite covering the new camera rig, preview rendering, and visual critic runs and passes completely via `pytest`.
+- [ ] Documentation and tool definitions in `server.py` and README are updated to reflect the new capabilities.
+

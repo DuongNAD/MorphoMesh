@@ -1222,6 +1222,10 @@ try:
         AnyCreatureConnector,
         ConnectorRegistry,
         CreaturePromptSpec,
+        GeminiImageConfig,
+        GeminiImageConnector,
+        GeminiImageInput,
+        GeminiImageOutput,
         HunyuanConnector,
         HunyuanInput,
         MeshAnythingConnector,
@@ -1229,6 +1233,14 @@ try:
         RetopologyConfig,
         TrellisConnector,
         TrellisInput,
+        TripoConfig,
+        TripoConnector,
+        TripoInput,
+        TripoOutput,
+        MeshyConfig,
+        MeshyConnector,
+        MeshyInput,
+        MeshyOutput,
         get_connector_registry,
     )
 except (ImportError, ModuleNotFoundError):
@@ -1239,6 +1251,10 @@ except (ImportError, ModuleNotFoundError):
             AnyCreatureConnector,
             ConnectorRegistry,
             CreaturePromptSpec,
+            GeminiImageConfig,
+            GeminiImageConnector,
+            GeminiImageInput,
+            GeminiImageOutput,
             HunyuanConnector,
             HunyuanInput,
             MeshAnythingConnector,
@@ -1246,10 +1262,19 @@ except (ImportError, ModuleNotFoundError):
             RetopologyConfig,
             TrellisConnector,
             TrellisInput,
+            TripoConfig,
+            TripoConnector,
+            TripoInput,
+            TripoOutput,
+            MeshyConfig,
+            MeshyConnector,
+            MeshyInput,
+            MeshyOutput,
             get_connector_registry,
         )
     except (ImportError, ModuleNotFoundError):
         get_connector_registry = None  # type: ignore[assignment]
+
 
 logger = logging.getLogger("morphomesh.inference_adapter")
 
@@ -1282,6 +1307,113 @@ class MockInferenceAdapter(BaseInferenceAdapter):
         os.makedirs(os.path.join(self.cache_dir, "assets"), exist_ok=True)
 
     def generate_concept(self, request: GenerateConceptInput) -> GenerateConceptOutput:
+        """
+        Synthesize 2D concept image or turnaround sheet with multi-backend routing.
+
+        Routes based on request.backend (or MORPHOMESH_CONCEPT_BACKEND environment variable):
+          - 'gemini', 'gemini_image', 'google', 'imagen', 'imagen3': Google Gemini & Imagen 3 connector
+          - 'default', 'mock': Deterministic zero-VRAM procedural synthesis
+        """
+        raw_backend = getattr(request, "backend", None)
+        if not raw_backend or str(raw_backend).strip().lower() == "default":
+            backend = os.environ.get("MORPHOMESH_CONCEPT_BACKEND", "default").strip().lower()
+        else:
+            backend = str(raw_backend).strip().lower()
+
+        if backend in ("gemini", "gemini_image", "google", "imagen", "imagen3"):
+            return self._generate_concept_via_gemini(request)
+        return self._generate_concept_mock(request)
+
+    def _generate_concept_via_gemini(self, request: GenerateConceptInput) -> GenerateConceptOutput:
+        """Execute concept or turnaround sheet generation via GeminiImageConnector with resilient fallback."""
+        try:
+            registry = get_connector_registry()
+            if registry is None:
+                from morphomesh.connectors.registry import get_connector_registry as _gcr
+                registry = _gcr()
+
+            gemini_conn = registry.get("gemini_image")
+
+            view_str = str(request.view_mode).lower()
+            task_type = "turnaround" if any(vm in view_str for vm in ("turnaround", "orthographic", "turntable")) else "concept"
+
+            inp = GeminiImageInput(
+                prompt=request.prompt,
+                negative_prompt=request.negative_prompt,
+                task_type=task_type,
+                view_mode=str(request.view_mode),
+                creature_type=str(request.creature_type),
+                pose=str(request.pose),
+                style=str(request.style),
+                background=request.background,
+                width=request.width,
+                height=request.height,
+                aspect_ratio="16:9" if task_type == "turnaround" else "1:1",
+                seed=request.seed,
+                output_format=request.output_format,
+                output_dir=os.path.join(self.cache_dir, "concepts"),
+                extract_alpha=True,
+            )
+
+            out: GeminiImageOutput = gemini_conn.execute_with_resilience(inp)
+            status_val = "success" if out.execution_mode in ("sdk", "rest") else "mock_success"
+
+            return GenerateConceptOutput(
+                concept_id=out.asset_id,
+                image_path=out.image_path,
+                rgba_image_path=out.rgba_image_path,
+                prompt_enhanced=out.prompt_enhanced,
+                creature_type=str(request.creature_type),
+                view_mode=str(request.view_mode),
+                dimensions=[out.width, out.height],
+                seed_used=request.seed if request.seed >= 0 else 42,
+                status=status_val,
+                views=out.views,
+                backend_used="gemini",
+            )
+        except Exception as e:
+            logger.warning("Gemini concept generation failed (%s). Triggering mock procedural fallback.", e)
+            return self._generate_concept_mock(request)
+
+    def generate_turnaround_sheet(self, prompt: str, creature_type: str = "custom", **kwargs: Any) -> Dict[str, Any]:
+        """Convenience method generating synchronized character turnaround sheets via Gemini connector."""
+        registry = get_connector_registry()
+        if registry is None:
+            from morphomesh.connectors.registry import get_connector_registry as _gcr
+            registry = _gcr()
+
+        gemini_conn = registry.get("gemini_image")
+        inp = GeminiImageInput(
+            prompt=prompt,
+            creature_type=creature_type,
+            task_type="turnaround",
+            view_mode="turnaround_sheet",
+            output_dir=os.path.join(self.cache_dir, "concepts"),
+            **kwargs,
+        )
+        out = gemini_conn.execute_with_resilience(inp)
+        return out.model_dump()
+
+    def synthesize_textures_with_gemini(self, prompt: str, texture_resolution: int = 2048, **kwargs: Any) -> Dict[str, Any]:
+        """Generate decoupled PBR texture suite (Albedo, Normal, Roughness, Metallic) via Gemini."""
+        registry = get_connector_registry()
+        if registry is None:
+            from morphomesh.connectors.registry import get_connector_registry as _gcr
+            registry = _gcr()
+
+        gemini_conn = registry.get("gemini_image")
+        inp = GeminiImageInput(
+            prompt=prompt,
+            task_type="texture",
+            width=texture_resolution,
+            height=texture_resolution,
+            output_dir=os.path.join(self.cache_dir, "assets"),
+            **kwargs,
+        )
+        out = gemini_conn.execute_with_resilience(inp)
+        return out.model_dump()
+
+    def _generate_concept_mock(self, request: GenerateConceptInput) -> GenerateConceptOutput:
         """Generate a procedural 2D concept image with clean alpha mask."""
         concept_id = f"concept-{uuid.uuid4().hex[:8]}"
         img_w = request.width
@@ -1364,6 +1496,8 @@ class MockInferenceAdapter(BaseInferenceAdapter):
             dimensions=[img_w, img_h],
             seed_used=request.seed if request.seed >= 0 else 42,
             status="mock_success",
+            views={},
+            backend_used="mock",
         )
 
     def generate_3d_asset(self, request: Create3DAssetInput) -> Create3DAssetOutput:
@@ -1378,7 +1512,7 @@ class MockInferenceAdapter(BaseInferenceAdapter):
         
         Falls back gracefully to procedural generation if external connectors fail.
         """
-        backend = (request.model_backend or "mock").lower()
+        backend = (getattr(request, "backend", None) or request.model_backend or "mock").lower()
 
         if backend in ("trellis", "trellis2"):
             return self._generate_via_trellis(request)
@@ -1386,8 +1520,13 @@ class MockInferenceAdapter(BaseInferenceAdapter):
             return self._generate_via_hunyuan(request)
         elif backend == "anycreature":
             return self._generate_via_anycreature(request)
+        elif backend in ("tripo", "tripoai", "triposr"):
+            return self._generate_via_tripo(request)
+        elif backend in ("meshy", "meshyai", "meshy_ai", "meshy-4", "meshy-3", "meshy-boost", "meshy/boost"):
+            return self._generate_via_meshy(request)
         else:
             return self._generate_3d_asset_mock(request)
+
 
     def _resolve_or_create_concept_image(self, request: Create3DAssetInput) -> str:
         """Resolve an existing concept image on disk or generate one deterministically."""
@@ -1660,7 +1799,193 @@ class MockInferenceAdapter(BaseInferenceAdapter):
             logger.warning("anyCreature connector failed (%s). Triggering mock procedural fallback.", e)
             return self._generate_3d_asset_mock(request)
 
+    def _generate_via_tripo(self, request: Create3DAssetInput) -> Create3DAssetOutput:
+        """Execute 3D reconstruction via Tripo3D connector with mock fallback."""
+        start_time = time.time()
+        try:
+            image_path = None
+            prompt = None
+
+            # Priority 1: Explicit image path provided -> image_to_model
+            if request.image_path:
+                image_path = request.image_path
+                task_type = "image_to_model"
+                if request.prompt:
+                    prompt = request.prompt
+            # Priority 2: Direct text prompt provided without image -> text_to_model
+            elif request.prompt:
+                prompt = request.prompt
+                task_type = "text_to_model"
+            # Priority 3: Concept ID provided -> resolve concept image for image_to_model
+            elif request.concept_id:
+                image_path = self._resolve_or_create_concept_image(request)
+                task_type = "image_to_model"
+                prompt = request.concept_id.replace("concept-", "").replace("-", " ")
+            else:
+                task_type = "text_to_model"
+
+            registry = get_connector_registry()
+            tripo_conn = registry.get("tripo")
+
+            is_high_quality = request.quality_tier in ("high", "ultra", "detailed")
+            inp = TripoInput(
+                prompt=prompt,
+                image_path=image_path,
+                task_type=task_type,
+                texture=True,
+                pbr=request.generate_pbr,
+                texture_quality="detailed" if is_high_quality else "standard",
+                geometry_quality="detailed" if is_high_quality else "standard",
+                output_dir=os.path.join(self.cache_dir, "assets"),
+                output_format=request.export_format or "glb",
+                seed=request.seed if request.seed >= 0 else -1,
+            )
+            out = tripo_conn.execute_with_resilience(inp)
+
+            tex_paths: Dict[str, str] = {}
+            if request.generate_pbr and out.pbr_textures:
+                tex_paths = out.pbr_textures.to_dict()
+
+            elapsed = round(time.time() - start_time, 4)
+            metadata = {
+                "connector": "tripo",
+                "task_id": out.task_id,
+                "backend_service": "Tripo3D",
+                "execution_mode": out.execution_mode,
+                "duration_seconds": out.duration_seconds,
+                "rendered_image_url": out.rendered_image_url,
+                "rendered_image_path": out.rendered_image_path,
+                "telemetry": {
+                    "vertex_count": out.vertex_count,
+                    "face_count": out.face_count,
+                    "mode": out.execution_mode,
+                    "model_backend": request.model_backend,
+                },
+            }
+
+            return EnhancedCreate3DAssetOutput(
+                asset_id=out.asset_id,
+                mesh_path=out.mesh_path,
+                format=request.export_format or "glb",
+                vertex_count=out.vertex_count,
+                face_count=out.face_count,
+                has_pbr_materials=request.generate_pbr and bool(tex_paths),
+                texture_paths=tex_paths,
+                pbr_textures=tex_paths,
+                bounding_box=BoundingBox(
+                    min_point=[-0.6, -0.6, 0.0],
+                    max_point=[0.6, 0.6, 1.4],
+                    center=[0.0, 0.0, 0.7],
+                    dimensions=[1.2, 1.2, 1.4],
+                ),
+                generation_time_seconds=elapsed,
+                backend_used=request.model_backend or "tripo",
+                metadata=metadata,
+            )
+        except Exception as e:
+            logger.warning("Tripo connector failed (%s). Triggering mock procedural fallback.", e)
+            return self._generate_3d_asset_mock(request)
+
+    def _generate_via_meshy(self, request: Create3DAssetInput) -> Create3DAssetOutput:
+        """Execute 3D reconstruction via Meshy AI connector with mock fallback."""
+        start_time = time.time()
+        try:
+            image_path = None
+            prompt = None
+
+            # Priority 1: Explicit image path provided -> image_to_3d
+            if request.image_path:
+                image_path = request.image_path
+                task_type = "image_to_3d"
+                if request.prompt:
+                    prompt = request.prompt
+            # Priority 2: Direct text prompt provided without image -> text_to_3d
+            elif request.prompt:
+                prompt = request.prompt
+                task_type = "text_to_3d"
+            # Priority 3: Concept ID provided -> resolve concept image for image_to_3d
+            elif request.concept_id:
+                image_path = self._resolve_or_create_concept_image(request)
+                task_type = "image_to_3d"
+                prompt = request.concept_id.replace("concept-", "").replace("-", " ")
+            else:
+                task_type = "text_to_3d"
+
+            registry = get_connector_registry()
+            meshy_conn = registry.get("meshy")
+
+            # Determine boost activation
+            backend_str = (getattr(request, "backend", None) or request.model_backend or "").lower()
+            is_boost = (
+                (prompt and ("/boost" in prompt.lower() or "--boost" in prompt.lower()))
+                or ("boost" in backend_str)
+                or request.quality_tier in ("high", "ultra", "detailed")
+            )
+
+            inp = MeshyInput(
+                prompt=prompt,
+                image_path=image_path,
+                task_type=task_type,
+                boost=is_boost,
+                auto_refine=is_boost,
+                pbr=request.generate_pbr,
+                enable_pbr=request.generate_pbr,
+                texture_richness="high" if is_boost else "medium",
+                output_dir=os.path.join(self.cache_dir, "assets"),
+                output_format=request.export_format or "glb",
+                seed=request.seed if request.seed >= 0 else -1,
+            )
+            out = meshy_conn.execute_with_resilience(inp)
+
+            tex_paths: Dict[str, str] = {}
+            if request.generate_pbr and out.pbr_textures:
+                tex_paths = out.pbr_textures.to_dict()
+
+            elapsed = round(time.time() - start_time, 4)
+            metadata = {
+                "connector": "meshy",
+                "task_id": out.task_id,
+                "preview_task_id": out.preview_task_id,
+                "refine_task_id": out.refine_task_id,
+                "backend_service": "MeshyAI",
+                "execution_mode": out.execution_mode,
+                "duration_seconds": out.duration_seconds,
+                "boost_applied": out.boost_applied,
+                "rendered_image_url": out.rendered_image_url,
+                "rendered_image_path": out.rendered_image_path,
+                "telemetry": {
+                    "vertex_count": out.vertex_count,
+                    "face_count": out.face_count,
+                    "mode": out.execution_mode,
+                    "model_backend": getattr(request, "backend", None) or request.model_backend,
+                },
+            }
+
+            return EnhancedCreate3DAssetOutput(
+                asset_id=out.asset_id,
+                mesh_path=out.mesh_path,
+                format=request.export_format or "glb",
+                vertex_count=out.vertex_count,
+                face_count=out.face_count,
+                has_pbr_materials=request.generate_pbr and bool(tex_paths),
+                texture_paths=tex_paths,
+                pbr_textures=tex_paths,
+                bounding_box=BoundingBox(
+                    min_point=[-0.6, -0.6, 0.0],
+                    max_point=[0.6, 0.6, 1.4],
+                    center=[0.0, 0.0, 0.7],
+                    dimensions=[1.2, 1.2, 1.4],
+                ),
+                generation_time_seconds=elapsed,
+                backend_used=getattr(request, "backend", None) or request.model_backend or "meshy",
+                metadata=metadata,
+            )
+        except Exception as e:
+            logger.warning("Meshy connector failed (%s). Triggering mock procedural fallback.", e)
+            return self._generate_3d_asset_mock(request)
+
     def _generate_3d_asset_mock(self, request: Create3DAssetInput) -> EnhancedCreate3DAssetOutput:
+
         """Procedurally construct genuine 3D mesh and bake PBR texture maps."""
         start_time = time.time()
         asset_id = f"asset-{uuid.uuid4().hex[:8]}"
@@ -2024,5 +2349,9 @@ __all__ = [
     "AnyCreatureConnector",
     "MeshAnythingConnector",
     "Animals3DConnector",
+    "GeminiImageConnector",
+    "TripoConnector",
+    "MeshyConnector",
 ]
+
 

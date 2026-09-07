@@ -1,52 +1,53 @@
-# BRIEFING — 2026-09-05T15:51:45Z
+# BRIEFING — 2026-09-07T03:41:30Z
 
 ## Mission
-Investigate and survey existing bear models, anatomical specifications (R1: plantigrade ursine anatomy, paw pads, tail, forward-and-downward curving claws, articulated facial structures), and geometric synthesis strategies for the photorealistic Armored War Bear in MorphoMesh and Blender, including engine-level architectural upgrades for procedural anatomy generation.
+Survey technical requirements and design specs for R1 (Multi-Angle Inspector Camera & Fast Viewport Capture) and R3 (Interactive Blender Socket Bridge Parity & Reliability).
 
 ## 🔒 My Identity
 - Archetype: explorer
-- Roles: explorer, investigator, synthesizer
-- Working directory: /Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_survey_2
-- Original parent: 504d045c-25c5-48a2-a65a-2a5b368eafa7
-- Milestone: Armored War Bear Survey (Anatomy & Geometry Specialist)
+- Roles: investigator, synthesizer
+- Working directory: e:\tool\mcp\MorphoMesh\.agents\explorer_survey_2
+- Original parent: 577aaa33-6b3f-4ebc-93eb-fcc632d94bc9
+- Milestone: survey
 
 ## 🔒 Key Constraints
-- Read-only investigation — do NOT implement or modify source code files outside .agents/explorer_survey_2/
-- Focus on R1: plantigrade ursine anatomy, paw pads, tail, forward-and-downward curving claws (dot product > 0.6 relative to character forward axis), articulated facial geometry (snout, nostrils, mouth cavity with jaw/teeth, eyes with eyelids, cupped ears).
-- Strategy for high-fidelity geometric modeling/synthesis in Blender (procedural generation via `bpy`, mesh subdivision, vertex groups, modifier stacks).
-- Document in `/Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_survey_2/survey_report.md` and deliver `handoff.md`.
+- Read-only investigation — do NOT implement
+- Scope: R1 (Multi-Angle Inspector Camera & Fast Viewport Capture) and R3 (Interactive Blender Socket Bridge Parity & Reliability)
+- Write progress to e:\tool\mcp\MorphoMesh\.agents\explorer_survey_2\progress.md
+- Write handoff report to e:\tool\mcp\MorphoMesh\.agents\explorer_survey_2\handoff.md
+- Upon completion, send_message to parent orchestrator (577aaa33-6b3f-4ebc-93eb-fcc632d94bc9)
 
 ## Current Parent
-- Conversation ID: 504d045c-25c5-48a2-a65a-2a5b368eafa7
-- Updated: 2026-09-05T15:51:45Z
+- Conversation ID: 577aaa33-6b3f-4ebc-93eb-fcc632d94bc9
+- Updated: 2026-09-07T03:41:30Z
 
 ## Investigation State
 - **Explored paths**:
-  - Investigated `examples/Armored_War_Bear.glb` (41 meshes, 3,175 vertices, 1,898 polygons).
-  - Calculated exact claw orientation vectors for all 20 claws: front claws dot product $-0.4524$, hind claws dot product $-0.8215$ to $-0.8454$ (inverted backward).
-  - Discovered 0 mouth cavity, 0 teeth, 0 jaw, 0 nostrils, 0 eyelids, 0 paw pads, 0 vertex groups, 0 fur curves in baseline asset.
-  - Inspected `src/morphomesh/inference_adapter.py` (`MeshGeometry` lines 88–238, `_synthesize_procedural_mesh` lines 878–922).
-  - Inspected `src/morphomesh/connectors/anycreature_connector.py`, `trellis_connector.py`, `hunyuan_connector.py`.
-  - Prototyped and verified claw arc generation in Blender 5.2.1 LTS: central claw dot product $0.8706 > 0.6$, splayed claws $0.6773 > 0.6$, $d_z < 0$.
-  - Prototyped articulated facial geometry (702 verts, 828 polys) with snout, nares concavities, oral cavity, lower jaw, 4 canines, eyelids, and cupped ears.
-  - Prototyped plantigrade hind paw with calcaneus heel, plantar pad, 5 digital pads, and 5 forward-curving claws.
+  - `ORIGINAL_REQUEST.md` (§ 2026-09-07T03:34:32Z)
+  - `blender_addon/morphomesh/listener.py`
+  - `blender_addon/morphomesh/operators.py`
+  - `blender_addon/morphomesh/__init__.py`
+  - `src/morphomesh/blender_bridge.py`
+  - `src/morphomesh/server.py`
+  - `src/morphomesh/models.py`
+  - `src/morphomesh/character_assembler.py`
+  - `tests/test_blender_bridge.py`
+  - `tests/test_adversarial_fastmcp_bridge_human.py`
+  - `tests/test_fastmcp_human_tools.py`
 - **Key findings**:
-  - The inverted claw bug was caused by sign inversion during cone pitch/yaw rotation in the initial generator.
-  - Mathematical condition for forward claws in Blender character space ($\vec{u}_{\text{fwd}} = (0, -1, 0)$) is $d_y < -0.6$, with $d_z < 0$.
-  - MorphoMesh engine needs `MeshGeometry` upgrade to provide reusable procedural anatomical primitives (`add_curved_claw`, `add_plantigrade_paw`, `add_articulated_head`, `add_anatomical_torso`).
-  - Standardized 18 vertex groups and Catmull-Clark modifier stack required for photorealistic deformability and fur/armor mounting.
-- **Unexplored areas**:
-  - None for Phase 0 survey. Worker implementation details documented in `survey_report.md` and `handoff.md`.
+  1. Camera Framing Math: Solved exact bounding box computation across multi-object hierarchies via $M_{\text{world}} \cdot \mathbf{p}^{\text{local}}$, optical framing distance $d = \frac{R}{\sin(\alpha_{\min})} \cdot (1 + \mu)$, and spherical orbit positioning $(\theta, \phi, d)$ with `to_track_quat('-Z', 'Y')`.
+  2. Anatomical Sub-framing: Formulated 5 anatomical targets (Full Body, Head/Bust portrait, Torso/Bodice, Hands/Marionette, Feet/Footwear) using landmark points with anthropometric relative height fallback.
+  3. Fast Viewport Capture: Contrast between OpenGL Viewport grab (`bpy.ops.render.opengl`, 15-50ms, requires context temp_override on `VIEW_3D`) and headless batch render (`bpy.ops.render.render`, 1-8s). Highlighted diagnostic shading modes (`SOLID` with Matcap / Random color for defect detection, `XRAY` for rigging).
+  4. Method Parity Gaps: Identified that `listener.py` lacks `render_preview`, `create_human_asset`, and the new inspection/viewport capture methods, causing interactive socket calls to fail or fall back to headless scripts. Also proved that fallback via `execute_code` fails due to AST security checks and script size limits.
+  5. Socket Bridge Reliability: Addressed message framing flaws (NDJSON vs raw chunks), timer thread safety in `bpy.app.timers`, timer immortality guards, and timeout hierarchies.
+- **Unexplored areas**: None within R1 & R3 survey scope.
 
 ## Key Decisions Made
-- Established dual-track survey scope: engine-level procedural generator upgrade (`MeshGeometry`) + canonical Armored War Bear benchmark asset.
-- Formulated multi-segment parabolic arc profile for claws rather than linear cones.
-- Defined 18 standardized vertex groups across cranium, facial features, plantigrade pads, claws, and fur emission maps.
-- Verified Blender 5.2.1 LTS compatibility with procedural BMesh, Curves/Hair systems, and glTF export.
+- Structured mathematical specification for R1 with rigorous geometric derivations.
+- Structured complete dispatch table and architectural blueprint for R3 to achieve 100% interactive parity.
 
 ## Artifact Index
-- /Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_survey_2/DISPATCH.md — Task assignment & updates
-- /Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_survey_2/BRIEFING.md — Situational awareness
-- /Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_survey_2/progress.md — Execution heartbeat (Completed)
-- /Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_survey_2/survey_report.md — Comprehensive anatomical and geometric survey report
-- /Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_survey_2/handoff.md — 5-component handoff report
+- DISPATCH.md — Recorded dispatch prompt
+- BRIEFING.md — Working memory and situational awareness
+- progress.md — Liveness heartbeat and progress log
+- handoff.md — 5-component survey report

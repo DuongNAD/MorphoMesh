@@ -1,23 +1,25 @@
-# Dispatch — Reviewer M4-Iter2-2 (Independent Reviewer)
+## 2026-09-07T07:17:32Z
 
-## Working Directory
-`/Users/duongnad/Documents/tool/MorphoMesh/.agents/reviewer_m4_iter2_2`
+You are Reviewer M4 Iter 2 - 2: Offline Bridge Resilience & Regression Reviewer.
+Your working directory is: e:\tool\mcp\MorphoMesh\.agents\reviewer_m4_iter2_2
+Your parent orchestrator conversation ID is: 577aaa33-6b3f-4ebc-93eb-fcc632d94bc9
+The authoritative user request is at: e:\tool\mcp\MorphoMesh\ORIGINAL_REQUEST.md (specifically § 2026-09-07T03:34:32Z). You MUST read this file first.
+The project scope document is at: e:\tool\mcp\MorphoMesh\PROJECT.md (specifically Milestone 4).
+The Gate status document is at: e:\tool\mcp\MorphoMesh\.agents\orchestrator_inspector_1\GATE_STATUS.md.
+The Worker M4 Iteration 2 handoff report is at: e:\tool\mcp\MorphoMesh\.agents\worker_m4_iter2\handoff.md.
 
-## References
-- Authoritative Request: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/ORIGINAL_REQUEST.md`
-- Project Master Plan: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/orchestrator_bear_gen2/PROJECT.md`
-- Reviewer M4 Previous Handoff (REQUEST_CHANGES): `/Users/duongnad/Documents/tool/MorphoMesh/.agents/reviewer_m4/handoff.md`
-- Worker M4 Remediation Handoff: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/worker_m4_remediation/handoff.md`
-
-## Mission
-Independently verify all code, geometry, and tests for Milestone M4 Iteration 2:
-1. Finding 1: Review `tests/test_bear_anatomy.py`. Confirm that `test_pauldron_clearance_and_watertightness` is authentic and does not rely on mock dicts or dummy checks.
-2. Finding 2: Measure pauldron clearance in `examples/Armored_War_Bear_HD.blend` using Blender's BVH tree. Verify 0 penetrating vertices and $d_{\min} \ge 0.015\text{m}$.
-3. Finding 3: Inspect `src/morphomesh/creature_generator.py` and `inference_adapter.py`. Verify no floating limbs or open cylinder rims.
-4. Verify full pytest suite (`pytest -v tests/`), standalone verification (`python3 verify_bear_anatomy.py`), and Blender verification.
-5. Visually inspect all 4 beauty renders in `examples/renders/`.
-
-## Output Requirements
-Write your detailed review and verdict (APPROVE or REQUEST_CHANGES) to:
-`/Users/duongnad/Documents/tool/MorphoMesh/.agents/reviewer_m4_iter2_2/handoff.md`
-And message the orchestrator.
+Objective:
+Review the offline bridge resilience and exception discrimination logic in `src/morphomesh/server.py` and `src/morphomesh/blender_bridge.py`:
+1. Offline Fallback Behavior:
+   - Verify that when Blender is completely offline/unreachable (`ERR_BLENDER_UNAVAILABLE`, `ConnectionError`, `TimeoutError`):
+     * `morphomesh_capture_viewport` returns a valid dictionary with `status="success"`, `base64_preview`, and writes `FALLBACK_PNG_BYTES` to disk without throwing uncaught connection errors.
+     * `morphomesh_setup_inspector_camera_rig` returns valid mock camera metadata (`status="success"`, `offline_fallback=True`).
+2. Domain Exception Preservation:
+   - Verify that operational errors (such as `ERR_CAMERA_FAILED`) are NOT swallowed by the fallback and correctly re-raise as `ToolError`.
+   - Verify line 415 of `tests/test_fastmcp_inspection_tools.py` passes cleanly.
+3. Baseline Schema Preservation:
+   - Verify `tests/test_tools_schema.py` passes 31/31 without modification.
+4. Run full regression test suite:
+   `.venv\Scripts\pytest.exe -v tests/test_adversarial_error_injection_m4.py tests/test_fastmcp_inspection_tools.py tests/test_tools_schema.py tests/test_adversarial_m4_gating.py`
+5. Issue verdict: APPROVE or REQUEST_CHANGES.
+- Write your handoff report to `e:\tool\mcp\MorphoMesh\.agents\reviewer_m4_iter2_2\handoff.md` and notify parent orchestrator via send_message.

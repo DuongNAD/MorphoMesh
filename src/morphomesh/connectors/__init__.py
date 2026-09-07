@@ -66,6 +66,28 @@ from morphomesh.connectors.hunyuan_connector import (
     HunyuanInput,
     HunyuanOutput,
 )
+from morphomesh.connectors.gemini_image_connector import (
+    GeminiImageConfig,
+    GeminiImageConnector,
+    GeminiImageInput,
+    GeminiImageOutput,
+)
+from morphomesh.connectors.tripo_connector import (
+    DEFAULT_TRIPO_API_KEY,
+    TripoConfig,
+    TripoConnector,
+    TripoInput,
+    TripoOutput,
+    extract_glb_textures,
+    parse_glb_metrics,
+)
+from morphomesh.connectors.meshy_connector import (
+    MESHY_API_BASE,
+    MeshyConfig,
+    MeshyConnector,
+    MeshyInput,
+    MeshyOutput,
+)
 
 __all__ = [
     # Base Framework & Schemas
@@ -114,4 +136,25 @@ __all__ = [
     "HunyuanConnector",
     "HunyuanInput",
     "HunyuanOutput",
+    # Google Gemini & Imagen 3
+    "GeminiImageConfig",
+    "GeminiImageConnector",
+    "GeminiImageInput",
+    "GeminiImageOutput",
+    # Tripo3D
+    "DEFAULT_TRIPO_API_KEY",
+    "TripoConfig",
+    "TripoConnector",
+    "TripoInput",
+    "TripoOutput",
+    "extract_glb_textures",
+    "parse_glb_metrics",
+    # Meshy AI
+    "MESHY_API_BASE",
+    "MeshyConfig",
+    "MeshyConnector",
+    "MeshyInput",
+    "MeshyOutput",
 ]
+
+

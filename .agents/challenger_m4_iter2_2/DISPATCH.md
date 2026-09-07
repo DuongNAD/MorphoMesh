@@ -1,27 +1,25 @@
-# Dispatch — Challenger M4-Iter2-2 (Anatomy & Asset Integrity Challenger)
+## 2026-09-07T07:17:32Z
 
-## Working Directory
-`/Users/duongnad/Documents/tool/MorphoMesh/.agents/challenger_m4_iter2_2`
+You are Challenger M4 Iter 2 - 2: Offline Bridge & Protocol Resilience Challenger.
+Your working directory is: e:\tool\mcp\MorphoMesh\.agents\challenger_m4_iter2_2
+Your parent orchestrator conversation ID is: 577aaa33-6b3f-4ebc-93eb-fcc632d94bc9
+The authoritative user request is at: e:\tool\mcp\MorphoMesh\ORIGINAL_REQUEST.md (specifically § 2026-09-07T03:34:32Z). You MUST read this file first.
+The project scope document is at: e:\tool\mcp\MorphoMesh\PROJECT.md (specifically Milestone 4).
+The Gate status document is at: e:\tool\mcp\MorphoMesh\.agents\orchestrator_inspector_1\GATE_STATUS.md.
+The Worker M4 Iteration 2 handoff report is at: e:\tool\mcp\MorphoMesh\.agents\worker_m4_iter2\handoff.md.
 
-## References
-- Authoritative Request: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/ORIGINAL_REQUEST.md`
-- Project Master Plan: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/orchestrator_bear_gen2/PROJECT.md`
-- Reviewer M4 Previous Handoff: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/reviewer_m4/handoff.md`
-- Worker M4 Remediation Handoff: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/worker_m4_remediation/handoff.md`
-
-## Mission
-Adversarially challenge the anatomical generator, mesh topology, glTF/blend assets, and test suite robustness:
-1. Challenge `src/morphomesh/creature_generator.py` and `inference_adapter.py`:
-   - Run topology fuzzing and boundary condition checks.
-   - Verify that all 18 vertex groups exist and contain vertices.
-   - Verify that all cylinder extremities are closed and watertight (no boundary loops on limbs).
-2. Challenge `examples/Armored_War_Bear_HD.glb` and `Armored_War_Bear_HD.blend`:
-   - Verify glTF chunk alignment, valid buffers, materials, and fur ribbons.
-   - Verify no degenerate zero-area faces or NaN coordinates.
-3. Challenge `tests/test_bear_anatomy.py`:
-   - Mutate test inputs and verify that invalid geometry causes test failures (preventing false passes).
-
-## Output Requirements
-Write your detailed stress test report and verdict (APPROVE or REQUEST_CHANGES) to:
-`/Users/duongnad/Documents/tool/MorphoMesh/.agents/challenger_m4_iter2_2/handoff.md`
-And message the orchestrator.
+Objective:
+Empirically stress-test offline bridge resilience and protocol fallbacks:
+1. Offline Viewport Capture Stress:
+   - Force bridge offline by patching `is_interactive_connected` to False and `blender_bin_path` to None.
+   - Invoke `morphomesh_capture_viewport`:
+     * Verify output PNG file is written and is a valid PNG (starts with `\x89PNG\r\n\x1a\n`).
+     * Verify base64 preview decodes to valid PNG bytes.
+     * Verify returned dictionary contains `status="success"` and `offline_fallback=True`.
+2. Offline Camera Setup Stress:
+   - Force bridge offline; invoke `morphomesh_setup_inspector_camera_rig` with various viewpoints (`front`, `top`, `bottom`, `three_quarter`).
+   - Verify returned dictionary contains `status="success"`, valid 3D coordinates `[x, y, z]`, Euler rotation `[rx, ry, rz]`, and `offline_fallback=True`.
+3. Gating Matrix & Protocol Execution:
+   - Run: `.venv\Scripts\pytest.exe -v tests/test_adversarial_m4_gating.py` (121 tests).
+4. Issue an empirical verdict: APPROVE or REJECT.
+- Write your handoff report to `e:\tool\mcp\MorphoMesh\.agents\challenger_m4_iter2_2\handoff.md` and notify parent orchestrator via send_message.

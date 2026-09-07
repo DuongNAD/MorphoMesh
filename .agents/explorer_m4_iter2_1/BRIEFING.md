@@ -1,41 +1,49 @@
-# BRIEFING — 2026-09-06T11:07:30+07:00
+# BRIEFING — 2026-09-07T07:07:30Z
 
 ## Mission
-Investigate and formulate the code-level remediation strategy for Reviewer M4's Finding 3 regarding anatomical continuity and creature generator topology in `src/morphomesh/creature_generator.py` and `src/morphomesh/inference_adapter.py`.
+Investigate and blueprint strict enum parameter validation in `src/morphomesh/server.py` and `src/morphomesh/models.py` for Milestone 4 (Camera Rig, Viewport Capture, Visual Critic).
 
 ## 🔒 My Identity
 - Archetype: explorer
-- Roles: [investigation, synthesis]
-- Working directory: /Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_m4_iter2_1
-- Original parent: c332dd9a-5201-4cf0-84e2-35aa3c9c5afa
-- Milestone: M4-Iter2
+- Roles: Teamwork explorer (investigation, synthesis, handoff)
+- Working directory: e:\tool\mcp\MorphoMesh\.agents\explorer_m4_iter2_1
+- Original parent: 577aaa33-6b3f-4ebc-93eb-fcc632d94bc9
+- Milestone: Milestone 4 (Iteration 2 - 1)
 
 ## 🔒 Key Constraints
-- Read-only investigation — do NOT implement / modify production code
-- Write analysis report and diff patches to `survey_report.md`
-- Write 5-component handoff report to `handoff.md`
-- Use `send_message` to communicate results back to caller parent agent
-- Preserve all 18 standardized vertex groups and claw forward/downward vectors
+- Read-only investigation — do NOT implement or edit source code files.
+- Files for content delivery, Messages for coordination.
+- Comprehensive 5-component handoff report.
+- Must read ORIGINAL_REQUEST.md, PROJECT.md, GATE_STATUS.md, challenger_m4_insp_2 handoff.md.
 
 ## Current Parent
-- Conversation ID: c332dd9a-5201-4cf0-84e2-35aa3c9c5afa
-- Updated: 2026-09-06T11:07:30+07:00
+- Conversation ID: 577aaa33-6b3f-4ebc-93eb-fcc632d94bc9
+- Updated: not yet
 
 ## Investigation State
-- **Explored paths**: `DISPATCH.md`, `reviewer_m4/handoff.md`, `ORIGINAL_REQUEST.md`, `orchestrator_bear_gen2/PROJECT.md`, `creature_generator.py`, `inference_adapter.py`, `grooming.py`, `materials.py`, `armor.py`, `assemble_and_render_armored_war_bear.py`, `verify_bear_anatomy.py`, beauty render images in `examples/renders/`, unit tests across `tests/`.
+- **Explored paths**:
+  - `src/morphomesh/server.py`: Tool entry points for `morphomesh_setup_inspector_camera_rig`, `morphomesh_capture_viewport`, `morphomesh_critique_visual_quality`.
+  - `src/morphomesh/models.py`: `InspectorViewpoint`, `DiagnosticShadingMode`, `DiagnosticColorType`, `SetupInspectorCameraInput`, `CaptureViewportInput`, `VisualCritiqueInput`.
+  - `src/morphomesh/camera_rig.py`: `CANONICAL_VIEWPOINTS` dictionary, spherical positioning, capture dispatch.
+  - `src/morphomesh/visual_critic.py`: `ANTHROPOMETRIC_PRESETS` dictionary, `evaluate_body_proportions`.
+  - `tests/test_adversarial_error_injection_m4.py`: 22 failures reproduced (20 parameter bounds/enum rejections + 2 offline bridge fallbacks).
+  - `tests/test_fastmcp_inspection_tools.py`, `tests/test_inspector_camera.py`, `tests/test_visual_critic.py`: 89/89 existing regression tests passing.
 - **Key findings**:
-  1. Front paw detachment: `paw_configs` configured `py = -0.48 * s`, and loop subtracted $0.10 * s$, placing `foot_center` at $y = -0.58\text{m}$, while forearm cylinder was at $y = -0.35\text{m}$. Result: 0.06m air gap in Y and 0.23m center offset.
-  2. Hollow limb cylinders: `add_cylinder` lacked end capping and ended at $z = 0.08\text{m}$. Remediated with `cap_ends=True` and lowering base to $z = 0.03\text{m}$ (embedded in paw box).
-  3. Primitive box snout: 6 stacked axis-aligned bounding boxes. Upgraded to 4-ring lofted rounded hull, organic rhinarium, recessed nostrils (16 verts, 24 faces, 12 inward faces), almond eyelids, and cupped pinnae.
-  4. 18 standardized vertex groups and 20 curved claws ($\min(\text{fwd\_dot}) = 0.8975 > 0.60, d_z = -0.4308 < 0$) remain 100% compliant.
-- **Unexplored areas**: None for Finding 3. Finding 1 (facade unit test) and Finding 2 (pauldron clearance in armor.py) are assigned to peer agents.
+  1. Direct python calls to FastMCP tool async functions bypass FastMCP type validation; `server.py` MUST contain explicit pre-flight validation blocks raising `ToolError`.
+  2. `morphomesh_setup_inspector_camera_rig` lacks pre-flight validation for `viewpoint`. `camera_rig.py` silently falls back to `three_quarter`. `CANONICAL_VIEWPOINTS` lacks `"bottom"`, `"turntable"`, `"turntable_4views"`.
+  3. `morphomesh_capture_viewport` lacks pre-flight validation for `shading_mode` and `color_type`. Downstream silently coerced invalid values to `SOLID` and `RANDOM`.
+  4. `morphomesh_critique_visual_quality` lacks pre-flight validation for `target_preset`. Downstream silently fell back to `stylized_heroine`. `ANTHROPOMETRIC_PRESETS` only defined 3 of 6 required presets.
+  5. Pydantic models in `models.py` can be updated with `@field_validator` while preserving `str` annotations in FastMCP tool signatures to prevent breaking FastMCP schema generation and schema assertions in `test_fastmcp_inspection_tools.py`.
+- **Unexplored areas**: None. Blueprint is complete.
 
 ## Key Decisions Made
-- Formulated concrete drop-in diff patches for `src/morphomesh/inference_adapter.py`, `src/morphomesh/creature_generator.py`, and `scripts/assemble_and_render_armored_war_bear.py`.
-- Documented full findings in `survey_report.md` and `handoff.md`.
+- Design strict pre-flight validation in `server.py` matching regex expectations `r"(?i)(viewpoint|validation|invalid|preset)"`, `r"(?i)(shading_mode|validation|invalid)"`, `r"(?i)(color_type|validation|invalid)"`, `r"(?i)(target_preset|validation|invalid|preset)"`.
+- Keep tool signature parameter type annotations as `str` in `server.py` to maintain exact JSON Schema output (`type: "string"` and `default: ...`).
+- Synchronize `InspectorViewpoint` and `AnthropometricPreset` in `models.py` and enforce them via Pydantic `@field_validator`.
+- Blueprint additions in `camera_rig.py` (`CANONICAL_VIEWPOINTS`) and `visual_critic.py` (`ANTHROPOMETRIC_PRESETS`) so all 4 layers remain in complete lockstep.
 
 ## Artifact Index
-- `.agents/explorer_m4_iter2_1/progress.md` — Liveness & status tracking
-- `.agents/explorer_m4_iter2_1/BRIEFING.md` — Situational awareness
-- `.agents/explorer_m4_iter2_1/survey_report.md` — Comprehensive technical survey report and code patches
-- `.agents/explorer_m4_iter2_1/handoff.md` — 5-component handoff report
+- DISPATCH.md — Initial dispatch log
+- BRIEFING.md — Working state & identity
+- progress.md — Liveness & task progress
+- handoff.md — Final comprehensive 5-component handoff report

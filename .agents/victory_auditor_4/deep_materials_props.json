@@ -1,0 +1,272 @@
+{
+  "emissions": {
+    "Mat_Magic_Butterfly": {
+      "Emission Color": "<bpy_float[4], NodeSocketColor.default_value>",
+      "Emission Strength": "3.200000047683716"
+    },
+    "Mat_Marionette_RedString": {
+      "Emission Color": "<bpy_float[4], NodeSocketColor.default_value>",
+      "Emission Strength": "6.5"
+    }
+  },
+  "wardrobe_topology": {
+    "Mesh_Dress_Bodice": {
+      "verts": 144,
+      "edges": 354,
+      "faces": 212,
+      "quads": 0,
+      "tris": 212,
+      "ngons": 0,
+      "quad_pct": 0.0,
+      "non_manifold_edges": 72,
+      "boundary_edges": 72,
+      "uv_layers": [
+        "UVMap"
+      ]
+    },
+    "Mesh_Dress_PleatedSkirt": {
+      "verts": 400,
+      "edges": 1120,
+      "faces": 720,
+      "quads": 0,
+      "tris": 720,
+      "ngons": 0,
+      "quad_pct": 0.0,
+      "non_manifold_edges": 80,
+      "boundary_edges": 80,
+      "uv_layers": [
+        "UVMap"
+      ]
+    },
+    "Mesh_Dress_WaistSash": {
+      "verts": 112,
+      "edges": 239,
+      "faces": 130,
+      "quads": 0,
+      "tris": 130,
+      "ngons": 0,
+      "quad_pct": 0.0,
+      "non_manifold_edges": 88,
+      "boundary_edges": 88,
+      "uv_layers": [
+        "UVMap"
+      ]
+    },
+    "Mesh_Sandal_L": {
+      "verts": 42,
+      "edges": 101,
+      "faces": 60,
+      "quads": 0,
+      "tris": 60,
+      "ngons": 0,
+      "quad_pct": 0.0,
+      "non_manifold_edges": 22,
+      "boundary_edges": 22,
+      "uv_layers": [
+        "UVMap"
+      ]
+    },
+    "Mesh_Sandal_R": {
+      "verts": 42,
+      "edges": 101,
+      "faces": 60,
+      "quads": 0,
+      "tris": 60,
+      "ngons": 0,
+      "quad_pct": 0.0,
+      "non_manifold_edges": 22,
+      "boundary_edges": 22,
+      "uv_layers": [
+        "UVMap"
+      ]
+    },
+    "Prop_Marionette_Strings": {
+      "verts": 140,
+      "edges": 250,
+      "faces": 120,
+      "quads": 0,
+      "tris": 120,
+      "ngons": 0,
+      "quad_pct": 0.0,
+      "non_manifold_edges": 140,
+      "boundary_edges": 140,
+      "uv_layers": [
+        "UVMap"
+      ]
+    },
+    "Prop_Butterfly_00": {
+      "verts": 18,
+      "edges": 25,
+      "faces": 10,
+      "quads": 0,
+      "tris": 10,
+      "ngons": 0,
+      "quad_pct": 0.0,
+      "non_manifold_edges": 20,
+      "boundary_edges": 20,
+      "uv_layers": [
+        "UVMap"
+      ]
+    }
+  },
+  "marionette_strings": {
+    "vertex_count": 140,
+    "min_z": 0.6760299801826477,
+    "max_z": 1.2799999713897705,
+    "z_span": 0.6039699912071228
+  },
+  "hair_details": {
+    "Hair_Hime_Bangs": {
+      "type": "MESH",
+      "verts": 2640,
+      "faces": 2420,
+      "modifiers": [
+        {
+          "name": "GN_HairGroom",
+          "type": "NODES"
+        },
+        {
+          "name": "Armature",
+          "type": "ARMATURE"
+        }
+      ]
+    },
+    "Hair_Hime_Sidelocks": {
+      "type": "MESH",
+      "verts": 2976,
+      "faces": 2728,
+      "modifiers": [
+        {
+          "name": "GN_HairGroom",
+          "type": "NODES"
+        },
+        {
+          "name": "Armature",
+          "type": "ARMATURE"
+        }
+      ]
+    },
+    "Hair_Back_Cascade": {
+      "type": "MESH",
+      "verts": 7320,
+      "faces": 6710,
+      "modifiers": [
+        {
+          "name": "GN_HairGroom",
+          "type": "NODES"
+        },
+        {
+          "name": "Armature",
+          "type": "ARMATURE"
+        }
+      ]
+    },
+    "Hair_Scalp_Crown": {
+      "type": "MESH",
+      "verts": 640,
+      "faces": 320,
+      "modifiers": [
+        {
+          "name": "GN_HairGroom",
+          "type": "NODES"
+        },
+        {
+          "name": "Armature",
+          "type": "ARMATURE"
+        }
+      ]
+    }
+  },
+  "armature_modifiers": {
+    "Hair_Back_Cascade": [
+      "Armature"
+    ],
+    "Hair_Eyebrows": [
+      "Armature"
+    ],
+    "Hair_Eyelashes": [
+      "Armature"
+    ],
+    "Hair_Hime_Bangs": [
+      "Armature"
+    ],
+    "Hair_Hime_Sidelocks": [
+      "Armature"
+    ],
+    "Hair_Scalp_Crown": [
+      "Armature"
+    ],
+    "Mesh_Dress_Bodice": [
+      "Armature"
+    ],
+    "Mesh_Dress_PleatedSkirt": [
+      "Armature"
+    ],
+    "Mesh_Dress_WaistSash": [
+      "Armature"
+    ],
+    "Mesh_Eye_Left_CorneaSclera": [
+      "Armature"
+    ],
+    "Mesh_Eye_Left_IrisPupil": [
+      "Armature"
+    ],
+    "Mesh_Eye_Right_CorneaSclera": [
+      "Armature"
+    ],
+    "Mesh_Eye_Right_IrisPupil": [
+      "Armature"
+    ],
+    "Mesh_Eyelid_Left": [
+      "Armature"
+    ],
+    "Mesh_Eyelid_Right": [
+      "Armature"
+    ],
+    "Mesh_Lips": [
+      "Armature"
+    ],
+    "Mesh_Sandal_L": [
+      "Armature"
+    ],
+    "Mesh_Sandal_R": [
+      "Armature"
+    ],
+    "Prop_Butterfly_00": [
+      "Armature"
+    ],
+    "Prop_Butterfly_01": [
+      "Armature"
+    ],
+    "Prop_Butterfly_02": [
+      "Armature"
+    ],
+    "Prop_Butterfly_03": [
+      "Armature"
+    ],
+    "Prop_Butterfly_04": [
+      "Armature"
+    ],
+    "Prop_Butterfly_05": [
+      "Armature"
+    ],
+    "Prop_Butterfly_06": [
+      "Armature"
+    ],
+    "Prop_Butterfly_07": [
+      "Armature"
+    ],
+    "Prop_Butterfly_08": [
+      "Armature"
+    ],
+    "Prop_Butterfly_09": [
+      "Armature"
+    ],
+    "Prop_Marionette_Strings": [
+      "Armature"
+    ],
+    "Yu_Nian_An_Body": [
+      "Armature"
+    ]
+  }
+}

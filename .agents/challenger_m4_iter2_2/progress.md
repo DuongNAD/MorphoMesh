@@ -1,25 +1,16 @@
-# Progress — Challenger M4-Iter2-2
+# Progress — Challenger M4 Iteration 2 (Offline Bridge & Protocol Resilience)
 
-Last visited: 2026-09-06T11:28:10Z
+Last visited: 2026-09-07T07:22:00Z
 
 ## Status
-- [x] Read DISPATCH.md and reviewed M4 remediation context
-- [x] Initialized BRIEFING.md and progress.md
-- [x] Investigate codebase: `creature_generator.py`, `inference_adapter.py`, `tests/test_bear_anatomy.py`
-- [x] Run test suites baseline:
-  - `pytest -v tests/test_bear_anatomy.py`: 17 passed
-  - `python3 verify_bear_anatomy.py`: 23 passed, 0 failed
-  - Headless Blender verification: 64 passed, 0 failed
-  - Full repo `pytest -v tests/`: 326 passed in 18.44s
-- [x] Section 1: Challenge `creature_generator.py` and `inference_adapter.py`:
-  - [x] Topology fuzzing: 8 scale sweeps (0.001 to 50.0) + 100 randomized parameter fuzzing iterations + 7 archetypes
-  - [x] Verify all 18 vertex groups exist and contain vertices across all fuzzing runs
-  - [x] Verify all 8 cylinder extremities are closed and watertight (0 boundary edges, 0 non-manifold edges, positive signed volume)
-- [x] Section 2: Challenge `examples/Armored_War_Bear_HD.glb` and `Armored_War_Bear_HD.blend`:
-  - [x] glTF binary validation: chunk alignment (45/45 bufferViews 4-byte aligned), valid buffers, materials, fur ribbons
-  - [x] Verify no degenerate zero-area faces or NaN coordinates in GLB (0 zero-area faces, 0 NaNs)
-  - [x] Verify Blender scene: all 8 meshes, zero-area faces = 0, NaNs = 0, armor plates BVH clearance d_min >= 0.0164m, inside_count = 0
-- [x] Section 3: Challenge `tests/test_bear_anatomy.py`:
-  - [x] Mutate test inputs across 13 adversarial scenarios: 13/13 mutations caught, 0 false passes
-- [x] Update BRIEFING.md with findings and attack surface
-- [ ] Write handoff.md and send message to parent
+- [x] Initialized DISPATCH.md, BRIEFING.md, and progress.md
+- [x] Read ORIGINAL_REQUEST.md (§ 2026-09-07T03:34:32Z), PROJECT.md, GATE_STATUS.md, and worker handoff
+- [x] Inspect implementation of offline viewport capture and camera rig setup in codebase
+- [x] Execute pytest test_adversarial_m4_gating.py (121 tests passed)
+- [x] Formulate and execute empirical offline viewport capture stress test (valid PNG header, base64 decode, status='success', offline_fallback=True)
+- [x] Formulate and execute empirical offline camera setup stress test ('front', 'top', 'bottom', 'three_quarter' coordinates/rotations verified)
+- [x] Formulate and execute adversarial edge case tests on offline bridge fallbacks (`tests/test_adversarial_offline_resilience_m4_iter2.py` - 47 tests passed)
+- [x] Run full repository regression suite (574 passed, 3 skipped, 0 failed)
+- [x] Compile observations, logic chain, and handoff report
+- [x] Issue verdict: APPROVE
+- [ ] Send message to parent orchestrator with verdict

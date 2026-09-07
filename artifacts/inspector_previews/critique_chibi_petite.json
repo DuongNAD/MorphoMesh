@@ -1,0 +1,27 @@
+{
+  "status": "success",
+  "passed": true,
+  "quality_score": 100.0,
+  "defect_count": 0,
+  "defects": [],
+  "recommendations": [
+    "Visual quality conforms to structural baseline standards."
+  ],
+  "actionable_recommendations": [],
+  "inspected_objects": [
+    "Human_Base_Mesh"
+  ],
+  "scene_stats": {
+    "offline_mode": true,
+    "target_object": "Human_Base_Mesh",
+    "target_preset": "chibi_petite"
+  },
+  "evaluated_angles": [
+    "front",
+    "three_quarter",
+    "side",
+    "back"
+  ],
+  "capture_previews": [],
+  "execution_time_seconds": 0.0
+}

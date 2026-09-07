@@ -1,28 +1,21 @@
-# Dispatch Assignment: Reviewer M1-2
+## 2026-09-07T04:00:35Z
 
-**Identity**: teamwork_preview_reviewer
-**Assigned Task**: Independent Code, Robustness & Interface Review for Milestone M1
-**Working Directory**: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/reviewer_m1_2`
-**Authoritative Request**: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/ORIGINAL_REQUEST.md` (read sections `## 2026-09-05T15:44:52Z` and `## 2026-09-05T15:47:35Z`)
-**Project Plan**: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/orchestrator_bear_1/PROJECT.md`
-**Worker Handoff**: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/worker_m1/handoff.md`
+```
+You are Reviewer M1_2: Code Reviewer (Robustness & Thread-Safety).
+Your working directory is: e:\tool\mcp\MorphoMesh\.agents\reviewer_m1_2
+Your parent orchestrator conversation ID is: 577aaa33-6b3f-4ebc-93eb-fcc632d94bc9
+The authoritative user request is at: e:\tool\mcp\MorphoMesh\ORIGINAL_REQUEST.md (specifically § 2026-09-07T03:34:32Z). You MUST read this file first.
+The project scope document is at: e:\tool\mcp\MorphoMesh\PROJECT.md (specifically Milestone 1).
+The Worker's handoff report is at: e:\tool\mcp\MorphoMesh\.agents\worker_m1\handoff.md.
 
-## Review Scope
-- `src/morphomesh/blender_bridge.py`
-- `src/morphomesh/inference_adapter.py`
-- `src/morphomesh/creature_generator.py`
-- `tests/test_anatomy_generator.py`
-
-## Instructions
-1. Independently run tests `pytest -v tests/` and run verification in Blender.
-2. Review robustness, edge cases (custom scales, missing vertex groups, degenerate geometry, boundary conditions).
-3. Verify interface contracts defined in `PROJECT.md` for `MeshGeometry` and `creature_generator.py`.
-4. Check whether the engine upgrade is truly reusable across archetypes (quadrupeds, bipeds, chimeras).
-5. Provide a clear verdict (`APPROVE` or `REQUEST_CHANGES`) in `/Users/duongnad/Documents/tool/MorphoMesh/.agents/reviewer_m1_2/handoff.md`.
-
-## 2026-09-05T16:04:10Z
-You are Reviewer M1-2 for Milestone M1 (Anatomy Generator & Claw Fix).
-Your working directory is `/Users/duongnad/Documents/tool/MorphoMesh/.agents/reviewer_m1_2`.
-Read your dispatch at `/Users/duongnad/Documents/tool/MorphoMesh/.agents/reviewer_m1_2/DISPATCH.md`, `/Users/duongnad/Documents/tool/MorphoMesh/.agents/ORIGINAL_REQUEST.md`, `/Users/duongnad/Documents/tool/MorphoMesh/.agents/orchestrator_bear_1/PROJECT.md`, and Worker M1 handoff at `/Users/duongnad/Documents/tool/MorphoMesh/.agents/worker_m1/handoff.md`.
-
-Independently review robustness, interface contracts, error handling, edge cases, and archetype reusability across quadrupeds and bipeds. Run tests and Blender verification. Write your verdict (APPROVE or REQUEST_CHANGES) in `handoff.md` and message the orchestrator.
+Objective:
+Perform an independent review focusing on concurrency, thread-safety, failure modes, socket resource leaks, and timeout behavior:
+- Files modified: blender_addon/morphomesh/listener.py, src/morphomesh/blender_bridge.py, tests/test_bridge_socket_parity.py.
+- Verify socket cleanup on Windows (shutdown and close in finally blocks).
+- Verify thread-safety between background listener thread and Blender's main-thread _drain_queue.
+- Verify timeout behavior and clean exception propagation (TimeoutError, ConnectionError).
+- Execute test targets:
+  `pytest tests/test_bridge_socket_parity.py tests/test_blender_bridge.py -v`
+- Document findings and provide a structured verdict: APPROVE or REQUEST_CHANGES.
+- Write your handoff report to e:\tool\mcp\MorphoMesh\.agents\reviewer_m1_2\handoff.md and notify your parent orchestrator via send_message.
+```

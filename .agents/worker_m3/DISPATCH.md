@@ -1,79 +1,50 @@
-# Dispatch Assignment: Worker M3 (PBR Material Suite & War Armor Engine)
+## 2026-09-07T05:39:11Z
 
-**Identity**: teamwork_preview_worker
-**Assigned Task**: Milestone M3 Implementation — High-Fidelity Organic PBR Shader Engine & War Armor Integration
-**Working Directory**: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/worker_m3`
-**Authoritative Request**: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/ORIGINAL_REQUEST.md` (read sections `## 2026-09-05T15:44:52Z` and `## 2026-09-05T15:47:35Z`)
-**Project Plan**: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/orchestrator_bear_1/PROJECT.md`
-**Technical References**:
-- Explorer 3 Survey Report: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_survey_3/survey_report.md` (Section 3: PBR Material Architecture & War Armor Geometry)
-- Milestone M1 & M2 Handoffs:
-  - `/Users/duongnad/Documents/tool/MorphoMesh/.agents/worker_m1_2/handoff.md`
-  - `/Users/duongnad/Documents/tool/MorphoMesh/.agents/worker_m2/handoff.md`
-
-## Mandatory Integrity Warning
-DO NOT CHEAT. All implementations must be genuine. DO NOT hardcode test results, create dummy/facade implementations, or circumvent the intended task. A teamwork_preview_auditor will independently verify your work. Integrity violations WILL be detected and your work WILL be rejected.
-
-## File Ownership
-You exclusively own and may edit/create:
-- `src/morphomesh/materials.py`
-- `src/morphomesh/armor.py`
-- `src/morphomesh/blender_bridge.py` (add materials and armor dispatch helpers)
-- `tests/test_materials_and_armor.py`
-
-## Objectives & Deliverables
-1. **Implement `src/morphomesh/materials.py` (`CreaturePBRSuite` class)**:
-   - Create 5 distinct 4-channel PBR materials using Blender 5.2.1 Principled BSDF v2 socket names:
-     1. `Mat_Bear_Fur`: Roughness 0.85, Sheen Weight 0.65, Sheen Roughness 0.30, Subsurface Weight 0.08, Metallic 0.0.
-     2. `Mat_Bear_Skin_Nose`: Wet moisture layer on nose, mouth, paw pads: Roughness 0.15, Coat Weight 0.85, Coat Roughness 0.04, Specular IOR Level 0.60, Metallic 0.0.
-     3. `Mat_Bear_Claws`: Keratin striation gradient on all 20 forward claws: Roughness 0.38, Metallic 0.0.
-     4. `Mat_Armor_WeatheredSteel`: Cold blued steel plates: Roughness 0.42, Metallic 1.0 (pure conductor).
-     5. `Mat_Armor_BrassTrim`: Antique brass/gold filigree & rivets: Roughness 0.32, Metallic 1.0.
-   - Provide `setup_bear_materials(creature_obj_dict)` assigning distinct slots to snout/nose, teeth, eyes, claws, fur ribbons, and armor plates.
-2. **Implement `src/morphomesh/armor.py` (`ProceduralArmorEngine` class)**:
-   - Procedural generation of battle-hardened war armor:
-     - Shoulder Pauldrons (`Armor_Pauldron_L`, `Armor_Pauldron_R`) fitted to `armor_mounts_shoulder`.
-     - Neck Gorget (`Armor_Gorget`) encircling cervical spine.
-     - Forearm Bracers (`Armor_Bracer_L`, `Armor_Bracer_R`) fitted to `armor_mounts_wrist`.
-     - Dorsal Backplate (`Armor_Backplate`) contoured along thoracic spine.
-   - Non-intersection clearance: Enforce guaranteed radial clearance $\Delta r \in [0.020, 0.045]\text{m}$ (minimum distance $d_{\min} > 0.015\text{m}$) over underlying bear mesh vertices and undercoat.
-   - Clean 2-manifold geometry, outward face normals, zero zero-area faces.
-3. **Integrate with `src/morphomesh/blender_bridge.py`**:
-   - Add bridge methods `setup_creature_materials()` and `generate_war_armor()`.
-4. **Automated Unit & Integration Tests (`tests/test_materials_and_armor.py`)**:
-   - Assert all 5 materials have valid Principled BSDF v2 node connections and parameter ranges.
-   - Assert all armor plates have minimum clearance distance $\ge 0.015\text{m}$ from skin mesh.
-   - Assert zero degenerate zero-area faces in armor meshes.
-   - Run `pytest -v tests/` and verify all tests pass with 0 failures.
-5. **Blender 5.2.1 LTS Verification**:
-   - Execute in headless Blender and over live socket (127.0.0.1:9876).
-6. **Handoff Report**:
-   - Deliver comprehensive 5-component report at `/Users/duongnad/Documents/tool/MorphoMesh/.agents/worker_m3/handoff.md` and message orchestrator.
-
-## 2026-09-05T16:40:42Z
-
-<USER_REQUEST>
-You are Worker M3 (PBR Material Suite & War Armor Specialist).
-Your working directory is `/Users/duongnad/Documents/tool/MorphoMesh/.agents/worker_m3`.
-Read your dispatch at `/Users/duongnad/Documents/tool/MorphoMesh/.agents/worker_m3/DISPATCH.md`, `/Users/duongnad/Documents/tool/MorphoMesh/.agents/ORIGINAL_REQUEST.md`, and `/Users/duongnad/Documents/tool/MorphoMesh/.agents/orchestrator_bear_1/PROJECT.md`.
-Also consult:
-- `/Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_survey_3/survey_report.md` (Section 3: PBR Material Architecture & War Armor Geometry)
-- `/Users/duongnad/Documents/tool/MorphoMesh/.agents/worker_m1_2/handoff.md`
-- `/Users/duongnad/Documents/tool/MorphoMesh/.agents/worker_m2/handoff.md`
+You are Worker M3: Closed-Loop Visual Quality Critique Engine Implementer.
+Your working directory is: e:\tool\mcp\MorphoMesh\.agents\worker_m3
+Your parent orchestrator conversation ID is: 577aaa33-6b3f-4ebc-93eb-fcc632d94bc9
+The authoritative user request is at: e:\tool\mcp\MorphoMesh\ORIGINAL_REQUEST.md (specifically § 2026-09-07T03:34:32Z). You MUST read this file first.
+The project scope document is at: e:\tool\mcp\MorphoMesh\PROJECT.md (specifically Milestone 3).
 
 MANDATORY INTEGRITY WARNING:
 DO NOT CHEAT. All implementations must be genuine. DO NOT hardcode test results, create dummy/facade implementations, or circumvent the intended task. A teamwork_preview_auditor will independently verify your work. Integrity violations WILL be detected and your work WILL be rejected.
 
 File Ownership:
-- `src/morphomesh/materials.py`
-- `src/morphomesh/armor.py`
+You exclusively own and may edit the following files:
+- `src/morphomesh/visual_critic.py` (New module)
+- `src/morphomesh/models.py`
 - `src/morphomesh/blender_bridge.py`
-- `tests/test_materials_and_armor.py`
+- `blender_addon/morphomesh/listener.py`
+- `tests/test_visual_critic.py` (New test suite)
+You MUST NOT edit any other implementation files.
 
-Execute the implementation:
-1. Implement `src/morphomesh/materials.py` (`CreaturePBRSuite` class) generating the 5 distinct Principled BSDF v2 materials: Fur, Wet Skin/Nose (coat moisture 0.85), Keratin Claws, Weathered Steel (metallic 1.0), and Brass Trim (metallic 1.0).
-2. Implement `src/morphomesh/armor.py` (`ProceduralArmorEngine` class) generating fitted war armor plates (pauldrons, gorget, bracers, backplate) with non-intersecting clearance offset $\Delta r \ge 0.015$m over bear anatomy.
-3. Integrate with `src/morphomesh/blender_bridge.py`.
-4. Add unit and integration tests in `tests/test_materials_and_armor.py`. Run `pytest -v tests/` and verify in Blender 5.2.1 LTS.
-5. Deliver handoff report at `/Users/duongnad/Documents/tool/MorphoMesh/.agents/worker_m3/handoff.md` and message orchestrator when done.
-</USER_REQUEST>
+Reference Input Artifacts (Read these for exact blueprints before coding):
+- `e:\tool\mcp\MorphoMesh\.agents\explorer_m3_1\handoff.md` (Penetration BVH signed distance, hair curve audit, and PurePythonBVHTree spatial index)
+- `e:\tool\mcp\MorphoMesh\.agents\explorer_m3_2\handoff.md` (Anthropometric proportions, joint volume conservation, dihedral creasing, slice volume math)
+- `e:\tool\mcp\MorphoMesh\.agents\explorer_m3_3\handoff.md` (Pydantic v2 schemas, bridge/listener RPC, 4 procedural defect injection fixtures, test plan)
+
+Milestone 3 Tasks:
+1. `src/morphomesh/models.py`:
+   - Add Pydantic v2 schemas: `DefectSeverity`, `DefectCategory`, `ActionableRecommendation`, `DefectItem`, `VisualCritiqueInput`, `VisualCritiqueOutput` with backward-compatible normalizers as blueprinted in explorer_m3_3/handoff.md.
+2. `src/morphomesh/visual_critic.py`:
+   - Implement `evaluate_mesh_penetration`: BVH signed distance $s_i = (w_i - p_i) \cdot \hat{n}_i < -0.5\text{mm}$, normal alignment filter, reverse penetration (skin burst), and triangle face overlap.
+   - Implement `evaluate_hair_grooming_intersections`: Submerged roots ($s < -1\text{mm}$), detached roots ($s > +4\text{mm}$), hair shaft penetration ($s_{\text{eff}} < -0.5\text{mm}$), clothing clipping.
+   - Implement `PurePythonBVHTree`: Self-contained offline AABB/BVH tree with exact point-to-triangle distance, ray-triangle intersection, and triangle overlap for 100% offline pytest execution without `mathutils.bvhtree`.
+   - Implement `evaluate_body_proportions`: Total height, head height ($H_{\text{total}}/H_{\text{head}}$ against `realistic_human`, `stylized_heroine`, `chibi_petite` presets), arm span to height ratio, shoulder-to-hip breadth ratio.
+   - Implement `evaluate_rig_skinning_deformation`: Volume conservation ($\rho_V = V_{\text{posed}} / V_{\text{rest}}$) and acute dihedral angle creasing ($\cos\theta < -0.85$).
+   - Implement `run_visual_critique(input_data: VisualCritiqueInput) -> VisualCritiqueOutput`.
+   - Implement procedural defect injection fixtures and clean baselines: garment penetration, proportion skew, joint skinning collapse, and hair root clipping with ground truth metrics demonstrating >95% accuracy.
+3. Hook into `src/morphomesh/blender_bridge.py` and `blender_addon/morphomesh/listener.py`:
+   - Add client method `critique_visual_quality()` in `blender_bridge.py`.
+   - Implement `morphomesh.critique_visual_quality` RPC handler in `listener.py` with native in-addon fallback.
+   - Sync `listener.py` to `%APPDATA%\Blender Foundation\Blender\4.5\scripts\addons\morphomesh\listener.py`.
+4. Create `tests/test_visual_critic.py`:
+   - Implement comprehensive unit and integration tests per explorer_m3_3 test plan covering all 4 defect categories, schema validation, bridge dispatch, and procedural defect injection fixtures.
+5. Verification:
+   - Run: `.venv\Scripts\pytest.exe -v tests/test_visual_critic.py`
+   - Run full regression: `.venv\Scripts\pytest.exe -v tests/test_inspector_camera.py tests/test_multiview_rendering.py tests/test_adversarial_camera_math.py tests/test_adversarial_viewport_capture.py tests/test_bridge_socket_parity.py tests/test_m1_adversarial_socket.py tests/test_adversarial_dispatch_m1_2.py tests/test_blender_bridge.py`
+   - Verify 100% pass rate.
+6. Reporting:
+   - Update progress in `e:\tool\mcp\MorphoMesh\.agents\worker_m3\progress.md`.
+   - Write comprehensive handoff report to `e:\tool\mcp\MorphoMesh\.agents\worker_m3\handoff.md`.
+   - Send completion message to parent orchestrator (`577aaa33-6b3f-4ebc-93eb-fcc632d94bc9`).

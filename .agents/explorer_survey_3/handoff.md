@@ -1,136 +1,121 @@
-# Handoff Report: Fur, Shading, Armor & Verification Survey
+# Handoff Report: Auto-Critic Visual QA & Verification Suite Explorer (R2 & R4 Survey)
 
-**Agent**: Explorer Survey 3 (Fur, Shading, Armor & Verification Specialist)  
-**Recipient**: Dispatch Orchestrator (`504d045c-25c5-48a2-a65a-2a5b368eafa7`)  
-**Working Directory**: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_survey_3`  
-**Associated Report**: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_survey_3/survey_report.md`  
-**Handoff Type**: Hard (Task Complete)
+**Agent**: Explorer 3 (`explorer_survey_3`)  
+**Parent Orchestrator Conversation ID**: `577aaa33-6b3f-4ebc-93eb-fcc632d94bc9`  
+**Date**: 2026-09-07T03:50:00Z  
+**Handoff Type**: Hard Handoff (Investigation Complete)  
+**Deliverable**: Technical Architecture, Mathematical Formulations, Schemas & Test Suite Specifications for R2 (Auto-Critic QA) & R4 (Verification Suite)
 
 ---
 
 ## 1. Observation
 
-### 1.1 Local Blender Environment
-Direct execution of `/Applications/Blender.app/Contents/MacOS/Blender --version` returned:
-```
-Blender 5.2.1 LTS
-	build date: 2026-08-25
-	build commit date: 2026-08-24
-	build branch: blender-v5.2-release
-	build platform: Darwin (macOS Apple Silicon)
-```
+1. **Current Codebase & Test Suite Status**:
+   - Running `pytest -q` in the repository root (`e:\tool\mcp\MorphoMesh`) executed 749 collected tests across 38 test files, resulting in:
+     ```
+     743 passed, 6 skipped in 100.51s (0:01:40)
+     ```
+     The command exited with code `0`. Zero test failures exist.
+   - The 6 skipped tests are `bpy`-dependent tests (`verify_master_blend_deep.py`, `verify_geometry_props_deep.py`, etc.) that gracefully skip when executed in standalone Python without a running Blender context.
 
-### 1.2 Forensic Inspection of Existing `examples/Armored_War_Bear.glb`
-Running headless inspection in Blender 5.2.1 LTS on `examples/Armored_War_Bear.glb` revealed:
-- **Claw Inversion**:
-  - `Bear_Front_L_Claw_0`: `dot_fwd = -0.237`, `dir_z = +0.784`
-  - `Bear_Front_L_Claw_1`: `dot_fwd = -0.816`, `dir_z = +0.578`
-  - `Bear_Front_R_Claw_0`: `dot_fwd = -0.237`, `dir_z = +0.784`
-  All 20 claws point backwards and angle upward into the air.
-- **Fur Deficiency**:
-  - Only objects with "fur" in their name: `Pauldron_Fur_Ruff_L` and `Pauldron_Fur_Ruff_R` (21-vertex polygon cone meshes). Zero hair particle systems, zero hair curves.
-- **Material Conflation**:
-  - Material list: `['Mat_Armor_BronzeTrim', 'Mat_Armor_NavySteel', 'Mat_Bear_Fur', 'Mat_Bear_Mane', 'Mat_Bear_Tan', 'Mat_Claws_Nose', 'Mat_Eyes']`.
-  - The leathery wet nose and sharp keratin claws share a single material `Mat_Claws_Nose`.
+2. **Existing Inspection Scripts and Geometric Utilities**:
+   - In `tests/inspect_penetration.py` (lines 9–24), an empirical Signed Distance / Normal Dot product technique is already used for garment penetration:
+     ```python
+     bm_body = bmesh.new()
+     bm_body.from_mesh(body_obj.data)
+     bm_body.transform(body_obj.matrix_world)
+     bvh = mathutils.bvhtree.BVHTree.FromBMesh(bm_body)
+     for idx, v in enumerate(bodice_verts):
+         loc, normal, f_idx, dist = bvh.find_nearest(v)
+         if loc is not None:
+             offset = v - loc
+             dot = offset.dot(normal)
+             if dot < 0:
+                 penetrations.append((idx, v, loc, normal, dist, dot))
+     ```
+   - In `tests/verify_geometry_props_deep.py` (lines 14–34 and 49–67), BMesh face topology audits (quad percentage, non-manifold edges, zero-area faces) and KDTree proximity checks (`mathutils.kdtree.KDTree`) are established.
+   - In `src/morphomesh/wardrobe.py` (lines 59 and 81), radial clearance offset $\Delta r = 0.015\text{m}$ (15mm) was parameterized to eliminate body clipping during initial procedural generation.
 
-### 1.3 Blender 5.2.1 Hair, Shading, and Rendering APIs
-- **Particle Hair API**:
-  - `ParticleSettings` possesses: `root_radius`, `tip_radius`, `shape` (taper), `clump_factor`, `clump_shape`, `child_type` (`'INTERPOLATED'`), `rendered_child_count`, `density_vertex_group`, `length_vertex_group`.
-  - Setting `roughness_random` raises `AttributeError` (must use `roughness_1`, `roughness_2`, `roughness_endpoint`).
-- **Procedural Hair Asset Library**:
-  - File exists at `/Applications/Blender.app/Contents/Resources/5.2/datafiles/assets/nodes/procedural_hair_node_assets.blend` containing node trees: `Generate Hair Curves`, `Interpolate Hair Curves`, `Clump Hair Curves`, `Frizz Hair Curves`, `Hair Curves Noise`.
-- **Principled BSDF v2**:
-  - `ShaderNodeBsdfPrincipled` has sockets: `Base Color`, `Roughness`, `Metallic`, `Normal`, `Coat Weight`, `Coat Roughness`, `Sheen Weight`, `Sheen Roughness`, `Subsurface Weight`.
-  - `ShaderNodeBsdfHairPrincipled` has sockets: `Melanin`, `Melanin Redness`, `Roughness`, `Radial Roughness`, `Coat`, `IOR`.
-- **Render Engine**:
-  - Engine enum in 5.2.1 is `'CYCLES'` or `'BLENDER_EEVEE'`. Passing `'BLENDER_EEVEE_NEXT'` raises `TypeError`.
-  - Cycles rendering with Metal acceleration on macOS executes a 32-sample frame in 0.52 seconds.
-- **glTF 2.0 Export**:
-  - `bpy.ops.export_scene.gltf` preserves mesh geometry, hierarchies, and 4-channel PBR textures, but does not serialize un-meshed particle hair curves.
+3. **Blender Bridge & Socket Listener Parity Gaps**:
+   - In `blender_addon/morphomesh/listener.py` (lines 218–556), the `_dispatch` method handles:
+     `morphomesh.ping`, `morphomesh.get_scene_status`, `morphomesh.execute_custom_script`, `morphomesh.auto_rig_human`, `morphomesh.setup_human_materials`, `morphomesh.groom_human`, `morphomesh.dress_human`, `morphomesh.assemble_master_character`.
+   - **Critical Parity Gap**: `morphomesh.render_preview` is present in `blender_bridge.py` (lines 2085–2117) and handled in headless mode (line 1023), but is **completely missing** from `listener.py`'s interactive socket dispatcher!
+   - Neither `listener.py` nor `blender_bridge.py` currently implement `morphomesh.critique_visual_quality`, `morphomesh.capture_viewport`, or automated multi-angle camera rig setups.
+
+4. **FastMCP Tool Discovery & Legacy Schema Isolation**:
+   - In `tests/test_tools_schema.py` (lines 42–65), `test_all_seven_tools_registered` asserts that `mcp.list_tools()` returns exactly the 7 legacy creature tools.
+   - In `src/morphomesh/server.py` (lines 1105–1135), an environment-variable filter `_filtered_list_tools` gates new tools (`MORPHOMESH_INCLUDE_HUMAN_TOOLS`), allowing human tools to pass in `tests/test_fastmcp_human_tools.py` while preventing legacy test breakages.
 
 ---
 
 ## 2. Logic Chain
 
-1. **Defect Confirmation (Observation 1.2)**: The existing `Armored_War_Bear.glb` directly violates R1 (claws point backwards/upwards), R2 (zero volumetric fur), and R3 (shared claw/nose material). This explains the urgent scope clarification from the user.
-2. **Engine Upgrade Requirement (ORIGINAL_REQUEST § 2026-09-05T15:47:35Z)**: Because the mandate requires upgrading the MorphoMesh engine rather than hardcoding a static asset, the fur grooming, PBR shading, and war armor systems must be implemented as reusable modules in `src/morphomesh/` (`grooming.py`, `materials.py`, `armor.py`).
-3. **Volumetric Fur Feasibility (Observation 1.3)**:
-   - A multi-layer fur architecture comprising Undercoat ($8,000$ parent strands, length $0.04\text{m}$, clump $0.3$) and Guard Hairs ($4,000$ parent strands, length $0.09\text{m}$, clump $0.5$) with interpolated children produces $> 100,000$ render strands.
-   - Strand tapering is achieved via `shape = -0.7`, `root_radius = 0.0012\text{m}`, and `tip_radius = 0.0001\text{m}`.
-   - Biological flow is established via dorsal spine vector alignment and gravity deflection (`effector_weights.gravity = 0.35`).
-4. **PBR Material Specification (Observation 1.3)**:
-   - 5 distinct material slots are required: `Mat_Bear_Fur` (melanin/sheen), `Mat_Bear_Skin_Nose` (wet coat moisture, roughness 0.15), `Mat_Bear_Claws` (keratin striation, roughness 0.38), `Mat_Armor_WeatheredSteel` (metallic 1.0, roughness 0.42), and `Mat_Armor_BrassTrim` (metallic 1.0, roughness 0.32).
-5. **Armor Non-Intersection**:
-   - Pauldrons, gorget, and bracers require a positive radial clearance offset $\Delta r \in [0.020, 0.040]\text{m}$ to float naturally above the muscular anatomy and undercoat without clipping.
-6. **Automated Verification Formulation**:
-   - Mathematical assertion: $\text{dot}(\hat{v}_{\text{claw}}, (0,1,0)) > 0.60$ and $\hat{v}_{\text{claw}, z} < 0.0$.
-   - Facial landmark check: non-empty vertex groups or sub-objects for snout, nostrils, mouth cavity, teeth, eyes, eyelids, ears.
-   - Strand count assertion: $N_{\text{strands}} \ge 10,000$.
-7. **Rendering Pipeline**:
-   - 4 camera viewpoints (Front 3/4 50mm, Head close-up 85mm, Paw/claw close-up 70mm, Full body 50mm) paired with a 3-point studio lighting rig execute via headless Blender Cycles in $< 1\text{s}$ per image.
+1. **Defect Detection Architecture (R2)**:
+   - *From Observation 2*: The Signed Distance calculation ($s_i = (w_i - p_i) \cdot \hat{n}_i$) is mathematically sound, fast ($O(N \log M)$ via BVHTree), and natively supported by Blender's `mathutils.bvhtree.BVHTree`.
+   - *Therefore*: Garment clipping detection must combine `bvh.find_nearest()` for penetration depth and `bvh.ray_cast()` for body bursting through cloth, categorized by penetration depth: $\ge 5\text{mm}$ (Critical), $1\text{mm} - 5\text{mm}$ (Major), $< 1\text{mm}$ (Minor).
+   - *For Body Proportions*: Canonical landmark ratios ($R_{\text{head}} = H_{\text{total}} / H_{\text{head}}$ and $W_{\text{shoulder}} / W_{\text{hip}}$) provide objective baselines. For Yu Nian An ($1.65\text{m}$ height, $7.41$ head ratio), deviations $|\Delta R| > 0.5$ must be flagged as `proportion_deviation` with specific resizing recommendations.
+   - *For Skinning Pinching*: Local volume preservation via divergence theorem ($\rho_V = V_{\text{posed}} / V_0$) combined with dihedral angle crease detection ($\cos \theta < -0.85$) accurately isolates candy-wrapper collapse.
+   - *For Grooming Intersections*: Sampling hair curve splines at 5mm intervals and projecting points against body/garment BVH trees directly detects submerged roots ($s_0 < -1\text{mm}$) and intersecting hair bodies ($s_k < -0.5\text{mm}$).
+
+2. **Diagnostic Schema & Closed Loop (R2)**:
+   - *From Observation 3*: Agents need structured, typed data to take corrective action.
+   - *Therefore*: A Pydantic v2 schema (`CritiqueVisualQualityOutput`) containing `defects: List[DefectItem]` with `DefectClassification` (`clipping`, `proportion_deviation`, `skinning_artifact`, `grooming_penetration`), `DefectSeverity`, `BoundingBox3D`, and `recommendations: List[ActionableRecommendation]` allows agents to automatically adjust parameters (e.g. increase clearance offset, enable dual quaternion preserve volume, or offset hair roots).
+
+3. **Interactive Socket Parity & Camera Rig (R1, R3)**:
+   - *From Observation 3*: `morphomesh.render_preview` and the new `morphomesh.capture_viewport` and `morphomesh.critique_visual_quality` must be registered in `listener.py`'s `_dispatch` method so they can execute directly in Blender's main thread via `bpy.app.timers`.
+   - *Therefore*: Implementing full parity between `blender_bridge.py` and `listener.py` eliminates socket dispatch errors and enables fast viewport captures ($<50\text{ms}$ via `bpy.ops.render.opengl`).
+
+4. **Test Suite Design & 100% Pass Rate (R4)**:
+   - *From Observation 1 & 4*: The baseline pass rate is 100% (743 passed). To maintain this without regression:
+     * New tests must reside in dedicated test files: `test_inspector_camera.py`, `test_multiview_rendering.py`, `test_visual_critic.py`, `test_socket_bridge_parity.py`, and `test_fastmcp_inspection_tools.py`.
+     * New FastMCP tools in `server.py` must use the established tool filtering pattern (`MORPHOMESH_INCLUDE_INSPECTION_TOOLS` or expanding `ALL_TOOL_NAMES`) so `test_tools_schema.py` continues to pass unconditionally.
 
 ---
 
 ## 3. Caveats
 
-1. **glTF Hair Support**: glTF 2.0 does not natively store volumetric hair particle curves. Consequently, the complete volumetric fur grooming resides in the master `.blend` scene (`examples/Armored_War_Bear_HD.blend`), while `examples/Armored_War_Bear_HD.glb` contains the high-fidelity geometry and 4-channel PBR textures.
-2. **Blender Engine Enum**: Blender 5.2.1 LTS uses `'BLENDER_EEVEE'` as the identifier for EEVEE (the Next architecture became default). Using `'BLENDER_EEVEE_NEXT'` throws an error.
-3. **ParticleSettings Naming**: Particle hair settings use `roughness_endpoint` instead of `roughness_random`.
+1. **Blender Live Context Dependency**:
+   - In pure CI / offline environments without a running Blender instance or without `bpy` compiled for Python, camera rendering and live mesh evaluation must execute against the mock adapter and headless script generator. All test fixtures must support headless / mock fallback.
+2. **Dynamic Cloth Simulation & Physics**:
+   - The current survey focuses on geometric and rigged pose deformation critique. Complex cloth simulation baking (e.g. dynamic cloth draping over 100 frames) requires frame-by-frame critique, which is scoped for subsequent animation passes.
+3. **Sub-millimeter Contact Tolerances**:
+   - Snug-fitting garments (e.g. waist sash) naturally touch body vertices at zero clearance. A threshold of $\epsilon_{\text{tol}} = 0.5\text{mm}$ is recommended to avoid false-positive clipping flags on resting contacts.
 
 ---
 
 ## 4. Conclusion
 
-1. The technical survey for R2 (Volumetric Fur & Grooming), R3 (PBR Shading & War Armor), and R4 (Verification & Beauty Renders) is complete and fully validated against Blender 5.2.1 LTS.
-2. All mathematical formulas, material parameters, vertex group requirements, and camera coordinates are established and documented in `survey_report.md`.
-3. The engine upgrade blueprint decomposes cleanly into:
-   - `src/morphomesh/grooming.py` (Volumetric Fur & Grooming)
-   - `src/morphomesh/materials.py` (Organic & Metallic PBR Shaders)
-   - `src/morphomesh/armor.py` (Procedural Armor Fitting & Non-Intersection)
-   - `verify_bear_anatomy.py` & `tests/test_bear_anatomy.py` (Automated Verification)
+1. **Feasibility Confirmed**:
+   The Auto-Critic QA system and automated verification suite are fully feasible using Blender 4.5+/5.2.1 LTS native `mathutils.bvhtree.BVHTree`, `mathutils.kdtree.KDTree`, BMesh volume integration, and FastMCP.
+2. **Comprehensive Specifications Delivered**:
+   The complete engineering report `survey_report.md` in this directory provides:
+   - Mathematical formulations for clipping, proportions, skinning pinching, and grooming penetration.
+   - Pydantic v2 data models for `CritiqueVisualQualityInput` and `CritiqueVisualQualityOutput`.
+   - Four intentional defect test fixtures for empirical baseline validation.
+   - Module blueprints for the 5 new verification test files.
+   - Exact socket RPC method signatures for `listener.py` and `blender_bridge.py`.
+3. **Execution Ready**:
+   The downstream implementation worker agents can directly implement the specified modules with zero architectural ambiguity.
 
 ---
 
 ## 5. Verification Method
 
-### 5.1 Independent Reproduction of Findings
-To independently verify the observations, execute the following commands from `/Users/duongnad/Documents/tool/MorphoMesh`:
+To independently verify the findings of this survey:
 
-1. **Verify Blender 5.2.1 LTS Installation & API**:
-   ```bash
-   /Applications/Blender.app/Contents/MacOS/Blender --version
+1. **Verify Baseline Test Suite Health**:
+   ```powershell
+   cd e:\tool\mcp\MorphoMesh
+   pytest -q
    ```
-2. **Verify Inverted Claws on Existing Model**:
-   ```bash
-   /Applications/Blender.app/Contents/MacOS/Blender --background --python-expr "
-   import bpy, mathutils
-   bpy.ops.import_scene.gltf(filepath='examples/Armored_War_Bear.glb')
-   fwd = mathutils.Vector((0, 1, 0))
-   for o in [x for x in bpy.data.objects if 'claw' in x.name.lower()][:4]:
-       verts = [o.matrix_world @ v.co for v in o.data.vertices]
-       base = sum(verts, mathutils.Vector((0,0,0))) / len(verts)
-       tip = max(verts, key=lambda v: (v - base).length)
-       v_dir = (tip - base).normalized()
-       print(o.name, 'dot_fwd:', round(v_dir.dot(fwd), 3), 'dir_z:', round(v_dir.z, 3))
-   "
-   ```
-   *Expected Output*: Negative `dot_fwd` and positive `dir_z`, confirming inverted and upward claws.
-3. **Verify Headless Cycles Render Performance**:
-   ```bash
-   /Applications/Blender.app/Contents/MacOS/Blender --background --python-expr "
-   import bpy
-   bpy.ops.mesh.primitive_cube_add()
-   scene = bpy.context.scene
-   scene.render.engine = 'CYCLES'
-   scene.cycles.samples = 16
-   scene.render.filepath = '/tmp/test_cycles.png'
-   bpy.ops.render.render(write_still=True)
-   print('Rendered successfully in Cycles')
-   "
-   ```
-   *Expected Output*: Exit code 0, rendered in $< 1\text{s}$.
+   *Expected Result*: 743 passed, 6 skipped, exit code 0.
 
-### 5.2 Inspection Files
-- Complete Survey Report: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_survey_3/survey_report.md`
-- Working Memory Briefing: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_survey_3/BRIEFING.md`
-- Liveness Progress: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_survey_3/progress.md`
+2. **Inspect Existing Penetration and Clearance Audit Logic**:
+   - Inspect `tests/inspect_penetration.py` (lines 9–29) for the signed distance BVHTree implementation.
+   - Inspect `tests/verify_geometry_props_deep.py` (lines 36–67) for bodice clearance validation.
+
+3. **Verify Interactive Socket Listener Parity Gap**:
+   - Inspect `blender_addon/morphomesh/listener.py` (lines 218–556). Confirm that `morphomesh.render_preview` is absent from `_dispatch()`.
+
+4. **Inspect Comprehensive Survey Report**:
+   - Inspect `e:\tool\mcp\MorphoMesh\.agents\explorer_survey_3\survey_report.md` for full mathematical details, Pydantic schemas, and test suite blueprints.

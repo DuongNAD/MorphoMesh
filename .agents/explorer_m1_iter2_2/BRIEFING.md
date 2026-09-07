@@ -1,46 +1,50 @@
-# BRIEFING — 2026-09-05T16:15:00Z
+# BRIEFING — 2026-09-07T04:12:30Z
 
 ## Mission
-Investigate 104 inverted face normals in `add_box` and `add_cylinder(axis="Y")` in `src/morphomesh/inference_adapter.py` and formulate exact CCW winding for all box faces and cylinder side quads.
+Formulate an exact line-by-line implementation blueprint to remediate pipeline parity in `blender_addon/morphomesh/listener.py` and `execute()` success predicate in `src/morphomesh/blender_bridge.py`.
 
 ## 🔒 My Identity
-- Archetype: teamwork_preview_explorer
-- Roles: explorer, investigator, analyst
-- Working directory: /Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_m1_iter2_2
-- Original parent: 504d045c-25c5-48a2-a65a-2a5b368eafa7
-- Milestone: M1 (Reusable Anatomy Generator & Claw Fix - Iteration 2)
+- Archetype: Explorer
+- Roles: Read-only investigation: analyze problems, synthesize findings, produce structured reports
+- Working directory: e:\tool\mcp\MorphoMesh\.agents\explorer_m1_iter2_2
+- Original parent: 577aaa33-6b3f-4ebc-93eb-fcc632d94bc9
+- Milestone: Milestone 1 Iteration 2
 
 ## 🔒 Key Constraints
-- Read-only investigation — do NOT implement directly in source code
-- Adhere to communication and handoff protocols
-- Deliver clear, verified CCW vertex winding formulas and patch proposals
+- Read-only investigation — do NOT implement
+- Do NOT edit or create any source code files
+- Only write to working directory (.agents/explorer_m1_iter2_2/)
 
 ## Current Parent
-- Conversation ID: 504d045c-25c5-48a2-a65a-2a5b368eafa7
-- Updated: 2026-09-05T16:15:00Z
+- Conversation ID: 577aaa33-6b3f-4ebc-93eb-fcc632d94bc9
+- Updated: 2026-09-07T04:12:30Z
 
 ## Investigation State
 - **Explored paths**:
-  - `src/morphomesh/inference_adapter.py` (`add_box`, `add_cylinder`)
-  - `src/morphomesh/creature_generator.py` (`box_faces`)
-  - `tests/test_m1_topology_and_facial_stress.py`
+  - `ORIGINAL_REQUEST.md` (§ 2026-09-07T03:34:32Z)
+  - `PROJECT.md` (Milestone 1, Feature 3)
+  - `.agents/orchestrator_inspector_1/GATE_STATUS.md`
   - `.agents/challenger_m1_2/handoff.md`
+  - `.agents/reviewer_m1_2/handoff.md`
+  - `.agents/challenger_m1_1/handoff.md`
+  - `blender_addon/morphomesh/listener.py` (lines 1-1327)
+  - `src/morphomesh/blender_bridge.py` (lines 515-568, 885-1825, 2240-2525)
+  - `src/morphomesh/armor.py`, `grooming.py`, `materials.py`
+  - `tests/test_adversarial_dispatch_m1_2.py`
 - **Key findings**:
-  - Top (+Z) and Bottom (-Z) faces in `add_box` already had outward normals ($dot = +1.00$).
-  - Front (+Y), Back (-Y), Left (-X), and Right (+X) in `add_box` were clockwise viewed from outside ($dot = -1.00$).
-  - 13 box primitives in bear mesh $\times$ 8 inverted triangles per box = exactly 104 inverted faces.
-  - `add_cylinder(axis="Y")` suffered from $\hat{i} \times \hat{k} = -\hat{j}$, producing inward radial normals ($dot = -0.9960$). Reversing quad order restores outward normal ($dot = +0.9960$).
-  - `get_blender_generation_script()` had 12/12 inverted box triangles, fixed by transposing $(i_1, i_2) \to (i_2, i_1)$.
-- **Unexplored areas**: None within assigned scope. Polar degeneracy fix in ellipsoids is handled by Explorer M1-Iter2-1.
+  1. `listener.py` lines 1313-1317: Currently lacks 6 creature methods (`morphomesh.optimize_topology`, `morphomesh.create_armature`, `morphomesh.setup_creature_fur`, `morphomesh.evaluate_fur_ribbons`, `morphomesh.setup_creature_materials`, `morphomesh.generate_war_armor`).
+  2. `blender_bridge.py` lines 537-553: `execute()` success predicate lacks `"objects"`, causing valid responses with `{"objects": [...]}` to falsely fall back to headless CLI runner.
+  3. `blender_bridge.py` lines 1800-1803: `generate_war_armor` branch in `_generate_headless_script()` is missing `emit_result(...)`.
+  4. `listener.py` line 36: `AddonSecurityValidator` forbids `getattr`, causing AST validation rejections for valid scripts utilizing `getattr()`.
+- **Unexplored areas**: None, full evidence chain established.
 
 ## Key Decisions Made
-- Reorder lateral quad vertices in `add_box` starting from bottom-left viewed from outside to keep UV mapping ($V$ along $+Z$, $U$ horizontal) consistent with existing engine conventions.
-- Provide a machine-applicable git patch `.agents/explorer_m1_iter2_2/inverted_normals.patch` tested via `git apply --check`.
+- Formulate complete, exact drop-in blueprints for Worker M1 to apply.
+- Document exact line numbers and before/after code blocks.
+- Detail test suite modifications required to verify the remediation.
 
 ## Artifact Index
-- `DISPATCH.md` — Task assignment and instructions
-- `BRIEFING.md` — Persistent situational awareness
-- `progress.md` — Heartbeat tracking
-- `survey_report.md` — Detailed analysis and mathematical proof
-- `handoff.md` — Formal 5-component hard handoff report
-- `inverted_normals.patch` — Unified diff patch for Worker M1
+- DISPATCH.md — Recorded dispatch message
+- BRIEFING.md — Situational awareness
+- progress.md — Heartbeat log
+- handoff.md — Final investigation and blueprint report

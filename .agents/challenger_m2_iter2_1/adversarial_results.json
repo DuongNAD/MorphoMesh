@@ -1,0 +1,177 @@
+{
+  "verdict": "APPROVE",
+  "results": {
+    "test_1_ray_collision_standalone": {
+      "status": "PASS",
+      "total": 150,
+      "passed": 150,
+      "max_error_m": 3.5596458096434965e-15,
+      "worst_case": [
+        120.0,
+        15.0,
+        3.5596458096434965e-15
+      ]
+    },
+    "test_1_ray_collision_blender": {
+      "total": 150,
+      "passed": 150,
+      "max_error_m": 3.156691189545945e-06,
+      "worst_case": [
+        15.0,
+        15.0,
+        3.156691189545945e-06
+      ],
+      "status": "PASS"
+    },
+    "test_2_euler_angle_parity": {
+      "status": "PASS",
+      "all_bit_identical": true,
+      "details": [
+        {
+          "viewpoint": "three_quarter",
+          "azimuth": 45.0,
+          "elevation": 15.0,
+          "camera_rig_euler": [
+            1.3089969158172607,
+            -8.891375813391278e-08,
+            0.7853982448577881
+          ],
+          "ref_euler": [
+            1.3089969158172607,
+            -8.891375813391278e-08,
+            0.7853982448577881
+          ],
+          "max_diff": 0.0,
+          "bit_identical": true
+        },
+        {
+          "viewpoint": "top",
+          "azimuth": 0.0,
+          "elevation": 88.0,
+          "camera_rig_euler": [
+            0.034907907247543335,
+            -0.0,
+            0.0
+          ],
+          "ref_euler": [
+            0.034907907247543335,
+            -0.0,
+            0.0
+          ],
+          "max_diff": 0.0,
+          "bit_identical": true
+        },
+        {
+          "viewpoint": "bottom",
+          "azimuth": 0.0,
+          "elevation": -88.0,
+          "camera_rig_euler": [
+            3.106684684753418,
+            -0.0,
+            0.0
+          ],
+          "ref_euler": [
+            3.106684684753418,
+            -0.0,
+            0.0
+          ],
+          "max_diff": 0.0,
+          "bit_identical": true
+        },
+        {
+          "viewpoint": "front",
+          "azimuth": 0.0,
+          "elevation": 0.0,
+          "camera_rig_euler": [
+            1.5707964897155762,
+            -0.0,
+            0.0
+          ],
+          "ref_euler": [
+            1.5707964897155762,
+            -0.0,
+            0.0
+          ],
+          "max_diff": 0.0,
+          "bit_identical": true
+        },
+        {
+          "viewpoint": "side",
+          "azimuth": 90.0,
+          "elevation": 0.0,
+          "camera_rig_euler": [
+            1.5707963705062866,
+            -0.0,
+            1.5707963705062866
+          ],
+          "ref_euler": [
+            1.5707963705062866,
+            -0.0,
+            1.5707963705062866
+          ],
+          "max_diff": 0.0,
+          "bit_identical": true
+        },
+        {
+          "viewpoint": "back",
+          "azimuth": 180.0,
+          "elevation": 0.0,
+          "camera_rig_euler": [
+            -1.570796251296997,
+            3.141592502593994,
+            -0.0
+          ],
+          "ref_euler": [
+            -1.570796251296997,
+            3.141592502593994,
+            -0.0
+          ],
+          "max_diff": 0.0,
+          "bit_identical": true
+        }
+      ]
+    },
+    "test_3_hierarchy_bounds_mock": {
+      "status": "PASS",
+      "total_corners_tested": 24,
+      "violations": 0,
+      "center": [
+        2.25,
+        3.75,
+        -2.75
+      ],
+      "radius": 14.7542366796795,
+      "min_corner": [
+        -8.0,
+        -3.5,
+        -10.5
+      ],
+      "max_corner": [
+        12.5,
+        11.0,
+        5.0
+      ]
+    },
+    "test_3_hierarchy_bounds_blender": {
+      "status": "PASS",
+      "total_vertices_tested": 554,
+      "violations": 0,
+      "center": [
+        4.193,
+        -0.0411,
+        0.673
+      ],
+      "radius": 8.4413,
+      "min_corner": [
+        -0.114,
+        -5.9,
+        -3.614
+      ],
+      "max_corner": [
+        8.5,
+        5.8178,
+        4.96
+      ]
+    }
+  }
+}

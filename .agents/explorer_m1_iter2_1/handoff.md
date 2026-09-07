@@ -1,143 +1,549 @@
-# Handoff Report: Milestone M1-Iter2-1 — Polar Face Degeneracy Fix
+# Handoff Report: Explorer M1 Iteration 2 - 1 (Socket Concurrency Remediation Blueprint)
 
-**Document ID**: `MM-HANDOFF-M1-ITER2-1-EXPLORER-001`  
-**Agent**: Explorer M1-Iter2-1 (Polar Fan Triangulation Specialist)  
-**Working Directory**: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_m1_iter2_1`  
-**Milestone**: M1 (Reusable Anatomy Generator & Polar Topology Remediation)  
-**Parent Orchestrator**: `504d045c-25c5-48a2-a65a-2a5b368eafa7`  
-**Date**: 2026-09-05T16:15:00Z  
-**Verdict**: **INVESTIGATION COMPLETE — FIX DESIGNED & EMPIRICALLY VERIFIED**
+**Agent ID**: Explorer M1 Iteration 2 - 1 (`explorer_m1_iter2_1`)  
+**Assigned Directory**: `e:\tool\mcp\MorphoMesh\.agents\explorer_m1_iter2_1`  
+**Parent Orchestrator ID**: `577aaa33-6b3f-4ebc-93eb-fcc632d94bc9`  
+**Target Milestone**: Milestone 1 (Interactive Socket Bridge Parity & Reliability - R3)  
+**Date**: 2026-09-07T04:14:00Z  
+**Verdict**: **INVESTIGATION_COMPLETE** (Line-by-Line Blueprint Ready for Worker Implementation)  
 
 ---
 
 ## 1. Observation
 
-1. **Empirical Defect Confirmation in Canonical Bear Base Mesh**:
-   - Running `pytest -v tests/test_m1_topology_and_facial_stress.py::test_adversarial_degenerate_zero_area_faces` fails with:
+### 1.1 Verbatim Challenger / Reviewer Failures
+In Iteration 1, the test suite `tests/test_m1_adversarial_socket.py` produced 2 deterministic failures out of 28 tests:
+
+1. **Failure 1: Queue-Bypass Response Reordering Race Condition**
+   - Test: `TestAdversarialMalformedDataResilience.test_malformed_chaos_fuzzing_interleaving` (`tests/test_m1_adversarial_socket.py:614`)
+   - Verbatim Error:
      ```
-     AssertionError: DEFECT CONFIRMED: Found 508 degenerate zero-area faces (< 1e-9) in base bear mesh! Polar ellipsoid quads collapse to zero area.
-     assert 508 == 0
+     AssertionError: Frame 0 status mismatch: {'jsonrpc': '2.0', 'id': None, 'status': 'error', 'error': {'code': -32700, 'message': 'Parse error: Expecting value: line 1 column 1 (char 0)'}}
+     assert 'error' == 'success'
+       - success
+       + error
      ```
-   - Running headless Blender 5.2.1 LTS with `build_bear_in_blender(object_name='Bear_Verify')` confirms:
-     `len([p for p in obj.data.polygons if p.area < 1e-9]) == 508`.
-2. **Originating Locations in Codebase**:
-   - `src/morphomesh/inference_adapter.py`:
-     - `MeshGeometry.add_sphere` (lines 220–256): connects collapsed polar rings at $r=0$ and $r=rings$ with quads via `self.add_quad(i0, i1, i2, i3)`.
-     - `MeshGeometry.add_ellipsoid` (lines 266–319): connects collapsed polar rings with identical quad generation logic.
-   - `src/morphomesh/creature_generator.py`:
-     - `add_ellipsoid` in `get_blender_generation_script()` (lines 464–492): embeds identical polar quad logic directly for execution inside Blender.
-3. **Distribution of the 508 Degenerate Faces Across 31 Ellipsoids**:
-   - `pads_front`: 176 faces ($2 \times [16 \text{ (palmar)} + 12 \text{ (carpal)} + 5 \times 12 \text{ (digital)}] = 176$)
-   - `pads_hind`: 152 faces ($2 \times [16 \text{ (plantar)} + 5 \times 12 \text{ (digital)}] = 152$)
-   - `torso`: 92 faces (chest: 24, hump: 20, flank: 24, pelvis: 24)
-   - `eyes`: 32 faces ($2 \times 16$)
-   - `ears`: 32 faces ($2 \times 16$)
-   - Cranium (head dome): 24 faces
-   - Sum: $176 + 152 + 92 + 32 + 32 + 24 = 508$ faces. 100% of zero-area faces possess coincident vertices.
-4. **Flaw in Challenger M1-2's Proposed Fix**:
-   - Challenger M1-2 proposed in `challenger_m1_2/handoff.md`:
-     `add_triangle(pole_idx, ring_1[next_s], ring_1[s])` (North Pole) and `add_triangle(ring_last[s], ring_last[next_s], south_pole_idx)` (South Pole).
-   - Numerical testing reveals:
-     - North Pole cross product dot centroid: $-0.500$ (inward normal into sphere volume).
-     - South Pole cross product dot centroid: $-0.500$ (inward normal into sphere volume).
-     - Blindly applying Challenger's proposed winding order would invert all polar triangles!
+   - Source Cause: In `blender_addon/morphomesh/listener.py` lines 176–187, upon catching `json.JSONDecodeError`, the background reader thread called `client.sendall(json.dumps(err_resp)...)` directly to the socket, completely bypassing `self.command_queue`. When a valid command preceded a malformed line in the same TCP chunk, the error response for the malformed line was transmitted immediately, arriving before the valid command's response was drained by the main thread.
+
+2. **Failure 2: Premature Socket Teardown on TCP EOF (`SHUT_WR`)**
+   - Test: `TestAdversarialDeadlockAndLifecycleResilience.test_client_half_close_shutdown_wr` (`tests/test_m1_adversarial_socket.py:825`)
+   - Verbatim Error:
+     ```
+     Failed to send response to client for req half-close-1: [WinError 10038] An operation was attempted on something that is not a socket
+     assert len(responses) == 1
+     assert 0 == 1
+      +  where 0 = len([])
+     ```
+   - Source Cause: In `blender_addon/morphomesh/listener.py` lines 160–165 & 218–223, when `client.recv()` returned `b""` (indicating TCP EOF / client half-close `SHUT_WR`), `_client_handler` broke out of the loop and immediately executed `client.close()` in `finally:`. Because the queued command had not yet been processed by Blender's main-thread timer in `_drain_queue()`, the main thread attempted to write to an already-closed socket handle, raising `[WinError 10038]` and dropping the response.
+
+### 1.2 Inspection of Current Code and Interim Worker Fix
+Direct inspection of `blender_addon/morphomesh/listener.py` (lines 160–275) revealed that an interim fix was attempted by Worker M1:
+- In `_client_handler` (lines 163–171):
+  ```python
+  if not data:
+      # Client disconnected or half-closed (SHUT_WR)
+      # Allow pending commands for this client to drain before closing
+      start_wait = time.time()
+      while time.time() - start_wait < 1.0:
+          if not any(c is client for _, c in list(self.command_queue.queue)):
+              break
+          time.sleep(0.01)
+      break
+  ```
+- In `_client_handler` (lines 183–192):
+  ```python
+  except Exception as e_parse:
+      logger.error(f"NDJSON line parse error: {e_parse} on raw line: {line[:100]}")
+      err_resp = {
+          "_is_preformatted_response": True,
+          "jsonrpc": "2.0",
+          "id": None,
+          "status": "error",
+          "error": {"code": -32700, "message": f"Parse error: {str(e_parse)}"},
+      }
+      self.command_queue.put((err_resp, client))
+  ```
+- In `_drain_queue` (lines 249–257):
+  ```python
+  if isinstance(cmd, dict) and cmd.get("_is_preformatted_response"):
+      resp_dict = dict(cmd)
+      resp_dict.pop("_is_preformatted_response", None)
+      try:
+          if client:
+              client.sendall(json.dumps(resp_dict).encode("utf-8") + b"\n")
+      except Exception:
+          pass
+      continue
+  ```
+
+### 1.3 Critical Vulnerabilities in the Interim Fix
+While the interim fix allowed fast mock pings to pass, deeper code analysis revealed two severe vulnerabilities:
+
+1. **The In-Flight Execution Race Condition**:
+   In `_drain_queue` (line 242):
+   ```python
+   cmd, client = self.command_queue.get_nowait()
+   ```
+   As soon as `_drain_queue` retrieves `(cmd, client)`, that command is removed from `self.command_queue.queue`. At this moment, `_drain_queue` begins executing `self._dispatch(method, params)`.
+   Concurrently in `_client_handler`:
+   ```python
+   if not any(c is client for _, c in list(self.command_queue.queue)):
+       break
+   ```
+   Because `cmd` has been popped from the queue, `any(c is client ...)` evaluates to `False`. The polling loop breaks immediately and enters `finally: client.close()`. If `_dispatch` takes more than a few milliseconds (e.g. 50ms for complex mesh operations), `client.close()` executes *while* `_dispatch` is still running, and `client.sendall()` fails with `[WinError 10038]` when `_dispatch` completes.
+2. **Private Attribute & Thread-Safety Violation**:
+   `self.command_queue.queue` accesses the underlying `collections.deque` without holding `self.command_queue.mutex`. Calling `list(self.command_queue.queue)` concurrently with thread `.put()` operations can raise `RuntimeError: deque mutated during iteration`.
+3. **Arbitrary 1.0-Second Timeout**:
+   If a heavy command takes longer than 1.0 second (e.g. human generation or topology optimization), the loop times out and unconditionally aborts the connection.
+4. **Unhandled Trailing Malformed Buffer on EOF**:
+   In lines 214–220:
+   ```python
+   if buffer.strip():
+       try:
+           cmd = json.loads(buffer.strip().decode("utf-8"))
+           self.command_queue.put((cmd, client))
+       except Exception:
+           pass
+   ```
+   If a half-closed client sent a trailing malformed payload without newline, the exception is caught with `pass` and dropped instead of returning code `-32700`.
 
 ---
 
 ## 2. Logic Chain
 
-1. **Polar Coordinate Singularity**:
-   At $\theta = 0$ and $\theta = \pi$, the sphere/ellipsoid radius vanishes ($\sin(\theta) = 0$). All longitude samples $s \in [0, sectors]$ evaluate to identical coordinates $(cx, cy, cz \pm rz)$.
-2. **Mechanism of Area Degeneracy**:
-   When `add_quad(i0, i1, i2, i3)` decomposes a quad into triangles $(i_0, i_1, i_2)$ and $(i_0, i_2, i_3)$:
-   - At North Pole ($r=0$): $i_0$ and $i_3$ are identical points. Triangle $(i_0, i_2, i_3)$ has vertices $(P_{north}, v_2, P_{north})$ with zero area. Triangle $(i_0, i_1, i_2)$ is valid.
-   - At South Pole ($r=rings-1$): $i_1$ and $i_2$ are identical points. Triangle $(i_0, i_1, i_2)$ has vertices $(v_0, P_{south}, P_{south})$ with zero area. Triangle $(i_0, i_2, i_3)$ is valid.
-3. **Topology of the Polar Triangle Fan**:
-   By creating only a single vertex at the North Pole apex and a single vertex at the South Pole apex, and connecting them to intermediate rings using triangle fans:
-   - North Pole: connect apex to ring 1 via `(north_idx, intermediate_rings[0][s], intermediate_rings[0][s + 1])`.
-   - Intermediate bands ($r \in [1, rings - 1]$): connect rings with standard quads via `add_quad()`.
-   - South Pole: connect ring $(rings - 1)$ to apex via `(intermediate_rings[-1][s], south_idx, intermediate_rings[-1][s + 1])`.
-4. **Mathematical Normal Guarantee**:
-   Right-hand cross products for these fans yield positive outward dot products ($+0.500$ at both poles, $+0.707$ at intermediate quads) across all aspect ratios (spheres, flattened paw pads, elongated bodies).
-5. **Consequence of Fix**:
-   - Zero-area faces drop from 508 to 0.
-   - Redundant duplicate polar vertices drop from 3,337 to 2,829.
-   - Polygon count drops from 4,968 to 4,460 (exact elimination of the 508 degenerate faces).
-   - Manifoldness, watertightness, vertex groups, and export formats (OBJ, GLB) are completely preserved.
+1. **Premise 1 (FIFO Stream Contract)**: The interactive socket protocol uses newline-delimited JSON (NDJSON) over TCP. Clients multiplex pipelined requests over persistent connections and match responses either by index or RPC `id`. Every response — whether success, method error, invalid request primitive (-32600), or syntax parse error (-32700) — must be emitted in the strict order the frames were received.
+2. **Premise 2 (Concurrency Decoupling)**: `_client_handler` threads run asynchronously in background daemon threads, reading raw TCP frames. `_drain_queue` runs on Blender's main thread via `bpy.app.timers`. The only shared communication channel is `self.command_queue` (`queue.Queue`).
+3. **Inference 1 (Remediation for Issue 1)**: If `_client_handler` enqueues preformatted error payloads `({"_is_preformatted_response": True, ...}, client)` into `self.command_queue` on both in-stream parse errors and EOF trailing buffer errors, `_drain_queue` will drain and transmit them in exact chronological sequence. No response can overtake preceding requests.
+4. **Premise 3 (TCP Half-Close Semantics)**: In standard TCP communication, a client may close its transmit pipe via `client.shutdown(socket.SHUT_WR)` to indicate it has finished sending data, while keeping its receive pipe open to await server responses. When the server reads `b""` from `recv()`, it indicates client transmit EOF, NOT permission to immediately destroy the socket handle.
+5. **Premise 4 (Queue FIFO Ordering for Lifecycle Events)**: Because `queue.Queue` maintains strict FIFO ordering, any sentinel enqueued *after* client commands will be dequeued *after* all those commands have been dispatched and responded to.
+6. **Inference 2 (Remediation for Issue 2 via EOF Sentinel)**:
+   - When `_client_handler` terminates (upon EOF `not data`, socket error, or shutdown), instead of polling `self.command_queue.queue` and calling `client.close()`, it simply enqueues an EOF sentinel:
+     ```python
+     self.command_queue.put(({"_is_eof": True}, client))
+     ```
+   - In `_drain_queue`, when `_is_eof` is dequeued:
+     All prior commands for that client have ALREADY been executed and their responses sent via `client.sendall()`.
+     `_drain_queue` safely discards `client` from `self._clients` and closes `client.close()`.
+7. **Inference 3 (Elimination of Races & Private Attributes)**:
+   - The EOF sentinel pattern requires zero sleep loops, zero timeouts, and zero access to private queue attributes.
+   - It eliminates the in-flight execution race condition completely: whether `_dispatch` takes 1 millisecond or 60 seconds, `client.close()` is never invoked until `_drain_queue` finishes writing the response and advances to the sentinel.
+8. **Inference 4 (Robust Network Exception Containment)**:
+   In `_drain_queue`, catching `OSError` explicitly on `client.sendall()` (covering `BrokenPipeError`, `ConnectionResetError`, `[WinError 10038]`, and `[WinError 10054]`) suppresses noisy false-alarm error logs when a remote client abruptly exits, and prevents useless fallback attempts to serialize error responses to a dead socket.
 
 ---
 
 ## 3. Caveats
 
-1. **Scope of This Investigation**:
-   This report specifically resolves Defect 1 (508 zero-area polar faces). Defect 2 (104 inverted face normals from `add_box`) and Defect 3 (`box_faces` in `get_blender_generation_script`) are orthogonal box winding issues that must be addressed concurrently by Worker M1.
-2. **Vertex Index Shifting**:
-   Because redundant polar vertices are eliminated, total mesh vertex count changes from 3,337 to 2,829. All vertex group registration in `inference_adapter.py` and `creature_generator.py` uses dynamic slices or returned index lists (`added_indices`), so all 18 standardized vertex groups automatically update without any out-of-bounds errors.
-3. **UV Parameterization at Poles**:
-   The North Pole vertex receives UV $(0.5, 0.0)$, and South Pole receives $(0.5, 1.0)$. This is standard for UV spheres and compatible with Principled BSDF procedural textures.
+1. **Server Shutdown Coordination**:
+   If `MorphoMeshSocketServer.stop()` is called, `self.running` becomes `False`. In `stop()`, all sockets in `self._clients` are closed directly and `command_queue` is flushed. The blueprint accounts for this: if `self.running` is False when `_client_handler` exits, the handler does not bother enqueueing `_is_eof` and performs immediate socket cleanup.
+2. **Buffer Flooding Guard**:
+   To prevent denial-of-service or memory exhaustion from clients streaming gigabytes of data without newlines, the blueprint includes a 16MB maximum buffer size guard (`MAX_BUFFER_SIZE = 16 * 1024 * 1024`).
+3. **No Source Code Modified**:
+   In strict accordance with the read-only Explorer role, no source files were modified during this investigation. All blueprints are delivered as explicit, line-by-line patch specifications below.
 
 ---
 
-## 4. Conclusion
+## 4. Conclusion & Implementation Blueprint
 
-The polar face degeneracy defect is completely understood, mathematically resolved, and empirically verified. Zero-area faces drop from 508 to 0.
+### 4.1 Executive Assessment
+The concurrency and socket lifecycle defects in `blender_addon/morphomesh/listener.py` can be definitively resolved by:
+1. **Unifying all parse error responses** (both within the newline split loop and the EOF trailing buffer) through `self.command_queue` with `_is_preformatted_response: True`.
+2. **Replacing the flawed polling check** (`list(self.command_queue.queue)`) with an **in-stream EOF Sentinel** (`{"_is_eof": True}`) placed in `self.command_queue` upon `_client_handler` exit.
+3. **Draining and closing client sockets exclusively on the main thread** when the EOF sentinel is processed by `_drain_queue`.
+4. **Adding explicit `OSError` containment** in `_drain_queue` to handle sudden socket resets gracefully.
 
-### Concrete Implementation Package for Worker M1:
-1. **Target File 1**: `src/morphomesh/inference_adapter.py`
-   - Replace `MeshGeometry.add_sphere` (lines 213–256) with the implementation in `survey_report.md` Section 4.1.
-   - Replace `MeshGeometry.add_ellipsoid` (lines 266–320) with the implementation in `survey_report.md` Section 4.2.
-2. **Target File 2**: `src/morphomesh/creature_generator.py`
-   - Replace `add_ellipsoid` inside `get_blender_generation_script()` (lines 464–492) with the implementation in `survey_report.md` Section 4.3.
+---
+
+### 4.2 Exact Line-by-Line Blueprint for `blender_addon/morphomesh/listener.py`
+
+#### Target File
+`blender_addon/morphomesh/listener.py`
+
+#### Change 1: Replace Polling & In-Thread Close with EOF Sentinel in `_client_handler`
+**Location**: `blender_addon/morphomesh/listener.py`, lines 160–228.
+
+**Before**:
+```python
+            while self.running:
+                try:
+                    data = client.recv(65536)
+                    if not data:
+                        # Client disconnected or half-closed (SHUT_WR)
+                        # Allow pending commands for this client to drain before closing
+                        start_wait = time.time()
+                        while time.time() - start_wait < 1.0:
+                            if not any(c is client for _, c in list(self.command_queue.queue)):
+                                break
+                            time.sleep(0.01)
+                        break
+                    buffer += data
+
+                    # 1. Process all newline-delimited lines (NDJSON streaming)
+                    while b"\n" in buffer:
+                        line, buffer = buffer.split(b"\n", 1)
+                        line = line.strip()
+                        if not line:
+                            continue
+                        try:
+                            cmd = json.loads(line.decode("utf-8"))
+                            self.command_queue.put((cmd, client))
+                        except Exception as e_parse:
+                            logger.error(f"NDJSON line parse error: {e_parse} on raw line: {line[:100]}")
+                            err_resp = {
+                                "_is_preformatted_response": True,
+                                "jsonrpc": "2.0",
+                                "id": None,
+                                "status": "error",
+                                "error": {"code": -32700, "message": f"Parse error: {str(e_parse)}"},
+                            }
+                            self.command_queue.put((err_resp, client))
+
+                    # 2. Fallback: Parse complete JSON object if no trailing newline was sent
+                    if buffer.strip():
+                        try:
+                            text = buffer.decode("utf-8")
+                            stripped_text = text.lstrip()
+                            lead_spaces = len(text) - len(stripped_text)
+                            obj, end_idx = decoder.raw_decode(stripped_text)
+                            self.command_queue.put((obj, client))
+                            consumed_chars = lead_spaces + end_idx
+                            buffer = text[consumed_chars:].encode("utf-8")
+                        except (json.JSONDecodeError, UnicodeDecodeError):
+                            # Partial data chunk, wait for next recv
+                            pass
+
+                except socket.timeout:
+                    continue
+                except Exception as e_sock:
+                    logger.debug(f"Client socket exception: {e_sock}")
+                    break
+
+            # Process any remaining complete command on EOF
+            if buffer.strip():
+                try:
+                    cmd = json.loads(buffer.strip().decode("utf-8"))
+                    self.command_queue.put((cmd, client))
+                except Exception:
+                    pass
+
+        finally:
+            with self._clients_lock:
+                self._clients.discard(client)
+            try:
+                client.close()
+            except Exception:
+                pass
+```
+
+**After**:
+```python
+            while self.running:
+                try:
+                    data = client.recv(65536)
+                    if not data:
+                        # Client disconnected or half-closed (SHUT_WR)
+                        break
+                    buffer += data
+
+                    # Safety guard: prevent unbounded buffer growth on malicious streams
+                    if len(buffer) > 16 * 1024 * 1024:
+                        logger.error("Client buffer exceeded 16MB limit without newline delimiter; closing stream")
+                        break
+
+                    # 1. Process all newline-delimited lines (NDJSON streaming)
+                    while b"\n" in buffer:
+                        line, buffer = buffer.split(b"\n", 1)
+                        line = line.strip()
+                        if not line:
+                            continue
+                        try:
+                            cmd = json.loads(line.decode("utf-8"))
+                            self.command_queue.put((cmd, client))
+                        except Exception as e_parse:
+                            logger.error(f"NDJSON line parse error: {e_parse} on raw line: {line[:100]}")
+                            err_resp = {
+                                "_is_preformatted_response": True,
+                                "jsonrpc": "2.0",
+                                "id": None,
+                                "status": "error",
+                                "error": {"code": -32700, "message": f"Parse error: {str(e_parse)}"},
+                            }
+                            self.command_queue.put((err_resp, client))
+
+                    # 2. Fallback: Parse complete JSON object if no trailing newline was sent
+                    if buffer.strip():
+                        try:
+                            text = buffer.decode("utf-8")
+                            stripped_text = text.lstrip()
+                            lead_spaces = len(text) - len(stripped_text)
+                            obj, end_idx = decoder.raw_decode(stripped_text)
+                            self.command_queue.put((obj, client))
+                            consumed_chars = lead_spaces + end_idx
+                            buffer = text[consumed_chars:].encode("utf-8")
+                        except (json.JSONDecodeError, UnicodeDecodeError):
+                            # Partial data chunk, wait for next recv
+                            pass
+
+                except socket.timeout:
+                    continue
+                except Exception as e_sock:
+                    logger.debug(f"Client socket exception: {e_sock}")
+                    break
+
+            # Process any remaining complete command on EOF (or queue parse error if corrupted)
+            if buffer.strip():
+                try:
+                    cmd = json.loads(buffer.strip().decode("utf-8"))
+                    self.command_queue.put((cmd, client))
+                except Exception as e_parse:
+                    logger.error(f"NDJSON EOF line parse error: {e_parse} on raw line: {buffer[:100]}")
+                    err_resp = {
+                        "_is_preformatted_response": True,
+                        "jsonrpc": "2.0",
+                        "id": None,
+                        "status": "error",
+                        "error": {"code": -32700, "message": f"Parse error: {str(e_parse)}"},
+                    }
+                    self.command_queue.put((err_resp, client))
+
+        finally:
+            # Defer socket closure until all queued commands for this client have been drained by main thread
+            if self.running:
+                self.command_queue.put(({"_is_eof": True}, client))
+            else:
+                with self._clients_lock:
+                    self._clients.discard(client)
+                try:
+                    client.close()
+                except Exception:
+                    pass
+```
+
+---
+
+#### Change 2: Handle `_is_eof` Sentinel and Robust Response Writing in `_drain_queue`
+**Location**: `blender_addon/morphomesh/listener.py`, lines 240–305.
+
+**Before**:
+```python
+        try:
+            while not self.command_queue.empty():
+                try:
+                    cmd, client = self.command_queue.get_nowait()
+                except queue.Empty:
+                    break
+                except Exception as e_queue:
+                    logger.error(f"Error retrieving command from queue: {e_queue}")
+                    break
+
+                if isinstance(cmd, dict) and cmd.get("_is_preformatted_response"):
+                    resp_dict = dict(cmd)
+                    resp_dict.pop("_is_preformatted_response", None)
+                    try:
+                        if client:
+                            client.sendall(json.dumps(resp_dict).encode("utf-8") + b"\n")
+                    except Exception:
+                        pass
+                    continue
+
+                if not isinstance(cmd, dict):
+                    err_resp = {
+                        "jsonrpc": "2.0",
+                        "id": None,
+                        "status": "error",
+                        "error": {"code": -32600, "message": "Invalid Request: Expected JSON object dict"},
+                    }
+                    try:
+                        if client:
+                            client.sendall(json.dumps(err_resp).encode("utf-8") + b"\n")
+                    except Exception:
+                        pass
+                    continue
+
+                req_id = cmd.get("id", "res-1")
+                method = cmd.get("method") or cmd.get("type", "")
+                params = cmd.get("params", {})
+                if not isinstance(params, dict):
+                    params = {}
+
+                try:
+                    result = self._dispatch(method, params)
+                    response = {
+                        "jsonrpc": "2.0",
+                        "id": req_id,
+                        "status": "success",
+                        "result": result,
+                    }
+                except Exception as e_dispatch:
+                    logger.error(f"Error executing RPC method '{method}': {e_dispatch}", exc_info=True)
+                    response = {
+                        "jsonrpc": "2.0",
+                        "id": req_id,
+                        "status": "error",
+                        "error": {"code": -32000, "message": str(e_dispatch)},
+                    }
+
+                try:
+                    resp_bytes = json.dumps(response, default=str).encode("utf-8") + b"\n"
+                    if client:
+                        client.sendall(resp_bytes)
+                except Exception as e_send:
+                    logger.error(f"Failed to send response to client for req {req_id}: {e_send}")
+                    try:
+                        fallback_err = {
+                            "jsonrpc": "2.0",
+                            "id": req_id,
+                            "status": "error",
+                            "error": {"code": -32603, "message": f"Serialization error: {e_send}"},
+                        }
+                        if client:
+                            client.sendall(json.dumps(fallback_err).encode("utf-8") + b"\n")
+                    except Exception:
+                        pass
+```
+
+**After**:
+```python
+        try:
+            while not self.command_queue.empty():
+                try:
+                    cmd, client = self.command_queue.get_nowait()
+                except queue.Empty:
+                    break
+                except Exception as e_queue:
+                    logger.error(f"Error retrieving command from queue: {e_queue}")
+                    break
+
+                # 1. Handle EOF sentinel (deferred socket cleanup after queue drain)
+                if isinstance(cmd, dict) and cmd.get("_is_eof"):
+                    with self._clients_lock:
+                        self._clients.discard(client)
+                    if client is not None:
+                        try:
+                            client.close()
+                        except Exception:
+                            pass
+                    continue
+
+                # 2. Handle preformatted raw responses (parse error FIFO preservation)
+                if isinstance(cmd, dict) and (cmd.get("_is_preformatted_response") or "_raw_response" in cmd or cmd.get("_is_raw_error")):
+                    if "_raw_response" in cmd:
+                        resp_dict = cmd["_raw_response"]
+                    elif cmd.get("_is_raw_error"):
+                        resp_dict = cmd.get("payload", {})
+                    else:
+                        resp_dict = dict(cmd)
+                        resp_dict.pop("_is_preformatted_response", None)
+                    try:
+                        if client is not None:
+                            resp_bytes = json.dumps(resp_dict, default=str).encode("utf-8") + b"\n"
+                            client.sendall(resp_bytes)
+                    except OSError as e_os:
+                        logger.debug(f"Client disconnected during preformatted response write: {e_os}")
+                    except Exception as e_send:
+                        logger.error(f"Failed to send preformatted response to client: {e_send}")
+                    continue
+
+                # 3. Handle non-dict invalid request primitives (e.g. 42, "string", [1,2,3])
+                if not isinstance(cmd, dict):
+                    err_resp = {
+                        "jsonrpc": "2.0",
+                        "id": None,
+                        "status": "error",
+                        "error": {"code": -32600, "message": "Invalid Request: Expected JSON object dict"},
+                    }
+                    try:
+                        if client is not None:
+                            client.sendall(json.dumps(err_resp).encode("utf-8") + b"\n")
+                    except OSError as e_os:
+                        logger.debug(f"Client disconnected during invalid request write: {e_os}")
+                    except Exception:
+                        pass
+                    continue
+
+                # 4. Standard RPC dispatch
+                req_id = cmd.get("id", "res-1")
+                method = cmd.get("method") or cmd.get("type", "")
+                params = cmd.get("params", {})
+                if not isinstance(params, dict):
+                    params = {}
+
+                try:
+                    result = self._dispatch(method, params)
+                    response = {
+                        "jsonrpc": "2.0",
+                        "id": req_id,
+                        "status": "success",
+                        "result": result,
+                    }
+                except Exception as e_dispatch:
+                    logger.error(f"Error executing RPC method '{method}': {e_dispatch}", exc_info=True)
+                    response = {
+                        "jsonrpc": "2.0",
+                        "id": req_id,
+                        "status": "error",
+                        "error": {"code": -32000, "message": str(e_dispatch)},
+                    }
+
+                try:
+                    resp_bytes = json.dumps(response, default=str).encode("utf-8") + b"\n"
+                    if client is not None:
+                        client.sendall(resp_bytes)
+                except OSError as e_os:
+                    logger.debug(f"Client disconnected during response write for req {req_id}: {e_os}")
+                except Exception as e_send:
+                    logger.error(f"Failed to send response to client for req {req_id}: {e_send}")
+                    try:
+                        fallback_err = {
+                            "jsonrpc": "2.0",
+                            "id": req_id,
+                            "status": "error",
+                            "error": {"code": -32603, "message": f"Serialization error: {e_send}"},
+                        }
+                        if client is not None:
+                            client.sendall(json.dumps(fallback_err).encode("utf-8") + b"\n")
+                    except Exception:
+                        pass
+```
 
 ---
 
 ## 5. Verification Method
 
-### 5.1 Standalone Pytest Verification
-Run the adversarial topology test:
-```bash
-pytest -v tests/test_m1_topology_and_facial_stress.py::test_adversarial_degenerate_zero_area_faces
-```
-- **Pre-fix**: `FAILED (assert 508 == 0)`
-- **Post-fix**: `PASSED (assert 0 == 0)`
+### 5.1 Test Execution Commands
+The implementer can independently verify this remediation using the project virtual environment:
 
-### 5.2 Full Unit & Stress Test Suite Verification
-Run all existing anatomy and claw tests:
-```bash
-pytest -v tests/test_anatomy_generator.py tests/test_m1_claw_and_paw_stress.py
-```
-- **Requirement**: All 39 tests pass with exit code 0.
+1. **Adversarial Socket Fuzzing Suite**:
+   ```powershell
+   .venv\Scripts\pytest tests/test_m1_adversarial_socket.py -v
+   ```
+   **Expected Result**: All 28 tests pass (100% pass rate in <6.0s), specifically:
+   - `test_malformed_chaos_fuzzing_interleaving` PASSED (verifies 7/7 responses delivered in exact FIFO order).
+   - `test_client_half_close_shutdown_wr` PASSED (verifies 1/1 response delivered under TCP `SHUT_WR`).
+   - `test_rapid_client_churn_descriptor_leak_prevention` PASSED (verifies zero socket leaks after 50 rapid connections).
+   - `test_immediate_client_disconnect_mid_packet` PASSED (verifies clean descriptor recovery).
 
-### 5.3 Blender 5.2.1 LTS Verification
-Execute headless Blender assertion:
-```bash
-/Applications/Blender.app/Contents/MacOS/Blender --background --factory-startup --python-expr "
-import sys, site
-sys.path.insert(0, site.getusersitepackages())
-sys.path.insert(0, '/Users/duongnad/Documents/tool/MorphoMesh/src/morphomesh')
-import bpy
-from creature_generator import build_bear_in_blender
+2. **Adversarial Dispatch & Parity Suite**:
+   ```powershell
+   .venv\Scripts\pytest tests/test_adversarial_dispatch_m1_2.py -v
+   ```
+   **Expected Result**: All 24 tests pass (100% pass rate).
 
-res = build_bear_in_blender(object_name='Bear_Verify')
-obj = bpy.data.objects['Bear_Verify']
-mesh = obj.data
+3. **Baseline Parity & Bridge Test Suites**:
+   ```powershell
+   .venv\Scripts\pytest tests/test_bridge_socket_parity.py tests/test_blender_bridge.py -v
+   ```
+   **Expected Result**: All 100 tests pass (100% pass rate).
 
-zero_area = [p.index for p in mesh.polygons if p.area < 1e-9]
-assert len(zero_area) == 0, f'Found {len(zero_area)} zero-area polygons!'
-print('BLENDER VERIFICATION PASS: Zero degenerate polygons confirmed.')
-"
-```
-- **Requirement**: Zero degenerate polygons, output string `BLENDER VERIFICATION PASS`.
+4. **Consolidated M1 Regression Suite**:
+   ```powershell
+   .venv\Scripts\pytest tests/test_bridge_socket_parity.py tests/test_blender_bridge.py tests/test_m1_adversarial_socket.py tests/test_adversarial_dispatch_m1_2.py -q
+   ```
+   **Expected Result**: Exactly `152 passed` with exit code 0.
 
-### 5.4 Export Verification
-Run GLB/OBJ export tests:
-```bash
-python3 -c "
-from morphomesh.creature_generator import generate_bear_base_mesh
-import tempfile, os
-res = generate_bear_base_mesh()
-with tempfile.NamedTemporaryFile(suffix='.glb') as tf:
-    res.mesh.export_glb(tf.name)
-    assert os.path.getsize(tf.name) > 100000
-"
-```
+### 5.2 Invalidation Conditions
+The remediation is invalidated if:
+- Any frame in `test_malformed_chaos_fuzzing_interleaving` arrives out of order.
+- `test_client_half_close_shutdown_wr` raises `[WinError 10038]` or times out with 0 responses.
+- Any client socket remains in `server._clients` after client disconnection (`test_rapid_client_churn_descriptor_leak_prevention` fails).
+- Any private attribute of `self.command_queue` is accessed without locking.

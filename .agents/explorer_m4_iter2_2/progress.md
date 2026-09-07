@@ -1,18 +1,20 @@
-# Progress — Explorer M4-Iter2-2
+# Progress: Explorer M4 Iteration 2 - 2 (Offline Bridge Resilience & Fallback)
 
-Last visited: 2026-09-06T11:05:30Z
+Last visited: 2026-09-07T07:09:45Z
 
+## Status
 - [x] Initialized DISPATCH.md and BRIEFING.md
-- [x] Reviewed mission instructions and reviewer_m4 handoff report
-- [x] Inspected `src/morphomesh/armor.py` around lines 90-180 (pauldron generation)
-- [x] Inspected `verify_bear_anatomy.py` around lines 410-435 (clearance checking logic)
-- [x] Inspected `tests/test_bear_anatomy.py` around lines 205-225 (test_pauldron_clearance_and_watertightness)
-- [x] Inspected `src/morphomesh/blender_bridge.py` lines 1383-1425 (embedded pauldron generator)
-- [x] Ran diagnostic script with Blender/Python to reproduce and pinpoint exact penetrating vertices and coordinate transforms
-- [x] Formulated mathematical fix for `src/morphomesh/armor.py` (cx=0.35, cy=-0.25, cz=0.98, ry=0.17, phi bounds, unified quad winding)
-- [x] Verified zero inside vertices, d_min = 0.0315m, and positive signed volume across scales (0.5x to 2.0x)
-- [x] Formulated BVH point-to-surface distance check for `verify_bear_anatomy.py` with standalone fallback
-- [x] Formulated watertightness, surface clearance, and positive signed volume assertions for `tests/test_bear_anatomy.py`
-- [x] Authored `survey_report.md` with complete diff patches
-- [x] Authored `handoff.md` with 5-component report
-- [ ] Send coordination message to orchestrator
+- [x] Read required context files:
+  - [x] `ORIGINAL_REQUEST.md` (§ 2026-09-07T03:34:32Z)
+  - [x] `PROJECT.md` (Milestone 4)
+  - [x] `GATE_STATUS.md`
+  - [x] `challenger_m4_insp_2/handoff.md`
+  - [x] `tests/test_adversarial_error_injection_m4.py::TestOfflineBridgeResilience`
+- [x] Inspected `src/morphomesh/server.py` (lines 1100–1290) and `src/morphomesh/blender_bridge.py` (lines 430–650, 2120–2160, 2465–2640)
+- [x] Inspected camera rig pure-Python calculations (`morphomesh.camera_rig.setup_inspector_camera`)
+- [x] Verified regression constraints (`test_fastmcp_inspection_tools.py::test_bridge_exception_mapping`, `test_bridge_socket_parity.py`)
+- [x] Empirically reproduced the 2 failing tests in `TestOfflineBridgeResilience`
+- [x] Verified proposed fallback logic against mock assertions in Python
+- [x] Designed exact fallback blueprint, diff patches, and implementation steps
+- [x] Written comprehensive 5-component `handoff.md` (`.agents/explorer_m4_iter2_2/handoff.md`)
+- [x] Sent completion message to parent orchestrator

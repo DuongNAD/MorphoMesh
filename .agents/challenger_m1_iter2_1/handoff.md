@@ -1,120 +1,108 @@
-# Milestone M1 Iteration 2: Empirical Challenger Handoff Report
+﻿# Milestone 1 Iteration 2 Challenger Verification Report
 
-**Agent**: Challenger M1-Iter2-1 (Adversarial Empirical Challenger)  
-**Date**: 2026-09-05T16:25:00Z  
-**Working Directory**: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/challenger_m1_iter2_1`  
-**Target Subsystems**: `src/morphomesh/inference_adapter.py`, `src/morphomesh/creature_generator.py`, `tests/test_m1_topology_and_facial_stress.py`, `tests/test_anatomy_generator.py`, Blender 5.2.1 LTS session  
-**Handoff Type**: Hard (Task Complete)  
+**Agent**: Challenger M1 Iteration 2 - 1: Adversarial Socket Stream Fuzzer (`challenger_m1_iter2_1`)  
+**Parent Orchestrator ID**: `577aaa33-6b3f-4ebc-93eb-fcc632d94bc9`  
+**Working Directory**: `e:\tool\mcp\MorphoMesh\.agents\challenger_m1_iter2_1`  
+**Target File Under Test**: `blender_addon/morphomesh/listener.py`, `src/morphomesh/blender_bridge.py`  
+**Test Suite**: `tests/test_m1_adversarial_socket.py`  
+**Date**: 2026-09-07T04:25:00Z  
 **Verdict**: **APPROVE**  
 
 ---
 
 ## 1. Observation
 
-1. **Stress Test Suite Execution**:
-   Command: `pytest -v tests/test_m1_topology_and_facial_stress.py`
-   Result:
-   ```
-   collected 11 items
-   tests/test_m1_topology_and_facial_stress.py::test_facial_geometry_nostrils_indented_nares PASSED [  9%]
-   tests/test_m1_topology_and_facial_stress.py::test_adversarial_degenerate_zero_area_faces PASSED [ 18%]
-   tests/test_m1_topology_and_facial_stress.py::test_facial_geometry_mouth_cavity_recessed PASSED [ 27%]
-   tests/test_m1_topology_and_facial_stress.py::test_mesh_numerical_validity_zero_nans PASSED [ 36%]
-   tests/test_m1_topology_and_facial_stress.py::test_18_standardized_vertex_groups_presence_and_non_zero_counts PASSED [ 45%]
-   tests/test_m1_topology_and_facial_stress.py::test_vertex_group_indices_within_valid_mesh_range PASSED [ 54%]
-   tests/test_m1_topology_and_facial_stress.py::test_adversarial_inverted_face_normals PASSED [ 63%]
-   tests/test_m1_topology_and_facial_stress.py::test_blender_generation_script_box_inversions PASSED [ 72%]
-   tests/test_m1_topology_and_facial_stress.py::test_facial_geometry_eyelids_and_eyes_metrics PASSED [ 81%]
-   tests/test_m1_topology_and_facial_stress.py::test_multi_archetype_vertex_groups_coverage PASSED [ 90%]
-   tests/test_m1_topology_and_facial_stress.py::test_facial_geometry_dentition_distinct_canines_and_incisors PASSED [100%]
-   ============================== 11 passed in 0.14s ==============================
-   ```
+### 1.1 Direct Test Suite Execution (`tests/test_m1_adversarial_socket.py`)
+Executed command:
+```powershell
+.venv\Scripts\pytest tests/test_m1_adversarial_socket.py -v --tb=short
+```
+Verbatim test results:
+```
+tests/test_m1_adversarial_socket.py::TestAdversarialBurstRequests::test_burst_sequential_rapid_requests_single_socket[10] PASSED [  3%]
+tests/test_m1_adversarial_socket.py::TestAdversarialBurstRequests::test_burst_sequential_rapid_requests_single_socket[25] PASSED [  7%]
+tests/test_m1_adversarial_socket.py::TestAdversarialBurstRequests::test_burst_sequential_rapid_requests_single_socket[50] PASSED [ 10%]
+tests/test_m1_adversarial_socket.py::TestAdversarialBurstRequests::test_burst_sequential_rapid_requests_single_socket[100] PASSED [ 14%]
+tests/test_m1_adversarial_socket.py::TestAdversarialBurstRequests::test_burst_pipelining_mixed_workloads PASSED [ 17%]
+tests/test_m1_adversarial_socket.py::TestAdversarialBurstRequests::test_burst_concurrent_multi_client_connections PASSED [ 21%]
+tests/test_m1_adversarial_socket.py::TestAdversarialFragmentedStreaming::test_fragmented_streaming_deterministic_chunk_sizes[1] PASSED [ 25%]
+tests/test_m1_adversarial_socket.py::TestAdversarialFragmentedStreaming::test_fragmented_streaming_deterministic_chunk_sizes[2] PASSED [ 28%]
+tests/test_m1_adversarial_socket.py::TestAdversarialFragmentedStreaming::test_fragmented_streaming_deterministic_chunk_sizes[3] PASSED [ 32%]
+tests/test_m1_adversarial_socket.py::TestAdversarialFragmentedStreaming::test_fragmented_streaming_deterministic_chunk_sizes[4] PASSED [ 35%]
+tests/test_m1_adversarial_socket.py::TestAdversarialFragmentedStreaming::test_fragmented_streaming_deterministic_chunk_sizes[5] PASSED [ 39%]
+tests/test_m1_adversarial_socket.py::TestAdversarialFragmentedStreaming::test_fragmented_streaming_random_1_to_5_bytes PASSED [ 42%]
+tests/test_m1_adversarial_socket.py::TestAdversarialFragmentedStreaming::test_fragmented_streaming_multi_request_continuous_boundary_split PASSED [ 46%]
+tests/test_m1_adversarial_socket.py::TestAdversarialMalformedDataResilience::test_malformed_raw_binary_garbage_recovery PASSED [ 50%]
+tests/test_m1_adversarial_socket.py::TestAdversarialMalformedDataResilience::test_malformed_corrupted_json_syntax_recovery PASSED [ 53%]
+tests/test_m1_adversarial_socket.py::TestAdversarialMalformedDataResilience::test_malformed_truncated_json_followed_by_valid PASSED [ 57%]
+tests/test_m1_adversarial_socket.py::TestAdversarialMalformedDataResilience::test_malformed_non_dict_json_primitives PASSED [ 60%]
+tests/test_m1_adversarial_socket.py::TestAdversarialMalformedDataResilience::test_malformed_chaos_fuzzing_interleaving PASSED [ 64%]
+tests/test_m1_adversarial_socket.py::TestAdversarialMalformedDataResilience::test_malformed_unclosed_data_without_newline_then_recovered PASSED [ 67%]
+tests/test_m1_adversarial_socket.py::TestAdversarialLargePayloadHandling::test_large_payload_request_client_to_server_600kb PASSED [ 71%]
+tests/test_m1_adversarial_socket.py::TestAdversarialLargePayloadHandling::test_large_payload_response_server_to_client_700kb PASSED [ 75%]
+tests/test_m1_adversarial_socket.py::TestAdversarialLargePayloadHandling::test_large_payload_bidirectional_roundtrip_800kb PASSED [ 78%]
+tests/test_m1_adversarial_socket.py::TestAdversarialLargePayloadHandling::test_large_payload_1mb_high_stress PASSED [ 82%]
+tests/test_m1_adversarial_socket.py::TestAdversarialLargePayloadHandling::test_large_payload_via_bridge_client_send_socket_request PASSED [ 85%]
+tests/test_m1_adversarial_socket.py::TestAdversarialDeadlockAndLifecycleResilience::test_immediate_client_disconnect_mid_packet PASSED [ 89%]
+tests/test_m1_adversarial_socket.py::TestAdversarialDeadlockAndLifecycleResilience::test_client_half_close_shutdown_wr PASSED [ 92%]
+tests/test_m1_adversarial_socket.py::TestAdversarialDeadlockAndLifecycleResilience::test_rapid_client_churn_descriptor_leak_prevention PASSED [ 96%]
+tests/test_m1_adversarial_socket.py::TestAdversarialDeadlockAndLifecycleResilience::test_timer_immortality_under_deliberate_dispatch_crash PASSED [100%]
 
-2. **Anatomy and Claw Stress Suites**:
-   - `pytest -v tests/test_anatomy_generator.py`: 35 passed in 0.14s.
-   - `pytest -v tests/test_m1_claw_and_paw_stress.py`: 4 passed in 1.24s (20,000 randomized claws tested, min forward dot > 0.60, max dz < 0.0).
-   - Full test suite `pytest -v tests/`: 245 passed in 3.24s, 0 failures.
+============================= 28 passed in 4.67s ==============================
+```
 
-3. **Blender 5.2.1 LTS Empirical Verification**:
-   Command: `/Applications/Blender.app/Contents/MacOS/Blender --background --python <harness.py>`
-   Evaluated `Bear_Base_Mesh` constructed via `get_blender_generation_script("Bear_Base_Mesh", 1.0)`:
-   - **Zero-Area Polygons (< 1e-9)**: Exactly `0` / 2,412 polygons.
-   - **Inverted Polygons (dot < -0.5)**: Exactly `0` / 2,412 polygons.
-   - **Axis-Aligned Box Face Normals**: 488 faces identified with dot product with expected face normal equal to `1.0000` (strictly > 0.5).
-   - **Polygon Normal vs Vertex Normal**: Mean dot product = `0.9404`, with 2,388 / 2,412 polygons (99.00%) having dot > 0.5. The remaining 24 polygons are base caps and slanted side triangles of the 8 small incisor teeth cones, exhibiting positive dot products ~0.24–0.27 due to normal smoothing across sharp 60° cone rims, with 0 inverted normals.
-   - **Standardized Vertex Groups**: 18 of 18 present and populated with non-zero vertex counts:
-     - `torso`: 100 verts
-     - `limbs`: 96 verts
-     - `dorsal_spine`: 8 verts
-     - `tail`: 8 verts
-     - `snout`: 16 verts
-     - `nostrils`: 16 verts
-     - `mouth_cavity`: 8 verts
-     - `jaw`: 8 verts
-     - `teeth`: 64 verts
-     - `eyes`: 40 verts
-     - `eyelids`: 32 verts
-     - `ears`: 40 verts
-     - `pads_front`: 240 verts
-     - `pads_hind`: 240 verts
-     - `claws_front`: 250 verts
-     - `claws_hind`: 250 verts
-     - `armor_mounts_shoulder`: 20 verts
-     - `armor_mounts_wrist`: 16 verts
-   - **Claw Forward Curvature and Pitch in Blender**:
-     Calculated directly from 3D vertex coordinates of all 20 claws (25 vertices per claw):
-     - Forward dot product ($\vec{d}_{\text{claw}} \cdot \vec{u}_{\text{fwd}}$): `min = 0.9056`, `max = 0.9085` (all strictly > 0.60).
-     - Downward pitch ($\Delta z$ from base to tip): `min = -0.0460`, `max = -0.0368` (all strictly < 0.0).
+### 1.2 Repetition Stress of Focal Tests
+Repeated `test_malformed_chaos_fuzzing_interleaving` and `test_client_half_close_shutdown_wr` across 10 consecutive executions:
+```
+10/10 runs PASSED (20/20 test assertions passed, 0 failures, 0 timeouts).
+```
 
-4. **Imported OBJ Verification in Blender 5.2.1 LTS**:
-   Exported OBJ from `generate_bear_base_mesh().mesh.export_obj()` and imported into Blender via `bpy.ops.wm.obj_import`:
-   - Polygons: 4,460.
-   - Zero-area polygons (< 1e-9): Exactly `0`.
-   - Inverted polygons (dot < -0.5): Exactly `0`.
-   - Polygons with dot > 0.5: 4,271 / 4,460 (95.76%), mean dot = 0.9562.
-   - In Python MeshGeometry oracle: exactly 4,460 / 4,460 (100.00%) faces have outward dot > 0.0 against assigned vertex normals, with 0 zero-area faces and 0 inverted faces.
+### 1.3 Independent Deep Adversarial Fuzzing Stress Harness
+Executed an independent stress harness testing 3 boundary conditions:
+1. `test_deep_stress_chaos_fuzzing_50_frames_fifo`: 50 alternating frames (valid ping, corrupted JSON syntax, non-dict string primitives, raw binary garbage with whitespace) sliced into non-aligned 7-byte chunks. Verified that exactly 50 responses were returned in strict 1:1 FIFO sequence matching expected status and request IDs. Result: PASSED.
+2. `test_deep_stress_massive_half_close_pipelined`: 30 pipelined requests (interleaving valid commands and syntax errors) followed immediately by client write-channel half-close (`client.shutdown(socket.SHUT_WR)`). Verified that all 30 responses were completely delivered before the server sent EOF. Result: PASSED.
+3. `test_deep_stress_concurrent_clients_half_close`: 10 concurrent threads issuing 10 requests each (100 total requests) with simultaneous half-close `SHUT_WR`. Verified all 100 responses were received with zero descriptor leaks, deadlocks, or socket errors (`[WinError 10038]`). Result: PASSED.
+Executed this suite for 5 iterations: 15/15 passed.
+
+### 1.4 Milestone 1 Regression Verification
+Executed the full consolidated M1 test suite (`tests/test_bridge_socket_parity.py`, `tests/test_adversarial_dispatch_m1_2.py`, `tests/test_blender_bridge.py`):
+```
+124 passed in 22.52s (100% pass rate).
+```
+Combined with the 28 tests from `test_m1_adversarial_socket.py`, a total of 152/152 tests passed.
 
 ---
 
 ## 2. Logic Chain
 
-1. **Elimination of Degenerate Faces (Observation 1, 3, 4)**:
-   - Previously, `add_ellipsoid` generated full polar ring quads where all vertices at latitude $\theta=0$ and $\theta=\pi$ collapsed into a single point, resulting in 508 zero-area triangles.
-   - Worker M1-2 replaced polar rings with single apex vertices and polar triangle fans (`add_triangle(north_idx, ring[0][s], ring[0][s+1])`).
-   - Testing in both numpy/trimesh oracle and Blender 5.2.1 LTS confirms: zero-area faces have dropped from 508 to 0 in `res.mesh` and strictly 0 in `Bear_Base_Mesh` in Blender.
+1. **Root Cause Analysis Verification (`listener.py`)**:
+   - In Milestone 1 Iteration 1, parse errors in `_client_handler` invoked `client.sendall(...)` immediately on the network worker thread, bypassing `command_queue` and reordering error responses ahead of pending valid requests.
+   - The remediation in `listener.py:184-191` packages parse errors into `{"_is_preformatted_response": True, ...}` and enqueues them into `self.command_queue.put((err_resp, client))`.
+   - In `_drain_queue` (`listener.py:271-289`), preformatted responses are dequeued and transmitted strictly in queue arrival order on Blender's main event loop thread.
+   - Direct observation from both `test_malformed_chaos_fuzzing_interleaving` and the 50-frame 7-byte chunk fuzzer demonstrates that valid and error frames maintain exact FIFO sequencing without interleaving reordering.
 
-2. **Outward Normal Orientation & Inversion Fix (Observation 1, 3, 4)**:
-   - Previously, `add_box` had clockwise winding on 4 lateral faces, creating 104 inverted faces (dot = -1.0) and 12 inverted triangles in `get_blender_generation_script()`.
-   - Worker M1-2 corrected side face winding to counter-clockwise looking from the outside.
-   - Testing confirms: inverted faces dropped from 104 to 0 in Python mesh, from 12 to 0 in script AST parsing, and exactly 0 inverted polygons in Blender 5.2.1 LTS.
-   - 488 Cartesian axis-aligned box faces exhibit outward normal dot product = 1.0000 (strictly > 0.5).
-
-3. **Preservation of Biological Anatomy (Observation 2, 3)**:
-   - Claws maintain a lofted parabolic arc with forward vector $\vec{d} \cdot \vec{u}_{\text{fwd}} \in [0.9056, 0.9085]$ (surpassing the > 0.60 threshold) and negative vertical displacement $dz < 0$.
-   - All 18 vertex groups defined in the `PROJECT.md` contract are present, non-empty, and correctly mapped in both Python `res.vertex_groups` and Blender `obj.vertex_groups`.
+2. **Half-Close Teardown Mechanism Verification (`listener.py`)**:
+   - Previously, client EOF or `shutdown(socket.SHUT_WR)` triggered premature client closure or a fragile sleep loop, causing `[WinError 10038]` when `_drain_queue` attempted to reply.
+   - The remediation in `listener.py:231-233` enqueues an explicit sentinel `self.command_queue.put(({"_is_eof": True}, client))` upon worker loop termination.
+   - `_drain_queue` (`listener.py:260-269`) only closes the socket when the `_is_eof` sentinel is dequeued, guaranteeing that every preceding request in the queue has been executed and its response written to the socket.
+   - Direct observation in `test_client_half_close_shutdown_wr`, the 30-command half-close pipeline, and the 10-client concurrent half-close test proves that all responses are delivered intact before connection teardown.
 
 ---
 
 ## 3. Caveats
 
-- **Normal Smoothing on Sharp Rims**: In Blender, when `p.use_smooth = True` is applied across acute conical transitions (such as tooth base caps with 60° sharp rims), averaged vertex normals can deviate from the flat face normal by ~75° (producing face-to-vertex-normal dot products ~0.24–0.27). These faces are strictly non-inverted (outward pointing, dot > 0) and represent standard smooth-shading behavior, not winding defects.
-- No other caveats.
+- No caveats. All 28 tests in `tests/test_m1_adversarial_socket.py` pass cleanly. All deep fuzzer stress tests pass without flakiness or descriptor leaks.
 
 ---
 
 ## 4. Conclusion
 
-**Verdict: APPROVE**
+The remediated socket server in `blender_addon/morphomesh/listener.py` successfully eliminates all response reordering race conditions and premature teardown defects.
+- FIFO ordering under malformed chaos fuzzing is strictly preserved.
+- Client half-close (`shutdown(socket.SHUT_WR)`) reliably delivers all pending responses prior to socket closure.
+- The 28-test adversarial test suite achieves 100% pass rate with zero flaky behavior.
 
-The topology and winding remediation implemented by Worker M1-2 is empirically sound and completely fulfills all criteria of Milestone M1 Iteration 2:
-1. Zero degenerate zero-area polygons remain (0 in Python oracle, 0 in Blender 5.2.1 LTS).
-2. Zero inverted face normals remain (0 in Python oracle, 0 in Blender 5.2.1 LTS).
-3. Box faces strictly satisfy outward normal dot product > 0.5 (dot = 1.0000).
-4. Claw forward curvature (> 0.60) and downward pitch ($dz < 0$) are fully preserved across all 20 claws.
-5. All 18 standardized vertex groups are intact and populated.
-6. All 11 adversarial tests in `tests/test_m1_topology_and_facial_stress.py` and all 245 project tests pass.
-
-Milestone M1 is complete and ready to advance to Milestone M2 (Volumetric Fur & Grooming Engine).
+**Empirical Verdict**: **APPROVE**
 
 ---
 
@@ -122,56 +110,20 @@ Milestone M1 is complete and ready to advance to Milestone M2 (Volumetric Fur & 
 
 To independently reproduce this verification:
 
-1. **Run Adversarial Stress Test Suite**:
-   ```bash
-   pytest -v tests/test_m1_topology_and_facial_stress.py
+1. **Run full adversarial socket test suite**:
+   ```powershell
+   .venv\Scripts\pytest tests/test_m1_adversarial_socket.py -v
    ```
-   *Expected output*: 11 passed in < 0.20s.
+   *Expected*: `28 passed in < 5.0s`.
 
-2. **Run Headless Blender 5.2.1 LTS Verification**:
-   ```bash
-   python3 -c '
-   import subprocess, tempfile
-   from morphomesh.creature_generator import get_blender_generation_script
-
-   script = get_blender_generation_script("Bear_Base_Mesh", 1.0)
-   harness = f"""
-   import bpy
-   from mathutils import Vector
-
-   {script}
-
-   obj = bpy.data.objects["Bear_Base_Mesh"]
-   mesh = obj.data
-
-   # Zero-area check
-   zero_polys = [p for p in mesh.polygons if p.area < 1e-9]
-   assert len(zero_polys) == 0, f"Found {{len(zero_polys)}} zero-area polygons"
-
-   # Inverted normal check
-   inverted = []
-   for p in mesh.polygons:
-       avg_vn = sum((mesh.vertices[vi].normal for vi in p.vertices), Vector((0,0,0)))
-       if avg_vn.length > 1e-6:
-           avg_vn.normalize()
-           if p.normal.dot(avg_vn) < -0.5:
-               inverted.append(p.index)
-   assert len(inverted) == 0, f"Found {{len(inverted)}} inverted polygons"
-
-   # 18 vertex groups
-   assert len(obj.vertex_groups) == 18
-   for vg in obj.vertex_groups:
-       assert any(g.group == vg.index for v in mesh.vertices for g in v.groups), f"Empty group {{vg.name}}"
-
-   print("BLENDER INDEPENDENT VERIFICATION PASSED: 0 ZERO-AREA, 0 INVERTED, 18 VGS INTACT")
-   """
-
-   with tempfile.NamedTemporaryFile("w", suffix=".py", delete=False) as f:
-       f.write(harness)
-       tmp = f.name
-   res = subprocess.run(["/Applications/Blender.app/Contents/MacOS/Blender", "--background", "--python", tmp], capture_output=True, text=True)
-   print(res.stdout)
-   assert res.returncode == 0
-   '
+2. **Run focal tests specifically**:
+   ```powershell
+   .venv\Scripts\pytest tests/test_m1_adversarial_socket.py -k "test_malformed_chaos_fuzzing_interleaving or test_client_half_close_shutdown_wr" -v
    ```
-   *Expected output*: `BLENDER INDEPENDENT VERIFICATION PASSED: 0 ZERO-AREA, 0 INVERTED, 18 VGS INTACT` with exit code 0.
+   *Expected*: `2 passed, 26 deselected`.
+
+3. **Run consolidated Milestone 1 test suite**:
+   ```powershell
+   .venv\Scripts\pytest tests/test_bridge_socket_parity.py tests/test_m1_adversarial_socket.py tests/test_adversarial_dispatch_m1_2.py tests/test_blender_bridge.py -v
+   ```
+   *Expected*: `152 passed in ~26.0s`.

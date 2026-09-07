@@ -11,7 +11,9 @@ Adversarially stress-test and empirically verify claw orientation math across 10
 - Milestone: M1 (Research & Benchmark Docs)
 - Instance: 1 of 1
 - Active assignment: Milestone M1 (Claw Math & Plantigrade Paws Adversarial Stress Test)
-- Active parent: 504d045c-25c5-48a2-a65a-2a5b368eafa7 (orchestrator_bear_1)
+- Active assignment (2026-09-07): Milestone M1 Adversarial Socket Challenger (Protocol & Stream Fuzzing)
+- Active parent (2026-09-07): 577aaa33-6b3f-4ebc-93eb-fcc632d94bc9 (parent orchestrator)
+- Working directory: e:\tool\mcp\MorphoMesh\.agents\challenger_m1_1
 
 ## 🔒 Key Constraints
 - Review-only — do NOT modify implementation code or target docs directly.
@@ -20,50 +22,63 @@ Adversarially stress-test and empirically verify claw orientation math across 10
 - Assert dot product > 0.60 and dz < 0 across 10,000 randomized configurations unconditionally.
 - Adversarially test plantigrade paw geometry, calcaneus heel ground contact, and digital pad positions.
 - Deliver verdict (APPROVE or REJECT) in handoff.md.
+- Milestone M1 Protocol & Stream Fuzzing constraints:
+  - 1. High-frequency burst requests (10+ rapid sequential requests over single socket).
+  - 2. Fragmented byte streaming (sending valid NDJSON 1 to 5 bytes at a time).
+  - 3. Garbage/malformed data injection followed immediately by valid requests (verifying recovery).
+  - 4. Large payload handling (>500KB JSON payload).
+  - Verify socket server and client maintain 100% integrity without deadlocks or hangs.
+  - Deliver empirical verdict: APPROVE or REJECT.
 
 ## Current Parent
-- Conversation ID: 504d045c-25c5-48a2-a65a-2a5b368eafa7
-- Updated: 2026-09-05T16:07:45Z
+- Conversation ID: 577aaa33-6b3f-4ebc-93eb-fcc632d94bc9
+- Updated: 2026-09-07T04:00:35Z
 
 ## Review Scope
 - **Files to review**:
-  - `src/morphomesh/inference_adapter.py` (`add_curved_claw`, `add_plantigrade_paw`)
-  - `src/morphomesh/creature_generator.py` (`generate_bear_base_mesh`, `UrsineAnatomyConfig`, `ClawMetric`)
-  - `tests/test_anatomy_generator.py`
-  - `src/morphomesh/blender_bridge.py`
-- **Interface contracts**: `PROJECT.md`, `ORIGINAL_REQUEST.md`, `worker_m1/handoff.md`
+  - `blender_addon/morphomesh/listener.py` (`MorphoMeshSocketServer`, `_client_handler`, `_drain_queue`, `_dispatch`)
+  - `src/morphomesh/blender_bridge.py` (`BlenderBridge`, `send_socket_request`, `execute`)
+  - `tests/test_bridge_socket_parity.py`
+- **Interface contracts**: `PROJECT.md` (Milestone 1), `ORIGINAL_REQUEST.md`, `worker_m1/handoff.md`
 - **Review criteria**:
-  - 10,000 randomized configurations: dot product with forward axis > 0.60 and dz < 0.
-  - Calcaneus heel ground contact (Z flush with ground).
-  - Plantar and palmar pads below skeletal/bone structure.
-  - Distinctness and separation of all 5 digital pads per paw.
+  - High-frequency burst requests (10+ rapid sequential requests over single socket)
+  - Fragmented byte streaming (1 to 5 bytes at a time)
+  - Garbage/malformed data injection followed immediately by valid requests
+  - Large payload handling (>500KB JSON payload)
+  - Zero deadlocks, hangs, or resource leaks.
 
 ## Key Decisions Made
-- Implemented and executed `tests/test_m1_claw_and_paw_stress.py` containing 4 adversarial empirical test categories.
-- Verified 10,000 in-vivo claws from 500 biological Ursine generation runs: 10,000/10,000 passed (min dot = 0.8876, max dz = -0.3991).
-- Verified 10,000 direct `add_curved_claw()` calls across 3D yaw rotations $\theta \in [-\pi, \pi]$, scales, splays, curvatures: 10,000/10,000 passed (min dot = 0.8037, max dz = -0.2872).
-- Proved rotational invariance of claw dot product with respect to yaw rotation.
-- Derived analytical failure envelope $\sqrt{C^2 + S^2} \ge 1.3333$ and quantified biological safety margin at 63.14%.
-- Confirmed calcaneus heel contacts ground at $Z = 0.000000$ and cushion pads are positioned beneath skeletal bone structure.
-- Final Verdict: **APPROVE**.
+- Executed baseline test suite: 100/100 tests passed (test_bridge_socket_parity.py: 21, test_blender_bridge.py: 79).
+- Authored and executed comprehensive adversarial empirical test harness `tests/test_m1_adversarial_socket.py` containing 28 rigorous test cases across 5 categories.
+- Confirmed high-frequency sequential bursts (10, 25, 50, 100 requests) pass with 100% data integrity.
+- Confirmed fragmented byte streaming (1, 2, 3, 4, 5 bytes, random 1-5 bytes) passes with 100% reassembly accuracy.
+- Confirmed large payload handling (600KB request, 700KB response, 800KB roundtrip, 1MB stress) passes with zero deadlocks.
+- Discovered Vulnerability 1 (Out-of-Order Response Race Condition): In `_client_handler`, NDJSON line parse errors bypass `command_queue` and are sent immediately over socket from the reader thread, overtaking earlier valid queued requests and corrupting FIFO stream ordering.
+- Discovered Vulnerability 2 (Premature Socket Teardown on EOF): In `_client_handler`, reading EOF triggers immediate `client.close()` in `finally:`, aborting in-flight queued commands with `[WinError 10038]` and dropping responses for half-closed or disconnecting clients.
+- Formulated empirical verdict: **REJECT** pending worker remediation of the 2 discovered vulnerabilities.
 
 ## Artifact Index
 - `.agents/challenger_m1_1/DISPATCH.md` — Inbound instructions
 - `.agents/challenger_m1_1/BRIEFING.md` — Situational awareness
 - `.agents/challenger_m1_1/progress.md` — Heartbeat & liveness
 - `.agents/challenger_m1_1/handoff.md` — 5-component formal handoff report
-- `tests/test_m1_claw_and_paw_stress.py` — Empirical verification harness
+- `tests/test_m1_adversarial_socket.py` — Adversarial empirical verification harness (28 test cases)
 
 ## Attack Surface
 - **Hypotheses tested**:
-  - H1: Claw orientation vector maintains $\vec{d} \cdot \vec{u}_{\text{fwd}} > 0.60$ and $d_z < 0$ across 10,000 randomized configurations. (CONFIRMED: 0 failures across 20,000 total tests).
-  - H2: Calcaneus heel Z coordinate is flush with ground ($Z = 0.0$). (CONFIRMED: exact $0.000000$ across all scales in pes box).
-  - H3: Plantar and palmar pads reside on underside below bone structure. (CONFIRMED: pad center $Z = 0.01*s < 0.04*s$, extends to $-0.01*s$).
-  - H4: All 5 digital pads are non-degenerate with pairwise separation $> 0$. (CONFIRMED: separation $\ge 0.035*s$).
+  - H1: Server handles 10+ rapid sequential requests in a single burst without dropping requests or desyncing responses. (CONFIRMED: Tested 10, 25, 50, 100 requests, concurrent 5x20 multi-client; 100% pass).
+  - H2: Server correctly buffers and reassembles NDJSON streams fragmented into 1 to 5 byte chunks. (CONFIRMED: Tested 1, 2, 3, 4, 5 deterministic bytes and random 1-5 bytes; 100% pass).
+  - H3: Server recovers cleanly from raw garbage/corrupted binary/malformed JSON bytes and correctly parses subsequent valid requests without dropping connection. (PARTIALLY CONFIRMED / VULNERABLE: Individual garbage lines recover, BUT pipelined garbage interleaving violates FIFO ordering because parse errors bypass `command_queue` and race ahead of queued valid requests).
+  - H4: Server and client successfully transmit and process large payloads (>500KB) without buffer overflow, memory exhaustion, truncation, or hanging. (CONFIRMED: 600KB request, 700KB response, 800KB bidi, 1MB stress all pass).
+  - H5: Socket server handles standard TCP lifecycle events (disconnects, half-close). (VULNERABLE: `shutdown(socket.SHUT_WR)` triggers premature `client.close()`, killing in-flight responses).
 - **Vulnerabilities found**:
-  - Unbounded API exposure: `add_curved_claw` in `inference_adapter.py` does not clamp $C$ or $S$. If an external caller passes $C \le 0$, upward pitch occurs; if $\sqrt{C^2 + S^2} \ge 1.3333$, forward dot drops $\le 0.60$. Within all engine generators, parameters are strictly clamped with a 63.14% safety margin.
+  - VULN-1: Queue-Bypass Response Reordering Race Condition in `blender_addon/morphomesh/listener.py:176-187`. Parse errors write directly to socket from network thread while valid requests queue for main thread, causing out-of-order delivery and thread-safety collision on `client.sendall()`.
+  - VULN-2: Premature Socket Close on TCP EOF in `blender_addon/morphomesh/listener.py:162-164, 218-223`. Client EOF triggers immediate `client.close()`, causing in-flight queued commands to fail with `[WinError 10038]` when `_drain_queue` attempts to reply.
 - **Untested angles**:
-  - Deformation under skeletal armature animation (out of scope for M1, deferred to M4).
+  - TLS / SSL wrapping (out of scope for local loopback IPC).
+  - IPv6 socket binding (scope specifies IPv4 127.0.0.1).
 
 ## Loaded Skills
 - None
+
+

@@ -1,17 +1,19 @@
-# Dispatch Assignment: Explorer M1-Iter2-3 (Blender Socket Script Fix)
+## 2026-09-07T04:08:14Z
+You are Explorer M1 Iteration 2 - 3: Scoping & Test Pass Remediation Explorer.
+Your working directory is: e:\tool\mcp\MorphoMesh\.agents\explorer_m1_iter2_3
+Your parent orchestrator conversation ID is: 577aaa33-6b3f-4ebc-93eb-fcc632d94bc9
+The authoritative user request is at: e:\tool\mcp\MorphoMesh\ORIGINAL_REQUEST.md (specifically § 2026-09-07T03:34:32Z). You MUST read this file first.
+The project scope document is at: e:\tool\mcp\MorphoMesh\PROJECT.md (specifically Milestone 1).
+The Gate status is at: e:\tool\mcp\MorphoMesh\.agents\orchestrator_inspector_1\GATE_STATUS.md.
 
-**Identity**: teamwork_preview_explorer
-**Assigned Task**: Fix Strategy for `get_blender_generation_script()` Normal Winding & Polar Caps
-**Working Directory**: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_m1_iter2_3`
-**Authoritative Request**: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/ORIGINAL_REQUEST.md`
-**Project Plan**: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/orchestrator_bear_1/PROJECT.md`
-**Gate Failure Report**: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/challenger_m1_2/handoff.md`
+Failure Feedback to Remediate:
+- Challenger 2 handoff: e:\tool\mcp\MorphoMesh\.agents\challenger_m1_2\handoff.md
+Issue identified:
+1. NameError in `src/morphomesh/character_assembler.py`: line 1258 `mathutils` is not imported at module scope when `HAS_BPY` is True, causing `Camera_Portrait_85mm` creation to fail with `NameError: name 'mathutils' is not defined`.
 
-## Problem Statement
-Challenger M1-2 found 12/12 inverted box triangles and 396 degenerate polar triangles in `get_blender_generation_script()` in `src/morphomesh/creature_generator.py`.
-
-## Objectives
-1. Inspect `src/morphomesh/creature_generator.py` lines 440–495 (`get_blender_generation_script()`).
-2. Formulate the exact triangular index inversions for `box_faces` and polar triangle fan implementation for `add_ellipsoid` within the Blender script template.
-3. Check `tests/test_m1_topology_and_facial_stress.py::test_blender_generation_script_box_inversions`.
-4. Deliver report to `survey_report.md` and `handoff.md`.
+Objective:
+Formulate an exact fix blueprint for `src/morphomesh/character_assembler.py`:
+- Ensure `mathutils` is imported cleanly at module level (or fall back to `from mathutils import Vector, Euler, Matrix` / safe mock).
+- Verify that running `pytest tests/test_bridge_socket_parity.py`, `pytest tests/test_m1_adversarial_socket.py`, and `pytest tests/test_adversarial_dispatch_m1_2.py` will pass 100% after the fixes.
+Scope boundaries: Read-only exploration. DO NOT edit or create any source code files.
+Write your report to e:\tool\mcp\MorphoMesh\.agents\explorer_m1_iter2_3\handoff.md and notify your parent orchestrator via send_message.

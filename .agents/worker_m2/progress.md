@@ -1,34 +1,20 @@
-# Progress — Worker M2 (Volumetric Fur & Grooming Engine)
+# Progress — Worker M2 (Multi-Angle Inspector Camera & Fast Viewport Capture)
 
-- Last visited: 2026-09-05T16:34:00Z
-- Status: Completed
-- Current Step: Implementation and Verification Complete, Handoff Authored
+- Last visited: 2026-09-07T04:45:00Z
+- Status: COMPLETED
+- Current Step: Complete — Handoff and Notification
 
-## Completed Deliverables
-1. **Implemented `src/morphomesh/grooming.py` (`CreatureGroomingEngine`)**:
-   - Multi-layer fur system:
-     - Undercoat: 8,000 parent guide strands, length 0.04m, clump 0.30, root radius 0.0010m, tip radius 0.0001m, shape -0.70, roughness endpoint 0.008, 10 interpolated children yielding ~80,000 render strands.
-     - Guard hairs: 4,000 parent guide strands, length 0.09m, clump 0.50, root radius 0.0014m, tip radius 0.0001m, shape -0.75, roughness endpoint 0.003, 8 interpolated children yielding ~32,000 render strands.
-     - Total parent guide strands = 12,000 (exceeds >= 10,000 requirement).
-     - Total evaluated render strands = 124,000 (exceeds > 100,000 requirement).
-   - Biological growth flow vector field:
-     - Radiates caudally (+Y) along the dorsal spine (tested: $\bar{t}_y = 0.9719$).
-     - Lateral flank divergence in $\pm X$ with downward curvature in $-Z$.
-     - Gravitational descent down limbs toward paws ($v_z < -0.60$).
-   - Vertex group density masking:
-     - Strictly 0.0 weight on `snout`, `nostrils`, `mouth_cavity`, `jaw`, `teeth`, `eyes`, `eyelids`, `claws_front`, `claws_hind`, `pads_front`, `pads_hind`. Verified zero violations.
-     - 1.0 weight on `torso`, `dorsal_spine`, `armor_mounts_shoulder`.
-     - Modulated weights on `limbs` (0.75), `tail` (0.85), `ears` (0.35).
-   - glTF polygonal ribbon evaluator (`evaluate_fur_ribbons_for_gltf`):
-     - Evaluates strands into quad polygon strips with complete UV mappings ($u \in [0, 1], v \in [0, 1]$) and non-zero face area.
-2. **Integrated with `src/morphomesh/blender_bridge.py`**:
-   - Added RPC handlers `morphomesh.setup_creature_fur` and `morphomesh.evaluate_fur_ribbons` in `_generate_headless_script`.
-   - Added public dispatcher methods `setup_creature_fur` and `evaluate_fur_ribbons` on `BlenderBridge`.
-   - Supports file loading (`input_mesh_path`, `blend_file_path`) and saving (`save_after`, `save_path`).
-3. **Automated Unit & Integration Tests (`tests/test_grooming.py`)**:
-   - 19 automated tests covering strand counts, layer differentiation, biological flow, density masking, pure python ribbon evaluation, AST security validation, and Blender integration.
-   - All 19 tests pass in 0.63s.
-   - Full test suite passes: 264 passed in 4.17s with 0 failures.
-4. **Blender 5.2.1 LTS Verification**:
-   - Executed on `Bear_Base_Mesh` in headless Blender 5.2.1 LTS: 12,000 parent strands, 124,000 render strands, 0 zero-fur violations, 10,000 ribbon quads with UVs.
-   - Executed on `Bear_Base_Mesh_Live` in active Blender socket session (port 9876): 12,000 parent strands, 124,000 render strands, ribbon mesh object linked to scene.
+## Planned Steps
+1. [COMPLETED] Implement `src/morphomesh/camera_rig.py` with hierarchical AABB solver, optical framing distance math, 5 anatomical sub-region centers, spherical orbit viewpoints, fast OpenGL grab, headless Workbench fallback, and pure-Python vector/matrix math shims.
+2. [COMPLETED] Update `src/morphomesh/models.py` with Pydantic v2 schemas for inspector camera setup, viewport capture, and multi-angle inspection (`InspectorViewpoint`, `DiagnosticShadingMode`, `DiagnosticColorType`, `BoundingBox3D`, `SetupInspectorCameraInput`, `SetupInspectorCameraOutput`, `CaptureViewportInput`, `CaptureViewportOutput`, `MultiAngleCaptureFrame`, `CaptureMultiAngleInspectionInput`, `CaptureMultiAngleInspectionOutput`).
+3. [COMPLETED] Update `blender_addon/morphomesh/listener.py` and `src/morphomesh/blender_bridge.py`:
+   - Fixed render engine enum dynamic reflection in `listener.py` eliminating `TypeError` with `BLENDER_EEVEE_NEXT`.
+   - Clean delegation to `camera_rig.py` for `setup_inspector_camera`, `capture_viewport`, and `capture_multi_angle_inspection`.
+   - Added client-side bridge method `capture_multi_angle_inspection()` and updated `setup_inspector_camera()` in `blender_bridge.py`.
+   - Enhanced headless script generation in `blender_bridge.py` for inspector camera and multi-angle capture.
+4. [COMPLETED] Created comprehensive test suites:
+   - `tests/test_inspector_camera.py`: 37 tests verifying AABB calculations, optical framing distance, anatomical centering, viewpoints, orbit angles, Blender scene setup, and error handling.
+   - `tests/test_multiview_rendering.py`: 24 tests verifying OpenGL grab, headless Workbench fallback, shading modes, multi-angle batch execution, and bridge parity.
+5. [COMPLETED] Run full test suite and verify 100% pass rate:
+   - `pytest tests/test_inspector_camera.py tests/test_multiview_rendering.py tests/test_bridge_socket_parity.py tests/test_m1_adversarial_socket.py tests/test_adversarial_dispatch_m1_2.py tests/test_blender_bridge.py -v`: 213 passed in 25.82s (0 failures, 0 errors).
+6. [COMPLETED] Author comprehensive handoff report in `.agents/worker_m2/handoff.md` and notify parent orchestrator.

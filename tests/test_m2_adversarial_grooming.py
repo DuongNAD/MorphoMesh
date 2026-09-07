@@ -402,6 +402,7 @@ forensic_result = {
         blender_bin = bridge._resolve_blender_binary()
         assert blender_bin and os.path.exists(blender_bin), f"Blender binary not found at {blender_bin}"
 
+        out_json_path = os.path.join(tempfile.gettempdir(), "forensic_out.json").replace('\\', '/')
         full_script = f"""
 import bpy
 import json
@@ -414,7 +415,7 @@ import mathutils
 
 {audit_verification_code}
 
-with open("{os.path.join(tempfile.gettempdir(), 'forensic_out.json')}", "w") as f:
+with open("{out_json_path}", "w") as f:
     json.dump(forensic_result, f)
 print("FORENSIC_AUDIT_COMPLETE")
 """
@@ -422,7 +423,6 @@ print("FORENSIC_AUDIT_COMPLETE")
             script_file.write(full_script)
             script_path = script_file.name
 
-        out_json_path = os.path.join(tempfile.gettempdir(), "forensic_out.json")
         if os.path.exists(out_json_path):
             os.remove(out_json_path)
 

@@ -1,22 +1,32 @@
-# Progress — Worker M1 (Anatomy Generator & Claw Fix Specialist)
+# Progress — Worker M1
 
-**Last visited**: 2026-09-05T16:03:00Z  
-**Status**: COMPLETED  
+Last visited: 2026-09-07T04:00:00Z
+Status: Completed - Milestone 1 Implementation & Verification Finished
 
-## Objectives
-1. [x] Fix line 472 and line 634 in `src/morphomesh/blender_bridge.py` for `"success": True` socket handling.
-2. [x] Add `add_curved_claw`, `add_plantigrade_paw`, `add_articulated_head`, `add_anatomical_torso` to `MeshGeometry` in `src/morphomesh/inference_adapter.py`.
-3. [x] Upgrade `InferenceAdapter._generate_3d_asset_mock()` to use new anatomical primitives.
-4. [x] Implement `src/morphomesh/creature_generator.py` for Ursine procedural synthesis with 18 standardized vertex groups.
-5. [x] Write unit and verification tests in `tests/test_anatomy_generator.py` and run `pytest -v tests/` (230 passed).
-6. [x] Verify anatomy synthesis in Blender 5.2.1 LTS (both headless and live interactive socket on port 9876).
-7. [x] Deliver handoff report `handoff.md` and notify orchestrator.
-
-## Task Progress
-- Line 472 in `blender_bridge.py` fixed: recognizes `"success": True`, eliminates false fallback to headless runner.
-- Live socket IPC verified on port 9876 with 0.06s turnaround time.
-- `MeshGeometry` upgraded with biological primitives: `add_curved_claw` (guarantees forward dot > 0.60, dz < 0), `add_plantigrade_paw` (calcaneus heel + pads + 5 claws), `add_articulated_head` (cranium, snout, nostrils, mouth cavity, jaw, canines, incisors, eyelids, ears), `add_anatomical_torso` (torso, dorsal hump, spine, short tail).
-- Created `creature_generator.py` with 18 standardized vertex groups and self-contained AST-safe Blender generation script (< 10KB).
-- Automated test suite `tests/test_anatomy_generator.py` implemented with 35 tests.
-- Entire test suite: 230 passed in 2.14s (0 failures).
-- Verified inside Blender 5.2.1 LTS: `Bear_Base_Mesh` created with 18 vertex groups and 20/20 valid forward/downward claws.
+## Milestones
+- [x] Initial setup (DISPATCH.md, BRIEFING.md, progress.md)
+- [x] Review ORIGINAL_REQUEST.md, PROJECT.md, and explorer handoffs
+- [x] Review existing codebase (listener.py, blender_bridge.py, test_blender_bridge.py)
+- [x] Implement updates in blender_addon/morphomesh/listener.py
+  - [x] NDJSON stream line-buffering in _client_handler
+  - [x] Immortal timer exception barrier in _drain_queue (always returns 0.02)
+  - [x] Full method dispatch parity (render_preview, get_scene_status, capture_viewport, setup_inspector_camera, critique_visual_quality, create_human_asset)
+  - [x] Module import scoping fix (importlib for mathutils.bvhtree)
+- [x] Implement updates in src/morphomesh/blender_bridge.py
+  - [x] b"\n" newline framing in send_socket_request()
+  - [x] TimeoutError wrapping and socket lifecycle cleanup in finally block
+  - [x] Fixed execute() success predicate (lines 537-549) preventing false fallback
+  - [x] Added headless script generator branches for inspection and critique methods
+  - [x] Added typed client methods: capture_viewport(), setup_inspector_camera(), critique_visual_quality()
+- [x] Implement tests/test_bridge_socket_parity.py (21 tests)
+  - [x] Connection Lifecycle tests
+  - [x] NDJSON Streaming tests (rapid requests, chunk fragmentation, pipelining)
+  - [x] Malformed Data Resilience tests
+  - [x] Timer Immortality and Error Resilience tests
+  - [x] Socket Listener Integration Parity tests
+  - [x] Client Inspection Methods and Fallback tests
+- [x] Verify test suite passes
+  - [x] pytest tests/test_bridge_socket_parity.py -v (21/21 passed, 100%)
+  - [x] pytest tests/test_blender_bridge.py -v (79/79 passed, 100%)
+  - [x] Combined test run: 100/100 passed (100%)
+- [x] Document handoff and notify parent

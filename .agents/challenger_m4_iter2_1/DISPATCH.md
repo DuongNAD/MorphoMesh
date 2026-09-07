@@ -1,27 +1,23 @@
-## 2026-09-06T04:24:36Z
+﻿## 2026-09-07T07:17:32Z
 
-# Dispatch — Challenger M4-Iter2-1 (Geometric & Penetration Challenger)
+You are Challenger M4 Iter 2 - 1: Adversarial Enum & Parameter Fuzzer.
+Your working directory is: e:\tool\mcp\MorphoMesh\.agents\challenger_m4_iter2_1
+Your parent orchestrator conversation ID is: 577aaa33-6b3f-4ebc-93eb-fcc632d94bc9
+The authoritative user request is at: e:\tool\mcp\MorphoMesh\ORIGINAL_REQUEST.md (specifically § 2026-09-07T03:34:32Z). You MUST read this file first.
+The project scope document is at: e:\tool\mcp\MorphoMesh\PROJECT.md (specifically Milestone 4).
+The Gate status document is at: e:\tool\mcp\MorphoMesh\.agents\orchestrator_inspector_1\GATE_STATUS.md.
+The Worker M4 Iteration 2 handoff report is at: e:\tool\mcp\MorphoMesh\.agents\worker_m4_iter2\handoff.md.
 
-## Working Directory
-`/Users/duongnad/Documents/tool/MorphoMesh/.agents/challenger_m4_iter2_1`
-
-## References
-- Authoritative Request: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/ORIGINAL_REQUEST.md`
-- Project Master Plan: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/orchestrator_bear_gen2/PROJECT.md`
-- Reviewer M4 Previous Handoff: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/reviewer_m4/handoff.md`
-- Worker M4 Remediation Handoff: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/worker_m4_remediation/handoff.md`
-
-## Mission
-Adversarially challenge and stress-test the geometry, armor clearances, and watertightness of the remediated assets:
-1. Write an independent Python/Blender test script to stress-test `Armor_Pauldron_L`, `Armor_Pauldron_R`, `Armor_Gorget`, `Armor_Backplate`, `Armor_Bracer_L`, and `Armor_Bracer_R` across creature scales from 0.5x to 2.0x.
-2. Assert that across all scales:
-   - 0 vertices penetrate into the bear mesh (`signed_dist >= -0.001m`).
-   - True surface clearance $d_{\min} \ge 0.015\text{m}$.
-   - Signed volume $V > 0$ with 0 non-manifold edges.
-3. Test claw mathematical curvature across all 20 claws: assert $\vec{d} \cdot \vec{u}_{\text{fwd}} > 0.60$ and $d_z < 0$.
-4. Test limb-to-paw connection: assert that the distance from cylinder base to foot box is $\le 0.0$ (properly embedded) with zero air gap.
-
-## Output Requirements
-Write your detailed stress test report and verdict (APPROVE or REQUEST_CHANGES) to:
-`/Users/duongnad/Documents/tool/MorphoMesh/.agents/challenger_m4_iter2_1/handoff.md`
-And message the orchestrator.
+Objective:
+Empirically stress-test parameter validation across all 3 inspection tools:
+1. Run the existing adversarial test harness:
+   .venv\Scripts\pytest.exe -v tests/test_adversarial_error_injection_m4.py
+   Verify that all 46 tests now pass (0 failures).
+2. Fuzz additional invalid inputs:
+   - Test whitespace-padded viewpoints (e.g.  front  ,  THREE_QUARTER ).
+   - Test invalid string types (e.g. integer or dict passed where str expected, or None where non-optional).
+   - Test extreme focal lengths (< 10.0mm, > 300.0mm, negative, NaN).
+   - Test negative clearance tolerances in morphomesh_critique_visual_quality.
+   - Verify that in every invalid case, ToolError is raised with a descriptive error message.
+3. Issue an empirical verdict: APPROVE or REJECT.
+- Write your handoff report to e:\tool\mcp\MorphoMesh\.agents\challenger_m4_iter2_1\handoff.md and notify parent orchestrator via send_message.

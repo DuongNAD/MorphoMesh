@@ -1,0 +1,2 @@
+# Test
+This is a test of write_to_file without ArtifactMetadata.

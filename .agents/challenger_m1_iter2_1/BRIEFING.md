@@ -1,61 +1,50 @@
-# BRIEFING — 2026-09-05T16:24:45Z
+﻿# BRIEFING — 2026-09-07T04:24:20Z
 
 ## Mission
-Adversarially verify that zero-area degenerate faces dropped to 0 and all normals point outward in the procedural bear geometry and Blender 5.2.1 LTS session, claw forward curvature > 0.60 is preserved, and all 18 vertex groups remain intact.
+Empirically stress-test the remediated socket server: verify test_m1_adversarial_socket.py (all 28 tests), focusing on test_malformed_chaos_fuzzing_interleaving and test_client_half_close_shutdown_wr, and issue APPROVE/REJECT verdict.
 
 ## 🔒 My Identity
-- Archetype: empirical_challenger
+- Archetype: EMPIRICAL CHALLENGER
 - Roles: critic, specialist
-- Working directory: /Users/duongnad/Documents/tool/MorphoMesh/.agents/challenger_m1_iter2_1
-- Original parent: 504d045c-25c5-48a2-a65a-2a5b368eafa7
-- Milestone: M1-Iter2
+- Working directory: e:\tool\mcp\MorphoMesh\.agents\challenger_m1_iter2_1
+- Original parent: 577aaa33-6b3f-4ebc-93eb-fcc632d94bc9
+- Milestone: Milestone 1 Iteration 2
 - Instance: 1 of 1
 
 ## 🔒 Key Constraints
 - Review-only — do NOT modify implementation code
-- Run all verification code yourself (do NOT trust worker claims or logs)
-- Report failures as findings; do not fix them yourself
-- Blender 5.2.1 LTS verification must be empirically executed
-- Must test all 11 adversarial tests in tests/test_m1_topology_and_facial_stress.py
-- Must test outward normal dot product > 0.5, zero-area == 0, claw forward curvature > 0.60, 18 vertex groups
+- Run verification code directly; do NOT trust worker claims
+- Must reproduce any bugs empirically
 
 ## Current Parent
-- Conversation ID: 504d045c-25c5-48a2-a65a-2a5b368eafa7
-- Updated: 2026-09-05T16:21:51Z
+- Conversation ID: 577aaa33-6b3f-4ebc-93eb-fcc632d94bc9
+- Updated: 2026-09-07T04:24:20Z
 
 ## Review Scope
-- **Files to review**:
-  - `src/morphomesh/inference_adapter.py`
-  - `src/morphomesh/creature_generator.py`
-  - `tests/test_m1_topology_and_facial_stress.py`
-  - `tests/test_anatomy_generator.py`
-  - `tests/test_m1_claw_and_paw_stress.py`
-- **Interface contracts**: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/orchestrator_bear_1/PROJECT.md`
-- **Review criteria**:
-  - 0 zero-area polygons (area < 1e-9)
-  - 0 inverted normal polygons (dot < -0.5)
-  - Claw forward curvature > 0.60 and downward curvature
-  - 18 vertex groups intact and non-empty
-
-## Key Decisions Made
-- Executed headless Blender 5.2.1 LTS test harness analyzing `Bear_Base_Mesh` and imported OBJ mesh.
-- Empirically verified all 11 stress tests, 35 anatomy tests, 4 claw stress tests, and 245 total tests in test suite.
-- Verdict: APPROVE.
-
-## Artifact Index
-- `.agents/challenger_m1_iter2_1/DISPATCH.md` — Task assignment
-- `.agents/challenger_m1_iter2_1/BRIEFING.md` — Situational awareness and state
-- `.agents/challenger_m1_iter2_1/progress.md` — Liveness heartbeat
-- `.agents/challenger_m1_iter2_1/handoff.md` — Final adversarial verdict and evaluation report
+- **Files to review**: `tests/test_m1_adversarial_socket.py`, `blender_addon/morphomesh/listener.py`, `src/morphomesh/blender_bridge.py`, `.agents/worker_m1_iter2/handoff.md`
+- **Interface contracts**: `ORIGINAL_REQUEST.md`, `PROJECT.md` (Milestone 1)
+- **Review criteria**: Empirical test pass, FIFO ordering on parse errors, response delivery on client half-close
 
 ## Attack Surface
 - **Hypotheses tested**:
-  - H1: Base bear mesh still contains zero-area degenerate triangles/quads at poles or box corners -> REFUTED. 0 degenerate faces detected across 2,412 Blender polygons and 4,460 MeshGeometry faces.
-  - H2: Surface normals on boxes, cylinders, or ellipsoids point inward or oppose adjacent geometry -> REFUTED. 0 inverted faces (dot < -0.5).
-  - H3: Outward normal dot product fails threshold (> 0.5) in Blender 5.2.1 LTS -> REFUTED. 488 box faces strictly dot = 1.0; 99% of Blender polygons have dot > 0.5 with average dot 0.9404; MeshGeometry faces have 100% outward normals with average dot 0.9562.
-  - H4: Remediation damaged claw forward curvature (> 0.60) or 18 vertex groups -> REFUTED. All 20 claws have forward dot 0.9056–0.9085 and downward pitch -0.0460 to -0.0368; all 18 vertex groups populated.
-- **Vulnerabilities found**: None. Polar fans and box face windings are mathematically robust.
-- **Untested angles**: Extreme scales (< 1e-4) or single-sector primitives outside standard parameter bounds.
+  1. H1: Does interleaving malformed/garbage frames cause responses to be sent out-of-order or corrupt FIFO pipeline? -> REJECTED (Proven preserved: preformatted response queueing guarantees strict FIFO).
+  2. H2: Does half-closing a TCP connection (`shutdown(SHUT_WR)`) drop pending requests or cause socket error 10038? -> REJECTED (Proven preserved: EOF sentinel `_is_eof` cleanly drains all prior queued commands before closing).
+  3. H3: Do concurrent half-closing clients induce race conditions in server `_clients` tracking? -> REJECTED (Proven robust under 10 concurrent clients x 10 requests).
+- **Vulnerabilities found**: None. Remediation in `listener.py` is solid and robust.
+- **Untested angles**: None within M1 socket scope.
 
 ## Loaded Skills
-- None loaded.
+None
+
+## Key Decisions Made
+- Executed full 28/28 adversarial suite in `tests/test_m1_adversarial_socket.py` (all passed).
+- Repeated focal tests 10x to test for flakiness (0 failures).
+- Constructed and executed deep stress fuzzer (50-frame interleaved chaos in 7-byte chunks, 30-frame massive half-close, 10-client concurrent half-close storm) across 5 runs (0 failures).
+- Ran regression suite of 124 tests across M1 modules (100% pass).
+- Verdict: APPROVE.
+
+## Artifact Index
+- `DISPATCH.md` — Inbound instructions
+- `BRIEFING.md` — Situational awareness
+- `progress.md` — Heartbeat
+- `handoff.md` — Final verdict report

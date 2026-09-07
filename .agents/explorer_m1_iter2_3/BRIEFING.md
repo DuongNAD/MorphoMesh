@@ -1,43 +1,46 @@
-# BRIEFING — 2026-09-05T16:22:00Z
+# BRIEFING — 2026-09-07T04:14:00Z
 
 ## Mission
-Investigate 12 inverted box faces and polar triangles in `get_blender_generation_script()` in `src/morphomesh/creature_generator.py` and formulate exact triangular index fixes so `tests/test_m1_topology_and_facial_stress.py` passes 100%.
+Formulate an exact fix blueprint for `src/morphomesh/character_assembler.py` regarding `mathutils` import and verify test suite pass.
 
 ## 🔒 My Identity
-- Archetype: teamwork_preview_explorer
-- Roles: Explorer, Synthesizer
-- Working directory: /Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_m1_iter2_3
-- Original parent: 504d045c-25c5-48a2-a65a-2a5b368eafa7
-- Milestone: M1-Iter2-3
+- Archetype: explorer
+- Roles: Scoping & Test Pass Remediation Explorer
+- Working directory: e:\tool\mcp\MorphoMesh\.agents\explorer_m1_iter2_3
+- Original parent: 577aaa33-6b3f-4ebc-93eb-fcc632d94bc9
+- Milestone: Milestone 1 Iteration 2-3
 
 ## 🔒 Key Constraints
 - Read-only investigation — do NOT implement
-- Investigate `src/morphomesh/creature_generator.py` lines 440–495 (`get_blender_generation_script()`)
-- Formulate exact triangular index inversions for `box_faces` and polar triangle fan implementation for `add_ellipsoid` within the Blender script template
-- Check `tests/test_m1_topology_and_facial_stress.py::test_blender_generation_script_box_inversions`
-- Deliver report to `survey_report.md` and `handoff.md`
+- Scope boundaries: Read-only exploration. DO NOT edit or create any source code files.
+- Deliverables in .agents/explorer_m1_iter2_3/
+- Notify parent orchestrator via send_message
 
 ## Current Parent
-- Conversation ID: 504d045c-25c5-48a2-a65a-2a5b368eafa7
-- Updated: 2026-09-05T16:22:00Z
+- Conversation ID: 577aaa33-6b3f-4ebc-93eb-fcc632d94bc9
+- Updated: 2026-09-07T04:14:00Z
 
 ## Investigation State
-- **Explored paths**: `src/morphomesh/creature_generator.py` lines 440–500, `tests/test_m1_topology_and_facial_stress.py`, `src/morphomesh/blender_bridge.py` (`BpyCodeValidator`), `tests/test_anatomy_generator.py`, `.agents/explorer_m1_iter2_1/handoff.md`, `.agents/explorer_m1_iter2_2/survey_report.md`.
+- **Explored paths**:
+  - `src/morphomesh/character_assembler.py` (lines 51-56, 494-530, 730-790, 1210-1320, 1550-1616, 1618-1673, 1705-1745)
+  - `blender_addon/morphomesh/listener.py` (lines 160-205, 230-305, 645-679)
+  - `tests/test_bridge_socket_parity.py`
+  - `tests/test_m1_adversarial_socket.py`
+  - `tests/test_adversarial_dispatch_m1_2.py`
+  - `tests/test_character_assembler.py`
+  - `tests/test_adversarial_character_assembler.py`
 - **Key findings**:
-  1. Box faces in `get_blender_generation_script()` lines 450–457 are 100% inverted (12/12 triangles point inward, dot = -1.0). Inverting the 2nd and 3rd index of each triangle yields dot = +1.0.
-  2. Polar ellipsoids in `get_blender_generation_script()` lines 464–492 produce exactly 396 degenerate zero-area faces across 33 ellipsoids due to quad decomposition on collapsed polar rings. Formulated single north/south apex + triangle fan fix that eliminates all 396 degenerate faces.
-  3. The test oracle in `tests/test_m1_topology_and_facial_stress.py::test_blender_generation_script_box_inversions` hardcoded the old defective tuples; refactoring it to dynamically extract `add_box` from the script enables robust 100% pass.
-  4. Script length remains 9,584 characters (< 10,000 limit) and passes AST security validation.
-- **Unexplored areas**: None within scope. Investigation complete.
+  - Root Cause: `src/morphomesh/character_assembler.py` line 1574 references `mathutils` in `local_scope = {"bpy": bpy, "math": math, "mathutils": mathutils}` when `HAS_BPY` is True, but `mathutils` is omitted from the top-level imports (lines 51-56 only import `bpy`).
+  - Empirical Verification: Calling `assemble_master_character()` in live Blender 4.5.4 LTS raises verbatim `NameError: name 'mathutils' is not defined`. Injecting `mathutils` at module scope results in 100% successful assembly (`LIVE BLENDER RESULT: success`), creating the 7 collections, 85mm portrait camera, full-body camera, turntable cameras, and saving `Yu_Nian_An_Master.blend`.
+  - Test Suite Status: Running all three target test suites (`test_bridge_socket_parity.py`, `test_m1_adversarial_socket.py`, `test_adversarial_dispatch_m1_2.py`) passes 100% (73/73 passed in 27.30s). Also `tests/test_character_assembler.py` + `tests/test_adversarial_character_assembler.py` passes 100% (38/38 passed in 10.38s).
+- **Unexplored areas**: None within Milestone 1 iteration 2-3 scope.
 
 ## Key Decisions Made
-- Use dynamic extraction of `add_box` in `test_blender_generation_script_box_inversions` so tests assert against the real generated script.
-- Package complete verified changes into `.agents/explorer_m1_iter2_3/blender_script_fix.patch`.
+- Formulated robust module-level import with safe fallback class `_MockMathutils` providing `Vector`, `Euler`, `Matrix`.
+- Enhanced `assemble()` execution scope resolution with dynamic `sys.modules.get("mathutils", mathutils)` and `sys.modules.get("bpy", bpy)` to handle mocked test fixtures as well as live Blender runtime.
 
 ## Artifact Index
-- `/Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_m1_iter2_3/DISPATCH.md` — Task assignment
-- `/Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_m1_iter2_3/BRIEFING.md` — Situational awareness
-- `/Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_m1_iter2_3/progress.md` — Liveness heartbeat
-- `/Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_m1_iter2_3/survey_report.md` — Detailed investigation & mathematical proofs
-- `/Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_m1_iter2_3/handoff.md` — 5-component handoff report for Worker M1
-- `/Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_m1_iter2_3/blender_script_fix.patch` — Unified diff patch verified with `git apply --check`
+- e:\tool\mcp\MorphoMesh\.agents\explorer_m1_iter2_3\BRIEFING.md — Persistent working memory
+- e:\tool\mcp\MorphoMesh\.agents\explorer_m1_iter2_3\DISPATCH.md — Dispatch log
+- e:\tool\mcp\MorphoMesh\.agents\explorer_m1_iter2_3\progress.md — Liveness heartbeat
+- e:\tool\mcp\MorphoMesh\.agents\explorer_m1_iter2_3\handoff.md — Final 5-component handoff report

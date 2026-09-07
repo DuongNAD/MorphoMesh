@@ -1,0 +1,570 @@
+{
+  "total_tests": 44,
+  "passed_tests": 44,
+  "failed_tests": 0,
+  "pass_rate_percentage": 100.0,
+  "verdict": "APPROVE",
+  "duration_seconds": 1.521,
+  "results": [
+    {
+      "suite": "Suite 1: Exposed Anatomy",
+      "name": "1.1 Clean Human Base Mesh with Strapless Tube Top (0 FP)",
+      "passed": true,
+      "details": {
+        "skin_burst_count": 0,
+        "total_defects": 1
+      }
+    },
+    {
+      "suite": "Suite 1: Exposed Anatomy",
+      "name": "1.2 Flared Shoulders (+30%) above Tube Top (0 FP)",
+      "passed": true,
+      "details": {
+        "scale": 1.3,
+        "skin_burst_count": 0
+      }
+    },
+    {
+      "suite": "Suite 1: Exposed Anatomy",
+      "name": "1.2 Flared Shoulders (+60%) above Tube Top (0 FP)",
+      "passed": true,
+      "details": {
+        "scale": 1.6,
+        "skin_burst_count": 0
+      }
+    },
+    {
+      "suite": "Suite 1: Exposed Anatomy",
+      "name": "1.3 Giant Head & Neck (+50% radial expansion) (0 FP)",
+      "passed": true,
+      "details": {
+        "skin_burst_count": 0
+      }
+    },
+    {
+      "suite": "Suite 1: Exposed Anatomy",
+      "name": "1.4 Muscular Calves & Lower Legs (+50% radial expansion) (0 FP)",
+      "passed": true,
+      "details": {
+        "skin_burst_count": 0
+      }
+    },
+    {
+      "suite": "Suite 1: Exposed Anatomy",
+      "name": "1.5 Clean Human Base Mesh with Sleeveless Tunic (0 FP)",
+      "passed": true,
+      "details": {
+        "skin_burst_count": 0
+      }
+    },
+    {
+      "suite": "Suite 1: Exposed Anatomy",
+      "name": "1.5b Flared Shoulders (+40%) above Sleeveless Tunic (0 FP)",
+      "passed": true,
+      "details": {
+        "skin_burst_count": 0
+      }
+    },
+    {
+      "suite": "Suite 1: Exposed Anatomy",
+      "name": "1.5c Posed/Laterally Spread Arms with Sleeveless Tunic (0 FP)",
+      "passed": true,
+      "details": {
+        "skin_burst_count": 0
+      }
+    },
+    {
+      "suite": "Suite 1: Exposed Anatomy",
+      "name": "1.6 Segmented Articulated Human Body with Tube Top (0 FP)",
+      "passed": true,
+      "details": {
+        "skin_burst_count": 0
+      }
+    },
+    {
+      "suite": "Suite 1: Exposed Anatomy",
+      "name": "1.7 Vertical Boundary Proximity delta_z = +0.1mm outside garment (0 FP)",
+      "passed": true,
+      "details": {
+        "delta_mm": 0.1,
+        "skin_burst_count": 0
+      }
+    },
+    {
+      "suite": "Suite 1: Exposed Anatomy",
+      "name": "1.7 Vertical Boundary Proximity delta_z = +0.5mm outside garment (0 FP)",
+      "passed": true,
+      "details": {
+        "delta_mm": 0.5,
+        "skin_burst_count": 0
+      }
+    },
+    {
+      "suite": "Suite 1: Exposed Anatomy",
+      "name": "1.7 Vertical Boundary Proximity delta_z = +1.0mm outside garment (0 FP)",
+      "passed": true,
+      "details": {
+        "delta_mm": 1.0,
+        "skin_burst_count": 0
+      }
+    },
+    {
+      "suite": "Suite 1: Exposed Anatomy",
+      "name": "1.7 Vertical Boundary Proximity delta_z = +2.0mm outside garment (0 FP)",
+      "passed": true,
+      "details": {
+        "delta_mm": 2.0,
+        "skin_burst_count": 0
+      }
+    },
+    {
+      "suite": "Suite 1: Exposed Anatomy",
+      "name": "1.7 Vertical Boundary Proximity delta_z = +5.0mm outside garment (0 FP)",
+      "passed": true,
+      "details": {
+        "delta_mm": 5.0,
+        "skin_burst_count": 0
+      }
+    },
+    {
+      "suite": "Suite 1: Exposed Anatomy",
+      "name": "1.8 Open Boundary Hem Stepping (Tier 3 filter) (0 FP)",
+      "passed": true,
+      "details": {
+        "skin_burst_count": 0
+      }
+    },
+    {
+      "suite": "Suite 2: True Skin Burst",
+      "name": "2.1 Genuine Skin Burst +1.0mm protrusion (100% Recall, Analytical Depth)",
+      "passed": true,
+      "details": {
+        "disp_mm": 1.0,
+        "displaced_vert_count": 28,
+        "burst_detected": true,
+        "measured_depth_mm": 1.0,
+        "depth_error_mm": 0.0,
+        "severity": "DefectSeverity.MAJOR",
+        "expected_severity": "DefectSeverity.MAJOR"
+      }
+    },
+    {
+      "suite": "Suite 2: True Skin Burst",
+      "name": "2.1 Genuine Skin Burst +5.0mm protrusion (100% Recall, Analytical Depth)",
+      "passed": true,
+      "details": {
+        "disp_mm": 5.0,
+        "displaced_vert_count": 28,
+        "burst_detected": true,
+        "measured_depth_mm": 4.98,
+        "depth_error_mm": 0.02,
+        "severity": "DefectSeverity.CRITICAL",
+        "expected_severity": "DefectSeverity.CRITICAL"
+      }
+    },
+    {
+      "suite": "Suite 2: True Skin Burst",
+      "name": "2.1 Genuine Skin Burst +15.0mm protrusion (100% Recall, Analytical Depth)",
+      "passed": true,
+      "details": {
+        "disp_mm": 15.0,
+        "displaced_vert_count": 28,
+        "burst_detected": true,
+        "measured_depth_mm": 14.93,
+        "depth_error_mm": 0.07,
+        "severity": "DefectSeverity.CRITICAL",
+        "expected_severity": "DefectSeverity.CRITICAL"
+      }
+    },
+    {
+      "suite": "Suite 2: True Skin Burst",
+      "name": "2.2 Pin-Point Isolated Vertex Burst (+5mm) (100% Recall)",
+      "passed": true,
+      "details": {
+        "burst_count": 1,
+        "measured_depth": 4.98
+      }
+    },
+    {
+      "suite": "Suite 2: True Skin Burst",
+      "name": "2.3 Spatial Location Burst: Upper Torso (near collar) (+8mm) (100% Recall)",
+      "passed": true,
+      "details": {
+        "location": "Upper Torso (near collar)",
+        "burst_count": 1,
+        "depth_mm": 7.96
+      }
+    },
+    {
+      "suite": "Suite 2: True Skin Burst",
+      "name": "2.3 Spatial Location Burst: Mid Torso (waist) (+8mm) (100% Recall)",
+      "passed": true,
+      "details": {
+        "location": "Mid Torso (waist)",
+        "burst_count": 1,
+        "depth_mm": 7.96
+      }
+    },
+    {
+      "suite": "Suite 2: True Skin Burst",
+      "name": "2.3 Spatial Location Burst: Lower Torso (near hem) (+8mm) (100% Recall)",
+      "passed": true,
+      "details": {
+        "location": "Lower Torso (near hem)",
+        "burst_count": 1,
+        "depth_mm": 7.96
+      }
+    },
+    {
+      "suite": "Suite 2: True Skin Burst",
+      "name": "2.3 Spatial Location Burst: Back Torso (dorsal) (+8mm) (100% Recall)",
+      "passed": true,
+      "details": {
+        "location": "Back Torso (dorsal)",
+        "burst_count": 1,
+        "depth_mm": 7.96
+      }
+    },
+    {
+      "suite": "Suite 2: True Skin Burst",
+      "name": "2.3 Spatial Location Burst: Left Flank (+8mm) (100% Recall)",
+      "passed": true,
+      "details": {
+        "location": "Left Flank",
+        "burst_count": 1,
+        "depth_mm": 7.96
+      }
+    },
+    {
+      "suite": "Suite 2: True Skin Burst",
+      "name": "2.3 Spatial Location Burst: Right Flank (+8mm) (100% Recall)",
+      "passed": true,
+      "details": {
+        "location": "Right Flank",
+        "burst_count": 1,
+        "depth_mm": 7.96
+      }
+    },
+    {
+      "suite": "Suite 2: True Skin Burst",
+      "name": "2.4 Sub-millimeter Tolerance Margin +0.3mm (Expect Detected = False)",
+      "passed": true,
+      "details": {
+        "disp_mm": 0.3,
+        "detected": false,
+        "expected": false
+      }
+    },
+    {
+      "suite": "Suite 2: True Skin Burst",
+      "name": "2.4 Sub-millimeter Tolerance Margin +0.7mm (Expect Detected = True)",
+      "passed": true,
+      "details": {
+        "disp_mm": 0.7,
+        "detected": true,
+        "expected": true
+      }
+    },
+    {
+      "suite": "Suite 3: Forward Penetration",
+      "name": "3.1 Grazing/Non-Opposing Contact: Perpendicular Grazing (dot = 0.0, 90 deg) (Filtered Out = True)",
+      "passed": true,
+      "details": {
+        "angle_deg": 90.0,
+        "expected_dot": 0.0,
+        "pen_defs_count": 0
+      }
+    },
+    {
+      "suite": "Suite 3: Forward Penetration",
+      "name": "3.1 Grazing/Non-Opposing Contact: Oblique Grazing (dot = 0.15, 81.4 deg) (Filtered Out = True)",
+      "passed": true,
+      "details": {
+        "angle_deg": 81.37,
+        "expected_dot": 0.15,
+        "pen_defs_count": 0
+      }
+    },
+    {
+      "suite": "Suite 3: Forward Penetration",
+      "name": "3.1 Grazing/Non-Opposing Contact: Oblique Grazing (dot = 0.25, 75.5 deg) (Filtered Out = True)",
+      "passed": true,
+      "details": {
+        "angle_deg": 75.52,
+        "expected_dot": 0.25,
+        "pen_defs_count": 0
+      }
+    },
+    {
+      "suite": "Suite 3: Forward Penetration",
+      "name": "3.1 Grazing/Non-Opposing Contact: Exact Threshold Non-Opposing (dot = 0.3000) (Filtered Out = True)",
+      "passed": true,
+      "details": {
+        "angle_deg": 72.54,
+        "expected_dot": 0.3,
+        "pen_defs_count": 0
+      }
+    },
+    {
+      "suite": "Suite 3: Forward Penetration",
+      "name": "3.1 Grazing/Non-Opposing Contact: Inverted Backfacing (dot = -0.50, 120 deg) (Filtered Out = True)",
+      "passed": true,
+      "details": {
+        "angle_deg": 120.0,
+        "expected_dot": -0.5,
+        "pen_defs_count": 0
+      }
+    },
+    {
+      "suite": "Suite 3: Forward Penetration",
+      "name": "3.1 Grazing/Non-Opposing Contact: Completely Inverted (dot = -1.00, 180 deg) (Filtered Out = True)",
+      "passed": true,
+      "details": {
+        "angle_deg": 180.0,
+        "expected_dot": -1.0,
+        "pen_defs_count": 0
+      }
+    },
+    {
+      "suite": "Suite 3: Forward Penetration",
+      "name": "3.2 Direct Inward Penetration: Parallel Direct Penetration (dot = 1.000, 0 deg) (Diagnosed = True)",
+      "passed": true,
+      "details": {
+        "angle_deg": 0.0,
+        "expected_dot": 1.0,
+        "measured_depth": 5.0
+      }
+    },
+    {
+      "suite": "Suite 3: Forward Penetration",
+      "name": "3.2 Direct Inward Penetration: Angled Direct Penetration (dot = 0.866, 30 deg) (Diagnosed = True)",
+      "passed": true,
+      "details": {
+        "angle_deg": 30.0,
+        "expected_dot": 0.866,
+        "measured_depth": 10.0
+      }
+    },
+    {
+      "suite": "Suite 3: Forward Penetration",
+      "name": "3.2 Direct Inward Penetration: Angled Direct Penetration (dot = 0.707, 45 deg) (Diagnosed = True)",
+      "passed": true,
+      "details": {
+        "angle_deg": 45.0,
+        "expected_dot": 0.7071,
+        "measured_depth": 12.07
+      }
+    },
+    {
+      "suite": "Suite 3: Forward Penetration",
+      "name": "3.2 Direct Inward Penetration: Angled Direct Penetration (dot = 0.500, 60 deg) (Diagnosed = True)",
+      "passed": true,
+      "details": {
+        "angle_deg": 60.0,
+        "expected_dot": 0.5,
+        "measured_depth": 13.66
+      }
+    },
+    {
+      "suite": "Suite 3: Forward Penetration",
+      "name": "3.2 Direct Inward Penetration: Threshold Penetration (dot = 0.3001, 72.54 deg) (Diagnosed = True)",
+      "passed": true,
+      "details": {
+        "angle_deg": 72.54,
+        "expected_dot": 0.3001,
+        "measured_depth": 14.54
+      }
+    },
+    {
+      "suite": "Suite 3: Forward Penetration",
+      "name": "3.2 Direct Inward Penetration: Threshold Penetration (dot = 0.3500, 69.51 deg) (Diagnosed = True)",
+      "passed": true,
+      "details": {
+        "angle_deg": 69.51,
+        "expected_dot": 0.35,
+        "measured_depth": 14.37
+      }
+    },
+    {
+      "suite": "Suite 3: Forward Penetration",
+      "name": "3.3 Micro-Stepping Quantization Across Spectrum (Binary Cutoff at dot > 0.3)",
+      "passed": true,
+      "details": {
+        "total_steps": 21,
+        "all_correct": true,
+        "sample_steps": [
+          {
+            "dot": -1.0,
+            "detected": false,
+            "expected": false,
+            "correct": true
+          },
+          {
+            "dot": -0.8,
+            "detected": false,
+            "expected": false,
+            "correct": true
+          },
+          {
+            "dot": -0.6,
+            "detected": false,
+            "expected": false,
+            "correct": true
+          },
+          {
+            "dot": -0.4,
+            "detected": false,
+            "expected": false,
+            "correct": true
+          },
+          {
+            "dot": -0.2,
+            "detected": false,
+            "expected": false,
+            "correct": true
+          },
+          {
+            "dot": 0.0,
+            "detected": false,
+            "expected": false,
+            "correct": true
+          },
+          {
+            "dot": 0.1,
+            "detected": false,
+            "expected": false,
+            "correct": true
+          },
+          {
+            "dot": 0.2,
+            "detected": false,
+            "expected": false,
+            "correct": true
+          },
+          {
+            "dot": 0.25,
+            "detected": false,
+            "expected": false,
+            "correct": true
+          },
+          {
+            "dot": 0.28,
+            "detected": false,
+            "expected": false,
+            "correct": true
+          },
+          {
+            "dot": 0.299,
+            "detected": false,
+            "expected": false,
+            "correct": true
+          },
+          {
+            "dot": 0.3,
+            "detected": false,
+            "expected": false,
+            "correct": true
+          },
+          {
+            "dot": 0.3001,
+            "detected": true,
+            "expected": true,
+            "correct": true
+          },
+          {
+            "dot": 0.301,
+            "detected": true,
+            "expected": true,
+            "correct": true
+          },
+          {
+            "dot": 0.32,
+            "detected": true,
+            "expected": true,
+            "correct": true
+          },
+          {
+            "dot": 0.4,
+            "detected": true,
+            "expected": true,
+            "correct": true
+          },
+          {
+            "dot": 0.5,
+            "detected": true,
+            "expected": true,
+            "correct": true
+          },
+          {
+            "dot": 0.6,
+            "detected": true,
+            "expected": true,
+            "correct": true
+          },
+          {
+            "dot": 0.8,
+            "detected": true,
+            "expected": true,
+            "correct": true
+          },
+          {
+            "dot": 0.95,
+            "detected": true,
+            "expected": true,
+            "correct": true
+          },
+          {
+            "dot": 1.0,
+            "detected": true,
+            "expected": true,
+            "correct": true
+          }
+        ]
+      }
+    },
+    {
+      "suite": "Suite 3: Forward Penetration",
+      "name": "3.4 Recommendation Formula & Smoothing (depth = 1.0mm)",
+      "passed": true,
+      "details": {
+        "test_depth_mm": 1.0,
+        "measured_depth_mm": 1.0,
+        "rec_offset_match": true,
+        "smoothing_match": true
+      }
+    },
+    {
+      "suite": "Suite 3: Forward Penetration",
+      "name": "3.4 Recommendation Formula & Smoothing (depth = 3.0mm)",
+      "passed": true,
+      "details": {
+        "test_depth_mm": 3.0,
+        "measured_depth_mm": 3.0,
+        "rec_offset_match": true,
+        "smoothing_match": true
+      }
+    },
+    {
+      "suite": "Suite 3: Forward Penetration",
+      "name": "3.4 Recommendation Formula & Smoothing (depth = 5.0mm)",
+      "passed": true,
+      "details": {
+        "test_depth_mm": 5.0,
+        "measured_depth_mm": 5.0,
+        "rec_offset_match": true,
+        "smoothing_match": true
+      }
+    },
+    {
+      "suite": "Suite 3: Forward Penetration",
+      "name": "3.4 Recommendation Formula & Smoothing (depth = 12.0mm)",
+      "passed": true,
+      "details": {
+        "test_depth_mm": 12.0,
+        "measured_depth_mm": 12.0,
+        "rec_offset_match": true,
+        "smoothing_match": true
+      }
+    }
+  ]
+}

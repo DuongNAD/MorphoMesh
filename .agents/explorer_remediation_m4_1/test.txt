@@ -1,0 +1,1 @@
+﻿Testing literal:  and quote and @symbol

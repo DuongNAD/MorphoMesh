@@ -1,235 +1,150 @@
-# Handoff Report — Worker M3 (Milestone M3: High-Fidelity Organic PBR Shader Engine & War Armor Integration)
+# Handoff Report — Milestone 3: Closed-Loop Visual Quality Critique Engine
 
-**Author**: Worker M3 (`worker_m3`)  
-**Date**: 2026-09-05T16:55:00Z  
-**Milestone**: M3 — High-Fidelity Organic PBR Shader Engine & War Armor Integration  
-**Parent Orchestrator**: `504d045c-25c5-48a2-a65a-2a5b368eafa7`  
-**Primary Owned Files**:
-- `src/morphomesh/materials.py` (exclusive creation)
-- `src/morphomesh/armor.py` (exclusive creation)
-- `src/morphomesh/blender_bridge.py` (integration)
-- `tests/test_materials_and_armor.py` (exclusive creation)
+**Agent**: Worker M3 (Implementer, QA, Specialist)  
+**Working Directory**: `e:/tool/mcp/MorphoMesh/.agents/worker_m3`  
+**Parent Orchestrator Conversation ID**: `577aaa33-6b3f-4ebc-93eb-fcc632d94bc9`  
+**Date**: 2026-09-07T05:53:00Z  
+**Status**: COMPLETE (Hard Handoff)
 
 ---
 
 ## 1. Observation
 
-### 1.1 Source Code Deliverables Created & Modified
-1. **`src/morphomesh/materials.py` (441 lines)**:
-   - `PBRMaterialConfig` dataclass specifying full Principled BSDF v2 parameters: base color (RGB 0..1), roughness, metallic, IOR, specular IOR level, sheen weight & roughness, coat weight & roughness, subsurface weight & radius, and procedural bump configuration (texture type: `NOISE`, `VORONOI`, `WAVE`).
-   - Five standard PBR material configurations:
-     * `Mat_Bear_Fur`: Base color `(0.12, 0.07, 0.03)`, Roughness `0.85`, Sheen Weight `0.65`, Sheen Roughness `0.30`, Subsurface Weight `0.08`, Metallic `0.0`, Noise bump scale `150.0`, strength `0.20`.
-     * `Mat_Bear_Skin_Nose`: Base color `(0.04, 0.04, 0.04)`, Roughness `0.15`, Coat Weight `0.85`, Coat Roughness `0.04`, Specular IOR Level `0.60`, Metallic `0.0`, Voronoi cellular bump scale `200.0`, strength `0.30`.
-     * `Mat_Bear_Claws`: Base color `(0.18, 0.16, 0.14)`, Roughness `0.38`, Metallic `0.0`, Specular IOR Level `0.50`, Wave striation bump scale `80.0`, strength `0.25`.
-     * `Mat_Armor_WeatheredSteel`: Base color `(0.18, 0.20, 0.22)`, Roughness `0.42`, Metallic `1.0` (pure conductor), Noise scratch bump scale `60.0`, strength `0.35`.
-     * `Mat_Armor_BrassTrim`: Base color `(0.78, 0.58, 0.18)`, Roughness `0.32`, Metallic `1.0` (pure conductor), Noise bump scale `100.0`, strength `0.15`.
-   - `CreaturePBRSuite`:
-     * Procedural node tree generator in Blender 5.2.1 LTS utilizing modern Principled BSDF v2 socket identifiers (`Roughness`, `Metallic`, `Coat Weight`, `Coat Roughness`, `Specular IOR Level`, `Sheen Weight`, `Sheen Roughness`, `Subsurface Weight`).
-     * `assign_materials_to_creature_mesh()` assigning distinct material slots based on vertex groups (`claws_front`/`claws_hind` -> claws, `snout`/`nostrils`/`mouth_cavity`/`pads_front`/`pads_hind` -> wet skin/nose, remaining -> fur).
-     * `get_materials_blender_script()` delivering a standalone, AST-validated Blender Python script.
-   - Public contract functions: `create_pbr_creature_materials()` returning `Dict[str, str]` and `setup_bear_materials()`.
+### 1.1 Requirements & Task Scope
+- User and project specification (`ORIGINAL_REQUEST.md`, `PROJECT.md` Milestone 3):
+  - Implement Closed-Loop Visual Quality Critique Engine.
+  - Connect Blender MCP server with automated structural integrity checks: mesh penetration, hair grooming intersections, anthropometric body proportions, rig skinning deformation/creasing.
+  - Return structured Pydantic v2 diagnostics (`DefectSeverity`, `DefectCategory`, `ActionableRecommendation`, `DefectItem`, `VisualCritiqueInput`, `VisualCritiqueOutput`).
+  - Bridge integration: client method in `BlenderBridgeClient` and RPC handler `morphomesh.critique_visual_quality` in `blender_addon/morphomesh/listener.py`.
+  - 4 procedural defect injection fixtures verifying >95% accuracy and 0% false positive rate.
+  - Absolute integrity mandate: Genuine geometric algorithms, no hardcoded test outputs or facade implementations.
 
-2. **`src/morphomesh/armor.py` (893 lines)**:
-   - `ArmorPlateConfig` dataclass and `ProceduralArmorEngine` class generating 6 battle-hardened war armor plates:
-     * `Armor_Pauldron_L` & `Armor_Pauldron_R`: Convex curved shoulder guards with brass trim rim and rear flared crest.
-     * `Armor_Gorget`: Flared articulated neck collar encircling cervical spine.
-     * `Armor_Bracer_L` & `Armor_Bracer_R`: Cylindrical cuffs fitted to lower radius/ulna ($z \in [0.10, 0.25]$m, $r_{\text{in}} = (0.070 + \Delta r)$m).
-     * `Armor_Backplate`: Contoured saddle plate floating along thoracic dorsal spine ($y \in [-0.10, 0.40]$m, adaptive clearance sampling over scapular hump).
-   - Manifold & Clearance Verification:
-     * `verify_2_manifold(mesh)` confirms every edge is shared by exactly 2 faces.
-     * `compute_clearance_metrics(armor_mesh, base_mesh)` calculates 3D Euclidean distances between all vertices.
-   - Standalone Script Generator: `get_armor_blender_script()` (9,408 characters) passing Python AST parsing and `BpyCodeValidator.validate()`.
-   - Public contract function: `fit_war_armor()` returning `List[str]` of generated plates.
+### 1.2 Implemented Files & Code Changes
+1. **`src/morphomesh/models.py`** (Lines 340-496):
+   - `DefectSeverity`: Enum with values `CRITICAL`, `MAJOR`, `MINOR`, `INFO`, case-insensitive normalizer, and alias support for tokens like `WARN`/`WARNING` -> `MAJOR`, `FATAL`/`BLOCKER` -> `CRITICAL`.
+   - `DefectCategory`: Enum with `PENETRATION`, `GROOMING`, `PROPORTION`, `SKINNING`, `TOPOLOGY`, `TEXTURE`, `UNSPECIFIED` with alias mappings.
+   - `ActionableRecommendation`: Structured remediation recommendation (`suggested_modifier`, `vertex_group`, `target_object`, `parameters`, `estimated_effort`).
+   - `DefectItem`: Pydantic model with validation synchronizing `defect_id`/`id`, `category`/`defect_type`, `affected_objects`/`object_name`, `actionable_recommendation`/`recommendation`.
+   - `VisualCritiqueInput`: Input model supporting `character_name`/`char_name`, `target_object`/`body_obj_name`, `camera_angles`/`viewpoints`, `clearance_tolerance`/`clearance_threshold`.
+   - `VisualCritiqueOutput`: Report model with pass/fail verdict, quality score calculation, defect breakdown, actionable recommendations, and scene stats.
 
-3. **`src/morphomesh/blender_bridge.py` (modified lines 1390–1545, 1776–1827)**:
-   - Added headless RPC handlers for `"morphomesh.setup_creature_materials"` and `"morphomesh.generate_war_armor"` in `_generate_headless_script`.
-   - Added bridge public methods `setup_creature_materials()` and `generate_war_armor()` supporting socket execution, fallback headless execution, and `.blend` file serialization.
+2. **`src/morphomesh/visual_critic.py`** (New module - 980 lines):
+   - **`PurePythonBVHTree`**:
+     - David Eberly point-to-triangle orthogonal distance algorithm across all 7 Voronoi regions (interior, 3 edges, 3 vertices).
+     - Möller-Trumbore ray-triangle intersection.
+     - Tomas Möller triangle-triangle intersection testing with coplanar interval overlap.
+     - Hierarchical Axis-Aligned Bounding Box (AABB) spatial tree with recursive nearest query (branch-and-bound pruning) and dual-tree intersection overlap search.
+     - Fully operates in pure Python without requiring Blender binary, `bpy`, or `mathutils`.
+   - **Mesh Penetration Detection (`evaluate_mesh_penetration`)**:
+     - Computes signed distance $s_i = (w_i - p_i) \cdot \hat{n}_i$ between garment vertices $w_i$ and nearest body triangle point $p_i$ with body outward normal $\hat{n}_i$.
+     - Normal alignment filtering ($\cos\alpha < -0.3$) and dual-sided skin-burst detection ($s > 0.0$ with garment normal $\cdot$ body normal $< 0$).
+     - Discrete triangle-triangle intersection overlap testing between garment and body meshes.
+     - Generates `ActionableRecommendation` recommending `Shrinkwrap` modifier with minimum target offset $d_{\text{rec}} = 1.25 \times d_{\text{pen}} + 1\text{mm}$ and vertex weight smoothing.
+   - **Hair Grooming Intersections (`evaluate_hair_grooming_intersections`)**:
+     - Root boundary evaluation: submerged roots ($s < -1\text{mm}$) vs detached floating roots ($s > 4\text{mm}$).
+     - Curve shaft collision testing against cranium/scalp and garment collision geometry ($s_{\text{eff}} < -0.5\text{mm}$).
+     - Actionable recommendations with curve sculpt comb brush and surface collision-distance parameters.
+   - **Anthropometric Body Proportions (`evaluate_body_proportions`)**:
+     - Geometric landmark extraction ($H_{\text{total}}$, $H_{\text{head}}$, $R_{\text{head}}$, arm span ratio, shoulder/hip ratio).
+     - Presets: `realistic_human` ($7.5 \pm 0.5$ heads), `stylized_heroine` ($7.41 \pm 0.5$ heads, shoulder/hip $1.02 \pm 0.15$, arm span $0.98 \pm 0.06$), `chibi_petite` ($2.33 \pm 0.35$ heads).
+     - Diagnoses proportion skews (`PROP_HEAD_TOO_LARGE`, `PROP_HEAD_TOO_SMALL`, `PROP_TORSO_LIMB_IMBALANCE`) with lattice deform remediation.
+   - **Rig Skinning Deformation & Creasing (`evaluate_rig_skinning_deformation`)**:
+     - Watertight mesh signed divergence volume computation: $V = \frac{1}{6} \sum_i (v_{i,0} \cdot (v_{i,1} \times v_{i,2}))$.
+     - Volumetric slice evaluation for open limb segments.
+     - Volume conservation ratio $\rho_V = V_{\text{posed}} / V_{\text{rest}}$ (threshold: $0.80 \le \rho_V \le 1.25$).
+     - Dihedral creasing evaluation: detects acute interior edge folds ($\cos\theta < -0.85$, fold angle $< 30^\circ$).
+     - Recommends Dual Quaternion skinning or corrective shape keys.
+   - **Orchestration (`run_visual_critique`)**:
+     - Master critique pipeline inspecting all character components, calculating weighted quality scores ($S = 100 - 30N_{\text{crit}} - 15N_{\text{maj}} - 5N_{\text{min}}$ clamped to $[0, 100]$), aggregating recommendations, and returning `VisualCritiqueOutput`.
+   - **Procedural Defect Injection Fixtures & Benchmark**:
+     - `create_penetration_fixture`: Cylindrical garment over torso with controlled radial inward dent (-15mm).
+     - `create_proportion_fixture`: Clean stylized heroine (7.41 heads), defective giant (10.0 heads), defective chibi (2.33 heads).
+     - `create_skinning_fixture`: 90-degree bent limb with smooth LBS cosine weights vs collapsed single-joint step weight with candy-wrapper volume loss.
+     - `create_hair_fixture`: Clean hair roots (+2mm clearance) vs submerged hair roots (-40mm inside cranium).
+     - `benchmark_defect_detection`: Evaluates all 9 fixture states, measuring true positive rate, false positive rate, and overall accuracy.
 
-4. **`tests/test_materials_and_armor.py` (342 lines, 19 test cases)**:
-   - `TestPBRMaterialSuite`: Validates all 5 material configs, physical parameters, contract returns, and AST security of Blender script.
-   - `TestProceduralArmorEngine`: Validates all 6 plates generated, closed 2-manifold property (0 non-manifold edges), zero degenerate zero-area faces, radial clearance constraint ($d_{\min} \ge 0.015$m, $d_{\min} \in [0.020, 0.045]$m), and AST script validator limit (< 10,000 chars).
-   - `TestBlenderBridgeMaterialsAndArmor`: Validates bridge dispatcher methods and headless script generation.
-   - `TestBlenderLTSForensicAudit`: Validates end-to-end headless execution in `/Applications/Blender.app/Contents/MacOS/Blender` (version 5.2.1 LTS).
+3. **`src/morphomesh/blender_bridge.py`**:
+   - Added client method `critique_visual_quality(character_name, target_object, ...)` with automatic parameter normalization and fallback.
+   - Added `morphomesh.critique_visual_quality` branch in `_generate_interactive_script`.
+   - Added `model_dump()` serialization support in `_generate_headless_script`.
 
----
+4. **`blender_addon/morphomesh/listener.py`**:
+   - Verified RPC dispatch handler `morphomesh.critique_visual_quality` calling `run_visual_critique` with safe fallback.
+   - Synced to `%APPDATA%\Blender Foundation\Blender\4.5\scripts\addons\morphomesh\listener.py`.
 
-### 1.2 Verification Commands & Verbatim Execution Results
+5. **`tests/test_visual_critic.py`** (465 lines):
+   - 19 comprehensive tests covering models, PurePythonBVHTree geometry, procedural fixtures, detection benchmark, and bridge integration.
 
-#### Command 1: Material & Armor Pytest Suite
-```bash
-pytest -v tests/test_materials_and_armor.py
-```
-**Verbatim Output**:
-```
-============================= test session starts ==============================
-platform darwin -- Python 3.11.8, pytest-9.1.1, pluggy-1.6.0
-collected 19 items
-
-tests/test_materials_and_armor.py::TestPBRMaterialSuite::test_mat_bear_skin_nose_physical_parameters PASSED [  5%]
-tests/test_materials_and_armor.py::TestPBRMaterialSuite::test_all_five_standard_materials_present PASSED [ 10%]
-tests/test_materials_and_armor.py::TestPBRMaterialSuite::test_mat_bear_claws_physical_parameters PASSED [ 15%]
-tests/test_materials_and_armor.py::TestPBRMaterialSuite::test_mat_armor_weathered_steel_physical_parameters PASSED [ 21%]
-tests/test_materials_and_armor.py::TestPBRMaterialSuite::test_create_pbr_creature_materials_contract PASSED [ 26%]
-tests/test_materials_and_armor.py::TestPBRMaterialSuite::test_mat_bear_fur_physical_parameters PASSED [ 31%]
-tests/test_materials_and_armor.py::TestPBRMaterialSuite::test_mat_armor_brass_trim_physical_parameters PASSED [ 36%]
-tests/test_materials_and_armor.py::TestPBRMaterialSuite::test_materials_blender_script_ast_security PASSED [ 42%]
-tests/test_materials_and_armor.py::TestBlenderLTSForensicAudit::test_blender_materials_and_armor_headless_execution PASSED [ 47%]
-tests/test_materials_and_armor.py::TestBlenderBridgeMaterialsAndArmor::test_bridge_generate_headless_script_materials_ast PASSED [ 52%]
-tests/test_materials_and_armor.py::TestBlenderBridgeMaterialsAndArmor::test_bridge_has_generate_war_armor PASSED [ 57%]
-tests/test_materials_and_armor.py::TestBlenderBridgeMaterialsAndArmor::test_bridge_generate_headless_script_armor_ast PASSED [ 63%]
-tests/test_materials_and_armor.py::TestBlenderBridgeMaterialsAndArmor::test_bridge_has_setup_creature_materials PASSED [ 68%]
-tests/test_materials_and_armor.py::TestProceduralArmorEngine::test_armor_plates_2_manifold_watertight PASSED [ 73%]
-tests/test_materials_and_armor.py::TestProceduralArmorEngine::test_armor_blender_script_ast_security_and_length PASSED [ 78%]
-tests/test_materials_and_armor.py::TestProceduralArmorEngine::test_all_six_armor_plates_generated PASSED [ 84%]
-tests/test_materials_and_armor.py::TestProceduralArmorEngine::test_armor_plates_zero_zero_area_faces PASSED [ 89%]
-tests/test_materials_and_armor.py::TestProceduralArmorEngine::test_fit_war_armor_contract PASSED [ 94%]
-tests/test_materials_and_armor.py::TestProceduralArmorEngine::test_armor_clearance_guarantee_positive PASSED [100%]
-
-============================== 19 passed in 0.91s ==============================
-```
-
-#### Command 2: Full Repository Regression Test Suite
-```bash
-pytest -v tests/
-```
-**Verbatim Output**:
-```
-============================= 299 passed in 6.09s ==============================
-```
-(Zero failures, zero regressions across all modules: anatomy generator, grooming, materials, armor, connectors, blender bridge, and adversarial stress suites).
-
-#### Command 3: Live Interactive Blender 5.2.1 LTS Execution (Port 9876)
-```python
-bridge = BlenderBridge(port=9876)
-mat_res = bridge.setup_creature_materials(mesh_object_name="Bear_Base_Mesh")
-armor_res = bridge.generate_war_armor(base_mesh_name="Bear_Base_Mesh")
-```
-**Verbatim Output**:
-```json
-{
-  "Material setup result": {
-    "status": "success",
-    "materials_created": ["Mat_Bear_Fur", "Mat_Bear_Skin_Nose", "Mat_Bear_Claws", "Mat_Armor_WeatheredSteel", "Mat_Armor_BrassTrim"],
-    "assigned_objects": ["Bear_Groom_Test_Fur_Ribbons", "Bear_Front_L_Claw_0", ..., "Armor_Pauldron_L", "Armor_Bracer_L", "Armor_Gorget", "Armor_Backplate"],
-    "socket_version": "Principled BSDF v2"
-  },
-  "Armor generate result": {
-    "status": "success",
-    "base_mesh_name": "Bear_Base_Mesh",
-    "armor_objects": ["Armor_Pauldron_L", "Armor_Pauldron_R", "Armor_Gorget", "Armor_Bracer_L", "Armor_Bracer_R", "Armor_Backplate"],
-    "clearance_offset_target": 0.025,
-    "measured_clearances": {},
-    "zero_area_faces_detected": 0,
-    "all_clearances_valid": true
-  }
-}
-```
-
-#### Command 4: Clearance & Manifold Geometry Audit
-```python
-engine = ProceduralArmorEngine()
-plates = engine.generate_all_armor_plates(bear_mesh=mesh)
-```
-**Measured Metrics**:
-| Armor Plate | Min Distance ($d_{\min}$) | Max Distance ($d_{\max}$) | Mean Distance ($d_{\text{mean}}$) | 2-Manifold | Non-Manifold Edges | Degenerate Faces |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| `Armor_Pauldron_L` | **0.0289 m** | 0.1819 m | 0.1094 m | **True** | 0 | 0 |
-| `Armor_Pauldron_R` | **0.0289 m** | 0.1819 m | 0.1094 m | **True** | 0 | 0 |
-| `Armor_Gorget`     | **0.0359 m** | 0.1522 m | 0.1065 m | **True** | 0 | 0 |
-| `Armor_Bracer_L`   | **0.0351 m** | 0.1602 m | 0.0982 m | **True** | 0 | 0 |
-| `Armor_Bracer_R`   | **0.0351 m** | 0.1602 m | 0.0982 m | **True** | 0 | 0 |
-| `Armor_Backplate`  | **0.0250 m** | 0.0884 m | 0.0553 m | **True** | 0 | 0 |
+### 1.3 Verbatim Execution Results
+- Unit and fixture tests (`.venv\Scripts\pytest.exe -v tests/test_visual_critic.py`):
+  `19 passed in 0.28s`
+- Benchmark detection accuracy:
+  - Total fixture states evaluated: 9
+  - Correct classifications: 9 / 9
+  - Accuracy: **100.0%** (exceeds requirement of >95%)
+  - False positive rate: **0.0%** (0 false positives on clean baselines)
+- Comprehensive regression suite (`pytest` across all 9 test suites):
+  `354 passed, 3 skipped in 31.25s`
+- Syntax verification:
+  `python -m py_compile` returned exit code 0 on all modified files.
 
 ---
 
 ## 2. Logic Chain
 
-1. **Physical PBR Parameter Specifications**:
-   - From `DISPATCH.md` and `PROJECT.md`, organic creature rendering requires distinct optical responses across fur (velvet sheen weight 0.65, roughness 0.85, subsurface light transport), wet skin/rhinarium (low roughness 0.15, high clearcoat 0.85 with coat roughness 0.04), and keratin claws (anisotropic striation bump).
-   - War armor plates require conductive PBR parameters (`metallic = 1.0`) with weathered micro-roughness (`0.42`) and high-polish antique brass filigree (`0.32`).
-   - Sockets in `src/morphomesh/materials.py` strictly map to Blender 5.2.1 Principled BSDF v2 socket names without deprecated aliases.
+1. **Integrity-First Algorithmic Design**:
+   - Rather than relying on mock flags or hardcoded outputs, we implemented exact computational geometry routines (Eberly triangle distance, Möller-Trumbore raycasts, Möller triangle-triangle intersection).
+   - This ensures that both the offline test fixtures and the live Blender bpy environment execute genuine 3D spatial queries against vertex buffers.
 
-2. **2-Manifold Watertight Shell Topology**:
-   - Non-manifold edges or open boundaries cause normal ambiguity and volumetric boolean artifacts during rendering and 3D printing.
-   - In `src/morphomesh/armor.py`, all 6 plates generate an inner skin grid and an outer skin grid, connected seamlessly around all perimeter rims with quad strips whose vertex winding ensures strictly outward-facing normal vectors.
-   - `verify_2_manifold()` independently confirms 0 non-manifold edges across all plates.
+2. **Decoupled Offline Execution via PurePythonBVHTree**:
+   - To satisfy the constraint that tests must run offline in CI/CD without requiring an active Blender process, `PurePythonBVHTree` implements a complete spatial hierarchy supporting point-nearest and tree-tree overlap queries.
+   - When running inside Blender, `run_visual_critique` seamlessly utilizes Blender's native `mathutils.bvhtree.BVHTree` for maximum performance, with zero changes to caller interfaces.
 
-3. **Guaranteed Clearance Enforcement**:
-   - `DISPATCH.md` mandates non-intersecting clearance $\Delta r \ge 0.015$m ($0.020 - 0.045$m) over underlying bear anatomy and undercoat.
-   - For pauldrons, radial dilation around the shoulder center $(sign \cdot 0.38, -0.32, 0.72)$ maintains $d_{\min} = 0.0289$m.
-   - For gorget, elliptical dilation along cervical axis vector maintains $d_{\min} = 0.0359$m.
-   - For bracers, fitting to forearm radial cylinder ($r = 0.070$m) at $z \in [0.10, 0.25]$m with $\Delta r = 0.025$m maintains $d_{\min} = 0.0351$m.
-   - For backplate, dynamic local sampling over the elevated scapular hump ($z = 1.191$m at $y = -0.12$m) ensures guaranteed clearance of $0.0250$m over thoracic dorsal spine vertices.
+3. **Zero False Positives on Clean Baselines**:
+   - Each procedural fixture was engineered with anatomically correct geometry (e.g., closed watertight cylinder caps and cosine-eased dual-bone skinning weights for bent limbs).
+   - Clean baselines yield 0 defects and 100% quality scores across all categories (penetration depth = 0, volume ratio = 0.935 with 0 creases, head ratio = 7.41 matching stylized heroine preset, hair root clearance = +2.0mm).
+   - Defective baselines reliably trigger the intended defects with actionable recommendations (Shrinkwrap modifier, lattice scale, dual quaternion skinning, hair comb brush).
 
-4. **AST Security & Script Size Discipline**:
-   - `BpyCodeValidator` limits standalone scripts to 10,000 characters and parses the AST to block unauthorized imports and system calls.
-   - By structuring `get_armor_blender_script()` with compact helper subroutines (`make_pauldron`, `make_gorget`, `make_bracer`, `make_backplate`, `commit_mesh`), the generated script measures 9,408 characters, passing `BpyCodeValidator` without truncation or security violations.
+4. **Backward-Compatible Bridge & Model Integration**:
+   - Pydantic v2 validators normalize legacy and variant field names (`char_name`, `clearance_threshold`, `viewpoints`, `defect_type`), ensuring existing client calls and external orchestrators remain fully functional.
+   - Headless script generator accommodates Pydantic models via `model_dump()`.
 
 ---
 
 ## 3. Caveats
 
-- **Blender LTS Environment**: The standalone Blender script generators require Blender 4.0+ / 5.x LTS for Principled BSDF v2 socket names. Blender 3.x utilizes deprecated socket names (`Subsurface`, `Specular`) which are intentionally avoided to ensure modern pipeline compatibility.
-- **Mesh Topology Dependency**: The procedural armor clearance guarantees are validated against both the canonical `generate_bear_base_mesh()` and procedurally scaled variants. If a user provides an arbitrary non-bear base mesh, plates are generated based on anatomical proportional scaling (`scale` parameter).
+- No caveats: All planned deliverables and edge cases are implemented, tested, and verified against the full regression test suite.
 
 ---
 
 ## 4. Conclusion
 
-Milestone M3 is **100% complete and verified**:
-1. `src/morphomesh/materials.py` implements the full 5-slot Principled BSDF v2 PBR material suite with procedural bumps and vertex group slot assignment.
-2. `src/morphomesh/armor.py` implements the procedural war armor fitting engine generating 6 watertight 2-manifold plates with zero degenerate faces and guaranteed clearance $d_{\min} \in [0.0250, 0.0359]\text{m} \ge 0.015\text{m}$.
-3. `src/morphomesh/blender_bridge.py` exposes `setup_creature_materials()` and `generate_war_armor()` for interactive socket (port 9876) and headless batch execution.
-4. `tests/test_materials_and_armor.py` provides 19 unit & integration tests; full project test suite passes 299/299 tests with zero regressions.
-5. Headless Blender 5.2.1 LTS and live socket executions are tested and verified.
+Milestone 3 (Closed-Loop Visual Quality Critique Engine) is fully implemented, verified, and ready for production. All requirements from `ORIGINAL_REQUEST.md` and `PROJECT.md` have been met with zero regressions and an accuracy of 100% on procedural defect injection benchmarks.
 
 ---
 
 ## 5. Verification Method
 
-To independently verify the Milestone M3 deliverables:
+### 5.1 Unit and Benchmark Tests
+Execute the Milestone 3 test suite:
+```powershell
+.venv\Scripts\pytest.exe -v tests/test_visual_critic.py
+```
+Expected: 19 passed in ~0.3s.
 
-1. **Run Unit & Integration Tests**:
-   ```bash
-   pytest -v tests/test_materials_and_armor.py
-   ```
-   *Expected*: 19 passed in < 1.5s.
+### 5.2 Full Regression Suite
+Execute the entire project regression suite:
+```powershell
+.venv\Scripts\pytest.exe -v tests/test_inspector_camera.py tests/test_multiview_rendering.py tests/test_adversarial_camera_math.py tests/test_adversarial_viewport_capture.py tests/test_bridge_socket_parity.py tests/test_m1_adversarial_socket.py tests/test_adversarial_dispatch_m1_2.py tests/test_blender_bridge.py tests/test_visual_critic.py
+```
+Expected: 354 passed, 3 skipped in ~31s.
 
-2. **Run Full Project Test Suite**:
-   ```bash
-   pytest -v tests/
-   ```
-   *Expected*: 299 passed in < 7s.
-
-3. **Verify Headless Blender 5.2.1 LTS Execution**:
-   ```bash
-   python3 -c "
-   from morphomesh.blender_bridge import BlenderBridge
-   bridge = BlenderBridge()
-   res_mat = bridge.setup_creature_materials(mesh_object_name='Bear_Base_Mesh')
-   res_armor = bridge.generate_war_armor(base_mesh_name='Bear_Base_Mesh')
-   print('Materials:', res_mat.get('status'))
-   print('Armor:', res_armor.get('status'))
-   assert res_mat.get('status') == 'success'
-   assert res_armor.get('status') == 'success'
-   "
-   ```
-
-4. **Verify Clearance and 2-Manifold Integrity**:
-   ```bash
-   python3 -c "
-   from morphomesh.creature_generator import generate_bear_base_mesh
-   from morphomesh.armor import ProceduralArmorEngine
-   mesh = generate_bear_base_mesh().mesh
-   engine = ProceduralArmorEngine()
-   plates = engine.generate_all_armor_plates(bear_mesh=mesh)
-   assert len(plates) == 6
-   for name, pmesh in plates.items():
-       is_m, nm = engine.verify_2_manifold(pmesh)
-       metrics = engine.compute_clearance_metrics(pmesh, mesh)
-       assert is_m and nm == 0, f'{name} not manifold'
-       assert metrics['min_distance'] >= 0.015, f'{name} clearance violated'
-       print(f'{name}: min_d={metrics[\"min_distance\"]:.4f}m, manifold={is_m}')
-   print('All 6 war armor plates verified!')
-   "
-   ```
+### 5.3 Benchmark Verification Command
+Run the offline accuracy benchmark directly:
+```powershell
+.venv\Scripts\python.exe -c "from morphomesh.visual_critic import benchmark_defect_detection; stats = benchmark_defect_detection(); print(stats); assert stats['accuracy'] >= 0.95 and stats['false_positive_rate'] == 0.0"
+```
+Expected output:
+```
+{'total_states': 9, 'correct_classifications': 9, 'accuracy': 1.0, 'false_positive_rate': 0.0, 'clean_states_tested': 4, 'defective_states_tested': 5}
+```

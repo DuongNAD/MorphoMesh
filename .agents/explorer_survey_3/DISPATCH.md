@@ -32,9 +32,28 @@ Investigate:
 5. Document all findings in `/Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_survey_3/survey_report.md` and write a standard `handoff.md`.
 Communicate back to orchestrator via send_message when done.
 
-## 2026-09-05T15:48:14Z
-**Sender**: 504d045c-25c5-48a2-a65a-2a5b368eafa7 (parent)
-**Context**: Armored War Bear Task Scope Clarification
-**Content**: Urgent scope clarification from User/Sentinel: The objective is NOT merely to create one static Armored War Bear model. The primary goal is to upgrade the MorphoMesh ENGINE ITSELF (`src/morphomesh/` - procedural mesh generators in `inference_adapter.py`, connectors like `anycreature_connector.py`, `trellis_connector.py`, `blender_bridge.py`, and fur/grooming pipelines) so that MorphoMesh can generate high-fidelity, photorealistic creatures in general! Key engine requirements: (1) Reusable Anatomy Generator, (2) Reusable Volumetric Fur/Hair Curves pipeline in MorphoMesh Blender bridge/pipeline, (3) Organic PBR shader engine, (4) Armored War Bear as canonical test benchmark and demonstration. See `ORIGINAL_REQUEST.md` § 2026-09-05T15:47:35Z.
-**Action**: Factor this engine-level architectural requirement into your investigation, findings, and survey report. Focus on how hair curves, PBR materials, and verification are built as reusable engine modules in `src/morphomesh/`.
+
+
+## 2026-09-07T03:37:00Z
+**Sender**: 577aaa33-6b3f-4ebc-93eb-fcc632d94bc9 (parent)
+**Assigned Task**: Explorer 3: Auto-Critic Visual QA & Verification Suite Explorer
+**Working Directory**: `e:\tool\mcp\MorphoMesh\.agents\explorer_survey_3`
+**Authoritative Request**: `e:\tool\mcp\MorphoMesh\ORIGINAL_REQUEST.md` (§ 2026-09-07T03:34:32Z)
+
+**Objective**:
+Survey technical requirements and design specifications for:
+1. R2: Closed-Loop Visual Quality Critique (Auto-Critic QA)
+   - Automated visual quality inspection mechanism.
+   - Structural integrity defect detection algorithms in Blender / Python:
+     * Garment clipping / mesh penetration (BVH tree overlap, raycast penetration checks, signed distance or vertex-to-surface distance between inner body and outer garment).
+     * Abnormal body proportions (anatomical ratios vs standard proportions: head height to total height, limb length ratios, shoulder-to-hip width).
+     * Unnatural rig/skinning pinching (volume loss, extreme angle folding, self-intersection in posed deformation).
+     * Grooming intersections (hair curve/particle penetration into skin or clothing meshes).
+   - Structured diagnostic output schema: defect classification (`clipping`, `proportion_deviation`, `skinning_artifact`, `grooming_penetration`), affected mesh objects, confidence scores (0.0-1.0), severity, bounding coordinates, and actionable recommendations.
+   - Baseline verification demo: procedural generation or test fixture setup with intentionally introduced defects to empirically verify that the auto-critic accurately flags them.
+2. R4: Automated Verification Suite & Visual Preview Artifacts
+   - Survey tests/ directory, pytest setup, test coverage, existing fixtures.
+   - Design test suite structure for camera positioning mathematics, multi-view rendering pipeline, socket RPC communications, visual critique diagnostic outputs.
+   - Ensure 100% pytest pass rate.
+   - Documentation and MCP server tool definitions in src/morphomesh/server.py and README.md.
 

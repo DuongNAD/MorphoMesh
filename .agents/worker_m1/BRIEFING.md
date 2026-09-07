@@ -1,75 +1,61 @@
-# BRIEFING — 2026-09-05T16:03:00Z
+# BRIEFING — 2026-09-07T03:49:15Z
 
 ## Mission
-Implement Milestone M1: Reusable Anatomy Generator & Claw Inversion Fix for MorphoMesh, upgrading procedural geometry in `inference_adapter.py`, fixing socket status check in `blender_bridge.py`, creating `creature_generator.py` with 18 standardized vertex groups, and validating with unit tests and Blender verification.
+Implement Milestone 1: Interactive Socket Bridge Parity & Reliability for MorphoMesh, covering NDJSON streaming, timer immortality in listener, method parity in dispatch, execute() socket recognition fix, typed client inspection methods, headless script fallbacks, and comprehensive parity test suite.
 
 ## 🔒 My Identity
-- Archetype: worker
-- Roles: implementer, qa, specialist
-- Working directory: /Users/duongnad/Documents/tool/MorphoMesh/.agents/worker_m1
-- Original parent: 3a4e8e2b-d5e4-45a8-86a2-528d768e62e0
-- Milestone: M1 (Research & Benchmark Docs)
-- Current parent: 504d045c-25c5-48a2-a65a-2a5b368eafa7
-- Active Role: Anatomy Generator & Claw Fix Specialist
-- Active Milestone: M1 (Reusable Anatomy Generator & Claw Fix)
+- Archetype: implementer
+- Roles: [implementer, qa, specialist]
+- Working directory: e:\tool\mcp\MorphoMesh\.agents\worker_m1
+- Original parent: 577aaa33-6b3f-4ebc-93eb-fcc632d94bc9
+- Milestone: Milestone 1 - Interactive Socket Bridge Parity & Reliability
 
 ## 🔒 Key Constraints
-- Exclusive write ownership: `docs/RESEARCH_BENCHMARK.md` and `.agents/worker_m1/*`
-- DO NOT CHEAT. All implementations and analyses must be genuine, accurate, and publication-grade.
-- Evaluate all 29 SOTA models/repos (33 variants) across Category 1 (Articulated Animals), Category 2 (General High-Quality 3D), and Category 3 (Retopology & Rigging).
-- Evaluate against all 6 criteria: License, Hardware/VRAM, Geometry fidelity, Export formats & PBR, Rigging/Skeleton status, Deployment feasibility (Apple Silicon vs Cloud).
-- Include Quantitative Hardware Architecture Tradeoff Analysis proving necessity of Hybrid Architecture.
-- Detail optimal pipelines for Use-Case A (Fantasy Creatures), Use-Case B (Realistic Animals), and Use-Case C (Game-Ready Low-Poly).
-- Include Future Roadmap & Emerging Frontiers (4D creature animation, Gaussian splat skinning, multimodal physics).
-- Beautiful markdown formatting with tables, ASCII/Mermaid architectural flowcharts, and rigorous technical citations.
-- File ownership: `src/morphomesh/blender_bridge.py`, `src/morphomesh/inference_adapter.py`, `src/morphomesh/creature_generator.py`, `tests/test_anatomy_generator.py`, `.agents/worker_m1/*`.
-- DO NOT CHEAT: Genuine implementation only. No hardcoding test results, dummy facades, or shortcuts.
-- Claws must mathematically guarantee forward dot product > 0.60 with (0, -1, 0) and downward pitch (dz < 0).
-- Paws must feature authentic plantigrade anatomy with calcaneus heel, pads, and 5 digits.
-- Head must feature cranium, snout, nostrils, mouth cavity, jaw, teeth, eyelids, and cupped ears.
-- 18 standardized vertex groups must be created and populated on the base mesh.
-- Full compatibility with Blender 5.2.1 LTS and FastMCP bridge.
+- Exclusively own and edit:
+  - blender_addon/morphomesh/listener.py
+  - src/morphomesh/blender_bridge.py
+  - tests/test_bridge_socket_parity.py
+- MUST NOT edit any other implementation files.
+- DO NOT CHEAT: Genuine implementations only, real state, real behavior, no hardcoding.
+- 100% test pass rate with pytest.
 
 ## Current Parent
-- Conversation ID: 504d045c-25c5-48a2-a65a-2a5b368eafa7
-- Updated: 2026-09-05T16:03:00Z
+- Conversation ID: 577aaa33-6b3f-4ebc-93eb-fcc632d94bc9
+- Updated: 2026-09-07T04:00:00Z
 
 ## Task Summary
-- **What was built**:
-  1. Fixed line 472 in `src/morphomesh/blender_bridge.py` to handle `"success": True` from live socket RPC responses and added `"status": "success"` in emit_result.
-  2. Upgraded `MeshGeometry` in `src/morphomesh/inference_adapter.py` with `add_curved_claw()`, `add_plantigrade_paw()`, `add_articulated_head()`, and `add_anatomical_torso()`.
-  3. Upgraded `InferenceAdapter._generate_3d_asset_mock()` to synthesize authentic anatomical base meshes for bear and quadrupeds.
-  4. Created reusable `src/morphomesh/creature_generator.py` with `generate_bear_base_mesh()`, `build_bear_in_blender()`, and `get_blender_generation_script()` populating 18 standardized vertex groups.
-  5. Implemented 35 unit/verification tests in `tests/test_anatomy_generator.py`, achieving 230/230 passing tests project-wide.
-  6. Verified in Blender 5.2.1 LTS both via headless execution and live interactive socket on port 9876.
-- **Success criteria**: 100% achieved. All 20 claws forward dot > 0.60, dz < 0, 18 vertex groups populated, plantigrade paws and facial features present.
-- **Interface contracts**: PROJECT.md Section Interface Contracts (`MeshGeometry`).
-- **Code layout**: Compliant with MorphoMesh codebase conventions.
+- **What to build**:
+  1. Update blender_addon/morphomesh/listener.py with NDJSON streaming framing, timer immortality, and dispatch handlers for render_preview, capture_viewport, setup_inspector_camera, critique_visual_quality, create_human_asset, and enriched get_scene_status.
+  2. Update src/morphomesh/blender_bridge.py with NDJSON streaming in send_socket_request(), execute() response recognition fix, typed client helper methods, and headless script fallbacks.
+  3. Create tests/test_bridge_socket_parity.py implementing comprehensive test suite for connection lifecycle, rapid streaming, malformed data, timer immortality, and method parity.
+- **Success criteria**: 100% pass on new and existing bridge tests (test_bridge_socket_parity.py and test_blender_bridge.py).
+- **Interface contracts**: PROJECT.md Milestone 1 & explorer handoffs.
 
 ## Key Decisions Made
-- Parabolic arc formula for claws ensures dot product with (0, -1, 0) is well above 0.60 (ranging 0.85-0.94) and dz < 0.
-- Plantigrade paw structure creates both geometric pads (convex meshes) and registers vertex group indices.
-- Standardized 18 vertex groups defined consistently across `creature_generator.py` and Blender scene generation.
-- Self-contained AST-safe generator script in `get_blender_generation_script` allows execution via `BlenderBridge.execute_custom_script()` under the 10,000 char limit.
+- Line-buffered NDJSON framing with `b"\n"` delimiter applied on both listener and bridge client with raw JSON decoder fallback.
+- Top-level `try...except...finally: return 0.02` barrier in `_drain_queue` ensures timer immortality even under arbitrary dispatched operator exceptions.
+- Dispatched methods support all 6 interactive socket RPC endpoints: `morphomesh.get_scene_status`, `morphomesh.render_preview`, `morphomesh.setup_inspector_camera`, `morphomesh.capture_viewport`, `morphomesh.critique_visual_quality`, and `morphomesh.create_human_asset`.
+- Fixed `mathutils.bvhtree` import scoping via `importlib.import_module` to prevent shadowing global `mathutils`.
+- Fixed execute() success predicate to avoid false fallback on payloads containing `"camera_name"`, `"defects"`, `"defect_count"`, `"scene_name"`, `"objects"`, or `"image_path"`.
 
 ## Change Tracker
 - **Files modified**:
-  - `src/morphomesh/blender_bridge.py`: Socket dispatch fix for `"success": True`.
-  - `src/morphomesh/inference_adapter.py`: Added anatomical methods (`add_curved_claw`, `add_plantigrade_paw`, `add_articulated_head`, `add_anatomical_torso`) to `MeshGeometry`.
-  - `src/morphomesh/creature_generator.py`: New module for Ursine/quadruped procedural generation with 18 vertex groups.
-  - `tests/test_anatomy_generator.py`: 35 comprehensive tests.
-- **Build status**: PASS (230/230 pytest tests passed in 2.14s)
+  - `blender_addon/morphomesh/listener.py`: NDJSON buffering, timer immortality, 6 dispatch handlers, bvhtree importlib fix.
+  - `src/morphomesh/blender_bridge.py`: NDJSON send/recv, TimeoutError wrapping, socket lifecycle, execute() predicate fix, headless script branches, 3 typed client inspection methods.
+  - `tests/test_bridge_socket_parity.py`: 21 comprehensive parity tests created.
+- **Build status**: PASS (100% pass rate: 21/21 in test_bridge_socket_parity.py, 79/79 in test_blender_bridge.py, 100/100 combined)
 - **Pending issues**: None
 
 ## Quality Status
-- **Build/test result**: 230 passed, 0 failures
-- **Lint status**: Clean
-- **Tests added/modified**: 35 new tests covering claw vectors, pads, facial anatomy, 18 vertex groups, and Blender generation scripts.
+- **Build/test result**: PASS (100/100 tests passed in 14.98s)
+- **Lint status**: 0 errors (py_compile passed cleanly)
+- **Tests added/modified**: 21 new tests added covering all 6 parity suites
 
 ## Loaded Skills
-- Specialized 3D geometry and anatomy modeling, Blender API & bmesh, FastMCP IPC.
+- None
 
 ## Artifact Index
-- `.agents/worker_m1/DISPATCH.md` — Assignment instructions
-- `.agents/worker_m1/progress.md` — Progress tracker
-- `.agents/worker_m1/handoff.md` — Final handoff report
+- .agents/worker_m1/DISPATCH.md — Assignment instructions
+- .agents/worker_m1/BRIEFING.md — Situational awareness
+- .agents/worker_m1/progress.md — Heartbeat and progress tracker
+- .agents/worker_m1/handoff.md — Final handoff report

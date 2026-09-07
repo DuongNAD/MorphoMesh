@@ -1,17 +1,20 @@
-# Progress — Challenger M1-1 (Milestone M1 Adversarial Verification)
+# Progress — Challenger M1_1: Adversarial Socket Challenger (Protocol & Stream Fuzzing)
 
-Last visited: 2026-09-05T16:07:30Z
+Last visited: 2026-09-07T04:03:00Z
 
-- [x] Received dispatch assignment for Milestone M1 (Claw math & Plantigrade paws)
-- [x] Read DISPATCH.md, ORIGINAL_REQUEST.md, PROJECT.md, and worker_m1/handoff.md
-- [x] Inspected implementation in `src/morphomesh/inference_adapter.py`, `creature_generator.py`, and `tests/test_anatomy_generator.py`
-- [x] Implemented adversarial empirical test harness `tests/test_m1_claw_and_paw_stress.py`:
-  - [x] 1. 10,000 randomized in-vivo claws from 500 biological Ursine generations: 10,000/10,000 passed (min dot = 0.8876 > 0.60, max dz = -0.3991 < 0)
-  - [x] 2. 10,000 randomized direct add_curved_claw invocations across full yaw [-pi, pi], scales, splays, curvatures: 10,000/10,000 passed (min dot = 0.8037 > 0.60, max dz = -0.2872 < 0)
-  - [x] 3. Plantigrade paw geometry: Calcaneus heel ground contact at z = 0.000000, cushion pads below bone box (cz=0.01 vs 0.04), all 5 digital pads distinct and non-colliding (pairwise separation >= 0.035*s)
-  - [x] 4. Closed-form boundary analysis: identified critical threshold sqrt(C^2 + S^2) < 1.3333 for dot > 0.60; quantified engine safety margin at 63.14%
-- [x] Verified entire test suite: 234/234 tests pass in 3.30s
-- [x] Verified Blender 5.2.1 LTS headless execution and live socket IPC turnaround (0.048s)
-- [x] Formulated verdict: **APPROVE**
-- [x] Updated BRIEFING.md and compiled formal 5-component `handoff.md`
-- [x] Sent verdict report to parent orchestrator via `send_message`
+- [x] Received dispatch assignment for Milestone M1 (Interactive Socket Bridge Parity & Reliability - Adversarial Protocol & Stream Fuzzing)
+- [x] Read DISPATCH.md, ORIGINAL_REQUEST.md (§ 2026-09-07T03:34:32Z), PROJECT.md, and worker_m1/handoff.md
+- [x] Inspected implementation in `blender_addon/morphomesh/listener.py`, `src/morphomesh/blender_bridge.py`, and `tests/test_bridge_socket_parity.py`
+- [x] Verified baseline test suite: `pytest tests/test_bridge_socket_parity.py` passes (21/21 passed in 14.19s)
+- [x] Initialized situational awareness in BRIEFING.md and DISPATCH.md
+- [x] Implement comprehensive adversarial stress test suite in `tests/test_m1_adversarial_socket.py`:
+  - [x] 1. High-frequency burst requests (10, 25, 50, 100 rapid sequential requests, pipelining, concurrent multi-client bursts: 6/6 PASS)
+  - [x] 2. Fragmented byte streaming (1 to 5 bytes at a time, boundary-crossing streams, randomized chunks: 7/7 PASS)
+  - [x] 3. Garbage & malformed data injection (binary garbage, broken JSON, non-dict payloads, chaos interleaving, recovery: 5/6 PASS, 1 FAIL)
+  - [x] 4. Large payload handling (>500KB up to 1MB request/response, bidirectional streaming, client bridge validation: 5/5 PASS)
+  - [x] 5. Deadlock & resource lifecycle stress tests (immediate disconnect, half-close, descriptor leaks: 3/4 PASS, 1 FAIL)
+- [x] Run empirical adversarial test harness and collect metrics (26 passed, 2 failed across 28 stress cases)
+- [x] Formulate empirical verdict: REJECT (with actionable mitigation guidance)
+- [x] Compile 5-component handoff report in `.agents/challenger_m1_1/handoff.md`
+- [x] Notify parent orchestrator via `send_message`
+

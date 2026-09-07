@@ -1,63 +1,43 @@
-# Dispatch Assignment: Worker M1 (Anatomy Generator & Claw Fix)
-
-**Identity**: teamwork_preview_worker
-**Assigned Task**: Milestone M1 Implementation — Reusable Anatomy Generator & Claw Inversion Fix
-**Working Directory**: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/worker_m1`
-**Authoritative Request**: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/ORIGINAL_REQUEST.md` (read sections `## 2026-09-05T15:44:52Z` and `## 2026-09-05T15:47:35Z` carefully)
-**Project Plan**: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/orchestrator_bear_1/PROJECT.md`
-**Input Findings**:
-- Explorer 1 Survey Report: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_survey_1/survey_report.md`
-- Explorer 2 Survey Report: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_survey_2/survey_report.md`
-
-## Mandatory Integrity Warning
-DO NOT CHEAT. All implementations must be genuine. DO NOT hardcode test results, create dummy/facade implementations, or circumvent the intended task. A teamwork_preview_auditor will independently verify your work. Integrity violations WILL be detected and your work WILL be rejected.
-
-## File Ownership
-You exclusively own and may edit/create:
-- `src/morphomesh/blender_bridge.py`
-- `src/morphomesh/inference_adapter.py`
-- `src/morphomesh/creature_generator.py`
-- `tests/test_anatomy_generator.py`
-
-## Objectives & Deliverables
-1. **Fix Blender Bridge Socket Dispatch**:
-   - In `src/morphomesh/blender_bridge.py` line 472, update the condition to recognize `"success": True` from interactive socket responses (`res.get("success") is True or res.get("status") == "success"`).
-2. **Upgrade `MeshGeometry` in `src/morphomesh/inference_adapter.py`**:
-   - Add `add_curved_claw(base_pos, forward_dir, downward_dir, length, base_radius, curve_factor, segments, radial_segments)` generating lofted rings along a parabolic arc with mathematical guarantee: $\vec{d}_{\text{claw}} \cdot \vec{u}_{\text{fwd}} > 0.60$ and $d_z < 0$.
-   - Add `add_plantigrade_paw(heel_pos, forward_dir, is_front, scale)` generating broad ursine paws with calcaneus heel, plantar/palmar pads, and 5 digital pads.
-   - Add `add_articulated_head(head_center, forward_dir, scale)` generating cranium, rostrum, indented nostrils, mouth cavity with jaw and teeth, eyelids, and cupped ears.
-   - Add `add_anatomical_torso(center, forward_dir, scale)` generating muscular quadruped torso, dorsal spine, and short tail.
-   - Upgrade `InferenceAdapter._synthesize_procedural_mesh()` to use these methods.
-3. **Reusable Creature Generator (`src/morphomesh/creature_generator.py`)**:
-   - Create a reusable module providing high-level procedural synthesis for Ursine and general quadrupeds, assigning 18 standardized vertex groups (`snout`, `nostrils`, `mouth_cavity`, `jaw`, `teeth`, `eyes`, `eyelids`, `ears`, `claws_front`, `claws_hind`, `pads_front`, `pads_hind`, `torso`, `limbs`, `tail`, `dorsal_spine`, `armor_mounts_shoulder`, `armor_mounts_wrist`).
-4. **Unit & Verification Tests (`tests/test_anatomy_generator.py`)**:
-   - Write comprehensive tests asserting claw forward dot product > 0.6, downward pitch, pad counts, and facial features.
-   - Run `pytest -v tests/` and verify all tests pass with 0 failures.
-5. **Verify with Blender**:
-   - Execute the anatomy generator in Blender (either via bridge or headless CLI) and verify base bear geometry is successfully synthesized with correct claw orientations and vertex groups.
-6. **Handoff**:
-   - Write comprehensive handoff to `/Users/duongnad/Documents/tool/MorphoMesh/.agents/worker_m1/handoff.md` and notify orchestrator via `send_message`.
-
-## 2026-09-05T15:54:07Z
-You are Worker M1 (Anatomy Generator & Claw Fix Specialist).
-Your working directory is `/Users/duongnad/Documents/tool/MorphoMesh/.agents/worker_m1`.
-Read your dispatch assignment at `/Users/duongnad/Documents/tool/MorphoMesh/.agents/worker_m1/DISPATCH.md`, `/Users/duongnad/Documents/tool/MorphoMesh/.agents/ORIGINAL_REQUEST.md` (sections ## 2026-09-05T15:44:52Z and ## 2026-09-05T15:47:35Z), and `/Users/duongnad/Documents/tool/MorphoMesh/.agents/orchestrator_bear_1/PROJECT.md`.
-Also consult:
-- `/Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_survey_1/survey_report.md`
-- `/Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_survey_2/survey_report.md`
+﻿## 2026-09-07T03:48:34Z
+<USER_REQUEST>
+You are Worker M1: Interactive Socket Bridge Parity & Reliability Implementer.
+Your working directory is: e:\tool\mcp\MorphoMesh\.agents\worker_m1
+Your parent orchestrator conversation ID is: 577aaa33-6b3f-4ebc-93eb-fcc632d94bc9
+The authoritative user request is at: e:\tool\mcp\MorphoMesh\ORIGINAL_REQUEST.md (specifically § 2026-09-07T03:34:32Z). You MUST read this file first.
+The project scope document is at: e:\tool\mcp\MorphoMesh\PROJECT.md (specifically Milestone 1).
 
 MANDATORY INTEGRITY WARNING:
 DO NOT CHEAT. All implementations must be genuine. DO NOT hardcode test results, create dummy/facade implementations, or circumvent the intended task. A teamwork_preview_auditor will independently verify your work. Integrity violations WILL be detected and your work WILL be rejected.
 
 File Ownership:
-- `src/morphomesh/blender_bridge.py`
-- `src/morphomesh/inference_adapter.py`
-- `src/morphomesh/creature_generator.py`
-- `tests/test_anatomy_generator.py`
+You exclusively own and may edit the following files:
+- blender_addon/morphomesh/listener.py
+- src/morphomesh/blender_bridge.py
+- tests/test_bridge_socket_parity.py
+You MUST NOT edit any other implementation files.
 
-Execute the implementation:
-1. Fix line 472 in `src/morphomesh/blender_bridge.py` to handle `"success": True`.
-2. Add `add_curved_claw`, `add_plantigrade_paw`, `add_articulated_head`, `add_anatomical_torso` to `MeshGeometry` in `src/morphomesh/inference_adapter.py`.
-3. Implement `src/morphomesh/creature_generator.py` to procedurally synthesize the authentic bear base mesh with forward/downward curving claws (dot product > 0.6), plantigrade paws with pads, articulated facial geometry (mouth, jaw, teeth, nostrils, eyelids, ears), and 18 standardized vertex groups.
-4. Add automated tests in `tests/test_anatomy_generator.py`. Run `pytest -v tests/` and verify in Blender.
-5. Deliver handoff report at `/Users/duongnad/Documents/tool/MorphoMesh/.agents/worker_m1/handoff.md` and message orchestrator when done.
+Reference Input Artifacts (Read these for exact blueprints before coding):
+- e:\tool\mcp\MorphoMesh\.agents\explorer_m1_1\handoff.md (Listener blueprints for NDJSON framing, timer immortality, and _dispatch methods)
+- e:\tool\mcp\MorphoMesh\.agents\explorer_m1_2\handoff.md (Bridge client blueprints for NDJSON framing, execute() dispatch fix, typed client inspection methods, and defensive schema parsing)
+- e:\tool\mcp\MorphoMesh\.agents\explorer_m1_3\handoff.md (Test suite specifications for tests/test_bridge_socket_parity.py)
+
+Milestone 1 Objectives:
+1. Update blender_addon/morphomesh/listener.py:
+   - NDJSON streaming in _client_handler (split on b\n, handle multiple commands and whitespace without JSONDecodeError).
+   - Timer immortality in _drain_queue (top-level try/except/finally always returning 0.02, protecting bpy.app.timers from dropping on unhandled exceptions).
+   - Method parity in _dispatch: implement handlers for morphomesh.render_preview, morphomesh.capture_viewport, morphomesh.setup_inspector_camera, morphomesh.critique_visual_quality, morphomesh.create_human_asset, and complete scene status statistics in morphomesh.get_scene_status.
+2. Update src/morphomesh/blender_bridge.py:
+   - NDJSON streaming in send_socket_request() (append b\n, line-buffered response parsing, timeout handling, clean socket disposal).
+   - Fix execute() line 506-512 condition so socket responses containing image_path, camera_name, defects, status, success, object_count, etc. are recognized as successful and not falsely routed to headless CLI fallback.
+   - Add typed client helper methods: capture_viewport(), setup_inspector_camera(), critique_visual_quality().
+   - Add headless script branches in _generate_headless_script() for these methods as reliable offline fallbacks.
+3. Create tests/test_bridge_socket_parity.py:
+   - Implement the test suite designed in explorer_m1_3/handoff.md covering connection lifecycle, rapid NDJSON streaming, malformed data resilience, timer immortality exception trapping, and method parity.
+4. Verification:
+   - Run tests with pytest: pytest tests/test_bridge_socket_parity.py -v and pytest tests/test_blender_bridge.py -v.
+   - Verify 100% pass rate.
+5. Reporting:
+   - Update your progress in e:\tool\mcp\MorphoMesh\.agents\worker_m1\progress.md.
+   - Write your comprehensive handoff report to e:\tool\mcp\MorphoMesh\.agents\worker_m1\handoff.md with passing test commands, verification outputs, and summary of changes.
+   - Send completion message to parent orchestrator (conv ID: 577aaa33-6b3f-4ebc-93eb-fcc632d94bc9).
+</USER_REQUEST>

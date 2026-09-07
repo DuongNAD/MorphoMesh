@@ -14,7 +14,7 @@ Classifier: Programming Language :: Python :: 3.12
 Classifier: Topic :: Multimedia :: Graphics :: 3D Modeling
 Requires-Python: >=3.11
 Description-Content-Type: text/markdown
-Requires-Dist: mcp>=1.2.0
+Requires-Dist: mcp<2.0.0,>=1.2.0
 Requires-Dist: pydantic>=2.0.0
 Requires-Dist: pillow>=10.0.0
 Requires-Dist: numpy>=1.24.0
@@ -27,32 +27,61 @@ Requires-Dist: pytest-asyncio>=0.21.0; extra == "dev"
 # MorphoMesh: AI 3D Creature Generation Pipeline & FastMCP Blender Bridge
 
 [![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](pyproject.toml)
+[![GitHub Repository](https://img.shields.io/badge/GitHub-DuongNAD%2FMorphoMesh-black?logo=github)](https://github.com/DuongNAD/MorphoMesh)
 [![Protocol](https://img.shields.io/badge/protocol-FastMCP%201.28.1-green.svg)](docs/MCP_SPECIFICATION.md)
 [![Blender](https://img.shields.io/badge/Blender-5.2.1%20LTS-orange.svg)](https://www.blender.org)
 [![Platform](https://img.shields.io/badge/platform-macOS%20Apple%20Silicon%20|%20Linux%20x86__64-purple.svg)](docs/ARCHITECTURE.md)
 [![License](https://img.shields.io/badge/license-Apache--2.0-lightgrey.svg)](LICENSE)
 
-**MorphoMesh** is an automated, AI-driven 3D creature and animal generation pipeline and Model Context Protocol (MCP) server that connects **Google Antigravity 2.0** with **Blender 5.2.1 LTS**. Purpose-built for non-humanoid anatomical synthesis, MorphoMesh solves the acute geometric, topological, and biomechanical challenges of generating realistic quadrupeds (canines, felines, equines), avians (raptors, birds), and multi-limbed, winged fantasy chimeras (dragons, griffins) directly from text prompts into fully rigged, textured, and render-ready Blender scenes.
+**MorphoMesh** is an open-source, automated AI 3D creature generation pipeline and Model Context Protocol (MCP) server connecting **Google Antigravity 2.0** and autonomous AI agents directly with **Blender 5.2.1 LTS**.
+
+Unlike conventional humanoid-centric generative 3D tools, MorphoMesh is purpose-built to solve the acute geometric, topological, biomechanical, and grooming challenges of non-humanoid lifeforms: quadrupeds (canines, felines, equines, ursids), avians (raptors, birds), and multi-limbed, winged fantasy chimeras (dragons, griffins). It synthesizes complete, game- and film-ready assets—from anatomical base meshes and quad retopology to hair-strand fur grooming, procedural PBR shaders, articulated armor, and metarig armatures.
+
+---
+
+## Visual Showcase: Production Armored War Bear (Ursus Ferox)
+
+Below are multi-angle renders generated entirely via MorphoMesh's automated procedural anatomy, grooming, shader networks, and armor fitting engines in Blender 5.2.1 LTS:
+
+| Full Body Stance | Front 3/4 Perspective |
+| :---: | :---: |
+| ![Bear Full Body](examples/renders/bear_full_body.png) | ![Bear Front 3/4](examples/renders/bear_front_three_quarter.png) |
+| **Cranial & Gorget Detail** | **Paw & Articulated Claws Detail** |
+| ![Bear Head Closeup](examples/renders/bear_head_closeup.png) | ![Bear Paw Closeup](examples/renders/bear_paw_claws_closeup.png) |
 
 ---
 
 ## Table of Contents
-1. [Architectural Overview](#architectural-overview)
-2. [Key Capabilities](#key-capabilities)
+1. [Core Features & Systems](#core-features--systems)
+2. [Hybrid Computing Topology](#hybrid-computing-topology)
 3. [The 5-Stage Synthesis Pipeline](#the-5-stage-synthesis-pipeline)
-4. [Installation & Quickstart](#installation--quickstart)
-5. [FastMCP Tool Reference (7 Core Tools)](#fastmcp-tool-reference-7-core-tools)
-6. [Dual-Mode Blender Bridge Architecture](#dual-mode-blender-bridge-architecture)
-7. [Security Architecture & AST Sandboxing](#security-architecture--ast-sandboxing)
-8. [Google Antigravity 2.0 Configuration](#google-antigravity-20-configuration)
-9. [CLI Usage Guide](#cli-usage-guide)
-10. [Verification & Conformance Testing](#verification--conformance-testing)
+4. [Open-Source Integration Hub](#open-source-integration-hub)
+5. [Anatomy, Grooming, Materials & Armor](#anatomy-grooming-materials--armor)
+6. [Installation & Quickstart](#installation--quickstart)
+7. [FastMCP Tool Reference (7 Core Tools)](#fastmcp-tool-reference-7-core-tools)
+8. [Dual-Mode Blender Bridge Architecture](#dual-mode-blender-bridge-architecture)
+9. [AST Security Sandbox](#ast-security-sandbox)
+10. [Google Antigravity 2.0 Configuration](#google-antigravity-20-configuration)
+11. [CLI Usage Guide](#cli-usage-guide)
+12. [Verification & Conformance Testing](#verification--conformance-testing)
+13. [License & Acknowledgments](#license--acknowledgments)
 
 ---
 
-## Architectural Overview
+## Core Features & Systems
 
-MorphoMesh operates on a **Hybrid Computing Topology** designed to maximize throughput while minimizing cloud compute expenditure and eliminating latency:
+- **Zero-VRAM Offline Procedural Engine**: Generates mathematically sound 3D meshes (quadrupeds, bipeds, winged chimeras, primitives) in both binary `.glb` (glTF 2.0) and ASCII `.obj` containers with genuine PBR PNG texture maps (Albedo, Normal, Roughness, Metallic) using PIL and NumPy—requiring 0 MB GPU VRAM.
+- **Open-Source 3D Connector Hub**: Unifies top-tier generative and topological models (TRELLIS, 3DAnimals / SMAL, anyCreature, MeshAnything, Hunyuan3D) under a resilient DAG with automatic fallback.
+- **Biomechanical Creature Anatomy Generator**: Synthesizes skeletal-accurate bone and muscle masses, cranial/snout/jaw structures, and dedicated plantigrade/digitigrade paw topologies with articulated claw beds.
+- **Dual-Coat Fur & Grooming Engine**: Implements Blender Hair Curves with procedural geometry nodes for dense undercoats, coarse guard hairs, guide interpolation, and direction-aware combing vector fields.
+- **Multi-Layer Creature PBR Materials**: Subsurface Scattering (SSS) skin/flesh shaders, anisotropic sheen fur BSDFs, micro-scratched keratin horn/claw shaders, and wet-specular rhinarium/eye networks.
+- **Articulated War Armor Assembly**: Generates fitted segmented armor plates (cranium chanfron, neck gorget, shoulder pauldrons, rib cuirass, greaves) with leather strapping and battle-worn hammered steel.
+- **Blender 5.2.1 LTS Metal Hardware Acceleration**: Native Apple Silicon Metal GPU raytracing support with automatic engine identifier normalization (`BLENDER_EEVEE_NEXT` -> `BLENDER_EEVEE`).
+- **Two-Tier AST Security Sandbox**: Proactively inspects all agent-submitted Python scripts via Abstract Syntax Tree traversal (`BpyCodeValidator`), blocking unauthorized system calls, network sockets, reflection, and file I/O.
+
+---
+
+## Hybrid Computing Topology
 
 ```
 +---------------------------------------------------------------------------------------------------------+
@@ -60,7 +89,7 @@ MorphoMesh operates on a **Hybrid Computing Topology** designed to maximize thro
 +---------------------------------------------------------------------------------------------------------+
 |                                                                                                         |
 |  [ LAYER 1: CLIENT & COORDINATION LAYER ]                                                               |
-|  - Host: macOS Apple Silicon Workstation (Darwin ARM64)                                                 |
+|  - Host: macOS Apple Silicon Workstation (Darwin ARM64) / Linux x86_64                                   |
 |  - Agent Host: Google Antigravity 2.0 (Autonomous Orchestrator)                                         |
 |  - Gateway: MorphoMesh FastMCP Server (Python 3.11+ / mcp 1.28.1) via stdio / SSE transport             |
 |  - Validation: Pydantic v2 schemas and strict parameter unpacking discipline                            |
@@ -71,38 +100,81 @@ MorphoMesh operates on a **Hybrid Computing Topology** designed to maximize thro
 |  - Environment: Blender 5.2.1 LTS with Apple Metal GPU backend & EEVEE render engine                   |
 |  - Security: Two-tier Abstract Syntax Tree (AST) static analysis (BpyCodeValidator)                     |
 |                                                                                                         |
-|  [ LAYER 3: AI INFERENCE LAYER ]                                                                        |
+|  [ LAYER 3: INFERENCE & CONNECTOR LAYER ]                                                               |
 |  - Local Offline Engine: Deterministic Procedural Mock Generator (0 VRAM, 100% offline, 0 API cost)     |
+|  - Open-Source Hub: TRELLIS, 3DAnimals / SMAL, anyCreature, MeshAnything, Hunyuan3D                     |
 |  - Local Apple Silicon Fallback: Native Blender QuadriFlow remesher & Rigify creature metarigs          |
-|  - Remote GPU Tier: Dedicated Linux GPU / Serverless Cloud (Replicate, Hugging Face, TRELLIS.2 4B)      |
+|  - Remote GPU Tier: Dedicated Linux GPU / Serverless Cloud (Replicate, Hugging Face, RunPod)           |
 |                                                                                                         |
 +---------------------------------------------------------------------------------------------------------+
 ```
 
 ---
 
-## Key Capabilities
+## The 5-Stage Synthesis Pipeline
 
-- **Zero-VRAM Offline Procedural Engine**: Generates mathematically valid 3D meshes (quadrupeds, bipeds, winged chimeras, primitives) in both standard binary `.glb` (glTF 2.0) and ASCII `.obj` containers with genuine PBR PNG texture maps (Albedo, Normal, Roughness, Metallic) using PIL and NumPy—completely offline with 0 MB GPU VRAM requirement.
-- **Dual-Mode Blender Bridge**: Seamlessly alternates between interactive viewport sessions over localhost TCP socket (`127.0.0.1:9876`) and headless batch execution via `blender --background --factory-startup --python <script>` with sentinel token JSON serialization (`MORPHOMESH_START_JSON` ... `MORPHOMESH_END_JSON`).
-- **Blender 5.2.1 LTS Engine Normalization**: Automatically normalizes legacy/preview engine identifiers (`BLENDER_EEVEE_NEXT` -> `BLENDER_EEVEE`) to guarantee compatibility with Blender 5.2.1 LTS Metal hardware raytracing.
-- **Two-Tier AST Security Sandbox**: Static AST code visitor (`BpyCodeValidator`) traverses custom Python scripts submitted to `morphomesh_blender_execute`, blocking all forbidden modules (`os`, `sys`, `subprocess`, `shutil`, `socket`), builtins (`eval`, `exec`, `open`), and reflection attacks (`__subclasses__`, `__globals__`, `__builtins__`).
-- **Procedural Studio Auto-Framing Camera**: Computes tight 3D bounding spheres for arbitrary creature geometry, automatically spawning and orienting targeted cameras and 3-point key/fill/rim studio lights.
+```mermaid
+flowchart LR
+    A[Stage 1: Prompt & Concept] --> B[Stage 2: 3D Synthesis]
+    B --> C[Stage 3: Retopology]
+    C --> D[Stage 4: Rigging & Skinning]
+    D --> E[Stage 5: Scene, Grooming & Render]
+```
+
+1. **Stage 1: Concept & Conditioning (`morphomesh_generate_concept`)**
+   Expands unstructured prompts with biological archetype priors (neutral stance, planar limb alignment, studio illumination, alpha-isolated solid backdrop).
+2. **Stage 2: Single-Image to 3D Generation (`morphomesh_create_3d_asset`)**
+   Feeds creature silhouettes into 3D diffusion backends (TRELLIS, Hunyuan3D, or local offline procedural engine), producing watertight 3D meshes with full PBR texture channels.
+3. **Stage 3: Topology Optimization (`morphomesh_optimize_topology`)**
+   Transforms dense raw geometry into clean, quad-dominant meshes conforming to user polycount budgets via MeshAnything or Blender QuadriFlow.
+4. **Stage 4: Skeleton & Rigging Automation (`morphomesh_auto_rig`)**
+   Locates anatomical landmarks (cranium, pelvis, spine joints, limb chains, claws, tail), builds modular Rigify armatures, and computes heat-mapped skinning weights.
+5. **Stage 5: Scene Assembly, Shading & Rendering (`morphomesh_render_preview`)**
+   Applies procedural fur grooming, equips armor plating, builds PBR node trees, frames the subject with auto-calculated 3D bounding spheres, and renders preview images via Apple Metal EEVEE.
 
 ---
 
-## The 5-Stage Synthesis Pipeline
+## Open-Source Integration Hub
 
-1. **Stage 1: Prompt Engineering & Concept Generation (`morphomesh_generate_concept`)**
-   Expands unstructured natural language with biological archetype priors (neutral standing stance, planar limb alignment, studio neutral lighting, alpha-isolated solid backdrop) to create 2D concept images.
-2. **Stage 2: Single-Image to 3D Generation (`morphomesh_create_3d_asset`)**
-   Feeds the alpha-masked creature silhouette into single-image 3D diffusion models (TRELLIS.2 4B, Hunyuan3D-2.1, or local Mock adapter), producing dense 3D meshes packed with complete PBR texture atlases.
-3. **Stage 3: Topology Optimization (`morphomesh_optimize_topology`)**
-   Transforms dense raw meshes into clean, quad-dominant geometry conforming to user poly budgets via Blender QuadriFlow remeshing.
-4. **Stage 4: Skeleton & Rigging Automation (`morphomesh_auto_rig`)**
-   Locates anatomical landmarks (head, pelvis, spine joints, limb chains, wings, tail), constructs modular Rigify creature armatures, and calculates automatic bone heat skinning weights.
-5. **Stage 5: Scene Assembly & Preview Rendering (`morphomesh_render_preview`, `morphomesh_get_scene_status`, `morphomesh_blender_execute`)**
-   Wires Principled BSDF 2.0 PBR material networks, configures studio lighting, auto-frames cameras, renders multi-angle viewport turntables via Apple Metal-accelerated EEVEE, and streams base64 images to the agent.
+MorphoMesh provides dedicated, production-tested connectors in [`src/morphomesh/connectors`](src/morphomesh/connectors/):
+
+| Connector | Model Name | Role | Primary Strengths |
+|---|---|---|---|
+| `TrellisConnector` | **TRELLIS** | 3D Asset Synthesis | High-fidelity Gaussian & mesh generation with full PBR maps |
+| `Animals3DConnector` | **3DAnimals / SMAL** | Morphological Priors | Parametric quadruped shapes (canines, equines, felines, ursids) |
+| `AnyCreatureConnector` | **anyCreature** | Kinematics & Rigging | Handles multi-limbed fantasy chimeras, dragons, and wing joints |
+| `MeshAnythingConnector` | **MeshAnything** | Artist-Grade Retopology | Generates quad-dominant production topology from raw meshes |
+| `HunyuanConnector` | **Hunyuan3D-2.1** | Multiview 3D Diffusion | High geometric detail and crisp structural boundaries |
+
+### Resilient Fallback DAG
+When cloud endpoints or GPUs are unavailable, the execution orchestrator falls back automatically to local procedural generation, ensuring offline independence and uninterrupted agent workflows.
+
+---
+
+## Anatomy, Grooming, Materials & Armor
+
+MorphoMesh provides specialized modules for high-end creature craftsmanship:
+
+### 1. Creature Anatomy Generator ([`src/morphomesh/creature_generator.py`](src/morphomesh/creature_generator.py))
+- Generates anatomical volume distributions across torso, neck, head, snouts, jawlines, and limbs.
+- Distinguishes between **digitigrade** (canine/feline) and **plantigrade** (ursid/humanoid) foot anatomy.
+- Spawns articulated claw beds with independent curved claw meshes.
+
+### 2. Fur Grooming System ([`src/morphomesh/grooming.py`](src/morphomesh/grooming.py))
+- Uses modern Blender Hair Curves with Geometry Node modifier stacks.
+- Generates dual coats: short, high-density **undercoat** (thermal volume) and long, oriented **guard hairs** (profile silhouette).
+- Implements procedural vector-field combing, guide interpolation, and clump/kink curl modifiers.
+
+### 3. Procedural Creature Materials ([`src/morphomesh/materials.py`](src/morphomesh/materials.py))
+- **Creature Skin**: Dual-depth Subsurface Scattering (SSS) simulating subdermal blood perfusion and epidermis diffuse.
+- **Fur BSDF**: Directional anisotropic sheen, melanin color variation, and root-to-tip gradient darkening.
+- **Keratin Claws/Horns**: High-roughness fibrous sheen with procedural micro-scratches and bump mapping.
+- **Rhinarium & Eyes**: Wet specular gloss with high clearcoat and custom normal perturbation.
+
+### 4. Modular Armor & Equipment ([`src/morphomesh/armor.py`](src/morphomesh/armor.py))
+- Procedural anatomical plate wrapping conforming to creature bounding volumes.
+- Modular components: **Chanfron** (head plate), **Gorget** (segmented neck collar), **Pauldrons** (shoulder guards), **Cuirass** (segmented rib cage plates), and **Greaves** (foreleg guards).
+- PBR battle-worn hammered steel and embossed leather strap fasteners.
 
 ---
 
@@ -111,11 +183,11 @@ MorphoMesh operates on a **Hybrid Computing Topology** designed to maximize thro
 ### Prerequisites
 - **macOS Apple Silicon** (M1/M2/M3/M4) or **Linux x86_64**
 - **Python 3.11+**
-- **Blender 5.2.1 LTS** (Installed at `/Applications/Blender.app` or accessible via `PATH`)
+- **Blender 5.2.1 LTS** (Installed at `/Applications/Blender.app` or accessible on `PATH`)
 
 ### 1. Clone & Setup Virtual Environment
 ```bash
-git clone https://github.com/morphomesh/morphomesh.git
+git clone https://github.com/DuongNAD/MorphoMesh.git
 cd MorphoMesh
 
 python3 -m venv .venv
@@ -133,14 +205,14 @@ morphomesh --version
 # Output: MorphoMesh v0.1.0
 
 morphomesh ping
-# Probes connectivity to Blender interactive socket and local binary
+# Verifies connectivity to Blender interactive socket and local binary
 ```
 
 ---
 
 ## FastMCP Tool Reference (7 Core Tools)
 
-MorphoMesh exposes exactly 7 atomic, typed tools conforming to the official Model Context Protocol:
+MorphoMesh exposes 7 atomic tools conforming to the official Model Context Protocol (MCP 1.28.1):
 
 | # | Tool Name | Role | Primary Inputs | Output Artifacts |
 |---|---|---|---|---|
@@ -156,33 +228,33 @@ MorphoMesh exposes exactly 7 atomic, typed tools conforming to the official Mode
 
 ## Dual-Mode Blender Bridge Architecture
 
-MorphoMesh's `BlenderBridge` intelligently resolves communication pathways:
+MorphoMesh's `BlenderBridge` intelligently manages communication pathways:
 
-1. **Interactive Mode (TCP Socket `127.0.0.1:9876`)**:
-   - When Blender is open with the MorphoMesh Addon (or Blender MCP) active, requests execute with sub-2ms latency.
-   - All mutations are dispatched into Blender's main event loop via `bpy.app.timers` to eliminate threading crashes.
+1. **Interactive Viewport Mode (TCP Socket `127.0.0.1:9876`)**:
+   - Active when Blender is running with the MorphoMesh Addon or Blender MCP enabled.
+   - Operations execute in sub-2ms latency inside Blender's main event thread via `bpy.app.timers`.
 2. **Headless CLI Fallback Mode (`blender -b -P`)**:
-   - If no interactive session is active, the bridge synthesizes a self-contained execution script and invokes Blender headlessly.
-   - Output is reliably captured via sentinel tokens (`MORPHOMESH_START_JSON` and `MORPHOMESH_END_JSON`), discarding driver noise.
+   - Automatically invoked when no live GUI session is running.
+   - Executes batch operations with factory startup settings and isolates output via sentinel JSON delimiters (`MORPHOMESH_START_JSON` ... `MORPHOMESH_END_JSON`).
 
 ---
 
-## Security Architecture & AST Sandboxing
+## AST Security Sandbox
 
-Tool 5 (`morphomesh_blender_execute`) permits autonomous agents to execute custom `bpy` code. To prevent security vulnerabilities (Remote Code Execution, arbitrary process creation, credential theft, and filesystem corruption), MorphoMesh executes static Abstract Syntax Tree (AST) analysis prior to execution:
+Tool 5 (`morphomesh_blender_execute`) allows agents to execute procedural `bpy` scripts while enforcing strict security guarantees:
 
 - **Whitelisted Modules**: `bpy`, `math`, `mathutils`, `bmesh`, `numpy`, `random`, `json`, `collections`, `itertools`, `time`.
 - **Blocked Modules**: `os`, `sys`, `subprocess`, `shutil`, `socket`, `http`, `urllib`, `requests`, `ctypes`, `importlib`.
 - **Blocked Builtins**: `eval`, `exec`, `open`, `compile`, `__import__`, `globals`, `locals`, `getattr`, `setattr`.
 - **Blocked Dunder Attributes**: `__subclasses__`, `__globals__`, `__code__`, `__dict__`, `__class__`, `__builtins__`.
 
-Violations immediately raise `[ERR_SCRIPT_SECURITY_VIOLATION]` with line numbers and rejected tokens.
+Violations immediately trigger `[ERR_SCRIPT_SECURITY_VIOLATION]` with offending lines and tokens identified before execution occurs.
 
 ---
 
 ## Google Antigravity 2.0 Configuration
 
-To register MorphoMesh inside Google Antigravity 2.0, add the following configuration to your agent workspace `mcp_config.json`:
+To connect MorphoMesh to Google Antigravity 2.0, add the following configuration to your `mcp_config.json`:
 
 ```json
 {
@@ -204,19 +276,19 @@ To register MorphoMesh inside Google Antigravity 2.0, add the following configur
 ## CLI Usage Guide
 
 ```bash
-# 1. Run server over Standard I/O (Default for Antigravity)
+# 1. Run MCP server over Standard I/O (Default for Antigravity)
 morphomesh server --transport stdio
 
-# 2. Run server over Server-Sent Events (SSE HTTP on port 8765)
+# 2. Run MCP server over Server-Sent Events (SSE HTTP on port 8765)
 morphomesh server --transport sse --port 8765
 
-# 3. Probe Blender connectivity
+# 3. Probe Blender connection status
 morphomesh ping
 
-# 4. Inspect active scene status
+# 4. Query active Blender scene statistics
 morphomesh status
 
-# 5. Package Blender addon into distributable zip
+# 5. Build and package the Blender addon zip
 morphomesh package-addon
 ```
 
@@ -224,10 +296,16 @@ morphomesh package-addon
 
 ## Verification & Conformance Testing
 
-To verify the end-to-end pipeline across all 7 tools in offline mode:
+Run the comprehensive offline test harness covering all modules, stress tests, and adversarial verification:
 
 ```bash
-# Run standalone Python test harness
+# Run complete test suite with pytest
+pytest tests/ -v
+
+# Run anatomy generator verification specifically
+python3 verify_bear_anatomy.py
+
+# Run standalone end-to-end pipeline test
 python3 -c "
 import asyncio
 from morphomesh.server import (
@@ -235,19 +313,16 @@ from morphomesh.server import (
     morphomesh_create_3d_asset,
     morphomesh_optimize_topology,
     morphomesh_auto_rig,
-    morphomesh_blender_execute,
-    morphomesh_get_scene_status,
     morphomesh_render_preview
 )
 
 async def run_pipeline():
-    c = await morphomesh_generate_concept('Direwolf beast', creature_type='quadruped')
+    c = await morphomesh_generate_concept('Armored direwolf', creature_type='quadruped')
     a = await morphomesh_create_3d_asset(concept_id=c['concept_id'])
     o = await morphomesh_optimize_topology(input_mesh_path=a['mesh_path'], target_poly_count=5000)
     r = await morphomesh_auto_rig(input_mesh_path=o['output_mesh_path'], creature_type='quadruped')
-    s = await morphomesh_get_scene_status()
     p = await morphomesh_render_preview(resolution_width=512, resolution_height=512)
-    print('All tools verified successfully! Preview at:', p['image_path'])
+    print('Pipeline verified successfully! Render saved to:', p['image_path'])
 
 asyncio.run(run_pipeline())
 "
@@ -255,6 +330,18 @@ asyncio.run(run_pipeline())
 
 ---
 
-## License
+## Documentation Index
 
-MorphoMesh is open-source software licensed under the **Apache License, Version 2.0**. See [LICENSE](LICENSE) for details.
+- [Architecture & Deep Design](docs/ARCHITECTURE.md)
+- [MCP Protocol Specification](docs/MCP_SPECIFICATION.md)
+- [Open-Source Integration Playbook](docs/OPEN_SOURCE_INTEGRATION_PLAYBOOK.md)
+- [Research Benchmark & SOTA Analysis](docs/RESEARCH_BENCHMARK.md)
+- [Project Roadmap](docs/ROADMAP.md)
+
+---
+
+## License & Acknowledgments
+
+MorphoMesh is licensed under the **Apache License, Version 2.0**. See [LICENSE](LICENSE) for details.
+
+Developed for autonomous agent workflows with **Google Antigravity 2.0** and **Blender 5.2.1 LTS**.

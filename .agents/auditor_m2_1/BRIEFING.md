@@ -1,65 +1,65 @@
-# BRIEFING — 2026-09-05T16:38:00Z
+# BRIEFING — 2026-09-07T04:50:00Z
 
 ## Mission
-Perform rigorous, zero-tolerance forensic integrity audit on Milestone M2 (Volumetric Fur & Grooming Engine) work products produced by Worker M2.
+Perform strict forensic integrity audit on Milestone 2 changes (Inspector Camera & Viewport Capture).
 
 ## 🔒 My Identity
 - Archetype: forensic_auditor
 - Roles: critic, specialist, auditor
-- Working directory: /Users/duongnad/Documents/tool/MorphoMesh/.agents/auditor_m2_1
-- Original parent: 504d045c-25c5-48a2-a65a-2a5b368eafa7
-- Target: Milestone M2 (Volumetric Fur & Grooming Engine)
+- Working directory: e:\tool\mcp\MorphoMesh\.agents\auditor_m2_1
+- Original parent: 577aaa33-6b3f-4ebc-93eb-fcc632d94bc9
+- Target: Milestone 2
 
 ## 🔒 Key Constraints
 - Audit-only — do NOT modify implementation code
 - Trust NOTHING — verify everything independently
-- Zero tolerance for cheating, facades, hardcoded outputs, self-certifying tests, or integrity violations
-- ORIGINAL_REQUEST.md constraints take precedence over dispatch instructions if conflicting
-- Mode: Development mode (per ORIGINAL_REQUEST.md), but also observe across all 3 modes (Mode-Agnostic investigation)
+- ORIGINAL_REQUEST.md constraints take precedence over any dispatch contradictions
 
 ## Current Parent
-- Conversation ID: 504d045c-25c5-48a2-a65a-2a5b368eafa7
-- Updated: not yet
+- Conversation ID: 577aaa33-6b3f-4ebc-93eb-fcc632d94bc9
+- Updated: 2026-09-07T04:50:00Z
 
 ## Audit Scope
-- **Work product**: `src/morphomesh/grooming.py`, `src/morphomesh/blender_bridge.py`, `tests/test_grooming.py`, live/headless Blender 5.2.1 LTS execution
-- **Profile loaded**: General Project (Forensic Integrity)
+- **Work product**: Milestone 2 (`camera_rig.py`, `models.py`, `blender_bridge.py`, `listener.py`, `test_inspector_camera.py`, `test_multiview_rendering.py`)
+- **Profile loaded**: General Project
 - **Audit type**: forensic integrity check
 
 ## Audit Progress
 - **Phase**: reporting
 - **Checks completed**:
-  - Hardcoded output detection: PASS (no hardcoded outputs in particle evaluation)
-  - Facade detection: PASS (real Blender particle systems and depsgraph evaluation)
-  - Pre-populated artifact detection: PASS (no pre-existing logs/fixtures)
-  - Test suite execution: PASS (19/19 in test_grooming.py, 264/264 full suite)
-  - Empirical Blender evaluation: PASS (12,000 evaluated parent strands, 124,000 render strands)
-  - Dynamic evaluation proof: PASS (evaluated particle count adapts dynamically to inputs, e.g. 7000 and 11000)
-  - Ribbon quad topology & UV: PASS (5,000 quads, all 4-vertex, 0 degenerate, UVs strictly in [0, 1])
-  - Zero-fur anatomical masking: PASS (1,164 naked vertices audited, 0 violations)
-  - Biological growth flow: PASS (average spine tangent Y = 0.9246 caudal flow)
-  - AST security analysis: PASS (no forbidden nodes or imports)
+  - Read ORIGINAL_REQUEST.md (§ 2026-09-07T03:34:32Z, development mode)
+  - Read PROJECT.md (Milestone 2 specification & interface contract)
+  - Read Worker M2 handoff report (.agents/worker_m2/handoff.md)
+  - AST analysis of `src/morphomesh/camera_rig.py`, `src/morphomesh/models.py`, `tests/test_inspector_camera.py`, `tests/test_multiview_rendering.py` (0 stubs, 0 facades, 0 tautological assertions)
+  - Mathematical verification of optical framing distance derivation $d = \frac{R}{\sin(\alpha_{\min})} \cdot (1 + \mu)$ across 1,000 empirical randomized test configurations (PASS)
+  - Geometry verification of spherical orbit positions across 576 angle pairs (PASS)
+  - Ray intersection verification: forward ray intersects target center (PASS)
+  - Hierarchical bounding box solver verification with multi-mesh evaluation (PASS)
+  - Anatomical subregion centering verification: Feet < Hands <= Torso < Head (PASS)
+  - Execution of test suites: 61 passed in 0.31s (PASS)
+  - Execution of full regression suite: 213 passed in 25.75s (PASS)
 - **Checks remaining**: None
-- **Findings so far**: CLEAN — 100% genuine implementation. Zero cheating or facades found.
+- **Findings so far**: CLEAN — zero integrity violations detected.
+
+## Key Decisions Made
+- Confirmed mathematical validity of spherical tangency formulation $d = \frac{R}{\sin(\alpha_{\min})} \cdot (1 + \mu)$.
+- Confirmed dual-mode OpenGL grab and Workbench fallback safety and error restoration.
+- Issued binary verdict: CLEAN.
+
+## Artifact Index
+- DISPATCH.md — record of incoming dispatch
+- BRIEFING.md — working memory and state
+- progress.md — liveness and execution log
+- audit_m2_empirical.py — independent automated empirical verification script
+- handoff.md — final forensic audit report
 
 ## Attack Surface
 - **Hypotheses tested**:
-  - H1: Are strand counts hardcoded constants? (Refuted: dynamically derived from `len(ps.particles)` in depsgraph)
-  - H2: Is ribbon mesh a dummy facade? (Refuted: true quad lofting with orthogonal binormals, tapering width, and normalized UV maps)
-  - H3: Does hair grow on naked facial/claw features? (Refuted: 1,164 naked vertices tested in Blender, 0 density weight violations)
-  - H4: Does ribbon lofting crash on degenerate/vertical hair strands? (Refuted: handled cleanly without NaNs or zero-division)
-  - H5: Does grooming script fail AST security validator? (Refuted: 100% compliant with BpyCodeValidator)
+  - Hypothesis: framing distance uses planar tangent approximation $R / \tan(\alpha)$ instead of exact spherical tangency. Result: REJECTED; implementation uses exact spherical tangency $R / \sin(\alpha)$.
+  - Hypothesis: tests contain tautological assertions or trivial passes. Result: REJECTED; AST scan verified zero trivial assertions.
+  - Hypothesis: camera rotation results in inverted or tilted up vector. Result: REJECTED; look-at matrix verified orthonormal with $+Z$ up.
 - **Vulnerabilities found**: None.
-- **Untested angles**: Extreme memory exhaustion on >1,000,000 parent strands (out of scope for real-time Blender execution).
+- **Untested angles**: None within Milestone 2 scope.
 
 ## Loaded Skills
 - None
-
-## Key Decisions Made
-- Confirmed binary verdict: CLEAN. Full compliance with all requirements of Milestone M2.
-
-## Artifact Index
-- `/Users/duongnad/Documents/tool/MorphoMesh/.agents/auditor_m2_1/DISPATCH.md` — Dispatch mandate
-- `/Users/duongnad/Documents/tool/MorphoMesh/.agents/auditor_m2_1/BRIEFING.md` — Situational awareness
-- `/Users/duongnad/Documents/tool/MorphoMesh/.agents/auditor_m2_1/progress.md` — Liveness & heartbeat
-- `/Users/duongnad/Documents/tool/MorphoMesh/.agents/auditor_m2_1/handoff.md` — Formal audit report

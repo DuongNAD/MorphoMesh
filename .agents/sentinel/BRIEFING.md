@@ -1,18 +1,24 @@
-# BRIEFING — 2026-09-05T22:45:00+07:00
+﻿# BRIEFING — 2026-09-07T14:56:30+07:00
 
 ## Mission
-Oversee the synthesis and re-engineering of the photorealistic, anatomically authentic Armored War Bear in MorphoMesh and Blender (organic facial sculpting, forward claws, volumetric fur grooming, PBR war armor) by dispatching to teamwork_preview_orchestrator, monitoring progress, running liveness and reporting crons, and coordinating independent Victory Audit.
+Oversee the comprehensive upgrade of MorphoMesh with an Auto-Inspector Camera Rig, Fast Viewport Capture, Closed-Loop Visual Quality Critique (Auto-Critic QA), and full interactive 2-way Blender Socket Bridge Parity by dispatching to teamwork_preview_orchestrator, monitoring progress, running liveness and reporting crons, and coordinating independent Victory Audit.
 
 ## 🔒 My Identity
 - Archetype: sentinel
-- Working directory: /Users/duongnad/Documents/tool/MorphoMesh/.agents/sentinel
+- Working directory: E:\tool\mcp\MorphoMesh\.agents\sentinel
 - Orchestrator: 419e2607-121e-4267-b352-b2449fff6c92
 - Victory Auditor: 05cb80a3-9d80-4a46-b035-6aa012c67fa4
 - Orchestrator (War Bear): 504d045c-25c5-48a2-a65a-2a5b368eafa7 (terminated broken pipe)
 - Orchestrator (War Bear Gen 2): c332dd9a-5201-4cf0-84e2-35aa3c9c5afa
-- Cron 1 (Progress Reporting): task-541 (*/8 * * * *)
-- Cron 2 (Liveness Check): task-543 (*/10 * * * *)
+- Cron 1 (Progress Reporting): task-26 (*/8 * * * *)
+- Cron 2 (Liveness Check): task-28 (*/10 * * * *)
 - Victory Auditor (War Bear): 441c3338-13eb-474d-bbcd-0c960d994cd9
+- Orchestrator (Human Pipeline & Yu Nian An): fa73b7ae-2239-4440-89d0-f3a69497b7b7
+- Victory Auditor (Human Pipeline & Yu Nian An): 6b5996fc-a1ad-4e44-9a7c-73e69c7285bc
+- Orchestrator (Inspector Camera & Auto-Critic QA): 577aaa33-6b3f-4ebc-93eb-fcc632d94bc9
+- Cron 1 (Progress Reporting): task-32 (*/8 * * * *) [CANCELLED]
+- Cron 2 (Liveness Check): task-34 (*/10 * * * *) [CANCELLED]
+- Victory Auditor (Inspector Camera & Auto-Critic QA): 87e66b28-38be-4930-8ff9-deedbe30c437
 
 ## 🔒 Key Constraints
 - No technical decisions — relay only
@@ -20,18 +26,23 @@ Oversee the synthesis and re-engineering of the photorealistic, anatomically aut
 - Routing decision: General path -> teamwork_preview_orchestrator
 - Do not write code or analyze problems directly; maintain ultra-light context
 - War Bear synthesis: Ensure anatomical accuracy, volumetric fur grooming >=10k strands, PBR material suite, verification script, and beauty renders
-- Engine-level upgrade: Must upgrade MorphoMesh engine itself (`src/morphomesh/`) for reusable creature generation, not just a static model
+- Engine-level upgrade: Must upgrade MorphoMesh engine itself (src/morphomesh/) for reusable creature generation, not just a static model
+- Human Engine Upgrade: Must implement human_generator.py, human_rigging.py (Rigify 163 DEF bones), human_materials.py (SSS Random Walk, dual-chamber eye), human_grooming.py (Curves), wardrobe.py, Blender Socket Bridge (port 9876), FastMCP server tools.
+- Character 3D Asset: Yu Nian An (Dư Niệm An) semi-realistic model adhering faithfully to reference image media_1788716034772.jpg, quad topology (>=95% quads in deforming regions), 52 FACS blendshapes, white strap dress, red string magic props with glowing butterflies, 4K PBR textures, .blend/.fbx/.gltf exports.
+- Passing all automated unit tests (pytest tests/).
+- Inspector Camera & QA Upgrade: Multi-angle inspector camera rig (bounding box, anatomical center, 4 viewpoints), fast viewport capture (OpenGL grab), closed-loop visual critic (clipping, proportion_deviation, skinning_artifact), socket bridge parity (main thread timers), 100% test pass.
 
 ## User Context
-- **Last user request**: Re-engineer and synthesize a photorealistic, anatomically authentic Armored War Bear in MorphoMesh and Blender, featuring organically sculpted facial features, forward-curving claws, a full volumetric fur grooming system, and battle-hardened PBR war armor.
-- **Clarification received**: Upgrade MorphoMesh ENGINE ITSELF (`src/morphomesh/`) with reusable anatomy generator (paws/claws forward & down, organic facial features), volumetric fur/hair curves pipeline, organic PBR shader engine, and Armored War Bear as the canonical verification benchmark.
+- **Last user request**: Auto-Inspector Camera Rig, Fast Viewport Capture, Closed-Loop Visual Quality Critique, and 2-way Blender Socket Bridge Parity.
 - **Pending clarifications**: none
 - **Delivered results**:
-  * Phase 1 (Docs & MCP server PoC) & Phase 2 (Open-Source Integration Hub) completed & verified.
-  * Phase 3 (Photorealistic Armored War Bear & Engine Creature Generation Upgrade) completed & independently audited with VICTORY CONFIRMED.
+  * Phase 1 & 2 completed & verified.
+  * Phase 3 (Photorealistic Armored War Bear) completed & verified.
+  * Phase 4 (Digital Human Pipeline & Yu Nian An) completed & verified.
+  * Phase 5 (Auto-Inspector Camera Rig & Closed-Loop Visual Quality Critique): VICTORY CONFIRMED.
 
 ## Project Status
-- **Phase**: complete
+- **Phase**: complete (VICTORY CONFIRMED by independent Victory Auditor 87e66b28-38be-4930-8ff9-deedbe30c437)
 
 ## Victory Audit Status
 - **Triggered**: yes
@@ -39,13 +50,8 @@ Oversee the synthesis and re-engineering of the photorealistic, anatomically aut
 - **Retry count**: 0
 
 ## Artifact Index
-- /Users/duongnad/Documents/tool/MorphoMesh/ORIGINAL_REQUEST.md — Authoritative record of user request
-- /Users/duongnad/Documents/tool/MorphoMesh/.agents/ORIGINAL_REQUEST.md — Mirror of user request
-- /Users/duongnad/Documents/tool/MorphoMesh/examples/Armored_War_Bear_HD.blend — Production Master Blender Scene (1.13 MB)
-- /Users/duongnad/Documents/tool/MorphoMesh/examples/Armored_War_Bear_HD.glb — Production glTF 2.0 Asset (2.99 MB)
-- /Users/duongnad/Documents/tool/MorphoMesh/verify_bear_anatomy.py — Automated Inspection & BVH Verification Script (584 lines)
-- /Users/duongnad/Documents/tool/MorphoMesh/examples/renders/bear_front_three_quarter.png — Cycles Beauty Render (1.16 MB)
-- /Users/duongnad/Documents/tool/MorphoMesh/examples/renders/bear_head_closeup.png — Cycles Beauty Render (1.27 MB)
-- /Users/duongnad/Documents/tool/MorphoMesh/examples/renders/bear_paw_claws_closeup.png — Cycles Beauty Render (1.21 MB)
-- /Users/duongnad/Documents/tool/MorphoMesh/examples/renders/bear_full_body.png — Cycles Beauty Render (1.12 MB)
-- /Users/duongnad/Documents/tool/MorphoMesh/.agents/victory_auditor_3/handoff.md — Independent Victory Audit Report
+- E:\tool\mcp\MorphoMesh\ORIGINAL_REQUEST.md — Authoritative record of user request
+- E:\tool\mcp\MorphoMesh\.agents\ORIGINAL_REQUEST.md — Mirror of user request
+- E:\tool\mcp\MorphoMesh\PROJECT.md — Master Project Plan & Inventory
+- E:\tool\mcp\MorphoMesh\artifacts\inspector_previews\ — Visual inspection previews & QA reports
+- E:\tool\mcp\MorphoMesh\scripts\run_e2e_inspection_pipeline.py — Standalone demonstration pipeline runner

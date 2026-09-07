@@ -1,170 +1,219 @@
-# Handoff Report: Milestone M1 Adversarial Empirical Challenge
+# Handoff Report: Milestone M1 Adversarial Socket Challenger (Protocol & Stream Fuzzing)
 
-**Document ID**: `MM-CHALLENGER-M1-001`  
-**Challenger**: Challenger M1-1 (Empirical Challenger: Critic & Specialist)  
-**Assigned Directory**: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/challenger_m1_1`  
-**Target Milestone**: M1 (Reusable Anatomy Generator, Plantigrade Paws & Claw Inversion Fix)  
-**Parent Orchestrator**: `504d045c-25c5-48a2-a65a-2a5b368eafa7` (orchestrator_bear_1)  
-**Verdict**: **APPROVE**  
-**Date**: 2026-09-05T16:08:00Z  
+**Document ID**: `MM-CHALLENGER-M1-002`  
+**Challenger**: Challenger M1_1 (Adversarial Socket Challenger: Protocol & Stream Fuzzing)  
+**Assigned Directory**: `e:\tool\mcp\MorphoMesh\.agents\challenger_m1_1`  
+**Target Milestone**: Milestone 1 (Interactive Socket Bridge Parity & Reliability - R3)  
+**Parent Orchestrator**: `577aaa33-6b3f-4ebc-93eb-fcc632d94bc9`  
+**Date**: 2026-09-07T04:06:00Z  
+**Verdict**: **REJECT** (2 Deterministic Defects Identified in Socket Server Protocol Engine)
+
+---
+
+## Challenge Summary
+
+- **Overall Risk Assessment**: **HIGH** (Stream reordering race condition under pipelined errors + premature socket teardown dropping in-flight responses).
+- **Core Scope Evaluated**:
+  1. High-frequency burst requests (10, 25, 50, 100 rapid sequential requests over single socket).
+  2. Fragmented byte streaming (sending valid NDJSON 1 to 5 bytes at a time).
+  3. Garbage/malformed data injection followed immediately by valid requests (verifying recovery).
+  4. Large payload handling (>500KB up to 1MB JSON payloads).
+  5. Socket server and client integrity without deadlocks or hangs.
+- **Empirical Summary**: 28 adversarial tests implemented in `tests/test_m1_adversarial_socket.py`.
+  - **Passed**: 26 tests (92.86%)
+  - **Failed**: 2 tests (7.14%)
 
 ---
 
 ## 1. Observation
 
-### 1.1 Empirical Test Execution & Results
-An adversarial test suite was authored and executed at `/Users/duongnad/Documents/tool/MorphoMesh/tests/test_m1_claw_and_paw_stress.py`:
+### 1.1 Baseline Test Verification
+Prior to adversarial stress testing, baseline test suites authored by Worker M1 were verified:
+```bash
+.venv\Scripts\pytest tests/test_bridge_socket_parity.py -v
+```
+**Result**: 21 passed in 14.19s (100% pass).
 
 ```bash
-pytest -v tests/test_m1_claw_and_paw_stress.py
+.venv\Scripts\pytest tests/test_bridge_socket_parity.py tests/test_blender_bridge.py -q
 ```
-**Output**:
-```
-tests/test_m1_claw_and_paw_stress.py::test_plantigrade_geometry_adversarial PASSED [ 25%]
-tests/test_m1_claw_and_paw_stress.py::test_claw_math_10000_direct_randomized PASSED [ 50%]
-tests/test_m1_claw_and_paw_stress.py::test_adversarial_boundary_analysis PASSED [ 75%]
-tests/test_m1_claw_and_paw_stress.py::test_claw_math_10000_in_vivo_randomized PASSED [100%]
-============================== 4 passed in 1.24s ===============================
-```
+**Result**: 100 passed in 17.82s (100% pass).
 
-Full project test suite:
+### 1.2 Adversarial Test Suite Execution & Empirical Failures
+An independent adversarial test harness was authored and executed at `tests/test_m1_adversarial_socket.py`:
 ```bash
-pytest -v tests/
+.venv\Scripts\pytest tests/test_m1_adversarial_socket.py -v
 ```
-**Output**:
+**Execution Summary**: 26 passed, 2 failed in 4.56s.
+
 ```
-============================= 234 passed in 3.30s ==============================
+================================== FAILURES ===================================
+_ TestAdversarialMalformedDataResilience.test_malformed_chaos_fuzzing_interleaving _
+
+tests\test_m1_adversarial_socket.py:614: in test_malformed_chaos_fuzzing_interleaving
+    assert responses[i].get("status") == exp_status, f"Frame {i} status mismatch: {responses[i]}"
+E   AssertionError: Frame 0 status mismatch: {'jsonrpc': '2.0', 'id': None, 'status': 'error', 'error': {'code': -32700, 'message': 'Parse error: Expecting value: line 1 column 1 (char 0)'}}
+E   assert 'error' == 'success'
+E     - success
+E     + error
+
+_ TestAdversarialDeadlockAndLifecycleResilience.test_client_half_close_shutdown_wr _
+
+tests\test_m1_adversarial_socket.py:825: in test_client_half_close_shutdown_wr
+    assert len(responses) == 1
+E   assert 0 == 1
+E    +  where 0 = len([])
+-------------------------- Captured stderr teardown ---------------------------
+Failed to send response to client for req half-close-1: [WinError 10038] An operation was attempted on something that is not a socket
+=========================== short test summary info ===========================
+FAILED tests/test_m1_adversarial_socket.py::TestAdversarialMalformedDataResilience::test_malformed_chaos_fuzzing_interleaving
+FAILED tests/test_m1_adversarial_socket.py::TestAdversarialDeadlockAndLifecycleResilience::test_client_half_close_shutdown_wr
+======================== 2 failed, 26 passed in 4.56s =========================
 ```
 
-Blender 5.2.1 LTS Headless Generation Verification:
-```bash
-/Applications/Blender.app/Contents/MacOS/Blender --background --factory-startup --python-expr "..."
-```
-**Output**:
-```
-Blender Bear Object vertices: 3337
-Blender Bear Object polygons: 4968
-Blender Bear Object vertex groups: 18
-ALL CHECKS PASSED IN BLENDER 5.2.1 LTS
-```
+### 1.3 Code Inspection Findings
 
-Live Socket IPC Verification on `127.0.0.1:9876`:
+#### Finding A: Direct Socket Write in `_client_handler` Bypassing Queue
+In `blender_addon/morphomesh/listener.py`, lines 173–188:
+```python
+try:
+    cmd = json.loads(line.decode("utf-8"))
+    self.command_queue.put((cmd, client))
+except Exception as e_parse:
+    logger.error(f"NDJSON line parse error: {e_parse} on raw line: {line[:100]}")
+    err_resp = {
+        "jsonrpc": "2.0",
+        "id": None,
+        "status": "error",
+        "error": {"code": -32700, "message": f"Parse error: {str(e_parse)}"},
+    }
+    try:
+        client.sendall(json.dumps(err_resp).encode("utf-8") + b"\n")
+    except Exception:
+        pass
 ```
-Is interactive connected: True
-Execution success: True
-Returned data: {'out_vars': {'status': 'success', 'object_name': 'Bear_Challenger_Live', 'vertex_count': 1746, 'face_count': 2808, 'vertex_groups_count': 18}}
+- Valid commands and non-dict commands are placed in `self.command_queue` to be drained and answered asynchronously on Blender's main thread via `_drain_queue()`.
+- However, upon JSON parse failure, `_client_handler` immediately executes `client.sendall(json.dumps(err_resp)...)` from the background reader thread.
+
+#### Finding B: Premature Socket Close on EOF in `_client_handler`
+In `blender_addon/morphomesh/listener.py`, lines 160–165 and 218–223:
+```python
+while self.running:
+    try:
+        data = client.recv(65536)
+        if not data:
+            # Client disconnected
+            break
+...
+finally:
+    with self._clients_lock:
+        self._clients.discard(client)
+    try:
+        client.close()
+    except Exception:
+        pass
 ```
-
-### 1.2 Quantitative Claw Orientation Metrics
-Across 20,000 total randomized claw evaluations (10,000 in-vivo from biological creature generator + 10,000 direct parameter sweeps):
-
-| Metric | Required Boundary | In-Vivo (10,000 Claws) | Direct Sweep (10,000 Invocations) | Empirical Margin |
-|---|---|---|---|---|
-| **Min Forward Dot Product** | $> 0.6000$ | **$0.8876$** | **$0.8037$** | $+33.9\%$ above threshold |
-| **Max Forward Dot Product** | $\le 1.0000$ | **$0.9168$** | **$0.9578$** | High directional coherence |
-| **Max Downward Pitch ($d_z$)** | $< 0.0000$ | **$-0.3991$** | **$-0.2872$** | Unconditionally downward |
-| **Min Downward Pitch ($d_z$)** | N/A | **$-0.4606$** | **$-0.5450$** | Realistic ground curvature |
-| **Violation Count** | $0$ | **$0 / 10,000$** | **$0 / 10,000$** | **$100\%$ compliance** |
-
-### 1.3 Plantigrade Paw Geometry Metrics
-Inspected across scales $s \in [0.25, 5.0]$:
-1. **Calcaneus Heel Ground Contact**:
-   - In pes foot box (`limbs` group), min Z coordinate is identically **$0.000000$** across all scales.
-   - Rearmost heel contact vertices at $Y = 0.46 \cdot s$ sit exactly at $Z = 0.000000$.
-2. **Plantar & Palmar Pad Positioning**:
-   - Pes bone box center: $Z = 0.04 \cdot s$.
-   - Plantar sole pad center: $Z = 0.01 \cdot s$ ($cz_{\text{pad}} < cz_{\text{box}}$).
-   - Plantar sole pad extends to $Z = -0.01 \cdot s$, providing natural underside ground compliance and cushioning.
-   - Palmar pad center: $Z = 0.01 \cdot s < cz_{\text{box}} = 0.04 \cdot s$.
-3. **Digital Pad Distinctness & Separation**:
-   - Each of the 4 paws features exactly 5 digital pads and 5 claws ($4 \times 5 = 20$ total).
-   - Minimum pairwise distance between digit pad anchors: $\Delta d \ge 0.035 \cdot s > 0$.
-   - Zero pad mesh degeneration or vertex sharing across digits.
+- When a client sends a request and shuts down its write half (`client.shutdown(socket.SHUT_WR)`) to wait for the response, `client.recv()` returns `b""`.
+- The handler thread immediately exits the loop and closes the socket (`client.close()`) in `finally:` while the request is still pending in `self.command_queue`.
+- When `_drain_queue()` runs on the main thread, `client.sendall()` raises `[WinError 10038] An operation was attempted on something that is not a socket`, and the response is lost.
 
 ---
 
 ## 2. Logic Chain
 
-1. **Claw Curvature Inversion Fix**:
-   - Observation 1.1 & 1.2 demonstrate that all claws point forward and curve downward toward the ground.
-   - The parametric arc formulation $\vec{c}(t) = \vec{v}_{\text{base}} + \vec{u}_{\text{fwd}}(L \cdot t) + \vec{u}_{\text{down}}(L \cdot C \cdot t^{1.4}) + \vec{u}_{\text{side}}(L \cdot S \cdot t)$ produces vector $\vec{d} = L(\vec{u}_{\text{fwd}} + C\vec{u}_{\text{down}} + S\vec{u}_{\text{side}})$.
-   - Normalized dot product with forward axis:
-     $$\hat{d} \cdot \vec{u}_{\text{fwd}} = \frac{1}{\sqrt{1 + C^2 + S^2}}$$
-   - Downward component:
-     $$\hat{d}_z = \frac{-C}{\sqrt{1 + C^2 + S^2}}$$
-   - By testing 3D rotations $\theta \in [-\pi, \pi]$ around the vertical axis, the dot product was proven rotationally invariant with respect to creature yaw orientation.
-   - Closed-form analytical boundary:
-     $$\frac{1}{\sqrt{1 + C^2 + S^2}} > 0.60 \iff C^2 + S^2 < \frac{16}{9} \approx 1.7778 \iff \sqrt{C^2 + S^2} < 1.3333$$
-   - In MorphoMesh's generator, biological parameters are $C = 0.48$ and $\max |S| = 0.1056 \implies \sqrt{C^2 + S^2} = 0.4915$.
-   - The safety margin before violating the 0.60 threshold is:
-     $$\frac{1.3333 - 0.4915}{1.3333} = 63.14\%$$
-   - Since $C = 0.48 > 0$, $d_z$ is strictly negative ($-0.3991$ to $-0.4606$), guaranteeing that claws never point upward.
+### 2.1 Why High-Frequency Bursts & Fragmented Streaming Passed (Observations 1.1 & 1.2)
+- **High-Frequency Bursts**: Tested with 10, 25, 50, and 100 sequential requests over a single socket, pipelined requests, and 5 concurrent client threads (100 total concurrent requests). In all cases where requests are valid, all commands are placed into `self.command_queue` and drained in exact FIFO sequence by `_drain_queue()`. Response IDs match 1-to-1 with zero dropped packets.
+- **Fragmented Byte Streaming**: Tested with deterministic chunks of 1, 2, 3, 4, and 5 bytes per packet, as well as randomized 1-to-5 byte chunks with micro-delays. Because `_client_handler` continuously accumulates incoming bytes (`buffer += data`) and splits strictly on `b"\n"` (`line, buffer = buffer.split(b"\n", 1)`), the server reassembles partial TCP frames into complete NDJSON lines without data loss or buffer deadlock.
+- **Large Payload Handling**: Tested with 600KB inbound requests, 700KB outbound responses, 800KB bidirectional roundtrips, 1MB stress payloads, and `BlenderBridge.send_socket_request()`. Both `listener.py` and `blender_bridge.py` employ 65,536-byte read buffers that loop until the newline delimiter is received, seamlessly transferring payloads up to 1MB without memory exhaustion or socket timeouts.
 
-2. **Plantigrade Anatomy & Biomechanics**:
-   - Observation 1.3 demonstrates true plantigrade anatomy. The calcaneus heel rests flush on the ground plane ($Z = 0.000000$), distinct from digitigrade mammals where the calcaneus is elevated.
-   - Plantar and palmar pads are positioned beneath the skeletal foot boxes ($Z = 0.01 \cdot s$ vs $Z = 0.04 \cdot s$), creating the necessary weight-bearing pads.
-   - All 5 digits per paw are geometrically distinct with positive separation ($\Delta d \ge 0.035 \cdot s$), preventing digit fusion artifacts.
+### 2.2 Why Vulnerability 1 Occurs (Queue-Bypass Response Reordering Race Condition)
+- **Step 1 (Observation 1.3 Finding A)**: A client pipelines a batch of requests in a single TCP buffer: `[Valid_1, Corrupted_Line, Valid_2]`.
+- **Step 2**: `_client_handler` reads the buffer and splits by `\n`. It parses `Valid_1` successfully and puts `(Valid_1, client)` into `self.command_queue`.
+- **Step 3**: `_client_handler` processes `Corrupted_Line`. `json.loads()` raises an exception. Instead of queuing this event, `_client_handler` calls `client.sendall(err_resp)` directly from the reader thread.
+- **Step 4**: The error response for `Corrupted_Line` is sent over the network socket immediately.
+- **Step 5**: Blender's main thread timer triggers `_drain_queue()`, which processes `Valid_1` and calls `client.sendall(resp_1)`.
+- **Step 6 (Observation 1.2)**: The client receives `[Error_Response, Response_Valid_1, Response_Valid_2]`. The error response has overtaken `Valid_1`, violating the fundamental FIFO ordering invariant of the socket stream and creating an unsynchronized concurrent write hazard between the reader thread and the main thread.
 
-3. **Engine Reusability & Vertex Groups**:
-   - Observation 1.1 proves that all 18 standardized vertex groups (`snout`, `nostrils`, `mouth_cavity`, `jaw`, `teeth`, `eyes`, `eyelids`, `ears`, `claws_front`, `claws_hind`, `pads_front`, `pads_hind`, `torso`, `limbs`, `tail`, `dorsal_spine`, `armor_mounts_shoulder`, `armor_mounts_wrist`) are populated on the generated mesh.
-   - Both headless Blender and active socket IPC execute cleanly with zero errors.
+### 2.3 Why Vulnerability 2 Occurs (Premature Socket Teardown on TCP EOF)
+- **Step 1 (Observation 1.3 Finding B)**: A client connects, transmits a valid NDJSON request, and issues a standard TCP half-close (`sock.shutdown(socket.SHUT_WR)`) or disconnects its send pipe while retaining the read channel.
+- **Step 2**: The command is placed in `self.command_queue`.
+- **Step 3**: The server's `client.recv()` returns `b""` (EOF on the client-to-server stream).
+- **Step 4**: `_client_handler` assumes connection termination and immediately exits into `finally: client.close()`, destroying the underlying socket descriptor.
+- **Step 5**: When `_drain_queue()` runs on the main thread, it attempts to execute `client.sendall(resp_bytes)`.
+- **Step 6 (Observation 1.2)**: The OS fails with `[WinError 10038] An operation was attempted on something that is not a socket`. The response is permanently dropped, and the client receives 0 bytes.
 
 ---
 
 ## 3. Caveats
 
-1. **Unbounded Low-Level API Parameter Exposure**:
-   In `src/morphomesh/inference_adapter.py`, `add_curved_claw()` does not internally clamp $C$ or $S$. If an external user directly calls `add_curved_claw()` with $C \le 0$, upward pitch will occur; if called with $\sqrt{C^2 + S^2} \ge 1.3333$, forward dot product will drop below $0.60$. Within all MorphoMesh biological generators (`generate_bear_base_mesh`, `add_plantigrade_paw`), parameters are strictly guarded within the safe domain with a $63.14\%$ safety margin.
-2. **Post-Deformation Rigging & Animation (Milestones M2/M4)**:
-   This verification confirms resting pose (bind pose) geometry and topology. Non-linear deformation during dynamic skeletal animation or physics simulation will be evaluated in Milestone M4.
+1. **OS-Specific Socket Error Codes**:
+   Under Windows, attempting to write to a closed descriptor raises `[WinError 10038] (WSAENOTSOCK)`. Under POSIX/Linux, this condition typically surfaces as `EBADF` or `EPIPE` / `BrokenPipeError`. Both reflect the same architectural flaw: premature handle invalidation.
+2. **Pipelining Scope**:
+   If a client never pipelines requests and always waits for a response before sending the next line, Vulnerability 1 is masked because the queue is drained between requests. However, the NDJSON specification and high-performance RPC explicitly support pipelining and continuous streaming.
+3. **No Caveats on Reproducibility**:
+   Both defects are 100% deterministically reproducible via `.venv\Scripts\pytest tests/test_m1_adversarial_socket.py -v`.
 
 ---
 
-## 4. Conclusion
+## 4. Conclusion & Actionable Mitigation
 
-**VERDICT**: **APPROVE**.
+### Verdict: **REJECT**
 
-Worker M1's deliverables satisfy all acceptance criteria:
-1. The claw inversion bug is permanently resolved. Claws curve forward ($\vec{d} \cdot \vec{u}_{\text{fwd}} > 0.60$, empirically observed $0.8037 - 0.9578$) and downward ($d_z < 0$, empirically observed $-0.2872$ to $-0.5450$) across 20,000 randomized configurations with 0 violations.
-2. Plantigrade paws embody true ursine biomechanics: calcaneus heel contacts ground at $Z = 0.000000$, sole pads reside beneath skeletal bone boxes, and 5 distinct digits are generated per paw.
-3. Articulated facial landmarks and all 18 standardized vertex groups are verified in Blender 5.2.1 LTS.
-4. BlenderBridge socket status bug at line 472 is resolved, restoring sub-50ms live socket turnaround.
-5. All 234 project tests pass. Milestone M1 is ready for Milestone M2.
+While the implementation demonstrates high performance and integrity across clean bursts, severe byte fragmentation (1–5 bytes), and large payloads (>500KB up to 1MB), it fails under adversarial stream fuzzing due to two architectural defects in `blender_addon/morphomesh/listener.py`:
+1. **Queue-Bypass Response Reordering Race Condition** (Critical): Out-of-order response delivery and unsynchronized concurrent socket writes.
+2. **Premature Socket Teardown on EOF** (High): In-flight response dropping and descriptor invalidation on TCP half-close.
+
+### Actionable Remediation Guidance for Worker M1
+
+#### Remediation 1 (Fix Queue-Bypass in `_client_handler`):
+In `blender_addon/morphomesh/listener.py`, instead of calling `client.sendall()` directly upon parse failure, enqueue a synthetic parse error payload into `self.command_queue`:
+```python
+except Exception as e_parse:
+    logger.error(f"NDJSON line parse error: {e_parse} on raw line: {line[:100]}")
+    err_resp = {
+        "jsonrpc": "2.0",
+        "id": None,
+        "status": "error",
+        "error": {"code": -32700, "message": f"Parse error: {str(e_parse)}"},
+    }
+    self.command_queue.put(({"__is_parse_error__": True, "response": err_resp}, client))
+```
+In `_drain_queue()`, handle `__is_parse_error__` commands first before standard dispatch:
+```python
+if isinstance(cmd, dict) and cmd.get("__is_parse_error__"):
+    resp_bytes = json.dumps(cmd["response"]).encode("utf-8") + b"\n"
+    try:
+        if client:
+            client.sendall(resp_bytes)
+    except Exception:
+        pass
+    continue
+```
+*Effect*: All responses (success, dispatch error, validation error, non-dict error, and parse error) are serialized in strict FIFO sequence by the main thread, eliminating reordering and thread collisions.
+
+#### Remediation 2 (Fix Premature Socket Teardown on EOF in `_client_handler`):
+When `client.recv()` returns `b""`:
+- If `self.command_queue` contains pending items for that client, wait briefly for the queue to drain (or mark the socket descriptor as half-closed without destroying it) before calling `client.close()`.
+- In `_drain_queue()`, wrap `client.sendall()` to catch `OSError` (e.g. `WinError 10038`, `BrokenPipeError`) cleanly without logging critical barriers.
 
 ---
 
 ## 5. Verification Method
 
-### 5.1 Run Challenger Adversarial Stress Suite
+### 5.1 Re-run Adversarial Test Suite
+Execute the adversarial test harness:
 ```bash
-pytest -v tests/test_m1_claw_and_paw_stress.py
+.venv\Scripts\pytest tests/test_m1_adversarial_socket.py -v
 ```
-**Expected Result**: 4 passed in ~1.2s.
 
-### 5.2 Run Full MorphoMesh Test Suite
+### 5.2 Re-run Baseline Bridge Suites
+Verify no regressions across existing parity suites:
 ```bash
-pytest -v tests/
+.venv\Scripts\pytest tests/test_bridge_socket_parity.py tests/test_blender_bridge.py -q
 ```
-**Expected Result**: 234 passed in ~3.3s with exit code 0.
 
-### 5.3 Headless Blender Generation Inspection
-```bash
-/Applications/Blender.app/Contents/MacOS/Blender --background --factory-startup --python-expr "
-import sys, site
-sys.path.insert(0, site.getusersitepackages())
-sys.path.insert(0, '/Users/duongnad/Documents/tool/MorphoMesh/src/morphomesh')
-from creature_generator import build_bear_in_blender
-res = build_bear_in_blender(object_name='Bear_Verify')
-assert res['status'] == 'success'
-assert res['claws_valid_count'] == 20
-assert res['vertex_groups_count'] == 18
-print('VERIFICATION PASS: 18 vertex groups and 20 forward-curving claws confirmed.')
-"
-```
-**Expected Result**: Exit code 0, `VERIFICATION PASS`.
-
-### 5.4 Invalidation Conditions
-- Any claw in generated creatures with $\vec{d} \cdot (0, -1, 0) \le 0.60$ or $d_z \ge 0$.
-- Any hind paw where calcaneus heel min Z deviates from ground plane by $> 10^{-5}\,\text{m}$.
-- Any digital pad collision where adjacent digit anchor distance $< 0.035 \cdot \text{scale}$.
-- Any test failure in `pytest -v tests/`.
+### 5.3 Invalidation Conditions for Approval
+- `test_malformed_chaos_fuzzing_interleaving` passes with 7/7 responses delivered in exact FIFO sequence.
+- `test_client_half_close_shutdown_wr` passes with 1/1 response delivered and zero `[WinError 10038]` errors.
+- 28/28 tests in `tests/test_m1_adversarial_socket.py` pass (100%).
+- 100/100 tests in existing baseline suites pass (100%).

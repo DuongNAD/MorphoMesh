@@ -241,7 +241,31 @@ class ConnectorRegistry:
             except ImportError as e:
                 logger.debug("HunyuanConnector auto-registration deferred: %s", e)
 
+            try:
+                from morphomesh.connectors.gemini_image_connector import GeminiImageConnector
+                cls._registry[GeminiImageConnector.connector_id] = GeminiImageConnector
+                cls._registry["gemini"] = GeminiImageConnector
+            except ImportError as e:
+                logger.debug("GeminiImageConnector auto-registration deferred: %s", e)
+
+            try:
+                from morphomesh.connectors.tripo_connector import TripoConnector
+                cls._registry[TripoConnector.connector_id] = TripoConnector
+                cls._registry["tripoai"] = TripoConnector
+                cls._registry["triposr"] = TripoConnector
+            except ImportError as e:
+                logger.debug("TripoConnector auto-registration deferred: %s", e)
+
+            try:
+                from morphomesh.connectors.meshy_connector import MeshyConnector
+                cls._registry[MeshyConnector.connector_id] = MeshyConnector
+                cls._registry["meshyai"] = MeshyConnector
+                cls._registry["meshy_ai"] = MeshyConnector
+            except ImportError as e:
+                logger.debug("MeshyConnector auto-registration deferred: %s", e)
+
             cls._auto_registered = True
+
 
     @classmethod
     def register(
@@ -319,22 +343,58 @@ class ConnectorRegistry:
                 result[cid] = cls.get(cid, auto_initialize=False)
             return result
 
+    CANONICAL_CONNECTORS: List[str] = [
+        "animals3d",
+        "anycreature",
+        "hunyuan",
+        "meshanything",
+        "trellis",
+    ]
+
     @classmethod
-    def list_connectors(cls) -> List[str]:
+    def list_connectors(
+        cls,
+        stage: Optional[Union[int, List[int]]] = None,
+        all_stages: bool = False,
+    ) -> List[str]:
         """
-        List all registered connector IDs.
+        List registered connector IDs.
+        
+        By default, returns the 5 canonical Stage 2-4 mesh reconstruction, retopology,
+        and rigging connectors for backwards compatibility. Pass `all_stages=True` or
+        specify `stage` (e.g. stage=1 for Gemini image connector) to enumerate across all stages.
         
         Returns:
-            List[str]: Alphabetical list of registered connector IDs.
+            List[str]: Alphabetical list of matching registered connector IDs.
         """
         with cls._lock:
             cls._ensure_auto_registered()
-            return sorted(list(cls._registry.keys()))
+            if all_stages:
+                return sorted(list(cls._registry.keys()))
+
+            if stage is not None:
+                target_stages = [stage] if isinstance(stage, int) else list(stage)
+                res = []
+                for cid, c_cls in cls._registry.items():
+                    if getattr(c_cls, "stage", None) in target_stages:
+                        res.append(cid)
+                return sorted(res)
+
+            return sorted([cid for cid in cls.CANONICAL_CONNECTORS if cid in cls._registry])
 
     @classmethod
-    def health_check_all(cls) -> Dict[str, HealthCheckResult]:
+    def list_all_connectors(cls) -> List[str]:
+        """List all registered connector IDs across all pipeline stages."""
+        return cls.list_connectors(all_stages=True)
+
+    @classmethod
+    def health_check_all(cls, all_stages: bool = False) -> Dict[str, HealthCheckResult]:
         """
-        Perform health check diagnostics across all registered connectors.
+        Perform health check diagnostics across registered connectors.
+        
+        Args:
+            all_stages: If True, audits all registered connectors across all stages.
+                        If False, audits the canonical Stage 2-4 mesh connectors.
         
         Returns:
             Dict[str, HealthCheckResult]: Connector ID to diagnostic result mapping.
@@ -342,7 +402,7 @@ class ConnectorRegistry:
         with cls._lock:
             cls._ensure_auto_registered()
             results: Dict[str, HealthCheckResult] = {}
-            for cid in cls.list_connectors():
+            for cid in cls.list_connectors(all_stages=all_stages):
                 try:
                     inst = cls.get(cid, auto_initialize=False)
                     results[cid] = inst.health_check()
@@ -355,9 +415,13 @@ class ConnectorRegistry:
             return results
 
     @classmethod
-    def check_dependencies_all(cls) -> Dict[str, DependencyCheckResult]:
+    def check_dependencies_all(cls, all_stages: bool = False) -> Dict[str, DependencyCheckResult]:
         """
-        Inspect dependencies across all registered connectors.
+        Inspect dependencies across registered connectors.
+        
+        Args:
+            all_stages: If True, inspects all registered connectors across all stages.
+                        If False, inspects the canonical Stage 2-4 mesh connectors.
         
         Returns:
             Dict[str, DependencyCheckResult]: Connector ID to dependency result mapping.
@@ -365,7 +429,7 @@ class ConnectorRegistry:
         with cls._lock:
             cls._ensure_auto_registered()
             results: Dict[str, DependencyCheckResult] = {}
-            for cid in cls.list_connectors():
+            for cid in cls.list_connectors(all_stages=all_stages):
                 try:
                     inst = cls.get(cid, auto_initialize=False)
                     results[cid] = inst.check_dependencies()
@@ -401,14 +465,17 @@ class ConnectorRegistry:
         
         try:
             connector = cls.get(primary_name, auto_initialize=True)
+            exec_kwargs = dict(kwargs)
+            if getattr(connector, "connector_id", "") == "gemini_image":
+                exec_kwargs.setdefault("raise_on_failure", True)
             if connector.circuit_breaker is not None:
                 return connector.circuit_breaker.call(
                     connector.execute,
                     *args,
                     fallback=fallback_fn,
-                    **kwargs,
+                    **exec_kwargs,
                 )
-            return connector.execute(*args, **kwargs)
+            return connector.execute(*args, **exec_kwargs)
         except Exception as e:
             logger.warning(
                 "Primary connector '%s' execution failed (%s). Executing fallback.",

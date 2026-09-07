@@ -1,0 +1,16 @@
+{
+  "tests_run": 9,
+  "true_positives": 5,
+  "true_negatives": 4,
+  "false_positives": 0,
+  "false_negatives": 0,
+  "total_states": 9,
+  "correct_classifications": 9,
+  "clean_states_tested": 4,
+  "defective_states_tested": 5,
+  "accuracy": 100.0,
+  "accuracy_percentage": 100.0,
+  "accuracy_ratio": 1.0,
+  "false_positive_rate": 0.0,
+  "false_positive_rate_ratio": 0.0
+}

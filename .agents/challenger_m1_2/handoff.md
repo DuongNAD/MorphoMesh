@@ -1,200 +1,199 @@
-# Handoff Report: Milestone M1 — Adversarial Topology & Facial Landmark Stress-Testing
+# Adversarial Dispatch Challenger Report: Method Parity, Dispatch Robustness & Timer Immortality (M1_2)
 
-**Document ID**: `MM-HANDOFF-M1-CHALLENGER-002`  
-**Challenger**: Challenger M1-2 (Topology & Facial Landmark Stress Specialist)  
-**Assigned Directory**: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/challenger_m1_2`  
-**Target Milestone**: M1 (Reusable Anatomy Generator & Claw Inversion Fix)  
-**Parent Orchestrator**: `504d045c-25c5-48a2-a65a-2a5b368eafa7`  
-**Date**: 2026-09-05T16:15:00Z  
-**Verdict**: **REJECT**
+**Document ID**: `MM-CHALLENGER-M1-2-REPORT`  
+**Challenger**: Challenger M1_2 (Adversarial Dispatch Challenger: Method Parity & Concurrency)  
+**Assigned Directory**: `e:\tool\mcp\MorphoMesh\.agents\challenger_m1_2`  
+**Parent Orchestrator ID**: `577aaa33-6b3f-4ebc-93eb-fcc632d94bc9`  
+**Date**: 2026-09-07T04:09:00Z  
+**Verdict**: **REJECT** (4 concrete defects discovered; timer immortality & existing 13 dispatch methods approved, but method parity & fallback architecture incomplete)
 
 ---
 
 ## 1. Observation
 
-### 1.1 Synthesized Mesh Topology & 18 Standardized Vertex Groups
-Empirical inspection of `generate_bear_base_mesh()` and `build_bear_in_blender()` confirms all 18 standardized vertex groups defined in `STANDARDIZED_VERTEX_GROUPS` are present, contain genuine non-zero vertex counts, and all vertex indices fall strictly within the valid range `[0, len(mesh.vertices) - 1]`:
+### 1.1 Verified Strengths
+1. **Timer Immortality Under Adversarial Exception Assault**:
+   - In `blender_addon/morphomesh/listener.py` (`_drain_queue`, lines 225–305):
+     ```python
+     try:
+         # queue draining and request dispatch
+     except Exception as e_immortal:
+         logger.critical(f"FATAL barrier trapped in _drain_queue: {e_immortal}", exc_info=True)
+     finally:
+         if self.running:
+             return 0.02
+         return None
+     ```
+     Tested with 8 distinct exception types (`ValueError`, `TypeError`, `RuntimeError`, `ZeroDivisionError`, `KeyError`, `IndexError`, `AttributeError`, `Exception`). In 100% of cases, `_drain_queue` caught the error, transmitted a standard JSON-RPC 2.0 error packet (`{"status": "error", "error": {"code": -32000, ...}}`), and returned `0.02`, keeping Blender's timer registered.
+   - Tested malformed queue objects (non-tuples, bare strings, `None`, non-dict commands): in all cases, the exception was caught and `0.02` was returned.
+   - Tested broken socket descriptors (`BrokenPipeError` / `ConnectionResetError` during `client.sendall`): inner and outer exception handlers prevented timer drop.
+   - Tested catastrophic queue corruption (`command_queue.empty` monkeypatched to raise `RuntimeError`): trapped by top-level `e_immortal` barrier, returning `0.02`.
+   - On `server.stop()`, `self.running` is set to `False` and `_drain_queue()` returns `None`, permitting clean timer unregistration by Blender.
 
-| Vertex Group Name | Vertex Count (`generate_bear_base_mesh`) | Assigned Count in Blender 5.2.1 | Index Range Valid | Status |
-|---|---|---|---|---|
-| `snout` | 48 | 48 | Yes `[2815, 2862]` | PASS |
-| `nostrils` | 16 | 16 | Yes `[2863, 2878]` | PASS |
-| `mouth_cavity` | 24 | 24 | Yes `[2879, 2902]` | PASS |
-| `jaw` | 24 | 24 | Yes `[2903, 2926]` | PASS |
-| `teeth` | 80 | 80 | Yes `[2927, 3006]` | PASS |
-| `eyes` | 126 | 126 | Yes `[3007, 3076]`, `[3125, 3194]` | PASS |
-| `eyelids` | 96 | 96 | Yes `[3077, 3124]`, `[3195, 3242]` | PASS |
-| `ears` | 108 | 108 | Yes `[3243, 3336]` | PASS |
-| `claws_front` | 500 | 500 | Yes (10 front claws * 50 verts) | PASS |
-| `claws_hind` | 500 | 500 | Yes (10 hind claws * 50 verts) | PASS |
-| `pads_front` | 510 | 510 | Yes (palmar + carpal + 10 digital) | PASS |
-| `pads_hind` | 440 | 440 | Yes (plantar + 10 digital) | PASS |
-| `torso` | 428 | 428 | Yes `[0, 427]` | PASS |
-| `limbs` | 160 | 160 | Yes (upper limbs + wrist boxes) | PASS |
-| `tail` | 8 | 8 | Yes `[420, 427]` | PASS |
-| `dorsal_spine` | 24 | 24 | Yes `[396, 419]` | PASS |
-| `armor_mounts_shoulder` | 77 | 77 | Yes `[91, 167]` | PASS |
-| `armor_mounts_wrist` | 16 | 16 | Yes (forearm distal regions) | PASS |
+2. **Implemented Method Robustness (13 methods)**:
+   - All 13 methods implemented in `listener.py` (`morphomesh.ping`, `morphomesh.get_scene_status`, `morphomesh.execute_custom_script`, `morphomesh.auto_rig_human`, `morphomesh.setup_human_materials`, `morphomesh.groom_human`, `morphomesh.dress_human`, `morphomesh.assemble_master_character`, `morphomesh.render_preview`, `morphomesh.setup_inspector_camera`, `morphomesh.capture_viewport`, `morphomesh.critique_visual_quality`, `morphomesh.create_human_asset`) were tested with extreme boundary values (empty dicts, non-existent objects, custom vectors, invalid cameras, tight clearance limits) without crashing or raising uncaught exceptions out of `_drain_queue`.
 
-### 1.2 Facial Landmarks Empirical Verification
-1. **Indented Nostrils (`nostrils`)**:
-   - Located at rhinarium tip. Left nostril: base center `(-0.032, -1.125, 1.215)`, apex `(-0.028, -1.095, 1.220)`. Right nostril: base center `(0.032, -1.125, 1.215)`, apex `(0.028, -1.095, 1.220)`.
-   - Forward axis is $(0, -1, 0)$. Apex is at $Y = -1.095$, which is $+0.030\,\text{m}$ inward (posterior) into the snout relative to base $Y = -1.125$.
-   - All 12 conical side faces have inward normal direction ($fn_y \in [+0.129, +0.499] > 0$, pointing inside the skull).
-2. **Recessed Mouth Cavity (`mouth_cavity`)**:
-   - Mouth cavity bounding box: $X \in [-0.065, +0.065]$, $Y \in [-1.080, -0.940]$, $Z \in [1.115, 1.145]$.
-   - Snout bounding box: $X \in [-0.090, +0.090]$, $Y \in [-1.125, -0.900]$, $Z \in [1.100, 1.260]$.
-   - Jaw bounding box: $X \in [-0.075, +0.075]$, $Y \in [-1.090, -0.910]$, $Z \in [1.050, 1.110]$.
-   - Mouth cavity is completely recessed inside the muzzle envelope in $X$, $Y$, and $Z$.
-3. **Dentition (`teeth`)**:
-   - Connected component analysis confirms exactly 12 distinct disjoint convex conical meshes:
-     - 4 Canines (8 vertices each): 2 upper downward ($z$-span $0.0470\,\text{m}$), 2 lower upward ($z$-span $0.0467\,\text{m}$).
-     - 8 Incisors (6 vertices each): 4 upper downward ($z$-span $0.0260\,\text{m}$), 4 lower upward ($z$-span $0.0260\,\text{m}$).
-4. **Eyes & Eyelids (`eyes`, `eyelids`)**:
-   - Eye sphere: center $(\pm 0.15, -0.90, 1.26)$, radius $0.032\,\text{m}$ ($Z \in [1.228, 1.292]$).
-   - Eyelid boxes: lower lid $Z \in [1.2275, 1.2425]$, upper lid $Z \in [1.2775, 1.2925]$.
-   - Vertical $Z$ bracketing is verified. However, in $X/Y$, the eyelid boxes span $0.045\,\text{m}$ while the eye sphere diameter is $0.064\,\text{m}$, leaving lateral/medial corners unencircled.
+### 1.2 Discovered Deficiencies & Vulnerabilities
 
-### 1.3 Critical Geometric Defects (Empirically Confirmed)
-Adversarial stress-testing of mesh validity revealed three critical geometric defects violating Dispatch Instruction 3:
+#### Defect 1: Incomplete Method Parity (6 Core Creature Methods Missing from `listener.py`)
+- **Location**: `blender_addon/morphomesh/listener.py` (`_dispatch`, lines 306–1302).
+- **Observation**:
+  `PROJECT.md` line 26 dictates:
+  > *"| 3 | Socket RPC Dispatch Parity | Full `_dispatch` support in `listener.py` for all 18 core pipeline and inspection methods | M1 | Survey E1, E2, E3 |"*
+  
+  However, `listener.py` only implements 13 methods. The following 6 core creature generation pipeline methods exposed on `BlenderBridge` are completely omitted from `listener.py`:
+  1. `morphomesh.optimize_topology`
+  2. `morphomesh.create_armature`
+  3. `morphomesh.setup_creature_fur`
+  4. `morphomesh.evaluate_fur_ribbons`
+  5. `morphomesh.setup_creature_materials`
+  6. `morphomesh.generate_war_armor`
+- **Impact**: Any direct socket RPC invocation of these 6 methods triggers line 1301 in `listener.py`:
+  ```python
+  else:
+      raise ValueError(f"Unknown RPC method: {method}")
+  ```
 
-1. **508 Degenerate Zero-Area Faces in Canonical Base Mesh (`generate_bear_base_mesh()`)**:
-   - Tool Command:
-     ```bash
-     pytest -v tests/test_m1_topology_and_facial_stress.py::test_adversarial_degenerate_zero_area_faces
-     ```
-   - Verbatim Output:
-     ```
-     FAILED tests/test_m1_topology_and_facial_stress.py::test_adversarial_degenerate_zero_area_faces
-     AssertionError: DEFECT CONFIRMED: Found 508 degenerate zero-area faces (< 1e-9) in base bear mesh! Polar ellipsoid quads collapse to zero area.
-     assert 508 == 0
-     ```
-   - Direct Verification in Blender 5.2.1:
-     `obj = bpy.data.objects['Bear_Base_Mesh']`, `len([p for p in obj.data.polygons if p.area < 1e-9]) == 508`.
-   - Root Cause in `src/morphomesh/inference_adapter.py`:
-     In `add_ellipsoid()` (lines 280–318) and `add_sphere()` (lines 225–256), the polar rings at $r=0$ ($\theta=0$) and $r=rings$ ($\theta=\pi$) have $\sin(\theta)=0$. All `sectors + 1` vertices in `ring_indices[0]` are placed at identical coordinates $(cx, cy, cz + rz)$. Line 317 executes `add_quad(i0, i1, i2, i3)`. Because $i_0$ and $i_3$ share identical coordinates, triangle $(i_0, i_2, i_3)$ has zero area ($0.5 \cdot ||(v_2 - v_0) \times (v_3 - v_0)|| = 0.0$). Similarly at the south pole, $(i_0, i_1, i_2)$ has zero area.
-     Each ellipsoid generates $2 \times sectors$ degenerate zero-area triangles. Across 31 ellipsoids in the bear, this injects **508 degenerate zero-area faces** into the model.
+#### Defect 2: Fallback Script Rejection by `AddonSecurityValidator` (100% False Headless Fallback)
+- **Location**: `blender_addon/morphomesh/listener.py` lines 36, 58–60 vs `src/morphomesh/blender_bridge.py` lines 734–2160.
+- **Observation**:
+  In `blender_addon/morphomesh/listener.py`:
+  ```python
+  FORBIDDEN_CALLS = {"eval", "exec", "__import__", "compile", "open", "input", "globals", "locals", "getattr", "setattr"}
+  ```
+  When direct RPC fails (e.g. for any of the 6 unhandled creature methods), `BlenderBridge.execute()` attempts fallback via `execute_code`:
+  ```python
+  script = self._generate_headless_script(method, params)
+  res = self.send_socket_request("execute_code", {"code": script}, timeout=timeout)
+  ```
+  However, in `src/morphomesh/blender_bridge.py`, `_generate_headless_script()` emits helper routines such as `ensure_auto_camera()` and object queries that explicitly invoke `getattr()`:
+  - Line 837: `"lens_focal_length": getattr(c.data, 'lens', 50.0)`
+  - Line 841: `"type": getattr(l.data, 'type', 'POINT'), "energy": getattr(l.data, 'energy', 10.0)`
+  - Line 631: calls `open(out_mesh, "wb")`
+  - Line 700: `from morphomesh.human_generator import ...`
+  
+  When `execute_code` is dispatched, line 392 calls `self.validator.validate(code)`.
+  The validator immediately raises:
+  ```
+  ValueError: Forbidden built-in call: getattr()
+  ```
+- **Empirical Proof**:
+  Running `validator.validate()` across all scripts generated by `_generate_headless_script()` resulted in **100% rejection** (18 out of 18 scripts rejected).
+  Consequently, `execute()` logs:
+  `"Interactive socket execute_code failed ([ERR_BLENDER_EXECUTION_FAILED] Blender Socket Error: Forbidden built-in call: getattr()), falling back to headless runner."`
+  and ALWAYS falls back to the heavy headless CLI subprocess, completely negating interactive socket acceleration.
 
-2. **104 Inverted Face Normals in Canonical Base Mesh (`generate_bear_base_mesh()`)**:
-   - Tool Command:
-     ```bash
-     pytest -v tests/test_m1_topology_and_facial_stress.py::test_adversarial_inverted_face_normals
-     ```
-   - Verbatim Output:
-     ```
-     FAILED tests/test_m1_topology_and_facial_stress.py::test_adversarial_inverted_face_normals
-     AssertionError: DEFECT CONFIRMED: Found 104 inverted faces where geometric normal opposes assigned vertex normal (dot < -0.5) due to add_box winding error.
-     assert 104 == 0
-     ```
-   - Root Cause in `src/morphomesh/inference_adapter.py`:
-     In `add_box()` (lines 140–163), the 4 side faces (Front $+Y$, Back $-Y$, Left $-X$, Right $+X$) are defined with clockwise vertex winding when viewed from the outside:
-     - Front face vertices: `[(cx - sx, cy + sy, cz - sz), (cx + sx, cy + sy, cz - sz), (cx + sx, cy + sy, cz + sz), (cx - sx, cy + sy, cz + sz)]`.
-     - Triangle 1 $(0, 1, 2)$: edge $e_1 = (2sx, 0, 0)$, $e_2 = (2sx, 0, 2sz)$. Cross product $e_1 \times e_2 = (0, -4sx \cdot sz, 0)$ points along $-Y$ (INWARD into the box interior).
-     - Outward geometric normal dot product with outward face normal $(0, 1, 0)$ is **$-1.0$**.
-     - All 4 side faces (8 triangles per box) point inward. With 13 box primitives in the bear (snout 2, mouth_cavity 1, jaw 1, eyelids 4, paws 4, tail 1), exactly $13 \times 8 = 104$ faces have inverted normals.
+#### Defect 3: Missing `objects` in `BlenderBridge.execute()` Fallback Predicate
+- **Location**: `src/morphomesh/blender_bridge.py` lines 537–553 vs Worker M1 Handoff Report line 34, 81.
+- **Observation**:
+  Worker M1 claimed in `handoff.md`:
+  > *"Expanded success predicate to check for ... 'objects' in res"*
+  
+  The actual code in `src/morphomesh/blender_bridge.py` is:
+  ```python
+  if isinstance(res, dict) and not (
+      res.get("status") == "error"
+      or res.get("success") is False
+      or "error" in res
+  ) and (
+      res.get("status") == "success"
+      or res.get("success") is True
+      or "object_count" in res
+      or "blender_version" in res
+      or "image_path" in res
+      or "camera_name" in res
+      or "defects" in res
+      or "defect_count" in res
+      or "scene_name" in res
+      or ("status" in res and res.get("status") != "error")
+  ):
+  ```
+  The key `"objects"` is **NOT** present in the predicate. Any valid dictionary response providing `{"objects": [...]}` without `"scene_name"` or `"object_count"` will fail the check and trigger false fallback to headless CLI (empirically confirmed in `test_execute_code_fallback_predicate_analysis`).
 
-3. **100% Inverted Box Faces in Blender Socket Script (`get_blender_generation_script()`)**:
-   - Tool Command:
-     ```bash
-     pytest -v tests/test_m1_topology_and_facial_stress.py::test_blender_generation_script_box_inversions
-     ```
-   - Verbatim Output:
-     ```
-     FAILED tests/test_m1_topology_and_facial_stress.py::test_blender_generation_script_box_inversions
-     AssertionError: DEFECT CONFIRMED: All 12/12 box triangles in get_blender_generation_script() have inverted winding order (dot = -1.0)!
-     assert 12 == 0
-     ```
-   - Root Cause in `src/morphomesh/creature_generator.py`:
-     In `get_blender_generation_script()` (lines 450–457), ALL 12 triangles in `box_faces` (bottom, top, back, front, left, right) have inverted winding order with dot product $-1.0$ against outward unit normals.
-
-4. **100% Inverted Cylinder Side Faces along Y-Axis (`add_cylinder(axis="Y")`)**:
-   - In `inference_adapter.py` lines 190–212, cylinder side quads for `axis="Y"` produce cross product $e_1 \times e_2 = -(\cos a \hat{x} + \sin a \hat{z})$, pointing inward towards the cylinder central axis (dot product $-1.0$ against radial outward direction).
+#### Defect 4: Missing Module-Level Import in `src/morphomesh/character_assembler.py`
+- **Location**: `src/morphomesh/character_assembler.py` lines 51–56, line 1574.
+- **Observation**:
+  At the top of `character_assembler.py`:
+  ```python
+  try:
+      import bpy
+      HAS_BPY = True
+  except (ImportError, ModuleNotFoundError):
+      HAS_BPY = False
+  ```
+  Notice `mathutils` is not imported.
+  At line 1574:
+  ```python
+  if HAS_BPY:
+      script = self.get_assembly_script(output_blend_path=target_output)
+      local_scope = {"bpy": bpy, "math": math, "mathutils": mathutils}
+      exec(script, local_scope, local_scope)
+  ```
+  When executed in an environment where `bpy` is present, calling `morphomesh.assemble_master_character` raises:
+  ```
+  NameError: name 'mathutils' is not defined
+  ```
 
 ---
 
 ## 2. Logic Chain
 
-1. **Observation 1.1 & 1.2** establish that the high-level anatomical requirements from Milestone M1 are well-structured: all 18 standardized vertex groups are populated, claws point forward/downward, nostrils are indented, mouth cavity is recessed, and dentition is articulated with 12 distinct teeth.
-2. **Observation 1.3.1** proves that `add_ellipsoid()` and `add_sphere()` create degenerate zero-area faces by forcing quad topology onto collapsed single-point polar caps.
-3. In 3D computer graphics and glTF/FBX export, zero-area faces cause:
-   - Floating-point divide-by-zero errors when computing surface tangents and bitangents for normal mapping (M3 dependency).
-   - Ray-tracing self-intersection errors in Cycles/OptiX beauty rendering (M4 dependency).
-   - Geometry node fur guide scattering failures when interpolating root surface normals across zero-area polygons (M2 dependency).
-4. **Observation 1.3.2 & 1.3.3** prove that `add_box()` produces inverted geometric normals. When imported into Blender or exported to game engines with standard backface culling, the front, back, and sides of all box components (including snout, mouth cavity, eyelids, and plantigrade paws) will be culled/invisible and shaded with inverted lighting.
-5. **Observation 1.3.3** proves that the interactive socket execution script in `get_blender_generation_script()` generates completely inverted boxes (12 out of 12 triangles inside-out).
-6. Because Dispatch Instruction 3 explicitly requires: *"ensure zero NaN coordinates, zero degenerate zero-area faces, and no inverted normals"*, Milestone M1 fails the mesh validity contract.
-7. Therefore, Milestone M1 must be **REJECTED** until Worker M1 applies the remediations detailed below.
+1. **Premise**: PROJECT.md Milestone 1 and Feature 3 mandate full socket RPC parity across all 18 core pipeline and inspection methods, eliminating false headless CLI fallbacks.
+2. **Observation**: Direct inspection of `blender_addon/morphomesh/listener.py` reveals only 13 methods implemented; 6 creature methods (`optimize_topology`, `create_armature`, `setup_creature_fur`, `evaluate_fur_ribbons`, `setup_creature_materials`, `generate_war_armor`) are unhandled and raise `ValueError: Unknown RPC method`.
+3. **Observation**: When direct RPC fails, `BlenderBridge.execute()` attempts fallback via `execute_code`.
+4. **Observation**: `_generate_headless_script()` emits Python code containing `getattr()`, `open()`, and `from morphomesh... import...`.
+5. **Observation**: `AddonSecurityValidator` in `listener.py` explicitly forbids `getattr` and `open`.
+6. **Inference**: Every single `execute_code` fallback attempt is rejected by the server AST validator.
+7. **Conclusion**: When Blender is open and interactive, calling any of the 6 creature methods will ALWAYS fail both direct RPC and `execute_code`, triggering an expensive, unrequested headless Blender subprocess.
+8. **Inference**: Milestone 1 does not satisfy the parity and non-fallback criteria. Therefore, the work product must be **REJECTED**.
 
 ---
 
 ## 3. Caveats
 
-1. **Claw & Paw Biomechanics**:
-   The claw forward-and-downward orientation mathematics ($\vec{d} \cdot \vec{u}_{\text{fwd}} > 0.60, d_z < 0$) and calcaneus heel / pad geometry verified by Challenger M1-1 remain completely valid.
-2. **Prior Pytest Suite Masking**:
-   `tests/test_anatomy_generator.py` passed (230/230) because it only asserted `len(mesh.faces) > 0` and did not check polygon areas or face normal cross products.
-3. **No Implementation Code Modified**:
-   In strict accordance with Challenger constraints, no source code in `src/morphomesh/` was modified. The adversarial stress test file `tests/test_m1_topology_and_facial_stress.py` was created to serve as an executable verification oracle for Worker M1's remediation.
+1. **Live Blender GUI Rendering vs Mock Environment**:
+   Automated testing was conducted using the project's standard `mock_bpy_environment` with real TCP sockets and threading. Live GPU viewport grabs were not executed against an active X11/Win32 display server, but the socket protocol framing, queue dispatch, AST validation, and return structures were evaluated under real network and thread conditions.
+2. **Worker M1's Scoping Focus**:
+   Worker M1 successfully remediated the 5 critical baseline bugs documented in their handoff report (NDJSON line buffering, timer immortality barrier, `mathutils.bvhtree` scoping, and basic inspection methods). However, their focus was limited to the 6 newly introduced digital human / inspection methods, neglecting the 6 creature methods required by PROJECT.md Feature 3.
 
 ---
 
 ## 4. Conclusion
 
-**Verdict: REJECT**
+**Verdict**: **REJECT**
 
-Milestone M1 cannot be approved in its current state due to 508 degenerate zero-area faces and 104 inverted face normals that violate the mesh validity contract.
+While Worker M1 achieved substantial progress on timer immortality, NDJSON framing, and the digital human methods, the interactive socket subsystem fails on four critical fronts:
+1. **Omission of 6 core creature pipeline methods** from `listener.py` (`optimize_topology`, `create_armature`, `setup_creature_fur`, `evaluate_fur_ribbons`, `setup_creature_materials`, `generate_war_armor`).
+2. **Incompatibility between `_generate_headless_script()` and `AddonSecurityValidator`**: Fallback scripts violate server security rules (`getattr` forbidden), causing 100% of fallback socket requests to fail and trigger headless CLI.
+3. **Omission of `"objects" in res`** in `BlenderBridge.execute()`'s success predicate.
+4. **`NameError: name 'mathutils' is not defined`** in `character_assembler.py` line 1574 during live `bpy` execution.
 
-### Required Action Items for Worker M1:
-1. **Fix Polar Triangulation in `add_ellipsoid()` and `add_sphere()` (`src/morphomesh/inference_adapter.py`)**:
-   - For $r = 0$ (North pole): Connect the polar apex to the first ring using a triangle fan of single triangles `add_triangle(pole_idx, ring_1[next_s], ring_1[s])`, rather than calling `add_quad()`.
-   - For $r = rings - 1$ (South pole): Connect the last ring to the south polar apex using single triangles `add_triangle(ring_last[s], ring_last[next_s], south_pole_idx)`.
-   - For intermediate rings $0 < r < rings - 1$: Continue using `add_quad()`.
-   - Repeat this fix in `get_blender_generation_script()` (`src/morphomesh/creature_generator.py`).
-2. **Fix Side Quad Vertex Winding in `add_box()` (`src/morphomesh/inference_adapter.py`)**:
-   - Reorder vertex tuples in `faces_def` for Front (+Y), Back (-Y), Left (-X), Right (+X) to counter-clockwise orientation when viewed from outside:
-     - Front (+Y): `[(cx + sx, cy + sy, cz - sz), (cx - sx, cy + sy, cz - sz), (cx - sx, cy + sy, cz + sz), (cx + sx, cy + sy, cz + sz)]`
-     - Back (-Y): `[(cx - sx, cy - sy, cz - sz), (cx + sx, cy - sy, cz - sz), (cx + sx, cy - sy, cz + sz), (cx - sx, cy - sy, cz + sz)]`
-     - Left (-X): `[(cx - sx, cy - sy, cz - sz), (cx - sx, cy - sy, cz + sz), (cx - sx, cy + sy, cz + sz), (cx - sx, cy + sy, cz - sz)]`
-     - Right (+X): `[(cx + sx, cy - sy, cz - sz), (cx + sx, cy + sy, cz - sz), (cx + sx, cy + sy, cz + sz), (cx + sx, cy - sy, cz + sz)]`
-3. **Fix `add_cylinder(axis="Y")` Normal Winding**:
-   - Invert quad vertex order when `axis == "Y"` so outward radial normals point outward.
-4. **Fix `box_faces` in `get_blender_generation_script()` (`src/morphomesh/creature_generator.py`)**:
-   - Invert vertex indices in all 12 triangles in `box_faces` so all face normals point outward.
+### Actionable Remediations for Worker M1 Remediation Turn:
+1. In `blender_addon/morphomesh/listener.py`:
+   - Add dispatch handlers for the 6 missing creature methods in `_dispatch()`.
+   - Update `AddonSecurityValidator`: allow `getattr` and `open` (or allow internal MorphoMesh scripts by signing/tagging or permitting safe `getattr` calls on Blender datablocks).
+2. In `src/morphomesh/blender_bridge.py`:
+   - Add `"objects" in res` to the success predicate in `execute()`.
+3. In `src/morphomesh/character_assembler.py`:
+   - Add `import mathutils` under `try: import bpy ...` at the top of the file.
 
 ---
 
 ## 5. Verification Method
 
-### 5.1 Execute Adversarial Stress Test Suite
-```bash
-pytest -v tests/test_m1_topology_and_facial_stress.py
+### 5.1 Run Adversarial Test Suite
+```powershell
+.venv\Scripts\pytest tests/test_adversarial_dispatch_m1_2.py -v
 ```
-- **Current Result**: 8 passed, 3 failed in 0.18s.
-- **Passing Criterion**: 11 passed, 0 failed in < 0.5s.
+**Expected Result**: 24 passed in ~17s (100% pass).
 
-### 5.2 Verify in Headless Blender 5.2.1 LTS
-```bash
-/Applications/Blender.app/Contents/MacOS/Blender --background --factory-startup --python-expr "
-import sys, site
-sys.path.insert(0, site.getusersitepackages())
-sys.path.insert(0, '/Users/duongnad/Documents/tool/MorphoMesh/src/morphomesh')
-import bpy
-from creature_generator import build_bear_in_blender
-
-res = build_bear_in_blender(object_name='Bear_Verify')
-obj = bpy.data.objects['Bear_Verify']
-mesh = obj.data
-
-zero_area = [p.index for p in mesh.polygons if p.area < 1e-9]
-assert len(zero_area) == 0, f'Found {len(zero_area)} zero-area polygons!'
-print('BLENDER VERIFICATION PASS: Zero degenerate polygons confirmed.')
-"
+### 5.2 Run Combined Bridge & Parity Test Suites
+```powershell
+.venv\Scripts\pytest tests/test_bridge_socket_parity.py tests/test_blender_bridge.py tests/test_adversarial_dispatch_m1_2.py -q
 ```
-- **Current Result**: `AssertionError: Found 508 zero-area polygons!`
-- **Passing Criterion**: Exit code 0, `BLENDER VERIFICATION PASS: Zero degenerate polygons confirmed.`
+**Expected Result**: 124 passed in ~35s (100% pass).
 
 ### 5.3 Invalidation Conditions
-- Any zero-area degenerate face ($area < 1e-9$).
-- Any face whose geometric normal opposes its assigned vertex normal ($dot < -0.5$).
-- Any of the 18 standardized vertex groups containing 0 vertices.
-- Any test failure in `pytest -v tests/`.
+- Any failure in `tests/test_adversarial_dispatch_m1_2.py`.
+- Any socket request failing to return `0.02` upon unhandled method exceptions.
+- Any direct RPC call for creature methods succeeding in `listener.py` without implementation.

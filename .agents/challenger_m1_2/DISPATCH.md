@@ -1,24 +1,16 @@
-# Dispatch Assignment: Challenger M1-2
+## 2026-09-07T04:00:35Z
+You are Challenger M1_2: Adversarial Dispatch Challenger (Method Parity & Concurrency).
+Your working directory is: e:\tool\mcp\MorphoMesh\.agents\challenger_m1_2
+Your parent orchestrator conversation ID is: 577aaa33-6b3f-4ebc-93eb-fcc632d94bc9
+The authoritative user request is at: e:\tool\mcp\MorphoMesh\ORIGINAL_REQUEST.md (specifically § 2026-09-07T03:34:32Z). You MUST read this file first.
+The project scope document is at: e:\tool\mcp\MorphoMesh\PROJECT.md (specifically Milestone 1).
+The Worker's handoff report is at: e:\tool\mcp\MorphoMesh\.agents\worker_m1\handoff.md.
 
-**Identity**: teamwork_preview_challenger
-**Assigned Task**: Empirical & Adversarial Topology & Facial Landmark Stress Testing
-**Working Directory**: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/challenger_m1_2`
-**Authoritative Request**: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/ORIGINAL_REQUEST.md` (read sections `## 2026-09-05T15:44:52Z` and `## 2026-09-05T15:47:35Z`)
-**Project Plan**: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/orchestrator_bear_1/PROJECT.md`
-**Worker Handoff**: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/worker_m1/handoff.md`
-
-## Instructions
-1. Write and execute an adversarial inspection script verifying that all 18 standardized vertex groups contain genuine, non-zero vertex counts on synthesized meshes.
-2. Check facial geometry: verify nostrils have inward normal direction (indented nares), mouth cavity vertices are recessed inside cranium/jaw, canines and incisors are distinct convex teeth meshes, and eyelids form a ring enclosing the eyes.
-3. Test mesh validity: ensure zero NaN coordinates, zero degenerate zero-area faces, and no inverted normals.
-4. Report all stress test results and provide a verdict (`APPROVE` or `REJECT`) in `/Users/duongnad/Documents/tool/MorphoMesh/.agents/challenger_m1_2/handoff.md`.
-
-## 2026-09-05T16:04:10Z
-You are Challenger M1-2 for Milestone M1.
-Your working directory is `/Users/duongnad/Documents/tool/MorphoMesh/.agents/challenger_m1_2`.
-Read your dispatch at `/Users/duongnad/Documents/tool/MorphoMesh/.agents/challenger_m1_2/DISPATCH.md`, `/Users/duongnad/Documents/tool/MorphoMesh/.agents/ORIGINAL_REQUEST.md`, `/Users/duongnad/Documents/tool/MorphoMesh/.agents/orchestrator_bear_1/PROJECT.md`, and Worker M1 handoff at `/Users/duongnad/Documents/tool/MorphoMesh/.agents/worker_m1/handoff.md`.
-
-Perform adversarial topology and facial landmark stress-testing:
-1. Write and run a script asserting that all 18 standardized vertex groups contain genuine, non-zero vertex counts.
-2. Adversarially verify facial geometry: indented nostrils, recessed mouth cavity, distinct canines/incisors, eyelids enclosing eye spheres, and absence of NaN/degenerate faces.
-Write your verdict (APPROVE or REJECT) and findings in `handoff.md` and message the orchestrator.
+Objective:
+Empirically verify method parity, dispatch robustness, and timer immortality:
+- Write and execute an adversarial test harness in your working directory testing:
+  1. Calling every single dispatch method with diverse parameter structures (valid and edge-case parameters).
+  2. Simulating unhandled exceptions inside command dispatch to empirically verify that _drain_queue catches them and the timer callback continues rescheduling (returns 0.02).
+  3. Verifying that BlenderBridge.execute() correctly unpacks all response structures without falsely falling back to headless CLI.
+- Run tests and provide an empirical verdict: APPROVE or REJECT.
+- Write your handoff report to e:\tool\mcp\MorphoMesh\.agents\challenger_m1_2\handoff.md and notify your parent orchestrator via send_message.

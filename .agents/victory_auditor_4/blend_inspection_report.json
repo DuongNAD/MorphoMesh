@@ -1,0 +1,1331 @@
+{
+  "filepath": "E:\\tool\\mcp\\MorphoMesh\\output\\yu_nian_an\\Yu_Nian_An_Master.blend",
+  "objects": [
+    "Armature_Yu_Nian_An_Rigify",
+    "Camera_Back",
+    "Camera_Face_Closeup_135mm",
+    "Camera_Front",
+    "Camera_FullBody",
+    "Camera_Portrait_85mm",
+    "Camera_Profile",
+    "Camera_ThreeQuarter",
+    "Hair_Back_Cascade",
+    "Hair_Eyebrows",
+    "Hair_Eyelashes",
+    "Hair_Hime_Bangs",
+    "Hair_Hime_Sidelocks",
+    "Hair_Scalp_Crown",
+    "Light_Fill_Softbox",
+    "Light_Key_Softbox",
+    "Light_Rim_HairLight",
+    "Mesh_Dress_Bodice",
+    "Mesh_Dress_PleatedSkirt",
+    "Mesh_Dress_WaistSash",
+    "Mesh_Eye_Left_CorneaSclera",
+    "Mesh_Eye_Left_IrisPupil",
+    "Mesh_Eye_Right_CorneaSclera",
+    "Mesh_Eye_Right_IrisPupil",
+    "Mesh_Eyelid_Left",
+    "Mesh_Eyelid_Right",
+    "Mesh_Lips",
+    "Mesh_Sandal_L",
+    "Mesh_Sandal_R",
+    "Prop_Butterfly_00",
+    "Prop_Butterfly_01",
+    "Prop_Butterfly_02",
+    "Prop_Butterfly_03",
+    "Prop_Butterfly_04",
+    "Prop_Butterfly_05",
+    "Prop_Butterfly_06",
+    "Prop_Butterfly_07",
+    "Prop_Butterfly_08",
+    "Prop_Butterfly_09",
+    "Prop_Marionette_Strings",
+    "Target_Lighting_Focus",
+    "Yu_Nian_An_Body"
+  ],
+  "collections": {
+    "01_Body": [
+      "Yu_Nian_An_Body",
+      "Mesh_Eye_Left_CorneaSclera",
+      "Mesh_Eye_Right_CorneaSclera",
+      "Mesh_Eye_Left_IrisPupil",
+      "Mesh_Eye_Right_IrisPupil",
+      "Mesh_Eyelid_Left",
+      "Mesh_Eyelid_Right",
+      "Mesh_Lips"
+    ],
+    "02_Hair": [
+      "Hair_Hime_Bangs",
+      "Hair_Hime_Sidelocks",
+      "Hair_Scalp_Crown",
+      "Hair_Back_Cascade",
+      "Hair_Eyebrows",
+      "Hair_Eyelashes"
+    ],
+    "03_Wardrobe": [
+      "Mesh_Dress_Bodice",
+      "Mesh_Dress_WaistSash",
+      "Mesh_Dress_PleatedSkirt",
+      "Mesh_Sandal_L",
+      "Mesh_Sandal_R"
+    ],
+    "04_Props": [
+      "Prop_Marionette_Strings",
+      "Prop_Butterfly_00",
+      "Prop_Butterfly_01",
+      "Prop_Butterfly_02",
+      "Prop_Butterfly_03",
+      "Prop_Butterfly_04",
+      "Prop_Butterfly_05",
+      "Prop_Butterfly_06",
+      "Prop_Butterfly_07",
+      "Prop_Butterfly_08",
+      "Prop_Butterfly_09"
+    ],
+    "05_Armature": [
+      "Armature_Yu_Nian_An_Rigify"
+    ],
+    "06_Lights_Camera": [
+      "Target_Lighting_Focus",
+      "Light_Key_Softbox",
+      "Light_Fill_Softbox",
+      "Light_Rim_HairLight",
+      "Camera_Portrait_85mm",
+      "Camera_FullBody",
+      "Camera_Front",
+      "Camera_ThreeQuarter",
+      "Camera_Profile",
+      "Camera_Back",
+      "Camera_Face_Closeup_135mm"
+    ],
+    "Yu_Nian_An_Master": []
+  },
+  "body": {
+    "name": "Yu_Nian_An_Body",
+    "verts": 2144,
+    "edges": 4072,
+    "faces": 2036,
+    "quads": 2036,
+    "tris": 0,
+    "ngons": 0,
+    "quad_percentage": 100.0,
+    "non_manifold_edges": 0,
+    "boundary_edges": 0,
+    "wire_edges": 0,
+    "zero_normal_faces": 0,
+    "non_quad_details": [],
+    "uv_layers": [
+      "UVMap"
+    ]
+  },
+  "shape_keys": {
+    "total_keys": 52,
+    "has_basis": true,
+    "keys": {
+      "eyeBlinkLeft": {
+        "delta_sum": 0.03687795592135841,
+        "max_delta": 0.009219489590731171,
+        "is_non_zero": true
+      },
+      "eyeLookDownLeft": {
+        "delta_sum": 0.01264919280827544,
+        "max_delta": 0.00316229820206886,
+        "is_non_zero": true
+      },
+      "eyeLookInLeft": {
+        "delta_sum": 0.011999996574245421,
+        "max_delta": 0.003000000507803591,
+        "is_non_zero": true
+      },
+      "eyeLookOutLeft": {
+        "delta_sum": 0.011999996574245421,
+        "max_delta": 0.003000000507803591,
+        "is_non_zero": true
+      },
+      "eyeLookUpLeft": {
+        "delta_sum": 0.012649191621902079,
+        "max_delta": 0.00316229820206886,
+        "is_non_zero": true
+      },
+      "eyeSquintLeft": {
+        "delta_sum": 0.013416483382558872,
+        "max_delta": 0.003354122091268889,
+        "is_non_zero": true
+      },
+      "eyeWideLeft": {
+        "delta_sum": 0.02039606086083243,
+        "max_delta": 0.0050990152152081076,
+        "is_non_zero": true
+      },
+      "eyeBlinkRight": {
+        "delta_sum": 0.03687795592135841,
+        "max_delta": 0.009219489590731171,
+        "is_non_zero": true
+      },
+      "eyeLookDownRight": {
+        "delta_sum": 0.01264919280827544,
+        "max_delta": 0.00316229820206886,
+        "is_non_zero": true
+      },
+      "eyeLookInRight": {
+        "delta_sum": 0.011999996574245421,
+        "max_delta": 0.003000000507803591,
+        "is_non_zero": true
+      },
+      "eyeLookOutRight": {
+        "delta_sum": 0.011999996574245421,
+        "max_delta": 0.003000000507803591,
+        "is_non_zero": true
+      },
+      "eyeLookUpRight": {
+        "delta_sum": 0.012649191621902076,
+        "max_delta": 0.00316229820206886,
+        "is_non_zero": true
+      },
+      "eyeSquintRight": {
+        "delta_sum": 0.013416483382558872,
+        "max_delta": 0.003354122091268889,
+        "is_non_zero": true
+      },
+      "eyeWideRight": {
+        "delta_sum": 0.02039606086083243,
+        "max_delta": 0.0050990152152081076,
+        "is_non_zero": true
+      },
+      "jawForward": {
+        "delta_sum": 0.47999996301426295,
+        "max_delta": 0.006000001015607182,
+        "is_non_zero": true
+      },
+      "jawLeft": {
+        "delta_sum": 0.40000000458821766,
+        "max_delta": 0.005000000846339318,
+        "is_non_zero": true
+      },
+      "jawRight": {
+        "delta_sum": 0.40000000458821766,
+        "max_delta": 0.005000000846339318,
+        "is_non_zero": true
+      },
+      "jawOpen": {
+        "delta_sum": 1.517893748270633,
+        "max_delta": 0.018973673390884002,
+        "is_non_zero": true
+      },
+      "mouthClose": {
+        "delta_sum": 0.03577671441040571,
+        "max_delta": 0.004472091818020319,
+        "is_non_zero": true
+      },
+      "mouthFunnel": {
+        "delta_sum": 0.06596965066248596,
+        "max_delta": 0.008246206332810745,
+        "is_non_zero": true
+      },
+      "mouthPucker": {
+        "delta_sum": 0.0960000162497149,
+        "max_delta": 0.012000002031214364,
+        "is_non_zero": true
+      },
+      "mouthLeft": {
+        "delta_sum": 0.06400000173819645,
+        "max_delta": 0.008000001354142909,
+        "is_non_zero": true
+      },
+      "mouthRight": {
+        "delta_sum": 0.06400000537617546,
+        "max_delta": 0.008000001354142909,
+        "is_non_zero": true
+      },
+      "mouthSmileLeft": {
+        "delta_sum": 0.11784742632746499,
+        "max_delta": 0.014730930166300381,
+        "is_non_zero": true
+      },
+      "mouthSmileRight": {
+        "delta_sum": 0.11784742632746499,
+        "max_delta": 0.014730930166300381,
+        "is_non_zero": true
+      },
+      "mouthFrownLeft": {
+        "delta_sum": 0.05824064504878701,
+        "max_delta": 0.007280080638906453,
+        "is_non_zero": true
+      },
+      "mouthFrownRight": {
+        "delta_sum": 0.05824064504878701,
+        "max_delta": 0.007280080638906453,
+        "is_non_zero": true
+      },
+      "mouthDimpleLeft": {
+        "delta_sum": 0.07155417254586359,
+        "max_delta": 0.008944273423976957,
+        "is_non_zero": true
+      },
+      "mouthDimpleRight": {
+        "delta_sum": 0.07155417579977079,
+        "max_delta": 0.008944273423976957,
+        "is_non_zero": true
+      },
+      "mouthStretchLeft": {
+        "delta_sum": 0.08158427804646891,
+        "max_delta": 0.010198035647641915,
+        "is_non_zero": true
+      },
+      "mouthStretchRight": {
+        "delta_sum": 0.08158427804646891,
+        "max_delta": 0.010198035647641915,
+        "is_non_zero": true
+      },
+      "mouthRollLower": {
+        "delta_sum": 0.04664770697026496,
+        "max_delta": 0.005830964970045222,
+        "is_non_zero": true
+      },
+      "mouthRollUpper": {
+        "delta_sum": 0.04664770697026496,
+        "max_delta": 0.005830964970045222,
+        "is_non_zero": true
+      },
+      "mouthShrugLower": {
+        "delta_sum": 0.5768910149003044,
+        "max_delta": 0.007211137824989775,
+        "is_non_zero": true
+      },
+      "mouthShrugUpper": {
+        "delta_sum": 0.03999966479930276,
+        "max_delta": 0.004999958099912845,
+        "is_non_zero": true
+      },
+      "mouthPressLeft": {
+        "delta_sum": 0.02884454297579634,
+        "max_delta": 0.0036055709935337767,
+        "is_non_zero": true
+      },
+      "mouthPressRight": {
+        "delta_sum": 0.02884454297579634,
+        "max_delta": 0.0036055709935337767,
+        "is_non_zero": true
+      },
+      "mouthLowerDownLeft": {
+        "delta_sum": 0.05824063686592339,
+        "max_delta": 0.007280079608240422,
+        "is_non_zero": true
+      },
+      "mouthLowerDownRight": {
+        "delta_sum": 0.05824063686592339,
+        "max_delta": 0.007280079608240422,
+        "is_non_zero": true
+      },
+      "mouthUpperUpLeft": {
+        "delta_sum": 0.05824063686592339,
+        "max_delta": 0.007280079608240422,
+        "is_non_zero": true
+      },
+      "mouthUpperUpRight": {
+        "delta_sum": 0.05824063686592339,
+        "max_delta": 0.007280079608240422,
+        "is_non_zero": true
+      },
+      "browDownLeft": {
+        "delta_sum": 0.0649002381546828,
+        "max_delta": 0.007211137824989775,
+        "is_non_zero": true
+      },
+      "browDownRight": {
+        "delta_sum": 0.0649002381546828,
+        "max_delta": 0.007211137824989775,
+        "is_non_zero": true
+      },
+      "browInnerUp": {
+        "delta_sum": 0.07200014724709984,
+        "max_delta": 0.008000016360788873,
+        "is_non_zero": true
+      },
+      "browOuterUpLeft": {
+        "delta_sum": 0.06552072362636141,
+        "max_delta": 0.007280080638906453,
+        "is_non_zero": true
+      },
+      "browOuterUpRight": {
+        "delta_sum": 0.06552072362636141,
+        "max_delta": 0.007280080638906453,
+        "is_non_zero": true
+      },
+      "cheekPuff": {
+        "delta_sum": 0.2884441074747071,
+        "max_delta": 0.014422207543071804,
+        "is_non_zero": true
+      },
+      "cheekSquintLeft": {
+        "delta_sum": 0.09486891402998536,
+        "max_delta": 0.006324595217764469,
+        "is_non_zero": true
+      },
+      "cheekSquintRight": {
+        "delta_sum": 0.09486891402998536,
+        "max_delta": 0.006324595217764469,
+        "is_non_zero": true
+      },
+      "noseSneerLeft": {
+        "delta_sum": 0.058309474616338106,
+        "max_delta": 0.005830948046548193,
+        "is_non_zero": true
+      },
+      "noseSneerRight": {
+        "delta_sum": 0.058309474616338106,
+        "max_delta": 0.005830948046548193,
+        "is_non_zero": true
+      },
+      "tongueOut": {
+        "delta_sum": 0.4853700306538137,
+        "max_delta": 0.020223751277242227,
+        "is_non_zero": true
+      }
+    }
+  },
+  "vertex_groups": {
+    "total_groups": 193,
+    "groups_with_weights": 103,
+    "groups": {
+      "head": 192,
+      "face": 55,
+      "eyes_left": 4,
+      "eyes_right": 4,
+      "eyelids": 8,
+      "eyebrows": 9,
+      "mouth": 80,
+      "lips": 8,
+      "teeth": 48,
+      "tongue": 24,
+      "neck": 72,
+      "torso": 48,
+      "chest": 96,
+      "waist": 72,
+      "hips": 72,
+      "arm_upper_L": 42,
+      "arm_lower_L": 56,
+      "hand_L": 302,
+      "fingers_L": 270,
+      "arm_upper_R": 42,
+      "arm_lower_R": 56,
+      "hand_R": 302,
+      "fingers_R": 270,
+      "leg_upper_L": 64,
+      "leg_lower_L": 128,
+      "foot_L": 168,
+      "leg_upper_R": 64,
+      "leg_lower_R": 128,
+      "foot_R": 168,
+      "scalp": 87,
+      "DEF-spine": 72,
+      "DEF-spine.001": 72,
+      "DEF-spine.002": 216,
+      "DEF-spine.003": 144,
+      "DEF-spine.004": 48,
+      "DEF-spine.005": 72,
+      "DEF-spine.006": 239,
+      "DEF-eye.L": 4,
+      "DEF-eye.R": 4,
+      "DEF-head": 256,
+      "DEF-brow.B.L.000": 4,
+      "DEF-brow.B.L.001": 0,
+      "DEF-brow.B.L.002": 0,
+      "DEF-brow.B.L.003": 0,
+      "DEF-brow.B.R.000": 5,
+      "DEF-brow.B.R.001": 0,
+      "DEF-brow.B.R.002": 0,
+      "DEF-brow.B.R.003": 0,
+      "DEF-brow.T.L.000": 0,
+      "DEF-brow.T.L.001": 0,
+      "DEF-brow.T.L.002": 0,
+      "DEF-brow.T.L.003": 0,
+      "DEF-brow.T.R.000": 0,
+      "DEF-brow.T.R.001": 0,
+      "DEF-brow.T.R.002": 0,
+      "DEF-brow.T.R.003": 0,
+      "DEF-cheek.B.L.000": 0,
+      "DEF-cheek.B.L.001": 0,
+      "DEF-cheek.B.R.000": 0,
+      "DEF-cheek.B.R.001": 0,
+      "DEF-cheek.T.L.000": 0,
+      "DEF-cheek.T.L.001": 0,
+      "DEF-cheek.T.R.000": 0,
+      "DEF-cheek.T.R.001": 0,
+      "DEF-chin.L.000": 0,
+      "DEF-chin.L.001": 0,
+      "DEF-chin.R.000": 0,
+      "DEF-chin.R.001": 0,
+      "DEF-ear.L.000": 0,
+      "DEF-ear.L.001": 0,
+      "DEF-ear.L.002": 0,
+      "DEF-ear.L.003": 0,
+      "DEF-ear.L.004": 0,
+      "DEF-ear.R.000": 0,
+      "DEF-ear.R.001": 0,
+      "DEF-ear.R.002": 0,
+      "DEF-ear.R.003": 0,
+      "DEF-ear.R.004": 0,
+      "DEF-forehead.L.000": 0,
+      "DEF-forehead.L.001": 0,
+      "DEF-forehead.L.002": 0,
+      "DEF-forehead.L.003": 0,
+      "DEF-forehead.R.000": 0,
+      "DEF-forehead.R.001": 0,
+      "DEF-forehead.R.002": 0,
+      "DEF-forehead.R.003": 0,
+      "DEF-jaw.L.000": 0,
+      "DEF-jaw.L.001": 0,
+      "DEF-jaw.R.000": 0,
+      "DEF-jaw.R.001": 0,
+      "DEF-lid.B.L.000": 4,
+      "DEF-lid.B.L.001": 0,
+      "DEF-lid.B.L.002": 0,
+      "DEF-lid.B.L.003": 0,
+      "DEF-lid.B.R.000": 4,
+      "DEF-lid.B.R.001": 0,
+      "DEF-lid.B.R.002": 0,
+      "DEF-lid.B.R.003": 0,
+      "DEF-lid.T.L.000": 4,
+      "DEF-lid.T.L.001": 0,
+      "DEF-lid.T.L.002": 0,
+      "DEF-lid.T.L.003": 0,
+      "DEF-lid.T.R.000": 4,
+      "DEF-lid.T.R.001": 0,
+      "DEF-lid.T.R.002": 0,
+      "DEF-lid.T.R.003": 0,
+      "DEF-lip.B.L.000": 40,
+      "DEF-lip.B.L.001": 0,
+      "DEF-lip.B.L.002": 0,
+      "DEF-lip.B.L.003": 0,
+      "DEF-lip.B.R.000": 40,
+      "DEF-lip.B.R.001": 0,
+      "DEF-lip.B.R.002": 0,
+      "DEF-lip.B.R.003": 0,
+      "DEF-lip.T.L.000": 0,
+      "DEF-lip.T.L.001": 0,
+      "DEF-lip.T.L.002": 0,
+      "DEF-lip.T.L.003": 0,
+      "DEF-lip.T.R.000": 0,
+      "DEF-lip.T.R.001": 0,
+      "DEF-lip.T.R.002": 0,
+      "DEF-lip.T.R.003": 0,
+      "DEF-nose.L.000": 0,
+      "DEF-nose.L.001": 0,
+      "DEF-nose.L.002": 0,
+      "DEF-nose.L.003": 0,
+      "DEF-nose.R.000": 0,
+      "DEF-nose.R.001": 0,
+      "DEF-nose.R.002": 0,
+      "DEF-nose.R.003": 0,
+      "DEF-temple.L.000": 0,
+      "DEF-temple.R.000": 0,
+      "DEF-tongue.L.000": 0,
+      "DEF-tongue.L.001": 0,
+      "DEF-tongue.L.002": 0,
+      "DEF-tongue.R.000": 0,
+      "DEF-tongue.R.001": 0,
+      "DEF-tongue.R.002": 0,
+      "DEF-jaw.center": 80,
+      "DEF-shoulder.L": 24,
+      "DEF-upper_arm.L": 42,
+      "DEF-upper_arm.L.001": 7,
+      "DEF-forearm.L": 49,
+      "DEF-forearm.L.001": 74,
+      "DEF-hand.L": 32,
+      "DEF-thumb.01.L": 56,
+      "DEF-thumb.02.L": 56,
+      "DEF-thumb.03.L": 56,
+      "DEF-f_index.01.L": 54,
+      "DEF-f_index.02.L": 54,
+      "DEF-f_index.03.L": 54,
+      "DEF-f_middle.01.L": 52,
+      "DEF-f_middle.02.L": 52,
+      "DEF-f_middle.03.L": 52,
+      "DEF-f_ring.01.L": 52,
+      "DEF-f_ring.02.L": 52,
+      "DEF-f_ring.03.L": 52,
+      "DEF-f_pinky.01.L": 56,
+      "DEF-f_pinky.02.L": 56,
+      "DEF-f_pinky.03.L": 56,
+      "DEF-shoulder.R": 24,
+      "DEF-upper_arm.R": 42,
+      "DEF-upper_arm.R.001": 7,
+      "DEF-forearm.R": 49,
+      "DEF-forearm.R.001": 74,
+      "DEF-hand.R": 32,
+      "DEF-thumb.01.R": 56,
+      "DEF-thumb.02.R": 56,
+      "DEF-thumb.03.R": 56,
+      "DEF-f_index.01.R": 54,
+      "DEF-f_index.02.R": 54,
+      "DEF-f_index.03.R": 54,
+      "DEF-f_middle.01.R": 52,
+      "DEF-f_middle.02.R": 52,
+      "DEF-f_middle.03.R": 52,
+      "DEF-f_ring.01.R": 52,
+      "DEF-f_ring.02.R": 52,
+      "DEF-f_ring.03.R": 52,
+      "DEF-f_pinky.01.R": 56,
+      "DEF-f_pinky.02.R": 56,
+      "DEF-f_pinky.03.R": 56,
+      "DEF-thigh.L": 100,
+      "DEF-thigh.L.001": 62,
+      "DEF-shin.L": 112,
+      "DEF-shin.L.001": 141,
+      "DEF-foot.L": 168,
+      "DEF-toe.L": 123,
+      "DEF-thigh.R": 100,
+      "DEF-thigh.R.001": 62,
+      "DEF-shin.R": 112,
+      "DEF-shin.R.001": 141,
+      "DEF-foot.R": 168,
+      "DEF-toe.R": 123
+    }
+  },
+  "armature": {
+    "name": "Armature_Yu_Nian_An_Rigify",
+    "total_bones": 163,
+    "def_bones_total": 163,
+    "def_bones_body": 58,
+    "def_bones_face": 105,
+    "sample_def_bones": [
+      "DEF-spine",
+      "DEF-spine.001",
+      "DEF-spine.002",
+      "DEF-spine.003",
+      "DEF-spine.004",
+      "DEF-spine.005",
+      "DEF-spine.006",
+      "DEF-eye.L",
+      "DEF-eye.R",
+      "DEF-head",
+      "DEF-brow.B.L.000",
+      "DEF-brow.B.L.001",
+      "DEF-brow.B.L.002",
+      "DEF-brow.B.L.003",
+      "DEF-brow.B.R.000",
+      "DEF-brow.B.R.001",
+      "DEF-brow.B.R.002",
+      "DEF-brow.B.R.003",
+      "DEF-brow.T.L.000",
+      "DEF-brow.T.L.001"
+    ]
+  },
+  "materials": {
+    "Mat_Dress_WaistBelt": {
+      "use_nodes": true,
+      "nodes": [
+        {
+          "type": "OUTPUT_MATERIAL",
+          "name": "Material Output"
+        },
+        {
+          "type": "BSDF_PRINCIPLED",
+          "name": "Principled BSDF",
+          "subsurface_method": "RANDOM_WALK",
+          "subsurface_weight": 0.0,
+          "subsurface_radius": [
+            1.0,
+            0.20000000298023224,
+            0.10000000149011612
+          ],
+          "roughness": 0.5,
+          "ior": 1.4500000476837158,
+          "transmission": 0.0
+        },
+        {
+          "type": "BUMP",
+          "name": "Bump"
+        },
+        {
+          "type": "TEX_NOISE",
+          "name": "Noise Texture"
+        }
+      ]
+    },
+    "Mat_Dress_WhiteSilk": {
+      "use_nodes": true,
+      "nodes": [
+        {
+          "type": "OUTPUT_MATERIAL",
+          "name": "Material Output"
+        },
+        {
+          "type": "BSDF_PRINCIPLED",
+          "name": "Principled BSDF",
+          "subsurface_method": "RANDOM_WALK",
+          "subsurface_weight": 0.14000000059604645,
+          "subsurface_radius": [
+            0.800000011920929,
+            0.8500000238418579,
+            0.8999999761581421
+          ],
+          "roughness": 0.4000000059604645,
+          "ior": 1.4500000476837158,
+          "transmission": 0.0
+        },
+        {
+          "type": "BUMP",
+          "name": "Bump"
+        },
+        {
+          "type": "TEX_NOISE",
+          "name": "Noise Texture"
+        }
+      ]
+    },
+    "Mat_Human_Eye_Inner_Iris": {
+      "use_nodes": true,
+      "nodes": [
+        {
+          "type": "OUTPUT_MATERIAL",
+          "name": "Material Output"
+        },
+        {
+          "type": "BSDF_PRINCIPLED",
+          "name": "Principled BSDF",
+          "subsurface_method": "RANDOM_WALK",
+          "subsurface_weight": 0.18000000715255737,
+          "subsurface_radius": [
+            0.6000000238418579,
+            0.20000000298023224,
+            0.10000000149011612
+          ],
+          "roughness": 0.4000000059604645,
+          "ior": 1.3359999656677246,
+          "transmission": 0.0
+        },
+        {
+          "type": "BUMP",
+          "name": "Bump"
+        },
+        {
+          "type": "TEX_COORD",
+          "name": "Texture Coordinate"
+        },
+        {
+          "type": "VECT_MATH",
+          "name": "Vector Math"
+        },
+        {
+          "type": "VECT_MATH",
+          "name": "Vector Math.001"
+        },
+        {
+          "type": "VALTORGB",
+          "name": "Color Ramp"
+        }
+      ]
+    },
+    "Mat_Human_Eye_Outer_Cornea": {
+      "use_nodes": true,
+      "nodes": [
+        {
+          "type": "OUTPUT_MATERIAL",
+          "name": "Material Output"
+        },
+        {
+          "type": "BSDF_PRINCIPLED",
+          "name": "Principled BSDF",
+          "subsurface_method": "RANDOM_WALK",
+          "subsurface_weight": 0.0,
+          "subsurface_radius": [
+            1.0,
+            0.20000000298023224,
+            0.10000000149011612
+          ],
+          "roughness": 0.019999999552965164,
+          "ior": 1.3760000467300415,
+          "transmission": 1.0
+        },
+        {
+          "type": "LIGHT_PATH",
+          "name": "Light Path"
+        },
+        {
+          "type": "BSDF_TRANSPARENT",
+          "name": "Transparent BSDF"
+        },
+        {
+          "type": "MIX_SHADER",
+          "name": "Mix Shader"
+        }
+      ]
+    },
+    "Mat_Human_Eye_Sclera": {
+      "use_nodes": true,
+      "nodes": [
+        {
+          "type": "OUTPUT_MATERIAL",
+          "name": "Material Output"
+        },
+        {
+          "type": "BSDF_PRINCIPLED",
+          "name": "Principled BSDF",
+          "subsurface_method": "RANDOM_WALK",
+          "subsurface_weight": 0.20000000298023224,
+          "subsurface_radius": [
+            0.800000011920929,
+            0.30000001192092896,
+            0.10000000149011612
+          ],
+          "roughness": 0.07999999821186066,
+          "ior": 1.399999976158142,
+          "transmission": 0.0
+        },
+        {
+          "type": "BUMP",
+          "name": "Bump"
+        },
+        {
+          "type": "TEX_NOISE",
+          "name": "Noise Texture"
+        }
+      ]
+    },
+    "Mat_Human_Eyeliner": {
+      "use_nodes": true,
+      "nodes": [
+        {
+          "type": "BSDF_PRINCIPLED",
+          "name": "Principled BSDF",
+          "subsurface_method": "RANDOM_WALK",
+          "subsurface_weight": 0.0,
+          "subsurface_radius": [
+            1.0,
+            0.20000000298023224,
+            0.10000000149011612
+          ],
+          "roughness": 0.6499999761581421,
+          "ior": 1.5,
+          "transmission": 0.0
+        },
+        {
+          "type": "OUTPUT_MATERIAL",
+          "name": "Material Output"
+        }
+      ]
+    },
+    "Mat_Human_Hair": {
+      "use_nodes": true,
+      "nodes": [
+        {
+          "type": "OUTPUT_MATERIAL",
+          "name": "Material Output"
+        },
+        {
+          "type": "BSDF_PRINCIPLED",
+          "name": "Principled BSDF",
+          "subsurface_method": "RANDOM_WALK",
+          "subsurface_weight": 0.0,
+          "subsurface_radius": [
+            1.0,
+            0.20000000298023224,
+            0.10000000149011612
+          ],
+          "roughness": 0.3199999928474426,
+          "ior": 1.5,
+          "transmission": 0.0
+        }
+      ]
+    },
+    "Mat_Human_Lips": {
+      "use_nodes": true,
+      "nodes": [
+        {
+          "type": "OUTPUT_MATERIAL",
+          "name": "Material Output"
+        },
+        {
+          "type": "BSDF_PRINCIPLED",
+          "name": "Principled BSDF",
+          "subsurface_method": "RANDOM_WALK",
+          "subsurface_weight": 0.25,
+          "subsurface_radius": [
+            0.8500000238418579,
+            0.25,
+            0.25
+          ],
+          "roughness": 0.30000001192092896,
+          "ior": 1.4500000476837158,
+          "transmission": 0.0
+        }
+      ]
+    },
+    "Mat_Human_Oral_Slit": {
+      "use_nodes": true,
+      "nodes": [
+        {
+          "type": "BSDF_PRINCIPLED",
+          "name": "Principled BSDF",
+          "subsurface_method": "RANDOM_WALK",
+          "subsurface_weight": 0.0,
+          "subsurface_radius": [
+            1.0,
+            0.20000000298023224,
+            0.10000000149011612
+          ],
+          "roughness": 0.6000000238418579,
+          "ior": 1.5,
+          "transmission": 0.0
+        },
+        {
+          "type": "OUTPUT_MATERIAL",
+          "name": "Material Output"
+        }
+      ]
+    },
+    "Mat_Human_Scalp": {
+      "use_nodes": true,
+      "nodes": [
+        {
+          "type": "BSDF_PRINCIPLED",
+          "name": "Principled BSDF",
+          "subsurface_method": "RANDOM_WALK",
+          "subsurface_weight": 0.0,
+          "subsurface_radius": [
+            1.0,
+            0.20000000298023224,
+            0.10000000149011612
+          ],
+          "roughness": 0.699999988079071,
+          "ior": 1.5,
+          "transmission": 0.0
+        },
+        {
+          "type": "OUTPUT_MATERIAL",
+          "name": "Material Output"
+        }
+      ]
+    },
+    "Mat_Human_Skin_SSS": {
+      "use_nodes": true,
+      "nodes": [
+        {
+          "type": "OUTPUT_MATERIAL",
+          "name": "Material Output"
+        },
+        {
+          "type": "BSDF_PRINCIPLED",
+          "name": "Principled BSDF",
+          "subsurface_method": "RANDOM_WALK",
+          "subsurface_weight": 0.2800000011920929,
+          "subsurface_radius": [
+            1.0,
+            0.20000000298023224,
+            0.10000000149011612
+          ],
+          "roughness": 0.3499999940395355,
+          "ior": 1.4500000476837158,
+          "transmission": 0.0
+        },
+        {
+          "type": "BUMP",
+          "name": "Bump"
+        },
+        {
+          "type": "TEX_NOISE",
+          "name": "Noise Texture"
+        }
+      ]
+    },
+    "Mat_Magic_Butterfly": {
+      "use_nodes": true,
+      "nodes": [
+        {
+          "type": "OUTPUT_MATERIAL",
+          "name": "Material Output"
+        },
+        {
+          "type": "BSDF_PRINCIPLED",
+          "name": "Principled BSDF",
+          "subsurface_method": "RANDOM_WALK",
+          "subsurface_weight": 0.44999998807907104,
+          "subsurface_radius": [
+            0.8999999761581421,
+            0.949999988079071,
+            1.0
+          ],
+          "roughness": 0.30000001192092896,
+          "ior": 1.4500000476837158,
+          "transmission": 0.20000000298023224
+        }
+      ]
+    },
+    "Mat_Marionette_RedString": {
+      "use_nodes": true,
+      "nodes": [
+        {
+          "type": "OUTPUT_MATERIAL",
+          "name": "Material Output"
+        },
+        {
+          "type": "BSDF_PRINCIPLED",
+          "name": "Principled BSDF",
+          "subsurface_method": "RANDOM_WALK",
+          "subsurface_weight": 0.0,
+          "subsurface_radius": [
+            1.0,
+            0.20000000298023224,
+            0.10000000149011612
+          ],
+          "roughness": 0.25,
+          "ior": 1.4500000476837158,
+          "transmission": 0.0
+        }
+      ]
+    },
+    "Mat_Sandal_Leather": {
+      "use_nodes": true,
+      "nodes": [
+        {
+          "type": "OUTPUT_MATERIAL",
+          "name": "Material Output"
+        },
+        {
+          "type": "BSDF_PRINCIPLED",
+          "name": "Principled BSDF",
+          "subsurface_method": "RANDOM_WALK",
+          "subsurface_weight": 0.0,
+          "subsurface_radius": [
+            1.0,
+            0.20000000298023224,
+            0.10000000149011612
+          ],
+          "roughness": 0.44999998807907104,
+          "ior": 1.4500000476837158,
+          "transmission": 0.0
+        },
+        {
+          "type": "BUMP",
+          "name": "Bump"
+        },
+        {
+          "type": "TEX_NOISE",
+          "name": "Noise Texture"
+        }
+      ]
+    },
+    "Mat_Sandal_White": {
+      "use_nodes": true,
+      "nodes": [
+        {
+          "type": "OUTPUT_MATERIAL",
+          "name": "Material Output"
+        },
+        {
+          "type": "BSDF_PRINCIPLED",
+          "name": "Principled BSDF",
+          "subsurface_method": "RANDOM_WALK",
+          "subsurface_weight": 0.0,
+          "subsurface_radius": [
+            1.0,
+            0.20000000298023224,
+            0.10000000149011612
+          ],
+          "roughness": 0.44999998807907104,
+          "ior": 1.4500000476837158,
+          "transmission": 0.0
+        }
+      ]
+    },
+    "Mat_Sash_Satin": {
+      "use_nodes": true,
+      "nodes": [
+        {
+          "type": "OUTPUT_MATERIAL",
+          "name": "Material Output"
+        },
+        {
+          "type": "BSDF_PRINCIPLED",
+          "name": "Principled BSDF",
+          "subsurface_method": "RANDOM_WALK",
+          "subsurface_weight": 0.0,
+          "subsurface_radius": [
+            1.0,
+            0.20000000298023224,
+            0.10000000149011612
+          ],
+          "roughness": 0.3199999928474426,
+          "ior": 1.4500000476837158,
+          "transmission": 0.0
+        }
+      ]
+    }
+  },
+  "hair_objects": [
+    {
+      "name": "Hair_Back_Cascade",
+      "type": "MESH",
+      "modifiers": [
+        {
+          "name": "GN_HairGroom",
+          "type": "NODES"
+        },
+        {
+          "name": "Armature",
+          "type": "ARMATURE"
+        }
+      ]
+    },
+    {
+      "name": "Hair_Eyebrows",
+      "type": "MESH",
+      "modifiers": [
+        {
+          "name": "GN_HairGroom",
+          "type": "NODES"
+        },
+        {
+          "name": "Armature",
+          "type": "ARMATURE"
+        }
+      ]
+    },
+    {
+      "name": "Hair_Eyelashes",
+      "type": "MESH",
+      "modifiers": [
+        {
+          "name": "GN_HairGroom",
+          "type": "NODES"
+        },
+        {
+          "name": "Armature",
+          "type": "ARMATURE"
+        }
+      ]
+    },
+    {
+      "name": "Hair_Hime_Bangs",
+      "type": "MESH",
+      "modifiers": [
+        {
+          "name": "GN_HairGroom",
+          "type": "NODES"
+        },
+        {
+          "name": "Armature",
+          "type": "ARMATURE"
+        }
+      ]
+    },
+    {
+      "name": "Hair_Hime_Sidelocks",
+      "type": "MESH",
+      "modifiers": [
+        {
+          "name": "GN_HairGroom",
+          "type": "NODES"
+        },
+        {
+          "name": "Armature",
+          "type": "ARMATURE"
+        }
+      ]
+    },
+    {
+      "name": "Hair_Scalp_Crown",
+      "type": "MESH",
+      "modifiers": [
+        {
+          "name": "GN_HairGroom",
+          "type": "NODES"
+        },
+        {
+          "name": "Armature",
+          "type": "ARMATURE"
+        }
+      ]
+    },
+    {
+      "name": "Light_Rim_HairLight",
+      "type": "LIGHT",
+      "modifiers": []
+    }
+  ],
+  "wardrobe_props": [
+    {
+      "name": "Mesh_Dress_Bodice",
+      "type": "MESH",
+      "modifiers": [
+        {
+          "name": "Solidify",
+          "type": "SOLIDIFY"
+        },
+        {
+          "name": "Armature",
+          "type": "ARMATURE"
+        }
+      ]
+    },
+    {
+      "name": "Mesh_Dress_PleatedSkirt",
+      "type": "MESH",
+      "modifiers": [
+        {
+          "name": "Solidify",
+          "type": "SOLIDIFY"
+        },
+        {
+          "name": "Armature",
+          "type": "ARMATURE"
+        }
+      ]
+    },
+    {
+      "name": "Mesh_Dress_WaistSash",
+      "type": "MESH",
+      "modifiers": [
+        {
+          "name": "Solidify",
+          "type": "SOLIDIFY"
+        },
+        {
+          "name": "Armature",
+          "type": "ARMATURE"
+        }
+      ]
+    },
+    {
+      "name": "Mesh_Sandal_L",
+      "type": "MESH",
+      "modifiers": [
+        {
+          "name": "Armature",
+          "type": "ARMATURE"
+        },
+        {
+          "name": "Solidify",
+          "type": "SOLIDIFY"
+        }
+      ]
+    },
+    {
+      "name": "Mesh_Sandal_R",
+      "type": "MESH",
+      "modifiers": [
+        {
+          "name": "Armature",
+          "type": "ARMATURE"
+        },
+        {
+          "name": "Solidify",
+          "type": "SOLIDIFY"
+        }
+      ]
+    },
+    {
+      "name": "Prop_Butterfly_00",
+      "type": "MESH",
+      "modifiers": [
+        {
+          "name": "Armature",
+          "type": "ARMATURE"
+        }
+      ]
+    },
+    {
+      "name": "Prop_Butterfly_01",
+      "type": "MESH",
+      "modifiers": [
+        {
+          "name": "Armature",
+          "type": "ARMATURE"
+        }
+      ]
+    },
+    {
+      "name": "Prop_Butterfly_02",
+      "type": "MESH",
+      "modifiers": [
+        {
+          "name": "Armature",
+          "type": "ARMATURE"
+        }
+      ]
+    },
+    {
+      "name": "Prop_Butterfly_03",
+      "type": "MESH",
+      "modifiers": [
+        {
+          "name": "Armature",
+          "type": "ARMATURE"
+        }
+      ]
+    },
+    {
+      "name": "Prop_Butterfly_04",
+      "type": "MESH",
+      "modifiers": [
+        {
+          "name": "Armature",
+          "type": "ARMATURE"
+        }
+      ]
+    },
+    {
+      "name": "Prop_Butterfly_05",
+      "type": "MESH",
+      "modifiers": [
+        {
+          "name": "Armature",
+          "type": "ARMATURE"
+        }
+      ]
+    },
+    {
+      "name": "Prop_Butterfly_06",
+      "type": "MESH",
+      "modifiers": [
+        {
+          "name": "Armature",
+          "type": "ARMATURE"
+        }
+      ]
+    },
+    {
+      "name": "Prop_Butterfly_07",
+      "type": "MESH",
+      "modifiers": [
+        {
+          "name": "Armature",
+          "type": "ARMATURE"
+        }
+      ]
+    },
+    {
+      "name": "Prop_Butterfly_08",
+      "type": "MESH",
+      "modifiers": [
+        {
+          "name": "Armature",
+          "type": "ARMATURE"
+        }
+      ]
+    },
+    {
+      "name": "Prop_Butterfly_09",
+      "type": "MESH",
+      "modifiers": [
+        {
+          "name": "Armature",
+          "type": "ARMATURE"
+        }
+      ]
+    },
+    {
+      "name": "Prop_Marionette_Strings",
+      "type": "MESH",
+      "modifiers": [
+        {
+          "name": "Armature",
+          "type": "ARMATURE"
+        }
+      ]
+    }
+  ]
+}

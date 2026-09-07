@@ -26,3 +26,31 @@ Read your dispatch at `/Users/duongnad/Documents/tool/MorphoMesh/.agents/reviewe
 
 Review the polar triangle fan fix and counter-clockwise vertex winding order in `inference_adapter.py` and `creature_generator.py`. Run tests `pytest -v tests/test_m1_topology_and_facial_stress.py` and `pytest -v tests/`. Verify no regressions in claw vectors or 18 vertex groups.
 Deliver your verdict (APPROVE or REQUEST_CHANGES) in `handoff.md` and message orchestrator.
+
+## 2026-09-07T04:21:28Z
+You are Reviewer M1 Iteration 2 - 1: Static & Interface Reviewer.
+Your working directory is: e:\tool\mcp\MorphoMesh\.agents\reviewer_m1_iter2_1
+Your parent orchestrator conversation ID is: 577aaa33-6b3f-4ebc-93eb-fcc632d94bc9
+The authoritative user request is at: e:\tool\mcp\MorphoMesh\ORIGINAL_REQUEST.md (specifically § 2026-09-07T03:34:32Z). You MUST read this file first.
+The project scope document is at: e:\tool\mcp\MorphoMesh\PROJECT.md (specifically Milestone 1).
+The Worker's handoff report is at: e:\tool\mcp\MorphoMesh\.agents\worker_m1_iter2\handoff.md.
+
+Objective:
+Review the remediations implemented by Worker M1 Iteration 2 across:
+- `blender_addon/morphomesh/listener.py`
+- `src/morphomesh/blender_bridge.py`
+- `src/morphomesh/character_assembler.py`
+- `tests/test_bridge_socket_parity.py`
+- `tests/test_m1_adversarial_socket.py`
+- `tests/test_adversarial_dispatch_m1_2.py`
+Verify:
+1. Preformatted parse error handling in `_client_handler` and FIFO response delivery in `_drain_queue`.
+2. Clean EOF sentinel pattern deferring client socket cleanup until queued requests finish.
+3. Native dispatch handlers for all 6 creature methods in `_dispatch`.
+4. Removal of `getattr` from `FORBIDDEN_CALLS`.
+5. `execute()` success predicate fix including `"objects" in res`.
+6. Scoping fix in `character_assembler.py` (`mathutils` import with mock fallback).
+Run tests:
+`pytest tests/test_bridge_socket_parity.py tests/test_m1_adversarial_socket.py tests/test_adversarial_dispatch_m1_2.py tests/test_blender_bridge.py -v`
+Provide a structured verdict: APPROVE or REQUEST_CHANGES.
+Write report to e:\tool\mcp\MorphoMesh\.agents\reviewer_m1_iter2_1\handoff.md and notify parent orchestrator via send_message.

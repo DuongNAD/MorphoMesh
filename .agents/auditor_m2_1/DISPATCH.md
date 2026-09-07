@@ -1,28 +1,30 @@
-# Dispatch Assignment: Forensic Auditor M2-1 (Fur Grooming Integrity Audit)
+## 2026-09-07T04:46:35Z
 
-**Identity**: teamwork_preview_auditor
-**Assigned Task**: Forensic Integrity Audit for Milestone M2 (Volumetric Fur & Grooming Engine)
-**Working Directory**: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/auditor_m2_1`
-**Authoritative Request**: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/ORIGINAL_REQUEST.md` (read sections `## 2026-09-05T15:44:52Z` and `## 2026-09-05T15:47:35Z`)
-**Project Plan**: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/orchestrator_bear_1/PROJECT.md`
-**Worker M2 Handoff**: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/worker_m2/handoff.md`
+<USER_REQUEST>
+You are Auditor M2_1: Forensic Integrity Auditor for Milestone 2.
+Your working directory is: e:\tool\mcp\MorphoMesh\.agents\auditor_m2_1
+Your parent orchestrator conversation ID is: 577aaa33-6b3f-4ebc-93eb-fcc632d94bc9
+The authoritative user request is at: e:\tool\mcp\MorphoMesh\ORIGINAL_REQUEST.md (specifically § 2026-09-07T03:34:32Z). You MUST read this file first.
+The project scope document is at: e:\tool\mcp\MorphoMesh\PROJECT.md (specifically Milestone 2).
+The Worker M2 handoff report is at: e:\tool\mcp\MorphoMesh\.agents\worker_m2\handoff.md.
 
-## Audit Mandate (ZERO TOLERANCE FOR CHEATING)
-Perform forensic integrity analysis on Worker M2's implementation:
-1. Verify that `src/morphomesh/grooming.py` generates genuine Blender particle hair / curves modifiers with authentic strand counts, NOT dummy facade objects or static low-poly meshes.
-2. Verify that strand count assertions (>= 10,000 strands) are mathematically evaluated from particle systems, not hardcoded return values.
-3. Verify that the glTF ribbon evaluator lofts real quad geometry with valid UV maps.
-4. Verify tests in `tests/test_grooming.py` execute real assertions and test production code.
-5. Issue a binary verdict: `CLEAN` or `INTEGRITY VIOLATION`.
+Files created/modified by Worker M2:
+- `src/morphomesh/camera_rig.py`
+- `src/morphomesh/models.py`
+- `src/morphomesh/blender_bridge.py`
+- `blender_addon/morphomesh/listener.py`
+- `tests/test_inspector_camera.py`
+- `tests/test_multiview_rendering.py`
 
-## 2026-09-05T16:34:56Z
-You are Forensic Auditor M2-1 for Milestone M2.
-Your working directory is `/Users/duongnad/Documents/tool/MorphoMesh/.agents/auditor_m2_1`.
-Read your dispatch at `/Users/duongnad/Documents/tool/MorphoMesh/.agents/auditor_m2_1/DISPATCH.md`, `/Users/duongnad/Documents/tool/MorphoMesh/.agents/ORIGINAL_REQUEST.md`, `/Users/duongnad/Documents/tool/MorphoMesh/.agents/orchestrator_bear_1/PROJECT.md`, and Worker M2's handoff at `/Users/duongnad/Documents/tool/MorphoMesh/.agents/worker_m2/handoff.md`.
-
-Perform forensic integrity analysis (ZERO TOLERANCE FOR CHEATING):
-1. Verify that `src/morphomesh/grooming.py` generates genuine Blender particle hair systems with real strands, NOT dummy facades.
-2. Verify strand count assertions are derived from evaluated particle data, not hardcoded constants.
-3. Verify ribbon mesh generator lofts real quads with real UVs.
-4. Verify tests execute real assertions.
-Issue a binary verdict: CLEAN or INTEGRITY VIOLATION. Record evidence in `handoff.md` and message orchestrator.
+Objective:
+Perform a strict forensic integrity audit on all Milestone 2 changes:
+1. Static AST Analysis:
+   - Check for hardcoded test results, fake pass conditions, dummy/stub implementations, or circumvention in `src/morphomesh/camera_rig.py`.
+   - Verify that bounding box, optical framing distance, anatomical centering, and camera tracking contain genuine mathematical derivations and algorithms.
+   - Verify that viewport capture and headless fallback contain genuine Blender API invocations.
+2. Execution Validation:
+   - Audit `tests/test_inspector_camera.py` and `tests/test_multiview_rendering.py`. Verify that test assertions are authentic and non-tautological (no `assert True`, no trivial assertions).
+   - Execute the test suite: `.venv\Scripts\pytest.exe -v tests/test_inspector_camera.py tests/test_multiview_rendering.py`
+3. Issue a binary verdict: CLEAN or INTEGRITY VIOLATION.
+- Write your handoff report to `e:\tool\mcp\MorphoMesh\.agents\auditor_m2_1\handoff.md` and notify parent orchestrator via send_message.
+</USER_REQUEST>

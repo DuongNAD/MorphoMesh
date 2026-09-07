@@ -1,17 +1,18 @@
-# Progress — Explorer M4-Iter2-3
+# Progress — Explorer M4 Iteration 2 - 3
 
-Last visited: 2026-09-06T11:05:00+07:00
-
-## Status: COMPLETED
-
-### Completed Steps
-1. Initialized DISPATCH.md and verified instructions.
-2. Read ORIGINAL_REQUEST.md, PROJECT.md, reviewer_m4/handoff.md.
-3. Created BRIEFING.md and initialized progress heartbeat.
-4. Investigated Finding 1 (facade test in tests/test_bear_anatomy.py). Formulated comprehensive 2-manifold edge sharing, divergence theorem volume (V > 0), and point-to-surface clearance verification.
-5. Investigated and formulated exact mathutils.bvhtree.BVHTree.FromPolygons signed distance audit for verify_bear_anatomy.py in Blender.
-6. Designed, implemented, and benchmarked pure Python fallback using scipy.spatial.cKDTree and Christer Ericson RTCD §5.1.5 (benchmarked at 9.63 ms, yielding identical results down to 1e-6m).
-7. Investigated scene assembly script (scripts/assemble_and_render_armored_war_bear.py) and diagnosed render defects (Cycles hair_type STRIP, camera framing, lighting, fur ribbon local coordinate fix).
-8. Authored production-ready code patches and comprehensive survey report at .agents/explorer_m4_iter2_3/survey_report.md.
-9. Authored 5-component handoff report at .agents/explorer_m4_iter2_3/handoff.md.
-10. Updated BRIEFING.md.
+- **Status**: Completed Investigation & Blueprinting
+- **Last visited**: 2026-09-07T07:07:30Z
+- **Current Step**: Writing comprehensive 5-component handoff report to `handoff.md`.
+- **Milestone 4 Iteration 2 Status Summary**:
+  1. Adversarial Error Injection Suite (`tests/test_adversarial_error_injection_m4.py`):
+     - Verified all 46 test cases.
+     - Confirmed current baseline: 22 failed, 24 passed.
+     - Identified exact regex match patterns for ToolError messages.
+  2. Inspection Tools Suite (`tests/test_fastmcp_inspection_tools.py`):
+     - Verified all 21 test cases passing.
+     - Resolved critical reconciliation between line 415 (`test_bridge_exception_mapping` requiring `ToolError` on `ERR_CAMERA_FAILED`) and `TestOfflineBridgeResilience` requiring fallback on `ERR_BLENDER_UNAVAILABLE`.
+  3. Baseline Schema Suite (`tests/test_tools_schema.py`):
+     - Verified all 31 test cases passing.
+     - Confirmed 7-tool baseline schema isolation is 100% preserved.
+  4. Worker M4 Task Specification:
+     - Fully formulated into 6 actionable tasks covering Enum definition, pre-flight validation, Pydantic model alignment, bridge offline fallback, server secondary fallback, and test suite verification.

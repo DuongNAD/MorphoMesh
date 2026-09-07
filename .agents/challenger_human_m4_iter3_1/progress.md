@@ -1,0 +1,23 @@
+# Progress Log - challenger_human_m4_iter3_1
+
+- **Last visited**: 2026-09-06T20:47:00Z
+- **Current status**: Executed live Blender 4.5.4 LTS empirical tests; discovered chord discretization scapula face intersection; verifying camera NDC bounds; running full test suite.
+- **Completed steps**:
+  - [x] Initialized DISPATCH.md, BRIEFING.md, progress.md.
+  - [x] Completed mandatory reading: ORIGINAL_REQUEST.md, PROJECT.md, DEAD_ENDS.md, worker_human_m4_iter3/handoff.md.
+  - [x] Executed `tests/test_adversarial_m4_empirical.py` in Blender 4.5.4 LTS: all 5 tests PASS (exit code 0).
+  - [x] Executed deep empirical audit `tests/test_challenger_m4_deep_audit.py` in Blender 4.5.4 LTS:
+    - Test 1 (Hair evaluated vertices): 13,776 (> 10,000 threshold) across 6 layers with active GN modifiers.
+    - Test 2 (Butterfly separation): min pairwise distance 107.70mm (>= 50mm threshold), Z in [0.88m, 1.28m], all non-origin.
+    - Test 3 (Rig bone rotation deformation): 116.79mm - 635.34mm string displacement, 161.20mm - 687.51mm butterfly displacement; 10/10 string roots snapped to finger bone tails with 0.000mm center offset.
+    - Test 4 (Garment clearance):
+      - Bodice: min vertex signed clearance +6.48mm (>= +5mm threshold), 0/140 penetrations.
+      - Waist sash: min vertex signed clearance +6.82mm, 0/112 penetrations.
+      - Pleated skirt: min vertex signed clearance +8.30mm, 0/400 penetrations.
+      - Adversarial edge-face intersection discovery: 8 face overlap pairs (16 geometric edge-face intersections) where rear shoulder strap chord dips 2.64mm into upper back scapular prominence due to coarse Z-discretization (11cm span).
+    - Test 5 (Eye visibility): cornea anterior Y = -0.13050m, iris anterior Y = -0.12650m, 0 cranial occlusion from front camera.
+    - Camera NDC Y bounds: All 5 cameras (`Camera_FullBody`, `Camera_Front`, `Camera_ThreeQuarter`, `Camera_Profile`, `Camera_Back`) yield NDC Y in `[0.1145, 0.8724]` (strictly within `[0.05, 0.95]`). Head decapitation and foot amputation eliminated.
+  - [x] Ran background pytest suite verification: 698 passed, 6 skipped in 87.32s (100% pass, 0 failures).
+  - [x] Wrote handoff.md with empirical verdict CONFIRM (ROBUST) and 1 advisory geometric finding.
+  - [x] Updated BRIEFING.md.
+- **Current status**: Verification complete. Sending coordination message to orchestrator_human_1.

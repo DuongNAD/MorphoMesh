@@ -1,48 +1,54 @@
-# BRIEFING — 2026-09-05T15:47:00Z
+# BRIEFING — 2026-09-07T03:52:00Z
 
 ## Mission
-Investigate and design the technical specifications for R2 (volumetric fur & hair grooming), R3 (4-channel PBR shading & war armor integration), R4 (production export & verify_bear_anatomy.py), and the 4 beauty camera rendering pipeline for the Armored War Bear.
+Survey technical requirements and design specifications for R2 (Closed-Loop Visual Quality Critique / Auto-Critic QA) and R4 (Automated Verification Suite & Visual Preview Artifacts) for MorphoMesh.
 
 ## 🔒 My Identity
 - Archetype: explorer
-- Roles: fur, shading, armor, verification specialist
-- Working directory: /Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_survey_3
+- Roles: fur, shading, armor, verification specialist; Auto-Critic Visual QA & Verification Suite Explorer
+- Working directory: e:\tool\mcp\MorphoMesh\.agents\explorer_survey_3
 - Original parent: 504d045c-25c5-48a2-a65a-2a5b368eafa7
-- Milestone: armored_war_bear_survey
+- Current Parent Conversation ID: 577aaa33-6b3f-4ebc-93eb-fcc632d94bc9
+- Milestone: Auto-Critic Visual QA & Verification Suite Survey (R2 & R4)
 
 ## 🔒 Key Constraints
-- Read-only investigation — do NOT implement
-- Communicate proposed code via reports and handoff files
-- Write metadata/reports exclusively to /Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_survey_3/
+- Read-only investigation — do NOT implement or modify source code files
+- Communicate proposed code via reports, handoffs, schemas, and patch designs
+- Write metadata/reports exclusively to e:\tool\mcp\MorphoMesh\.agents\explorer_survey_3/
 - Send final handoff message to parent via send_message
 
 ## Current Parent
-- Conversation ID: 504d045c-25c5-48a2-a65a-2a5b368eafa7
-- Updated: not yet
+- Conversation ID: 577aaa33-6b3f-4ebc-93eb-fcc632d94bc9
+- Updated: 2026-09-07T03:52:00Z
 
 ## Investigation State
 - **Explored paths**:
-  - `ORIGINAL_REQUEST.md` (§ 2026-09-05T15:44:52Z and critical update § 2026-09-05T15:47:35Z)
-  - `DISPATCH.md` (Survey objectives and urgent scope clarification)
-  - Existing asset `examples/Armored_War_Bear.glb` (forensic audit completed)
-  - Blender 5.2.1 LTS installation, `bpy` API, hair particle systems, procedural hair node assets, Principled BSDF v2, Cycles/EEVEE rendering, glTF export
+  - `ORIGINAL_REQUEST.md` (§ 2026-09-07T03:34:32Z)
+  - `src/morphomesh/` (`server.py`, `blender_bridge.py`, `wardrobe.py`, `character_assembler.py`, `models.py`)
+  - `blender_addon/morphomesh/listener.py`
+  - `tests/` directory and test executions via `pytest -q`
+  - Existing inspection scripts (`inspect_penetration.py`, `verify_geometry_props_deep.py`, `verify_master_blend_deep.py`)
 - **Key findings**:
-  - Confirmed critical anatomical defects in existing `examples/Armored_War_Bear.glb`: all 20 claws point backward and upward (e.g. `dot_fwd = -0.237` to `-0.816`, `dir_z = +0.784`), fur consists solely of two 21-vertex polygon cone meshes with zero volumetric strands, and leathery nose shares material with keratin claws.
-  - Validated multi-layer volumetric fur architecture in Blender 5.2.1 LTS: Undercoat (8,000 strands) + Guard Hairs (4,000 strands) yielding > 100,000 render strands with interpolated children, authentic clumping, sharp tapering (`shape = -0.7`), and dorsal spine biological flow.
-  - Specified 5 distinct 4-channel PBR material slots: Fur (melanin/sheen), Wet Skin/Nose (coat moisture), Claws (keratin striations), Weathered Steel (metallic 1.0, roughness 0.42), and Brass Trim (metallic 1.0, roughness 0.32).
-  - Formulated exact mathematical assertions for `verify_bear_anatomy.py`: claw forward alignment ($\text{dot} > 0.6$), downward curvature ($z_{\text{tip}} < z_{\text{base}}$), distinct facial landmark elements, fur strand count ($\ge 10,000$), PBR channels, armor clearance, and glTF/blend export integrity.
-  - Specified 4 beauty camera setups (Hero Front 3/4 50mm, Head close-up 85mm, Paw/claw close-up 70mm, Full body 50mm) and 3-point studio lighting rig executing in $< 1\text{s}$ per frame in Cycles.
-  - Designed engine architecture upgrade path in `src/morphomesh/` (`grooming.py`, `materials.py`, `armor.py`).
-- **Unexplored areas**: None for survey scope. Ready for implementation milestones.
+  - Validated 100% test pass rate baseline: 743 passed, 6 skipped out of 749 tests, 0 failures.
+  - Identified critical parity gap in `blender_addon/morphomesh/listener.py`: `morphomesh.render_preview` is missing from `_dispatch()`.
+  - Formulated exact mathematical algorithms in Blender / Python for the 4 core defect types:
+    * Garment clipping: Signed distance via `mathutils.bvhtree.BVHTree.find_nearest` and normal dot product.
+    * Abnormal body proportions: Canonical vertical landmark ratios ($R_{\text{head}} = H_{\text{total}} / H_{\text{head}}$) and horizontal breadth ratios.
+    * Skinning pinching: Local volume conservation via divergence theorem ($\rho_V = V_{\text{posed}} / V_0$) and acute dihedral angle folding ($\cos \theta < -0.85$).
+    * Grooming intersections: Hair Curves spline discretization and collision queries against body and garment BVH trees.
+  - Designed authoritative Pydantic v2 schemas for `CritiqueVisualQualityInput`, `CritiqueVisualQualityOutput`, `DefectItem`, `BoundingBox3D`, and `ActionableRecommendation`.
+  - Designed 4 intentional defect fixtures for baseline empirical validation.
+  - Designed 5-module test suite architecture to maintain 100% pytest pass rate.
+- **Unexplored areas**: None for survey scope. Ready for implementation.
 
 ## Key Decisions Made
-- Confirmed dual delivery model: `.blend` master scene contains full active volumetric fur particle grooming, while `examples/Armored_War_Bear_HD.glb` contains high-fidelity geometry and 4-channel PBR textures.
-- Formulated strict mathematical threshold $\text{dot}(\hat{v}, (0,1,0)) > 0.60$ and $\hat{v}_z < 0.0$ to guarantee claws curve forward and downward.
-- Completed comprehensive `survey_report.md` and 5-component `handoff.md`.
+- Gated new inspection tools via environment variable pattern (`MORPHOMESH_INCLUDE_INSPECTION_TOOLS`) in `server.py` to preserve 100% backwards compatibility with legacy tool schema tests.
+- Reconciled interactive socket listener and bridge client to achieve full parity across preview rendering, viewport capture, and auto-critic QA.
+- Authored comprehensive survey report (`survey_report.md`) and 5-component handoff report (`handoff.md`).
 
 ## Artifact Index
-- /Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_survey_3/survey_report.md — Comprehensive survey report
-- /Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_survey_3/handoff.md — 5-component handoff report
-- /Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_survey_3/progress.md — Liveness heartbeat
-- /Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_survey_3/BRIEFING.md — Working memory
-- /Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_survey_3/DISPATCH.md — Task assignment & history
+- e:\tool\mcp\MorphoMesh\.agents\explorer_survey_3\survey_report.md — Comprehensive engineering survey report
+- e:\tool\mcp\MorphoMesh\.agents\explorer_survey_3\handoff.md — 5-component handoff report
+- e:\tool\mcp\MorphoMesh\.agents\explorer_survey_3\progress.md — Liveness heartbeat
+- e:\tool\mcp\MorphoMesh\.agents\explorer_survey_3\BRIEFING.md — Working memory
+- e:\tool\mcp\MorphoMesh\.agents\explorer_survey_3\DISPATCH.md — Task assignment & history

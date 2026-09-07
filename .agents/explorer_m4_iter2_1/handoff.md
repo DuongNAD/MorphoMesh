@@ -1,154 +1,491 @@
-# Handoff Report — Finding 3 Anatomical Continuity & Creature Generator Topology
+# Milestone 4 Iteration 2 Explorer Report: Strict Enum Parameter Validation Blueprint
 
-**Agent**: Explorer M4-Iter2-1 (Anatomical Continuity & Creature Generator Specialist)  
-**Milestone**: M4 Iteration 2 (Remediation Investigation for Finding 3)  
-**Date**: 2026-09-06T11:07:00+07:00  
-**Working Directory**: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_m4_iter2_1`  
-**Handoff Type**: Hard Handoff (Investigation & Strategy Complete)  
-**Report Artifact**: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_m4_iter2_1/survey_report.md`
+**Agent**: Explorer M4 Iteration 2 - 1 (`.agents/explorer_m4_iter2_1`)  
+**Role**: Teamwork Explorer (Read-Only Investigation & Synthesis)  
+**Date**: 2026-09-07T07:08:00Z  
+**Parent Orchestrator**: `577aaa33-6b3f-4ebc-93eb-fcc632d94bc9`  
+**Handoff Type**: Hard (Investigation & Technical Blueprint Complete)  
+**Target Milestone**: Milestone 4 — FastMCP Tool Integration & Verification Suite (Iteration 2 Remediation)
 
 ---
 
 ## 1. Observation
 
-Direct programmatic observations, code inspection, and visual render examination:
+### 1.1 Direct Adversarial Test Execution & Verbatim Failures
+The adversarial test suite `tests/test_adversarial_error_injection_m4.py` was executed directly against `.venv`:
+```powershell
+.venv\Scripts\pytest.exe -v tests/test_adversarial_error_injection_m4.py
+```
+**Observed Result**: Exactly 22 failed, 24 passed (exit code 1).
+Among the 22 failures, 20 are caused directly by missing enum/parameter validation:
+1. **Viewpoint Failures** (`TestCameraRigParameterValidation`):
+   - `test_invalid_viewpoints_rejected[nadir_flipped]` -> FAILED
+   - `test_invalid_viewpoints_rejected[]` -> FAILED
+   - `test_invalid_viewpoints_rejected[zenith_99]` -> FAILED
+   - `test_invalid_viewpoints_rejected[diagonal_underneath]` -> FAILED
+   - `test_invalid_viewpoints_rejected[UPWARD_45]` -> FAILED
+2. **Shading Mode Failures** (`TestCaptureViewportParameterValidation`):
+   - `test_invalid_shading_modes_rejected[PATH_TRACING]` -> FAILED
+   - `test_invalid_shading_modes_rejected[RAYTRACING]` -> FAILED
+   - `test_invalid_shading_modes_rejected[UNLIT_DEBUG]` -> FAILED
+   - `test_invalid_shading_modes_rejected[]` -> FAILED
+   - `test_invalid_shading_modes_rejected[NORMAL_MAP_PREVIEW]` -> FAILED
+3. **Color Type Failures** (`TestCaptureViewportParameterValidation`):
+   - `test_invalid_color_types_rejected[INVALID_COLOR_TYPE]` -> FAILED
+   - `test_invalid_color_types_rejected[NEON_RAINBOW]` -> FAILED
+   - `test_invalid_color_types_rejected[HSV_GRADIENT]` -> FAILED
+   - `test_invalid_color_types_rejected[]` -> FAILED
+   - `test_invalid_color_types_rejected[DEBUG_UV]` -> FAILED
+4. **Target Preset Failures** (`TestVisualCritiqueParameterValidation`):
+   - `test_invalid_target_preset_rejected[alien_hydra]` -> FAILED
+   - `test_invalid_target_preset_rejected[draconic_quadruped]` -> FAILED
+   - `test_invalid_target_preset_rejected[spider_titan]` -> FAILED
+   - `test_invalid_target_preset_rejected[]` -> FAILED
+   - `test_invalid_target_preset_rejected[unknown_preset]` -> FAILED
 
-### 1.1 Paw Disconnection & Limb Coordinates (`src/morphomesh/creature_generator.py`)
-- In `src/morphomesh/creature_generator.py:127-135`:
+### 1.2 Existing Implementation Analysis
+
+#### A. `src/morphomesh/server.py`
+- **Tool 1: `morphomesh_setup_inspector_camera_rig`** (lines 1100–1120):
   ```python
-  fx = sign_x * cfg.stance_width_front * s   # fx = +/- 0.38m (scale=1.0)
-  forearm_idx = mesh.add_cylinder((fx, -0.35 * s, 0.08 * s), radius=0.070 * s, height=0.35 * s, axis="Z")
+  @mcp.tool(name="morphomesh_setup_inspector_camera_rig")
+  async def morphomesh_setup_inspector_camera_rig(
+      viewpoint: str = "three_quarter",
+      target_center: Optional[List[float]] = None,
+      sub_region: Optional[str] = None,
+      focal_length: float = 50.0,
+      camera_name: str = "MorphoMesh_Inspector_Camera",
+      mesh_objects: Optional[List[str]] = None,
+      ctx: Optional[Context] = None,
+  ) -> Dict[str, Any]:
+      ...
+      # Pre-flight parameter validation
+      if focal_length < 10.0 or focal_length > 300.0:
+          raise ToolError(...)
+      if target_center is not None and (not isinstance(target_center, (list, tuple)) or len(target_center) != 3):
+          raise ToolError(...)
+      if not camera_name or not camera_name.strip():
+          raise ToolError(...)
   ```
-  Forearm cylinder center is $(f_x, -0.35\text{m})$, base is at $z = 0.08\text{m}$, top is at $z = 0.43\text{m}$. Y-extent is $[-0.42\text{m}, -0.28\text{m}]$.
-- In `src/morphomesh/creature_generator.py:153-174`:
+  *Defect*: `viewpoint` parameter is never checked against allowed values or empty strings.
+- **Tool 2: `morphomesh_capture_viewport`** (lines 1148–1174):
   ```python
-  paw_configs = [
-      ("Front_L", cfg.stance_width_front * s, -0.48 * s, 0.0, True),
-      ("Front_R", -cfg.stance_width_front * s, -0.48 * s, 0.0, True),
-      ("Hind_L", cfg.stance_width_hind * s, 0.46 * s, 0.0, False),
-      ("Hind_R", -cfg.stance_width_hind * s, 0.46 * s, 0.0, False),
-  ]
-  ...
-  foot_center = (px, py - 0.10 * s, pz + 0.04 * s)
-  foot_size = (0.24 * s, 0.20 * s, 0.08 * s)
+  @mcp.tool(name="morphomesh_capture_viewport")
+  async def morphomesh_capture_viewport(
+      output_path: Optional[str] = None,
+      camera_name: str = "MorphoMesh_Inspector_Camera",
+      resolution: List[int] = [1024, 1024],
+      shading_mode: str = "SOLID",
+      color_type: str = "RANDOM",
+      ctx: Optional[Context] = None,
+  ) -> Dict[str, Any]:
+      ...
+      # Pre-flight validation
+      if not isinstance(resolution, (list, tuple)) or len(resolution) != 2 or any(r <= 0 for r in resolution):
+          raise ToolError(...)
+      if not camera_name or not camera_name.strip():
+          raise ToolError(...)
   ```
-  For front paws, `py` is $-0.48\text{m}$, and `foot_center` is $(f_x, -0.48 - 0.10, 0.04) = (f_x, -0.58\text{m}, 0.04\text{m})$.
-  Foot box Y-extent is $[-0.58 - 0.10, -0.58 + 0.10] = [-0.68\text{m}, -0.48\text{m}]$.
-- Geometric measurement:
-  - Gap between closest points in Y: $-0.42\text{m} - (-0.48\text{m}) = 0.06\text{m}$ ($60\text{mm}$ of empty air).
-  - Spatial separation between cylinder axis and paw center: $\Delta y = 0.23\text{m}, \Delta z = 0.04\text{m}$, distance $= \sqrt{0.23^2 + 0.04^2} = 0.2335\text{m}$.
-
-### 1.2 Open Hollow Cylinders (`src/morphomesh/inference_adapter.py`)
-- In `src/morphomesh/inference_adapter.py:164-220` (`add_cylinder`):
-  Vertices are added only on bottom ring (`b_idx`) and top ring (`t_idx`). Faces are added only as side quads:
+  *Defect*: Neither `shading_mode` nor `color_type` is validated.
+- **Tool 3: `morphomesh_critique_visual_quality`** (lines 1223–1251):
   ```python
-  self.add_quad(bottom_indices[s], bottom_indices[next_s], top_indices[next_s], top_indices[s])
+  @mcp.tool(name="morphomesh_critique_visual_quality")
+  async def morphomesh_critique_visual_quality(
+      character_name: str = "MorphoMesh_Character",
+      target_object: Optional[str] = None,
+      camera_angles: Optional[List[str]] = None,
+      clearance_tolerance: float = 0.0005,
+      target_preset: str = "stylized_heroine",
+      ctx: Optional[Context] = None,
+  ) -> Dict[str, Any]:
+      ...
+      # Pre-flight validation
+      if clearance_tolerance < 0.0:
+          raise ToolError(...)
+      if not character_name and not target_object:
+          raise ToolError(...)
   ```
-  Neither top nor bottom cap vertices/faces are created. The cylinder is an open-ended tube.
-  Because forearm cylinder bottom is at $z = 0.08\text{m}$ and hovers over empty air (due to the 0.23m Y displacement of the paw), the bottom is a visible open hollow hole.
+  *Defect*: `target_preset` parameter is never validated against allowed presets or empty strings.
 
-### 1.3 Primitive Box Head Features (`src/morphomesh/inference_adapter.py`)
-- In `src/morphomesh/inference_adapter.py:766-860`:
-  - Snout: `self.add_box((cx, cy - 0.22*scale, cz - 0.02*scale), (0.18*scale, 0.20*scale, 0.16*scale))`
-  - Rhinarium: `self.add_box((cx, cy - 0.33*scale, cz + 0.01*scale), (0.12*scale, 0.03*scale, 0.08*scale))`
-  - Mouth cavity: `self.add_box((cx, cy - 0.23*scale, cz - 0.07*scale), (0.13*scale, 0.14*scale, 0.03*scale))`
-  - Mandible (jaw): `self.add_box((cx, cy - 0.22*scale, cz - 0.12*scale), (0.15*scale, 0.18*scale, 0.06*scale))`
-  - Upper & lower eyelids: `self.add_box(upper_lid, ...)` and `self.add_box(lower_lid, ...)`
-  All 5 major facial components are axis-aligned bounding boxes with sharp 90-degree corners.
+#### B. `src/morphomesh/camera_rig.py`
+- Lines 392–422 define `CANONICAL_VIEWPOINTS`:
+  Contains `front`, `side`, `side_left`, `back`, `three_quarter`, `top`, `head`, `close_up_head`, `portrait`, `hands`, `close_up_hands`, `torso`, `feet`, plus aliases (`front_view`, `view_front`, `side_right`, `view_side`, `view_side_left`, `view_back`, `back_view`, `front_three_quarter`, `three_quarter_left`, `back_three_quarter`, `head_close_up`, `hands_close_up`, `marionette`, `bodice`, `sandals`, `shoes`).
+- Missing keys: `"bottom"`, `"turntable"`, `"turntable_4views"`.
+- Line 839: `vp_spec = CANONICAL_VIEWPOINTS.get(vp_clean, CANONICAL_VIEWPOINTS["three_quarter"])` silently falls back to `"three_quarter"` for any unknown viewpoint string.
+- Lines 940–944 in `capture_viewport_image`:
+  ```python
+  norm_shading = shading_mode.upper() if shading_mode and shading_mode.upper() in valid_shading else "SOLID"
+  norm_color = color_type.upper() if color_type and color_type.upper() in valid_colors else "RANDOM"
+  ```
+  Silently coerces unknown shading/color to `"SOLID"` and `"RANDOM"`.
 
-### 1.4 Visual Render Inspection (`examples/renders/*.png`)
-- `bear_front_three_quarter.png` and `bear_full_body.png`:
-  The front-right paw sits isolated on the pedestal floor; the forearm cylinder hangs suspended above empty air with an open circular rim.
-  The bear's head is a pink sphere with an unblended gray rectangular box snout.
-  An evaluated fur ribbon sheet trails behind the bear like an exhaust plume due to `ps.object_align_factor = (0.0, 0.40, -0.35)`.
-- `bear_head_closeup.png`:
-  Flat rectangular gray muzzle, diamond slit cuts for nostrils/eyes, small detached conical ear bumps.
-- `bear_paw_claws_closeup.png`:
-  Bare beige box paw sitting in foreground; hollow leg cylinder and brass cuff hovering in background above empty space.
+#### C. `src/morphomesh/visual_critic.py`
+- Lines 1301–1332 define `ANTHROPOMETRIC_PRESETS`:
+  Only 3 presets exist: `"realistic_human"`, `"stylized_heroine"`, `"chibi_petite"`.
+- Missing keys required by specification: `"realistic_female"`, `"heroic_male"`, `"chibi"`.
+- Line 1366 in `evaluate_body_proportions`:
+  `preset = ANTHROPOMETRIC_PRESETS.get(target_preset, ANTHROPOMETRIC_PRESETS["stylized_heroine"])`
+  Silently defaults unknown presets to `"stylized_heroine"`.
+
+#### D. `src/morphomesh/models.py`
+- `InspectorViewpoint` Enum lacks `BOTTOM = "bottom"`, `TURNTABLE = "turntable"`, and `TURNTABLE_4VIEWS = "turntable_4views"`.
+- `DiagnosticShadingMode` and `DiagnosticColorType` exist and match canonical values (`SOLID`, `FLAT`, `WIREFRAME`, `MATERIAL`, `RENDERED` / `RANDOM`, `MATERIAL`, `SINGLE`, `OBJECT`, `TEXTURE`).
+- There is no `AnthropometricPreset` (or `TargetPreset`) Enum.
+- Pydantic models (`SetupInspectorCameraInput`, `CaptureViewportInput`, `VisualCritiqueInput`) declare unconstrained `str` fields without `@field_validator` constraints.
 
 ---
 
 ## 2. Logic Chain
 
-1. *Paw Detachment Root Cause*:
-   - From Observation 1.1, `paw_configs` defines `py = -0.48 * s`.
-   - The loop subtracts $0.10 * s$, setting `foot_center_y = -0.58 * s`.
-   - The forearm cylinder axis is at $y = -0.35 * s$ (radius $0.07\text{m}$, spanning $[-0.42\text{m}, -0.28\text{m}]$).
-   - Because $[-0.68\text{m}, -0.48\text{m}]$ does not overlap $[-0.42\text{m}, -0.28\text{m}]$, a 60mm air gap in Y and 0.23m center offset exists.
-   - Aligning `py = -0.35 * s` with `foot_center = (px, py - 0.05 * s, 0.04 * s)` and `foot_size = (0.24 * s, 0.24 * s, 0.08 * s)` spans $[-0.52\text{m}, -0.28\text{m}]$, perfectly enclosing the forearm cylinder $[-0.42\text{m}, -0.28\text{m}]$.
+1. **Direct Invocation vs. FastMCP Protocol**:
+   - In FastMCP, tool functions registered via `@mcp.tool()` can be invoked via two distinct paths:
+     a) Protocol-level via `mcp.call_tool(name, args)`: FastMCP parses and coerces arguments against function type annotations.
+     b) Direct Python async function calls via `await morphomesh_setup_inspector_camera_rig(...)` as executed in `test_adversarial_error_injection_m4.py`.
+   - Direct Python function calls execute the underlying function directly, completely bypassing FastMCP's argument serialization.
+   - Therefore, strict parameter validation MUST exist inside the pre-flight block of each tool function in `server.py`, explicitly raising `ToolError`.
 
-2. *Cylinder Capping & Vertical Embedding*:
-   - From Observation 1.2, `add_cylinder` has no end caps.
-   - Extending `add_cylinder` with `cap_ends: bool = False, cap_bottom: Optional[bool] = None, cap_top: Optional[bool] = None` allows capping without breaking existing unit tests (`test_add_cylinder` expecting 16 verts for 8 segments).
-   - Lowering the forearm base to $z = 0.03\text{m}$ ($height = 0.40\text{m}$) embeds the bottom 5 cm of the capped cylinder into the solid volume of the paw box ($z \in [0.00\text{m}, 0.08\text{m}]$). This guarantees zero hollow openings or floating gaps.
-   - Shifting the hind shank cylinder to $y = 0.38\text{m}, z = 0.03\text{m}$ with `cap_ends=True` encloses it within the hind foot box ($[0.20\text{m}, 0.46\text{m}]$), eliminating the 6.5 cm posterior overhang while preserving calcaneus ground contact at $y = 0.46\text{m}, z = 0.00\text{m}$.
+2. **Schema Stability & FastMCP Type Annotation Strategy**:
+   - In `tests/test_fastmcp_inspection_tools.py` (line 137, 148, 149, 159), tests explicitly assert properties on the generated `inputSchema`:
+     `props1["viewpoint"]["default"] == "three_quarter"`
+     `props2["shading_mode"]["default"] == "SOLID"`
+     `props2["color_type"]["default"] == "RANDOM"`
+     `props3["target_preset"]["default"] == "stylized_heroine"`
+   - If function signatures in `server.py` are modified to use strict Enum annotations (e.g. `viewpoint: InspectorViewpoint`), FastMCP's Pydantic schema generator converts the property into a `$defs` reference (`{"$ref": "#/$defs/InspectorViewpoint", "default": "three_quarter"}`), altering the JSON Schema structure and potentially breaking downstream MCP clients or schema tests that expect primitive string types.
+   - Preserving `viewpoint: str = "three_quarter"`, `shading_mode: str = "SOLID"`, `color_type: str = "RANDOM"`, and `target_preset: str = "stylized_heroine"` in the function signatures while enforcing strict validation in the function body guarantees 100% schema backward compatibility.
+   - Concurrently, adding `@field_validator` rules to the Pydantic models in `src/morphomesh/models.py` guarantees model-level validation whenever input models are instantiated.
 
-3. *Organic Facial Synthesis*:
-   - From Observation 1.3, the muzzle consists of 6 stacked primitive boxes.
-   - Upgrading the rostrum to a 4-ring lofted rounded hull with an organic front rhinarium cap creates smooth ursine contours without flat box faces.
-   - Preserving the exact nostril cones (16 verts, 24 faces, 12 inward faces), dentition (80 verts, 12 components), mouth cavity bounding envelope, and eyelid Z-bracketing ($lid_{z,\min} \le eye_{z,\min} + 0.005, lid_{z,\max} \ge eye_{z,\max} - 0.005$) satisfies all assertions in `tests/test_m1_topology_and_facial_stress.py`.
-   - Modeling ears with outer convex pinna and inner concave concha provides cupped ears with $\ge 8$ vertices.
-
-4. *Claw & Vertex Group Invariance*:
-   - Claw direction vector $\vec{d}_{\text{unit}}$ depends purely on forward direction, curvature factor, and splay angle:
-     $$\vec{d}_{\text{unit}} \cdot (0, -1, 0) = \frac{1}{\sqrt{1 + C^2 + S^2}} \approx 0.8975 > 0.60, \quad d_z = -0.4308 < 0$$
-   - This equation is mathematically invariant to paw translation.
-   - All 18 standardized vertex groups remain populated, valid, and non-overlapping.
-
-5. *Visual Presentation in Cycles*:
-   - Setting `scene.cycles.curves_shape = "STRIP"` and assigning `psys.settings.material_slot = "Mat_Bear_Fur"` renders volumetric fur fibers natively in Cycles.
-   - Keeping `ribbon_obj.hide_render = True` prevents the glTF ribbon mesh from obstructing native Cycles fur in beauty renders while remaining available for glTF export.
+3. **Domain Parity Across the 4 Layers**:
+   - For validation to be cohesive, the allowed parameter sets must be identical across:
+     - `src/morphomesh/server.py` (pre-flight validation raising `ToolError`)
+     - `src/morphomesh/models.py` (Pydantic Enums and `@field_validator` raising `ValidationError`)
+     - `src/morphomesh/camera_rig.py` (`CANONICAL_VIEWPOINTS` coordinate dictionaries)
+     - `src/morphomesh/visual_critic.py` (`ANTHROPOMETRIC_PRESETS` ratio dictionaries)
 
 ---
 
-## 3. Caveats
+## 3. Concrete Blueprint & Proposed Implementations
 
-1. **Armor Clearance Dependency (Finding 2)**:
-   While paw realignment $(y = -0.35\text{m})$ improves forearm bracer fitting, shoulder pauldron penetration (Finding 2) must be addressed in `src/morphomesh/armor.py` by adjusting pauldron radial clearance and spherical bounds.
-2. **Watertight Unit Test Dependency (Finding 1)**:
-   The facade test in `tests/test_bear_anatomy.py:209-219` must be updated by the test auditor/implementer to assert true 2-manifold watertightness and signed surface clearance.
-3. **Blender Headless Environment**:
-   Cycles beauty re-rendering requires execution via `/Applications/Blender.app/Contents/MacOS/Blender` with OpenImageDenoise.
+### Blueprint 1: `src/morphomesh/models.py`
+
+#### 1.1 Update `InspectorViewpoint`
+Add `BOTTOM`, `TURNTABLE`, and `TURNTABLE_4VIEWS`:
+```python
+class InspectorViewpoint(str, Enum):
+    FRONT = "front"
+    SIDE = "side"
+    SIDE_LEFT = "side_left"
+    BACK = "back"
+    THREE_QUARTER = "three_quarter"
+    TOP = "top"
+    BOTTOM = "bottom"
+    HEAD = "head"
+    CLOSE_UP_HEAD = "close_up_head"
+    PORTRAIT = "portrait"
+    HANDS = "hands"
+    CLOSE_UP_HANDS = "close_up_hands"
+    TORSO = "torso"
+    FEET = "feet"
+    TURNTABLE = "turntable"
+    TURNTABLE_4VIEWS = "turntable_4views"
+```
+
+#### 1.2 Add `AnthropometricPreset` Enum
+```python
+class AnthropometricPreset(str, Enum):
+    REALISTIC_HUMAN = "realistic_human"
+    STYLIZED_HEROINE = "stylized_heroine"
+    CHIBI_PETITE = "chibi_petite"
+    REALISTIC_FEMALE = "realistic_female"
+    HEROIC_MALE = "heroic_male"
+    CHIBI = "chibi"
+
+TargetPreset = AnthropometricPreset
+```
+
+#### 1.3 Add Field Validators to Input Models
+```python
+VALID_INSPECTOR_VIEWPOINTS_SET = {e.value for e in InspectorViewpoint} | {
+    "view_front", "front_view", "side_right", "view_side", "view_side_left",
+    "view_back", "back_view", "front_three_quarter", "three_quarter_left",
+    "back_three_quarter", "head_close_up", "hands_close_up", "marionette",
+    "bodice", "sandals", "shoes",
+}
+
+# In SetupInspectorCameraInput:
+@field_validator("viewpoint")
+@classmethod
+def validate_viewpoint(cls, v: str) -> str:
+    if not v or not isinstance(v, str) or not v.strip():
+        raise ValueError("viewpoint cannot be empty")
+    v_clean = v.lower().strip()
+    if v_clean not in VALID_INSPECTOR_VIEWPOINTS_SET:
+        raise ValueError(f"Invalid viewpoint '{v}'. Allowed: {sorted(list(VALID_INSPECTOR_VIEWPOINTS_SET))}")
+    return v_clean
+
+# In CaptureViewportInput:
+@field_validator("shading_mode")
+@classmethod
+def validate_shading_mode(cls, v: str) -> str:
+    if not v or not isinstance(v, str) or not v.strip():
+        raise ValueError("shading_mode cannot be empty")
+    v_upper = v.upper().strip()
+    valid_shading = {e.value for e in DiagnosticShadingMode}
+    if v_upper not in valid_shading:
+        raise ValueError(f"Invalid shading_mode '{v}'. Allowed: {sorted(list(valid_shading))}")
+    return v_upper
+
+@field_validator("color_type")
+@classmethod
+def validate_color_type(cls, v: str) -> str:
+    if not v or not isinstance(v, str) or not v.strip():
+        raise ValueError("color_type cannot be empty")
+    v_upper = v.upper().strip()
+    valid_colors = {e.value for e in DiagnosticColorType}
+    if v_upper not in valid_colors:
+        raise ValueError(f"Invalid color_type '{v}'. Allowed: {sorted(list(valid_colors))}")
+    return v_upper
+
+# In VisualCritiqueInput:
+@field_validator("target_preset")
+@classmethod
+def validate_target_preset(cls, v: str) -> str:
+    if not v or not isinstance(v, str) or not v.strip():
+        raise ValueError("target_preset cannot be empty")
+    v_clean = v.lower().strip()
+    valid_presets = {e.value for e in AnthropometricPreset}
+    if v_clean not in valid_presets:
+        raise ValueError(f"Invalid target_preset '{v}'. Allowed: {sorted(list(valid_presets))}")
+    return v_clean
+```
 
 ---
 
-## 4. Conclusion & Remediation Plan
+### Blueprint 2: `src/morphomesh/server.py`
 
-- **Root Causes**: Completely diagnosed and mathematically modeled.
-- **Remediation Strategy**: Fully formulated with drop-in code patches documented in `survey_report.md`:
-  * `src/morphomesh/inference_adapter.py`: Add `cap_ends` to `add_cylinder`; upgrade `add_articulated_head` to multi-ring lofted rostrum, organic rhinarium, almond eyelids, and cupped pinnae.
-  * `src/morphomesh/creature_generator.py`: Correct front paw `py` to $-0.35\text{m}$, embed forearm cylinder at $z = 0.03\text{m}$ with `cap_ends=True`, adjust hind shank to $y = 0.38\text{m}, z = 0.03\text{m}$, and update `get_blender_generation_script`.
-  * `scripts/assemble_and_render_armored_war_bear.py`: Configure Cycles curve strip rendering and particle material binding.
-- **Safety**: 100% compliant with all 18 vertex groups, claw curvature invariants, and existing 326 unit tests.
+#### 2.1 Constants Definition (near top of inspection tool section)
+```python
+VALID_INSPECTOR_VIEWPOINTS: Set[str] = {
+    "front", "side", "side_left", "back", "three_quarter", "top", "bottom",
+    "head", "close_up_head", "portrait", "hands", "close_up_hands",
+    "torso", "feet", "turntable", "turntable_4views",
+    "view_front", "front_view", "side_right", "view_side", "view_side_left",
+    "view_back", "back_view", "front_three_quarter", "three_quarter_left",
+    "back_three_quarter", "head_close_up", "hands_close_up", "marionette",
+    "bodice", "sandals", "shoes",
+}
+
+VALID_SHADING_MODES: Set[str] = {"SOLID", "FLAT", "WIREFRAME", "MATERIAL", "RENDERED"}
+VALID_COLOR_TYPES: Set[str] = {"RANDOM", "MATERIAL", "SINGLE", "OBJECT", "TEXTURE"}
+VALID_TARGET_PRESETS: Set[str] = {
+    "realistic_human", "stylized_heroine", "chibi_petite",
+    "realistic_female", "heroic_male", "chibi",
+}
+```
+
+#### 2.2 Pre-flight Validation in `morphomesh_setup_inspector_camera_rig`
+Replace lines 1113–1120 in `src/morphomesh/server.py`:
+```python
+    # Pre-flight parameter validation
+    if not viewpoint or not isinstance(viewpoint, str) or not viewpoint.strip():
+        raise ToolError("MorphoMesh Parameter Validation Error: 'viewpoint' cannot be empty.")
+    vp_norm = viewpoint.lower().strip()
+    if vp_norm not in VALID_INSPECTOR_VIEWPOINTS:
+        raise ToolError(
+            f"MorphoMesh Parameter Validation Error: Invalid viewpoint '{viewpoint}'. "
+            f"Allowed viewpoints: {sorted(list(VALID_INSPECTOR_VIEWPOINTS))}."
+        )
+
+    if focal_length < 10.0 or focal_length > 300.0:
+        raise ToolError(f"MorphoMesh Parameter Validation Error: 'focal_length' must be between 10.0 and 300.0 mm (got {focal_length}).")
+    if target_center is not None and (not isinstance(target_center, (list, tuple)) or len(target_center) != 3):
+        raise ToolError("MorphoMesh Parameter Validation Error: 'target_center' must be a list of 3 coordinates [x, y, z].")
+    if not camera_name or not camera_name.strip():
+        raise ToolError("MorphoMesh Parameter Validation Error: 'camera_name' cannot be empty.")
+```
+
+#### 2.3 Pre-flight Validation in `morphomesh_capture_viewport`
+Replace lines 1169–1174 in `src/morphomesh/server.py`:
+```python
+    # Pre-flight validation
+    if not shading_mode or not isinstance(shading_mode, str) or not shading_mode.strip():
+        raise ToolError("MorphoMesh Parameter Validation Error: 'shading_mode' cannot be empty.")
+    shading_norm = shading_mode.upper().strip()
+    if shading_norm not in VALID_SHADING_MODES:
+        raise ToolError(
+            f"MorphoMesh Parameter Validation Error: Invalid shading_mode '{shading_mode}'. "
+            f"Allowed shading modes: {sorted(list(VALID_SHADING_MODES))}."
+        )
+
+    if not color_type or not isinstance(color_type, str) or not color_type.strip():
+        raise ToolError("MorphoMesh Parameter Validation Error: 'color_type' cannot be empty.")
+    color_norm = color_type.upper().strip()
+    if color_norm not in VALID_COLOR_TYPES:
+        raise ToolError(
+            f"MorphoMesh Parameter Validation Error: Invalid color_type '{color_type}'. "
+            f"Allowed color types: {sorted(list(VALID_COLOR_TYPES))}."
+        )
+
+    if not isinstance(resolution, (list, tuple)) or len(resolution) != 2 or any(r <= 0 for r in resolution):
+        raise ToolError("MorphoMesh Parameter Validation Error: 'resolution' must be a list/tuple of 2 positive integers [width, height].")
+    if not camera_name or not camera_name.strip():
+        raise ToolError("MorphoMesh Parameter Validation Error: 'camera_name' cannot be empty.")
+```
+And pass `shading_mode=shading_norm` and `color_type=color_norm` to `blender_bridge.capture_viewport`.
+
+#### 2.4 Pre-flight Validation in `morphomesh_critique_visual_quality`
+Replace lines 1246–1251 in `src/morphomesh/server.py`:
+```python
+    # Pre-flight validation
+    if not target_preset or not isinstance(target_preset, str) or not target_preset.strip():
+        raise ToolError("MorphoMesh Parameter Validation Error: 'target_preset' cannot be empty.")
+    preset_norm = target_preset.lower().strip()
+    if preset_norm not in VALID_TARGET_PRESETS:
+        raise ToolError(
+            f"MorphoMesh Parameter Validation Error: Invalid target_preset '{target_preset}'. "
+            f"Allowed target presets: {sorted(list(VALID_TARGET_PRESETS))}."
+        )
+
+    if clearance_tolerance < 0.0:
+        raise ToolError("MorphoMesh Parameter Validation Error: 'clearance_tolerance' must be non-negative.")
+    if not character_name and not target_object:
+        raise ToolError("MorphoMesh Parameter Validation Error: Either 'character_name' or 'target_object' must be provided.")
+```
+And pass `target_preset=preset_norm` to `blender_bridge.critique_visual_quality`.
 
 ---
 
-## 5. Verification Method
+### Blueprint 3: `src/morphomesh/camera_rig.py`
 
-To independently verify the investigation and proposed patches:
+Add missing keys to `CANONICAL_VIEWPOINTS` (lines 392–422):
+```python
+CANONICAL_VIEWPOINTS: Dict[str, Dict[str, Any]] = {
+    ...
+    "bottom": {"azimuth": 0.0, "elevation": -88.0, "subregion": "full_body", "default_focal": 50.0, "margin": 0.20},
+    "turntable": {"azimuth": 45.0, "elevation": 15.0, "subregion": "full_body", "default_focal": 50.0, "margin": 0.15},
+    "turntable_4views": {"azimuth": 0.0, "elevation": 0.0, "subregion": "full_body", "default_focal": 50.0, "margin": 0.15},
+    ...
+}
+```
 
-1. **Verify Paw & Limb Overlap Calculation**:
-   ```bash
-   python3 -c "
-   from morphomesh.creature_generator import generate_bear_base_mesh
-   res = generate_bear_base_mesh()
-   # Baseline check: observe front paw offset
-   print('Baseline front paw claws count:', len(res.claws))
-   "
+---
+
+### Blueprint 4: `src/morphomesh/visual_critic.py`
+
+Add missing presets to `ANTHROPOMETRIC_PRESETS` (lines 1301–1332):
+```python
+ANTHROPOMETRIC_PRESETS: Dict[str, Dict[str, Any]] = {
+    "realistic_human": {
+        "head_ratio_min": 7.0,
+        "head_ratio_max": 8.0,
+        "head_ratio_nominal": 7.5,
+        "arm_span_ratio_min": 0.95,
+        "arm_span_ratio_max": 1.05,
+        "shoulder_to_hip_feminine": (0.90, 1.05),
+        "shoulder_to_hip_masculine": (1.20, 1.45),
+        "typical_height_range": (1.55, 1.90),
+    },
+    "stylized_heroine": {
+        "head_ratio_min": 6.0,
+        "head_ratio_max": 7.6,
+        "head_ratio_nominal": 6.8,
+        "arm_span_ratio_min": 0.90,
+        "arm_span_ratio_max": 1.08,
+        "shoulder_to_hip_feminine": (0.85, 1.10),
+        "shoulder_to_hip_masculine": (1.15, 1.35),
+        "typical_height_range": (1.50, 1.75),
+    },
+    "chibi_petite": {
+        "head_ratio_min": 2.0,
+        "head_ratio_max": 5.0,
+        "head_ratio_nominal": 3.5,
+        "arm_span_ratio_min": 0.80,
+        "arm_span_ratio_max": 1.05,
+        "shoulder_to_hip_feminine": (0.85, 1.10),
+        "shoulder_to_hip_masculine": (0.95, 1.15),
+        "typical_height_range": (0.80, 1.35),
+    },
+    "realistic_female": {
+        "head_ratio_min": 7.0,
+        "head_ratio_max": 8.0,
+        "head_ratio_nominal": 7.5,
+        "arm_span_ratio_min": 0.95,
+        "arm_span_ratio_max": 1.05,
+        "shoulder_to_hip_feminine": (0.90, 1.05),
+        "shoulder_to_hip_masculine": (1.20, 1.45),
+        "typical_height_range": (1.55, 1.80),
+    },
+    "heroic_male": {
+        "head_ratio_min": 7.5,
+        "head_ratio_max": 8.5,
+        "head_ratio_nominal": 8.0,
+        "arm_span_ratio_min": 0.98,
+        "arm_span_ratio_max": 1.08,
+        "shoulder_to_hip_feminine": (1.00, 1.20),
+        "shoulder_to_hip_masculine": (1.30, 1.55),
+        "typical_height_range": (1.80, 2.05),
+    },
+    "chibi": {
+        "head_ratio_min": 2.0,
+        "head_ratio_max": 5.0,
+        "head_ratio_nominal": 3.5,
+        "arm_span_ratio_min": 0.80,
+        "arm_span_ratio_max": 1.05,
+        "shoulder_to_hip_feminine": (0.85, 1.10),
+        "shoulder_to_hip_masculine": (0.95, 1.15),
+        "typical_height_range": (0.80, 1.35),
+    },
+}
+```
+
+---
+
+## 4. Caveats
+
+1. **Direct Async Invocation vs Protocol Call**:
+   - Calling the python function directly (e.g. `await morphomesh_setup_inspector_camera_rig(viewpoint="...")`) invokes the unwrapped async function directly.
+   - Calling through FastMCP client (e.g. `await mcp.call_tool("morphomesh_setup_inspector_camera_rig", {"viewpoint": "..."})`) routes through FastMCP's internal tool executor.
+   - Both paths MUST consistently raise `mcp.server.fastmcp.exceptions.ToolError`. The proposed design guarantees both paths raise `ToolError`.
+2. **Offline Bridge Resilience**:
+   - In addition to the 20 enum validation failures, 2 failures in `test_adversarial_error_injection_m4.py` were caused by offline bridge execution when `blender_bridge.is_interactive_connected() == False` and `blender_bin_path == None`.
+   - In `setup_inspector_camera_rig` and `capture_viewport`, the catch blocks in `server.py` (or fallbacks in `blender_bridge.py`) must catch `MorphoMeshException("ERR_BLENDER_UNAVAILABLE")` and return mock camera metadata / `FALLBACK_PNG_BYTES` with `status="success"`.
+3. **Read-Only Explorer Scope**:
+   - Explorer M4_Iter2_1 performed strictly read-only exploration and prototyping. No source code files in `src/` or `tests/` were modified.
+
+---
+
+## 5. Conclusion
+
+- **Root Cause Identified**:
+  The failure of 20 adversarial parameter validation tests was due to the complete absence of pre-flight checks for `viewpoint`, `shading_mode`, `color_type`, and `target_preset` in `src/morphomesh/server.py`, coupled with silent `.get(key, default)` fallback behavior in downstream calculation modules (`camera_rig.py` and `visual_critic.py`).
+- **Solution Strategy**:
+  Implement explicit pre-flight parameter validation in `server.py` raising `ToolError` with informative error messages satisfying test regex patterns. Synchronize `InspectorViewpoint`, `AnthropometricPreset`, and Pydantic field validators in `models.py`. Update `CANONICAL_VIEWPOINTS` in `camera_rig.py` and `ANTHROPOMETRIC_PRESETS` in `visual_critic.py` to achieve complete 4-layer parity.
+- **Impact on Schema**:
+  Preserves `type: "string"` and `default: ...` in the FastMCP tool JSON Schema, guaranteeing 100% backward compatibility with `test_fastmcp_inspection_tools.py`, `test_adversarial_m4_gating.py`, and `test_tools_schema.py`.
+
+---
+
+## 6. Verification Method
+
+To independently verify the blueprint:
+
+1. **Verify Adversarial Test Suite Coverage**:
+   ```powershell
+   .venv\Scripts\pytest.exe -v tests/test_adversarial_error_injection_m4.py
    ```
+   *Expected After Remediation*: 46 passed (0 failed).
 
-2. **Verify Claw Mathematical Curvature Invariant**:
-   ```bash
-   pytest -v tests/test_m1_claw_and_paw_stress.py
-   pytest -v tests/test_bear_anatomy.py -k "test_all_20_claws_meet_curvature_guarantee"
+2. **Verify Regression Test Suites Unaffected**:
+   ```powershell
+   .venv\Scripts\pytest.exe -v tests/test_fastmcp_inspection_tools.py tests/test_inspector_camera.py tests/test_visual_critic.py tests/test_adversarial_m4_gating.py
    ```
+   *Expected After Remediation*: 100% passed with zero regressions.
 
-3. **Verify Facial Landmark Topology Constraints**:
-   ```bash
-   pytest -v tests/test_m1_topology_and_facial_stress.py
+3. **Verify Pure-Python Invocations**:
+   ```powershell
+   .venv\Scripts\python.exe -c "import asyncio; from mcp.server.fastmcp.exceptions import ToolError; from morphomesh.server import morphomesh_setup_inspector_camera_rig; 
+   try:
+       asyncio.run(morphomesh_setup_inspector_camera_rig(viewpoint='nadir_flipped'))
+   except ToolError as e:
+       print('Successfully caught ToolError:', e)"
    ```
-
-4. **Verify Verification Suite**:
-   ```bash
-   python3 verify_bear_anatomy.py
-   ```
+   *Expected Result*: Catches `ToolError` containing `"MorphoMesh Parameter Validation Error: Invalid viewpoint 'nadir_flipped'"`.
