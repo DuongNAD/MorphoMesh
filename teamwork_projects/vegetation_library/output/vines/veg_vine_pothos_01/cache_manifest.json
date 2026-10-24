@@ -1,0 +1,13 @@
+{
+  "species_id": "veg_vine_pothos_01",
+  "source": "procedural",
+  "seed": 1311754115,
+  "vertex_count": 4064,
+  "face_count": 3280,
+  "textures": {
+    "albedo": "textures/albedo.png",
+    "normal": "textures/normal.png",
+    "roughness": "textures/roughness.png",
+    "metallic": "textures/metallic.png"
+  }
+}

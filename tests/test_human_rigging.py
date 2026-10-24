@@ -265,9 +265,13 @@ class TestAntiPinchSkinWeights:
         finger_verts = mesh_res.vertex_groups.get("fingers_L", [])
         coords = mesh_res.mesh.vertices
 
-        # Identify leftmost (thumb) vertices
-        max_x = max(coords[v][0] for v in finger_verts)
-        thumb_candidates = [v for v in finger_verts if coords[v][0] > max_x - 0.015]
+        # Identify thumb vertices (via joint-l-finger-1-1 landmark or lateral max_x fallback)
+        thumb_pt = mesh_res.landmarks.get("joint-l-finger-1-1")
+        if thumb_pt:
+            thumb_candidates = [v for v in finger_verts if sum((coords[v][k] - thumb_pt[k]) ** 2 for k in range(3)) < 0.035 ** 2]
+        else:
+            max_x = max(coords[v][0] for v in finger_verts)
+            thumb_candidates = [v for v in finger_verts if coords[v][0] > max_x - 0.015]
         assert len(thumb_candidates) > 0
 
         # Thumb vertices must receive thumb weights and ZERO weight from pinky or ring

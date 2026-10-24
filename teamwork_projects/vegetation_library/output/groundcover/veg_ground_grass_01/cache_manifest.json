@@ -1,0 +1,14 @@
+{
+  "species_id": "veg_ground_grass_01",
+  "preview_task_id": "01a08b3e-c709-71c8-9d20-d7aee3206751",
+  "refine_task_id": "01a08b42-0d5a-7093-8aeb-736c3d40a2d0",
+  "vertex_count": 107218,
+  "face_count": 94696,
+  "source": "meshy",
+  "textures": {
+    "albedo": "textures/albedo.png",
+    "normal": "textures/normal.png",
+    "roughness": "textures/roughness.png",
+    "metallic": "textures/metallic.png"
+  }
+}

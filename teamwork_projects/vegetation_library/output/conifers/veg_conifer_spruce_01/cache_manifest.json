@@ -1,0 +1,14 @@
+{
+  "species_id": "veg_conifer_spruce_01",
+  "preview_task_id": "01a08b30-973e-72b4-9213-3f526d60c407",
+  "refine_task_id": "01a08b32-f2c8-7682-b264-8c8f8c3f5a8f",
+  "vertex_count": 64326,
+  "face_count": 59497,
+  "source": "meshy",
+  "textures": {
+    "albedo": "textures/albedo.png",
+    "normal": "textures/normal.png",
+    "roughness": "textures/roughness.png",
+    "metallic": "textures/metallic.png"
+  }
+}

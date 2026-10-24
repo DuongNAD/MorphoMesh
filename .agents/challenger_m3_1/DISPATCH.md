@@ -27,4 +27,37 @@ Perform adversarial verification in headless Blender 5.2.1 LTS:
 3. Assert zero degenerate zero-area faces in armor meshes.
 4. Assert 5 PBR materials contain valid Principled BSDF v2 sockets, metallic == 1.0 on steel & brass, coat weight >= 0.80 on wet nose.
 5. Stress-test armor fitting under scaling (0.5x to 2.0x).
-Deliver your verdict (APPROVE or REJECT) in `handoff.md` and message orchestrator.
+30: Deliver your verdict (APPROVE or REJECT) in `handoff.md` and message orchestrator.
+31: 
+## 2026-09-07T16:17:35Z
+You are Challenger 1 (Challenger M3.1: Sandals Clearance, Height & Toes Exposure Empirical Challenger) for MorphoMesh Milestone M3.
+Your working directory is: E:\tool\mcp\MorphoMesh\.agents\challenger_m3_1
+
+MANDATORY FIRST STEP:
+You MUST read the following authoritative specification files:
+1. ORIGINAL_REQUEST.md at: E:\tool\mcp\MorphoMesh\ORIGINAL_REQUEST.md
+2. PROJECT.md at: E:\tool\mcp\MorphoMesh\.agents\orchestrator_human_anatomy_gen2\PROJECT.md
+3. Worker M3 Handoff & Changes:
+   - E:\tool\mcp\MorphoMesh\.agents\worker_m3\handoff.md
+   - E:\tool\mcp\MorphoMesh\.agents\worker_m3\changes.md
+
+YOUR OBJECTIVE:
+Empirically stress-test the new procedural flat strappy sandals implementation in `src/morphomesh/wardrobe.py`.
+
+SPECIFIC CHALLENGE TASKS:
+1. Write and run empirical stress tests (in `tests/test_challenger_m3_sandals.py` or standalone test script):
+   - Test extreme character scaling ($H \in [1.50\text{m}, 1.80\text{m}]$) and leg girth variations ($k_{\text{leg}} \in [0.8, 1.2]$).
+   - Test total footwear height $\le 50.0\text{mm}$ across all scales.
+   - Test sole length $\in [0.22, 0.25]\text{m}$ and ground elevation $Z = 0.0\text{m}$.
+   - Test 100% exposed toes and toenails: sole perimeter terminates at $Y = -0.138\text{m}$, big toe and pinky toe landmarks extend past sole with $\ge 7\text{mm}$ clearance.
+   - Test zero skin penetration: verify signed distance to underlying foot mesh $\ge +1.5\text{mm}$.
+   - Test medial arch rise: verify top footbed elevates by $> +3.5\text{mm}$ along medial border.
+   - Test normalized Rigify skinning: 100% of vertices have normalized weights $\sum w_i = 1.0 \pm 10^{-4}$ in `DEF-foot` and `DEF-toe`.
+   - Test topology: verify zero degenerate (zero-area) faces.
+2. Run tests: `uv run pytest tests/test_wardrobe_m3.py -v`.
+3. Provide an explicit verdict in your handoff report: `APPROVE` or `REQUEST_CHANGES`.
+
+COMPLETION REQUIREMENTS:
+- Write your empirical report to: `E:\tool\mcp\MorphoMesh\.agents\challenger_m3_1\analysis.md`
+- Write your 5-component handoff report to: `E:\tool\mcp\MorphoMesh\.agents\challenger_m3_1\handoff.md` with your explicit verdict.
+- Update `progress.md` and send a completion message with your verdict and test results.

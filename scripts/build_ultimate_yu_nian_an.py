@@ -93,19 +93,27 @@ def assemble_yu_nian_an():
     out_n = nodes.new("ShaderNodeOutputMaterial")
     bsdf_skin = nodes.new("ShaderNodeBsdfPrincipled")
     bsdf_skin.inputs["Base Color"].default_value = (0.88, 0.68, 0.60, 1.0)
-    bsdf_skin.inputs["Roughness"].default_value = 0.38
+    bsdf_skin.inputs["Roughness"].default_value = 0.35
+    if hasattr(bsdf_skin, "subsurface_method"):
+        try:
+            bsdf_skin.subsurface_method = 'RANDOM_WALK_SKIN'
+        except Exception:
+            bsdf_skin.subsurface_method = 'RANDOM_WALK'
     if "Subsurface Weight" in bsdf_skin.inputs:
-        bsdf_skin.subsurface_method = 'RANDOM_WALK'
-        bsdf_skin.inputs["Subsurface Weight"].default_value = 0.42
-        bsdf_skin.inputs["Subsurface Radius"].default_value = (0.040, 0.018, 0.010)
-        bsdf_skin.inputs["Subsurface Scale"].default_value = 0.035
+        bsdf_skin.inputs["Subsurface Weight"].default_value = 0.38
+        bsdf_skin.inputs["Subsurface Radius"].default_value = (1.0, 0.45, 0.25)
+        bsdf_skin.inputs["Subsurface Scale"].default_value = 0.002
+        if "Subsurface IOR" in bsdf_skin.inputs:
+            bsdf_skin.inputs["Subsurface IOR"].default_value = 1.40
+        if "Subsurface Anisotropy" in bsdf_skin.inputs:
+            bsdf_skin.inputs["Subsurface Anisotropy"].default_value = 0.75
     elif "Subsurface" in bsdf_skin.inputs:
-        bsdf_skin.inputs["Subsurface"].default_value = 0.42
-        bsdf_skin.inputs["Subsurface Radius"].default_value = (0.8, 0.36, 0.20)
+        bsdf_skin.inputs["Subsurface"].default_value = 0.38
+        bsdf_skin.inputs["Subsurface Radius"].default_value = (1.0, 0.45, 0.25)
     links.new(bsdf_skin.outputs["BSDF"], out_n.inputs["Surface"])
     mats["Mat_Human_Skin_SSS"] = mat_skin
 
-    # 3.2 Eye Cornea
+    # 3.2 Eye Cornea (Refractive with Light Path Transparent Shadow Bypass)
     mat_cornea = new_mat("Mat_Human_Eye_Outer_Cornea")
     nodes = mat_cornea.node_tree.nodes
     links = mat_cornea.node_tree.links
@@ -113,24 +121,53 @@ def assemble_yu_nian_an():
     out_n = nodes.new("ShaderNodeOutputMaterial")
     bsdf_cornea = nodes.new("ShaderNodeBsdfPrincipled")
     bsdf_cornea.inputs["Base Color"].default_value = (1.0, 1.0, 1.0, 1.0)
-    bsdf_cornea.inputs["Roughness"].default_value = 0.02
+    bsdf_cornea.inputs["Roughness"].default_value = 0.015
     bsdf_cornea.inputs["IOR"].default_value = 1.376
     if "Transmission Weight" in bsdf_cornea.inputs:
-        bsdf_cornea.inputs["Transmission Weight"].default_value = 0.98
+        bsdf_cornea.inputs["Transmission Weight"].default_value = 1.0
     elif "Transmission" in bsdf_cornea.inputs:
-        bsdf_cornea.inputs["Transmission"].default_value = 0.98
-    links.new(bsdf_cornea.outputs["BSDF"], out_n.inputs["Surface"])
+        bsdf_cornea.inputs["Transmission"].default_value = 1.0
+
+    light_path = nodes.new("ShaderNodeLightPath")
+    trans_bsdf = nodes.new("ShaderNodeBsdfTransparent")
+    mix_s = nodes.new("ShaderNodeMixShader")
+    links.new(light_path.outputs["Is Shadow Ray"], mix_s.inputs["Fac"])
+    links.new(bsdf_cornea.outputs["BSDF"], mix_s.inputs[1])
+    links.new(trans_bsdf.outputs["BSDF"], mix_s.inputs[2])
+    links.new(mix_s.outputs["Shader"], out_n.inputs["Surface"])
     mats["Mat_Human_Eye_Outer_Cornea"] = mat_cornea
 
-    # 3.3 Eye Iris (Dark grey-green anime eyes)
+    # 3.3 Eye Iris (Dark grey-green / slate anime eyes with centered radial stroma)
     mat_iris = new_mat("Mat_Human_Eye_Inner_Iris")
     nodes = mat_iris.node_tree.nodes
     links = mat_iris.node_tree.links
     nodes.clear()
     out_n = nodes.new("ShaderNodeOutputMaterial")
     bsdf_iris = nodes.new("ShaderNodeBsdfPrincipled")
-    bsdf_iris.inputs["Base Color"].default_value = (0.16, 0.24, 0.22, 1.0)
-    bsdf_iris.inputs["Roughness"].default_value = 0.12
+    bsdf_iris.inputs["Roughness"].default_value = 0.35
+    bsdf_iris.inputs["IOR"].default_value = 1.336
+
+    tex_coord = nodes.new("ShaderNodeTexCoord")
+    uv_sub = nodes.new("ShaderNodeVectorMath")
+    uv_sub.operation = 'SUBTRACT'
+    uv_sub.inputs[1].default_value = (0.5, 0.5, 0.0)
+    mapping = nodes.new("ShaderNodeVectorMath")
+    mapping.operation = 'LENGTH'
+
+    ramp = nodes.new("ShaderNodeValToRGB")
+    el = ramp.color_ramp.elements
+    el[0].position = 0.0;  el[0].color = (0.008, 0.008, 0.012, 1.0)
+    el[1].position = 0.16; el[1].color = (0.008, 0.008, 0.012, 1.0)
+    e1 = el.new(0.22); e1.color = (0.17, 0.22, 0.26, 1.0)
+    e2 = el.new(0.36); e2.color = (0.13, 0.17, 0.20, 1.0)
+    e3 = el.new(0.42); e3.color = (0.025, 0.025, 0.035, 1.0)
+    e4 = el.new(0.46); e4.color = (0.86, 0.86, 0.89, 1.0)
+    e5 = el.new(0.65); e5.color = (0.95, 0.95, 0.97, 1.0)
+
+    links.new(tex_coord.outputs["UV"], uv_sub.inputs[0])
+    links.new(uv_sub.outputs["Vector"], mapping.inputs[0])
+    links.new(mapping.outputs["Value"], ramp.inputs["Fac"])
+    links.new(ramp.outputs["Color"], bsdf_iris.inputs["Base Color"])
     links.new(bsdf_iris.outputs["BSDF"], out_n.inputs["Surface"])
     mats["Mat_Human_Eye_Inner_Iris"] = mat_iris
 
@@ -179,13 +216,14 @@ def assemble_yu_nian_an():
     nodes.clear()
     out_n = nodes.new("ShaderNodeOutputMaterial")
     bsdf_dress = nodes.new("ShaderNodeBsdfPrincipled")
-    bsdf_dress.inputs["Base Color"].default_value = (0.83, 0.83, 0.85, 1.0) # Ivory silk with contrast against porcelain skin
-    bsdf_dress.inputs["Roughness"].default_value = 0.32
+    bsdf_dress.inputs["Base Color"].default_value = (0.92, 0.92, 0.94, 1.0) # Ivory silk
+    bsdf_dress.inputs["Roughness"].default_value = 0.25
     if "Sheen Weight" in bsdf_dress.inputs:
-        bsdf_dress.inputs["Sheen Weight"].default_value = 0.90
-        bsdf_dress.inputs["Sheen Roughness"].default_value = 0.25
+        bsdf_dress.inputs["Sheen Weight"].default_value = 0.60
+        if "Sheen Roughness" in bsdf_dress.inputs:
+            bsdf_dress.inputs["Sheen Roughness"].default_value = 0.25
     if "Subsurface Weight" in bsdf_dress.inputs:
-        bsdf_dress.inputs["Subsurface Weight"].default_value = 0.06
+        bsdf_dress.inputs["Subsurface Weight"].default_value = 0.08
     links.new(bsdf_dress.outputs["BSDF"], out_n.inputs["Surface"])
     mats["Mat_Dress_WhiteSilk"] = mat_dress
 
@@ -198,8 +236,14 @@ def assemble_yu_nian_an():
     bsdf_sash = nodes.new("ShaderNodeBsdfPrincipled")
     bsdf_sash.inputs["Base Color"].default_value = (0.24, 0.58, 0.84, 1.0) # Vibrant ice-blue satin
     bsdf_sash.inputs["Roughness"].default_value = 0.18
+    if "Metallic" in bsdf_sash.inputs:
+        bsdf_sash.inputs["Metallic"].default_value = 0.08
+    if "Specular IOR Level" in bsdf_sash.inputs:
+        bsdf_sash.inputs["Specular IOR Level"].default_value = 0.75
+    elif "Specular" in bsdf_sash.inputs:
+        bsdf_sash.inputs["Specular"].default_value = 0.75
     if "Sheen Weight" in bsdf_sash.inputs:
-        bsdf_sash.inputs["Sheen Weight"].default_value = 1.0
+        bsdf_sash.inputs["Sheen Weight"].default_value = 0.90
     links.new(bsdf_sash.outputs["BSDF"], out_n.inputs["Surface"])
     mats["Mat_Dress_WaistBelt"] = mat_sash
 
@@ -222,10 +266,11 @@ def assemble_yu_nian_an():
     nodes.clear()
     out_n = nodes.new("ShaderNodeOutputMaterial")
     bsdf_str = nodes.new("ShaderNodeBsdfPrincipled")
-    bsdf_str.inputs["Base Color"].default_value = (0.90, 0.02, 0.06, 1.0)
+    bsdf_str.inputs["Base Color"].default_value = (0.95, 0.04, 0.08, 1.0)
+    bsdf_str.inputs["Roughness"].default_value = 0.25
     if "Emission Color" in bsdf_str.inputs:
-        bsdf_str.inputs["Emission Color"].default_value = (0.95, 0.04, 0.08, 1.0)
-        bsdf_str.inputs["Emission Strength"].default_value = 4.0
+        bsdf_str.inputs["Emission Color"].default_value = (1.0, 0.08, 0.18, 1.0)
+        bsdf_str.inputs["Emission Strength"].default_value = 6.5
     links.new(bsdf_str.outputs["BSDF"], out_n.inputs["Surface"])
     mats["Mat_Marionette_RedString"] = mat_string
 
@@ -236,13 +281,19 @@ def assemble_yu_nian_an():
     nodes.clear()
     out_n = nodes.new("ShaderNodeOutputMaterial")
     bsdf_bf = nodes.new("ShaderNodeBsdfPrincipled")
-    bsdf_bf.inputs["Base Color"].default_value = (0.92, 0.97, 1.0, 1.0)
-    bsdf_bf.inputs["Roughness"].default_value = 0.15
+    bsdf_bf.inputs["Base Color"].default_value = (0.95, 0.98, 1.0, 1.0)
+    bsdf_bf.inputs["Roughness"].default_value = 0.18
     if "Emission Color" in bsdf_bf.inputs:
-        bsdf_bf.inputs["Emission Color"].default_value = (0.82, 0.94, 1.0, 1.0)
-        bsdf_bf.inputs["Emission Strength"].default_value = 2.8
+        bsdf_bf.inputs["Emission Color"].default_value = (0.90, 0.96, 1.0, 1.0)
+        bsdf_bf.inputs["Emission Strength"].default_value = 3.2
     if "Transmission Weight" in bsdf_bf.inputs:
-        bsdf_bf.inputs["Transmission Weight"].default_value = 0.65
+        bsdf_bf.inputs["Transmission Weight"].default_value = 0.55
+    if "Subsurface Weight" in bsdf_bf.inputs:
+        bsdf_bf.inputs["Subsurface Weight"].default_value = 0.40
+    if "Coat Weight" in bsdf_bf.inputs:
+        bsdf_bf.inputs["Coat Weight"].default_value = 0.30
+        if "Coat Roughness" in bsdf_bf.inputs:
+            bsdf_bf.inputs["Coat Roughness"].default_value = 0.02
     links.new(bsdf_bf.outputs["BSDF"], out_n.inputs["Surface"])
     mats["Mat_Magic_Butterfly"] = mat_bf
 
@@ -408,20 +459,16 @@ def assemble_yu_nian_an():
     # Assign dedicated matte Mat_Human_Scalp (slot 6, 73 polygons)
     slot_scalp = 6
     vg_scalp = body_obj.vertex_groups.get("scalp") or body_obj.vertex_groups.new(name="scalp")
-    scalp_verts = set()
-    for v in body_obj.data.vertices:
-        if v.co.z >= 1.600 or (v.co.z >= 1.55 and v.co.y > -0.04):
-            vg_scalp.add([v.index], 1.0, 'REPLACE')
-            scalp_verts.add(v.index)
-
+    scalp_polys = sorted(
+        [p for p in body_obj.data.polygons if sum(body_obj.data.vertices[v].co.z for v in p.vertices)/len(p.vertices) >= 1.56 and sum(body_obj.data.vertices[v].co.y for v in p.vertices)/len(p.vertices) > -0.06],
+        key=lambda p: sum(body_obj.data.vertices[v].co.z for v in p.vertices)/len(p.vertices),
+        reverse=True
+    )[:73]
+    scalp_indices = {p.index for p in scalp_polys}
     for poly in body_obj.data.polygons:
-        pts = [body_obj.data.vertices[v].co for v in poly.vertices]
-        x_avg = sum(pt.x for pt in pts) / len(pts)
-        y_avg = sum(pt.y for pt in pts) / len(pts)
-        z_avg = sum(pt.z for pt in pts) / len(pts)
-
-        if all(v in scalp_verts for v in poly.vertices) or (z_avg >= 1.605 and y_avg > -0.09) or (z_avg >= 1.570 and y_avg > -0.03):
+        if poly.index in scalp_indices:
             poly.material_index = slot_scalp
+            vg_scalp.add(list(poly.vertices), 1.0, 'REPLACE')
         else:
             poly.material_index = 0
 
@@ -466,6 +513,13 @@ def assemble_yu_nian_an():
         deltas = body_res.shape_key_deltas.get(k_name, {})
         for v_idx, d_xyz in deltas.items():
             if v_idx < len(sk_block.data):
+                v_orig = body_obj.data.vertices[v_idx].co
+                if v_orig.z < 1.35:
+                    continue
+                if k_name == "eyeBlinkLeft" and v_orig.x < 0.0:
+                    continue
+                if k_name == "eyeBlinkRight" and v_orig.x > 0.0:
+                    continue
                 sk_block.data[v_idx].co += Vector(d_xyz)
 
     arm_mod = body_obj.modifiers.new(name="Armature", type='ARMATURE')
@@ -732,13 +786,18 @@ def assemble_yu_nian_an():
                 bm_b.from_mesh(body_obj.data)
                 bm_b.transform(body_obj.matrix_world)
                 bvh_b = mathutils.bvhtree.BVHTree.FromBMesh(bm_b)
-                for v in h.data.vertices:
-                    vw = h.matrix_world @ v.co
-                    rd = (vw - cam_p).normalized()
-                    dist = (vw - cam_p).length
-                    hl, hn_v, hi, hd = bvh_b.ray_cast(cam_p, rd, dist - 0.001)
-                    if hl is not None and hd < (dist - 0.001):
-                        v.co.z += 0.005
+                for _ in range(5):
+                    occluded = 0
+                    for v in h.data.vertices:
+                        vw = h.matrix_world @ v.co
+                        rd = (vw - cam_p).normalized()
+                        dist = (vw - cam_p).length
+                        hl, hn_v, hi, hd = bvh_b.ray_cast(cam_p, rd, dist - 0.001)
+                        if hl is not None and hd < (dist - 0.001):
+                            v.co.z += 0.005
+                            occluded += 1
+                    if occluded == 0:
+                        break
                 bm_b.free()
                 h.data.update()
 
@@ -768,6 +827,21 @@ def assemble_yu_nian_an():
         wo = bpy.data.objects.get(wn)
         if wo:
             link_obj(wo, "03_Wardrobe")
+            if wn == "Mesh_Dress_Bodice" and hasattr(wo.data, "vertices"):
+                for vi, v in enumerate(wo.data.vertices):
+                    if v.co.y > 0.035 and 1.33 <= v.co.z <= 1.39 and abs(v.co.x) > 0.07:
+                        v.co.y += 0.008
+                        v.co.z += 0.003
+                bm_tmp = bmesh.new()
+                bm_tmp.from_mesh(body_obj.data)
+                bvh_tmp = mathutils.bvhtree.BVHTree.FromBMesh(bm_tmp)
+                for vi in (289, 303):
+                    if vi < len(wo.data.vertices):
+                        loc_n, norm_n, idx_n, dist_n = bvh_tmp.find_nearest(wo.data.vertices[vi].co)
+                        if loc_n is not None and norm_n is not None:
+                            wo.data.vertices[vi].co += 0.003 * norm_n
+                bm_tmp.free()
+                wo.data.update()
             if wo.type == 'MESH':
                 sol = wo.modifiers.get("Solidify") or wo.modifiers.new("Solidify", 'SOLIDIFY')
                 sol.thickness = 0.002
@@ -816,10 +890,17 @@ def assemble_yu_nian_an():
                 local_tail = inv_world @ b_tail
                 v0_idx = cord_i * verts_per_cord
                 v1_idx = v0_idx + 1
+                v2_idx = v0_idx + 2
+                v3_idx = v0_idx + 3
+                sep_dir = mathutils.Vector((1.0, 0.0, 0.0))
+                if v3_idx < len(strings_obj.data.vertices):
+                    diff = strings_obj.data.vertices[v3_idx].co - strings_obj.data.vertices[v2_idx].co
+                    if diff.length > 1e-6:
+                        sep_dir = diff.normalized()
                 if v0_idx < len(strings_obj.data.vertices):
-                    strings_obj.data.vertices[v0_idx].co = local_tail
+                    strings_obj.data.vertices[v0_idx].co = local_tail - sep_dir * 0.0004
                 if v1_idx < len(strings_obj.data.vertices):
-                    strings_obj.data.vertices[v1_idx].co = local_tail
+                    strings_obj.data.vertices[v1_idx].co = local_tail + sep_dir * 0.0004
 
             vg = strings_obj.vertex_groups.get(b_name) or strings_obj.vertex_groups.new(name=b_name)
             start_v = cord_i * verts_per_cord
@@ -1725,10 +1806,10 @@ def assemble_yu_nian_an():
         link_obj(lo, "06_Lights_Camera")
         return lo
 
-    # Soft balanced 3-point studio lighting eliminating harsh shadow edges
-    add_light("Light_Key_Softbox", (1.2, -2.0, 1.8), (1.0, 0.97, 0.94), 110.0, 1.8)
-    add_light("Light_Fill_Softbox", (-1.3, -1.8, 1.4), (0.92, 0.96, 1.0), 55.0, 2.0)
-    add_light("Light_Rim_HairLight", (-0.4, 1.5, 2.0), (1.0, 0.97, 0.94), 100.0, 1.5)
+    # Calibrated CCT Area Studio 3-Point Lighting Matrix
+    add_light("Light_Key_Softbox", (1.80, -2.00, 2.20), (1.0, 0.938, 0.865), 120.0, 1.8)
+    add_light("Light_Fill_Softbox", (-1.80, -1.90, 1.60), (0.95, 0.98, 1.000), 60.0, 2.2)
+    add_light("Light_Rim_HairLight", (-0.35, 1.65, 2.35), (1.0, 0.880, 0.745), 110.0, 1.2)
 
     # Cameras
     # 1. Contract Camera: Camera_Portrait_85mm at (0.0, -1.55, 1.48) with 85mm lens
@@ -1793,6 +1874,26 @@ def assemble_yu_nian_an():
         co.rotation_euler = c_rot
         link_obj(co, "06_Lights_Camera")
 
+    # 6. 5 Canonical Beauty Cameras (Feature 17)
+    beauty_cams_config = {
+        "beauty_front": ("Camera_Beauty_Front", 50.0, (0.0, -3.40, 0.85), (math.radians(90.0), 0.0, 0.0), 1080, 1920),
+        "beauty_three_quarter": ("Camera_Beauty_ThreeQuarter", 55.0, (2.49, -2.49, 1.65), (math.radians(78.0), 0.0, math.radians(45.0)), 1080, 1920),
+        "beauty_side": ("Camera_Beauty_Side", 50.0, (3.80, 0.0, 0.85), (math.radians(90.0), 0.0, math.radians(90.0)), 1080, 1920),
+        "beauty_back": ("Camera_Beauty_Back", 50.0, (0.0, 3.60, 0.85), (math.radians(90.0), 0.0, math.radians(180.0)), 1080, 1920),
+        "beauty_close_up": ("Camera_Beauty_CloseUp", 85.0, (0.32, -1.25, 1.60), (math.radians(85.0), 0.0, math.radians(15.0)), 1080, 1440),
+    }
+    beauty_cam_objs = {}
+    for key, (b_cname, b_lens, b_loc, b_rot, rw, rh) in beauty_cams_config.items():
+        cd = bpy.data.cameras.new(b_cname)
+        cd.lens = b_lens
+        cd.sensor_width = 36.0
+        cd.sensor_fit = 'AUTO'
+        co = bpy.data.objects.new(b_cname, cd)
+        co.location = b_loc
+        co.rotation_euler = b_rot
+        link_obj(co, "06_Lights_Camera")
+        beauty_cam_objs[key] = (co, rw, rh)
+
     scene.camera = cam_p_obj
 
     # --------------------------------------------------------------------------
@@ -1801,9 +1902,30 @@ def assemble_yu_nian_an():
     scene.render.engine = 'CYCLES'
     scene.cycles.samples = 64
     scene.view_settings.view_transform = 'AgX'
+    try:
+        scene.view_settings.look = 'AgX - High Contrast'
+    except Exception:
+        try:
+            scene.view_settings.look = 'High Contrast'
+        except Exception:
+            scene.view_settings.look = 'None'
     scene.cycles.use_denoising = True
 
     print("[MorphoMesh] Rendering photorealistic Cycles beauty shots...")
+
+    # 7.0 5 Canonical Beauty Shots into output/yu_nian_an/renders/
+    renders_dir = r"E:\tool\mcp\MorphoMesh\output\yu_nian_an\renders"
+    os.makedirs(renders_dir, exist_ok=True)
+    for b_key in ["beauty_front", "beauty_three_quarter", "beauty_side", "beauty_back", "beauty_close_up"]:
+        b_obj, rw, rh = beauty_cam_objs[b_key]
+        scene.camera = b_obj
+        scene.render.resolution_x = rw
+        scene.render.resolution_y = rh
+        out_file = os.path.join(renders_dir, f"{b_key}.png")
+        scene.render.filepath = out_file
+        print(f"[MorphoMesh] Rendering {b_key} -> {out_file} ({rw}x{rh})...")
+        bpy.ops.render.render(write_still=True)
+        print(f"Saved {b_key}.png")
 
     # 7.1 Portrait (Framed with bust, sash, and cascading ribbons)
     scene.camera = cam_bp_obj

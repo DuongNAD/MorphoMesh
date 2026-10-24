@@ -392,6 +392,9 @@ def run_empirical_challenger_audit():
 # ==============================================================================
 # Pytest Harness Wrapper
 # ==============================================================================
+import pytest
+
+@pytest.mark.live_blender
 def test_empirical_adversarial_audit_in_blender():
     """Execute the empirical challenger stress audit inside live Blender 4.5.4 LTS."""
     assert os.path.isfile(BLENDER_EXE), f"Blender 4.5 not found at {BLENDER_EXE}"

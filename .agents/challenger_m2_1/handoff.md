@@ -1,141 +1,152 @@
-# Milestone M2 Adversarial Verification Report: Camera Mathematics & Geometric Stress Challenge
+# Handoff Report — Challenger M2.1: Cloth Drapery & Bodice Penetration Empirical Verification
 
-**Agent**: Challenger M2_1 (Camera Mathematics & Geometric Stress Challenger)  
-**Date**: 2026-09-07T04:55:00Z  
-**Working Directory**: `e:\tool\mcp\MorphoMesh\.agents\challenger_m2_1`  
-**Target Subsystems**: `src/morphomesh/camera_rig.py`, `src/morphomesh/models.py`, `tests/test_inspector_camera.py`, `tests/test_multiview_rendering.py`, `tests/test_adversarial_camera_math.py`  
-**Handoff Type**: Hard (Verification Complete)  
-**Final Verdict**: **APPROVE**  
+**Agent**: Challenger 1 (`challenger_m2_1`)  
+**Roles**: critic, specialist  
+**Recipient**: Parent Orchestrator (`c2422918-70a3-47d9-a8f9-883422a33af0`)  
+**Timestamp**: 2026-09-07T15:08:00Z  
+**Type**: Hard (Task Complete)  
+**Verdict**: **`REQUEST_CHANGES`**
 
 ---
 
 ## 1. Observation
 
-1. **Adversarial Test Suite Execution**:
-   - Created adversarial test harness in project workspace: `tests/test_adversarial_camera_math.py` (80 test cases).
-   - Executed adversarial test suite:
-     ```powershell
-     .venv\Scripts\pytest.exe -v tests/test_adversarial_camera_math.py
-     ```
-     *Output*:
-     ```
-     ============================= 80 passed in 2.90s ==============================
-     ```
-     Exit code 0, 0 failures, 0 errors.
+1. **Source Code Inspection of `src/morphomesh/wardrobe.py`**:
+   - Lines 313–525 (`generate_dress_bodice`):
+     * Line 315: `clearance: float = 0.0018` (+1.8mm nominal clearance).
+     * Lines 334–337: `k_w = waist_girth / 0.58`, `k_c = chest_girth / 0.82`, `k_sh = shoulder_width / 0.35`.
+     * Lines 457–466 (`strap_trajectory_spec`): 8 keyframes define the spaghetti strap trajectory. Keyframe 7 (posterior back shoulder) is `(+0.0794, 1.3400, 0.14, +0.72, 0.68)`.
+     * Line 474: `sy = sy_nom * s * k_c` scales strap trajectory Y-coordinates directly by $k_c$.
+   - Lines 326–331 of `src/morphomesh/human_generator.py`:
+     * Upper torso slices ($Z \in [1.320\text{m}, 1.350\text{m}]$) are scaled by `k_shoulder` ($=1.0$), NOT `k_chest`.
 
-2. **Full Repository Regression Execution**:
-   - Combined regression suite covering camera rig, multiview rendering, adversarial camera math, socket parity, and bridge security:
-     ```powershell
-     .venv\Scripts\pytest.exe -v tests/test_inspector_camera.py tests/test_multiview_rendering.py tests/test_adversarial_camera_math.py tests/test_bridge_socket_parity.py tests/test_m1_adversarial_socket.py tests/test_adversarial_dispatch_m1_2.py tests/test_blender_bridge.py
+2. **Empirical Measurement of Signed Distance & Skin Penetration**:
+   Executed PurePythonBVHTree signed-distance audit using `compute_bvh_signed_distance_profile` comparing `generate_dress_bodice` against `generate_human_body` and `generate_human_base_mesh`:
+   - **Canonical Scale ($k_c = 1.00, k_w = 1.00$)**:
+     * Minimum signed clearance: `min_dist = -0.00355m` (**-3.55mm** penetration).
+     * Total penetrating vertices: **8 of 352 vertices**.
+     * Verbatim vertex coordinates:
+       ```
+       idx=154 (bodice_ring, ring=4): v=(+0.0536, -0.0925, 1.1288), body_loc=(+0.0544, -0.0958, 1.1276), normal=(+0.2246, -0.9122, -0.3428), depth=3.55mm
+       idx=149 (bodice_ring, ring=4): v=(-0.0775, -0.0830, 1.1264), body_loc=(-0.0791, -0.0859, 1.1252), normal=(-0.4457, -0.8298, -0.3360), depth=3.48mm
+       idx=28  (bodice_ring, ring=0): v=(+0.0892, -0.0707, 1.0300), body_loc=(+0.0899, -0.0721, 1.0300), normal=(+0.4691, -0.8830, +0.0140), depth=1.58mm
+       idx=20  (bodice_ring, ring=0): v=(-0.0892, -0.0707, 1.0300), body_loc=(-0.0897, -0.0721, 1.0300), normal=(-0.3541, -0.9351, +0.0095), depth=1.49mm
+       idx=150 (bodice_ring, ring=4): depth=1.39mm
+       idx=155 (bodice_ring, ring=4): depth=1.29mm
+       idx=185 (bodice_ring, ring=5): depth=0.66mm
+       idx=312 (bodice_ring, ring=9): depth=0.34mm
+       ```
+   - **Extreme Bust Scaling Spectrum ($k_c \in [0.7, 1.4]$ with matching body)**:
      ```
-     *Output*:
+     k_chest = 0.70: min_dist = -20.71mm, 24 penetrating vertices (spaghetti straps slice into trapezius)
+     k_chest = 0.85: min_dist = -10.27mm, 19 penetrating vertices
+     k_chest = 1.00: min_dist =  -3.55mm,  8 penetrating vertices
+     k_chest = 1.15: min_dist =  -3.64mm, 12 penetrating vertices
+     k_chest = 1.30: min_dist =  -3.70mm, 12 penetrating vertices
+     k_chest = 1.40: min_dist =  -4.57mm, 12 penetrating vertices
      ```
-     ============================ 293 passed in 30.11s =============================
-     ```
-     All 293 tests passed with exit code 0.
+   - **Uncoupled Fitting onto Canonical Body (`generate_organic_dress(k_chest=0.70)` on `generate_human_body()`)**:
+     * Minimum signed clearance: `min_dist = -0.04401m` (**-44.01mm** penetration).
+     * Total penetrating vertices: **346 of 352 vertices (98.3%)** submerged inside the body.
 
-3. **Empirical Subsystem Observations & Forensic Code Inspection**:
-   - **Pathological & Degenerate Geometries (`src/morphomesh/camera_rig.py`: lines 298–299, 382–383)**:
-     - Single-vertex mesh: Bounding box solver resolves center to the vertex $(1.5, -2.5, 3.0)$ and clamps radius to safe minimum $R = \max(\text{radius}, 0.01) = 0.01\text{m}$ (1 cm), preventing division by zero and near-plane clip penetration.
-     - Zero-volume 2D planar meshes (XY, YZ, ZX planes): Zero-thickness dimensions ($\Delta z = 0$, $\Delta x = 0$, $\Delta y = 0$) compute non-zero planar diagonal radius $R = \frac{1}{2}\sqrt{\Delta x^2 + \Delta y^2 + \Delta z^2} > 0$. Anatomical sub-region queries (`head`, `torso`, `hands`, `feet`) handle zero-height cleanly with non-zero minimum bounds ($0.22\text{m}$ to $0.35\text{m}$) without `ZeroDivisionError` or NaN.
-     - Vast scale discrepancies ($10^{-6}\text{m}$ microscopic to $10^6\text{m}$ gigantic): Optical framing distance scales strictly linearly with radius across 12 orders of magnitude ($d(s_2)/d(s_1) = s_2/s_1$). Camera clipping planes ($d \cdot 0.01, d \cdot 10.0$) remain finite and positive without overflow.
-     - 1000:1 pencil needle meshes ($1000 \times 0.01 \times 0.01$): Circumscribing bounding sphere radius strictly encloses major axis ($R \ge 500\text{m}$), and framing distance ($d > 500\text{m}$) guarantees containment regardless of needle orientation.
+3. **Multi-Harmonic Spectrum & Quad Topology Measurements**:
+   - Skirt hemline Discrete Fourier Transform (FFT) amplitudes:
+     * Mode $n=6$: amplitude = **1.0126** (primary drape)
+     * Mode $n=8$: amplitude = **0.5745** (secondary ripples)
+     * Mode $n=12$: amplitude = **0.1506** (fine creases)
+     * Decaying amplitude hierarchy verified ($1.0126 > 0.5745 > 0.1506$).
+   - Hemline sag undulation metrics:
+     * Mean elevation: $Z = 0.5197\text{m}$ (settling precisely at upper patella border, nominal $0.520\text{m}$).
+     * Standard deviation: $\sigma = 8.89\text{mm}$.
+     * Amplitude from mean: $17.00\text{mm}$ (peak-to-peak $34.00\text{mm}$).
+   - Topology & UV verification:
+     * Zero degenerate faces (area $\le 10^{-8}\,\text{m}^2$) across Bodice (604 faces), Skirt (1440 faces), Sash (568 faces).
+     * Zero invalid normals; all UV coordinates strictly bounded in $[0.0, 1.0]$.
+     * Sash outer clearance over dress waist: $\ge +2.2\text{mm}$.
 
-   - **Polar Singularities & Gimbal Lock (`src/morphomesh/camera_rig.py`: lines 546–558)**:
-     - Worker M2 defensively clamped spherical orbit elevation to $[-88.5^\circ, +88.5^\circ]$ via:
-       `phi = math.radians(max(-88.5, min(88.5, elevation_deg)))`
-     - Across polar singularities ($\phi = \pm 90^\circ$) and azimuth sweeps ($\theta \in [0^\circ, 90^\circ, 180^\circ, 270^\circ, 360^\circ, -720^\circ]$), camera position remains continuous, equidistant ($\|P_{\text{cam}} - C\| = d \pm 10^{-5}$), and optical forward ray points directly at the target center.
-     - In Blender runtime (`mathutils.Vector.to_track_quat('-Z', 'Y')`), quaternion magnitude is strictly $1.00000 \pm 10^{-5}$ (strictly normalized), finite, and non-NaN.
-
-   - **Frustum Containment Across Canonical Views & Turntable Orbit**:
-     - Evaluated all 28 canonical viewpoints in `CANONICAL_VIEWPOINTS` against a dense Fibonacci bounding sphere ($N = 100$ sample points): 100% of sample points project strictly inside NDC $[-1.0, 1.0] \times [-1.0, 1.0]$.
-     - Safety framing margin $\mu \ge 0.15$ guarantees that the maximum NDC coordinate across all points is bounded by $\frac{1}{1 + \mu} \approx 0.869 < 1.0$.
-     - Turntable $360^\circ$ orbit sweep: tested 25 azimuths ($0^\circ$ to $360^\circ$ in steps of $15^\circ$) across 6 elevations ($0^\circ, 15^\circ, 30^\circ, 45^\circ, -15^\circ, -30^\circ$) totaling 150 camera angles: 0 clipping violations.
-     - Direct headless Blender 4.5 validation via `bpy_extras.object_utils.world_to_camera_view`: 0 clipping violations.
-
-   - **Extreme Camera Parameters**:
-     - Extreme focal lengths ($f = 5\text{mm}$ fisheye with $\approx 150^\circ$ FOV to $f = 800\text{mm}$ super-telephoto with $\approx 2.5^\circ$ FOV): framing distance scales smoothly ($1.19\text{m}$ at 5mm to $51.12\text{m}$ at 800mm for unit sphere) with zero clipping violations.
-     - Extreme sensor aspect ratios (32:9 ultra-wide, 21:9 cinematic, 16:9 landscape, 1:1 square, 4:5 portrait, 9:16 mobile portrait, 9:32 ultra-tall): solver dynamically and correctly switches governing constraint (vertical FOV for landscape $A \ge 1$, horizontal FOV for portrait $A < 1$), maintaining clean containment in both dimensions.
-
-4. **Identified Advisory / Non-Blocking Anomalies**:
-   - **Advisory Finding 1 (Aspect Ratio Synchronization in `setup_inspector_camera`)**:
-     In `src/morphomesh/camera_rig.py` line 573, `setup_inspector_camera()` defaults `resolution=(1024, 1024)`. If invoked in a Blender scene whose `scene.render.resolution` is at Blender's default $1920 \times 1080$ (16:9), and `resolution` is not passed or `scene.render` is not updated before rendering, vertical clipping ($NDC_y = -1.0118$) occurs due to aspect ratio mismatch. `capture_viewport_image()` lines 711–712 correctly syncs `scene.render.resolution_x/y` with `resolution`, avoiding this issue during captures.
-   - **Advisory Finding 2 (Pure-Python Mock Shim Pitch Sign Inversion)**:
-     In `src/morphomesh/camera_rig.py` lines 156–162, the pure-Python mock shim `Quaternion.to_euler()` computes `rot_x = math.pi / 2.0 - pitch` where `pitch = math.asin(fwd.z)`. Because $fwd.z < 0$ when the camera is elevated, `rot_x` evaluates to $105^\circ$ instead of $75^\circ$ in offline Python mock execution without Blender. In production Blender runtime, native C `mathutils` is used and evaluates to the correct $75^\circ$, so this does not affect Blender execution.
+4. **Test Suite Execution**:
+   ```powershell
+   uv run pytest tests/test_challenger_m2_empirical.py -v
+   ```
+   Output: `16 passed, 1 xfailed in 1.04s` (100% test execution, `test_strict_zero_skin_penetration_specification` tracked as XFAIL).
+   ```powershell
+   uv run pytest tests/test_wardrobe.py tests/test_wardrobe_m2.py tests/test_challenger_m2_empirical.py -v
+   ```
+   Output: `46 passed, 1 xfailed in 1.33s`.
 
 ---
 
 ## 2. Logic Chain
 
-1. **Robustness of Degenerate Geometry Handling**:
-   - *Premise*: Pathological meshes (single vertex, 2D flat plane, 1000:1 aspect needle) must not cause runtime crashes, `ZeroDivisionError`, or invalid camera placement.
-   - *Observation*: `calculate_character_bounds` enforces `radius = max(radius, 0.01)` on single vertices and calculates non-zero diagonal radii on flat planes. `get_anatomical_subregion_center` uses additive offsets and positive minimum radius clamps ($0.22\text{m}$ to $0.35\text{m}$).
-   - *Deduction*: Because radius is strictly bounded from below by $0.01\text{m}$, $\sin(\alpha_{\min}) > 0$, and distance $d = \frac{R}{\sin(\alpha_{\min})}(1+\mu) > 0$ is finite, every degenerate geometry yields a stable, positive framing distance and valid camera location.
+1. **Proof of Spaghetti Strap Trajectory Penetration Under Bust Scaling ($k_c = 0.70$)**:
+   - Observation: In `wardrobe.py` line 474, strap Y-coordinates are multiplied by $k_c$ (`sy = sy_nom * s * k_c`).
+   - Observation: In `human_generator.py` lines 326–331, shoulder slices ($Z \ge 1.32\text{m}$) are scaled by $k_{\text{shoulder}}$, which remains $1.0$ regardless of $k_c$.
+   - Deduction: When $k_c = 0.70$, the posterior strap keyframe coordinate $sy$ contracts forward by $(1 - 0.7) \times (0.0794 \times 1.65) = 39.3\text{mm}$.
+   - Deduction: Because the body's shoulder and trapezius geometry did not shrink, the strap passes through the flesh, creating a measured penetration depth of **-20.71mm** across 24 vertices (e.g. vertices 332, 333, 348, 349).
+   - Conclusion: Worker M2's claim of "100% zero skin penetration across all bust scaling parameters" is empirically invalidated.
 
-2. **Resolution of Gimbal Lock & Polar Singularities**:
-   - *Premise*: Top-down ($\phi = +90^\circ$) and bottom-up ($\phi = -90^\circ$) camera placements must not crash `to_track_quat('-Z', 'Y')` or yield NaN/infinite quaternions.
-   - *Observation*: `calculate_spherical_camera_position` clamps elevation to $[-88.5^\circ, +88.5^\circ]$. Empirical Blender 4.5 execution confirms that for all polar angles and azimuths $\theta \in [0^\circ, 90^\circ, 180^\circ, 270^\circ, 360^\circ, -720^\circ]$, `to_track_quat('-Z', 'Y')` produces finite quaternions with magnitude strictly equal to $1.00000 \pm 10^{-5}$.
-   - *Deduction*: Polar clamping eliminates mathematical singularities and preserves continuous azimuth orientation, ensuring stability across all inspection viewpoints.
-
-3. **Mathematical Proof of Frustum Containment**:
-   - *Premise*: Optical framing distance $d = \frac{R}{\sin(\alpha_{\min})}(1+\mu)$ must strictly contain the bounding sphere within NDC $[-1, 1] \times [-1, 1]$.
-   - *Observation*: The cone half-angle subtended by the bounding sphere is $\theta = \arcsin(R / d) = \arcsin\left(\frac{\sin\alpha_{\min}}{1+\mu}\right)$. With safety margin $\mu = 0.15$, $\sin\theta = \frac{\sin\alpha_{\min}}{1.15} < \sin\alpha_{\min}$.
-   - *Deduction*: Because $\theta < \alpha_{\min} \le \alpha_h, \alpha_v$, the maximum projected coordinate in NDC space is strictly bounded by $\approx \frac{1}{1.15} \approx 0.869 < 1.0$. Empirical testing across 28 canonical viewpoints and 150 turntable orbit angles confirmed 0 clipping violations in both analytical projection and Blender 4.5 `world_to_camera_view`.
-
-4. **Extreme Optics & Sensor Adaptability**:
-   - *Premise*: The framing solver must accommodate focal lengths from $5\text{mm}$ to $800\text{mm}$ and aspect ratios from $32:9$ to $9:32$.
-   - *Observation*: The solver calculates $\alpha_h = \arctan(w_{\text{eff}} / 2f)$ and $\alpha_v = \arctan(h_{\text{eff}} / 2f)$, selecting $\alpha_{\min} = \min(\alpha_h, \alpha_v)$.
-   - *Deduction*: For landscape resolutions ($A \ge 1$), vertical FOV governs distance; for portrait resolutions ($A < 1$), horizontal FOV governs distance. Distance scales smoothly from $1.19\text{m}$ ($5\text{mm}$) to $51.12\text{m}$ ($800\text{mm}$) for a unit sphere, completely eliminating clipping across all combinations.
+2. **Proof of Inframammary Faceted Chord Penetration at Canonical Scale**:
+   - Observation: The body mesh connects horizontal ring slices at $Z=1.110\text{m}$ and $Z=1.160\text{m}$ with straight planar triangular facets.
+   - Observation: The Gaussian breast profile $\exp(-((z - 1.190)^2 / (2\sigma^2)))$ is convex in the inframammary region ($|z - 1.190| > \sigma$).
+   - Deduction: By convexity, a straight triangular chord between two points on the convex curve bows outward into positive space relative to intermediate points on the curve. At $Z \approx 1.126\text{m}-1.129\text{m}$ (ring 4), the straight triangular facet of the body mesh extends up to $+3.5\text{mm}$ beyond the continuous Gaussian curve.
+   - Deduction: Because `generate_dress_bodice` sets nominal clearance to only $1.8\text{mm}$ (`clearance = 0.0018m`), the $+3.5\text{mm}$ outward facet bow exceeds the clearance by $1.7\text{mm}$ to $3.55\text{mm}$.
+   - Conclusion: Bodice ring 4 vertices (idx 149, 150, 154, 155) penetrate the body mesh by up to **-3.55mm** under canonical Yu Nian An proportions.
 
 ---
 
 ## 3. Caveats
 
-1. **Aspect Ratio Pre-Condition in Blender**: If calling `setup_inspector_camera()` directly in an interactive Blender session without immediately calling `capture_viewport_image()`, callers should explicitly pass `resolution=(scene.render.resolution_x, scene.render.resolution_y)` if the scene render resolution is non-square (e.g. 16:9), to avoid aspect ratio discrepancy before capture.
-2. **Pure-Python Mock Shim Pitch Sign**: The pure-Python shim in `src/morphomesh/camera_rig.py` lines 156–162 is intended solely for offline pytest execution without Blender dependencies; when running inside Blender, Blender's native C `mathutils` is used and exhibits zero discrepancy.
-3. **Pinhole Model Assumption**: Frustum containment assumes standard rectilinear pinhole projection without non-linear optical distortion (e.g. fisheye barrel distortion curves).
+1. **Pre-Existing Repository Failures**:
+   - `output/yu_nian_an/Yu_Nian_An_Master.blend` contains stale M1 binary data awaiting master assembly regeneration downstream.
+   - `test_adversarial_human_m3.py::test_extreme_waist_girth_penetration_analysis` documents un-parameterized waist behavior and was not modified.
+2. **Review-Only Constraint**:
+   - As an Empirical Challenger, I have NOT modified `src/morphomesh/wardrobe.py`. The source code must be remediated by the implementer (Worker M2).
 
 ---
 
-## 4. Conclusion
+## 4. Conclusion & Actionable Verdict
 
-Milestone M2 (Camera Mathematics, Bounding Box Solver, and Framing Algorithms) is mathematically sound, numerically stable, and resilient against degenerate inputs, scale extremes, polar singularities, and optical boundaries.
+### Verdict: **`REQUEST_CHANGES`**
 
-- Pathological geometries (single vertex, 2D flat planes, 1000:1 needles) handle bounds and framing without division by zero or NaN.
-- Polar singularities ($\phi = \pm 90^\circ$) are safely clamped, and quaternions in Blender runtime are strictly normalized ($|q| = 1.0$) and finite.
-- Frustum containment is verified with 0 clipping violations across all 28 canonical viewpoints and 150 turntable camera angles.
-- Extreme camera optics ($5\text{mm}$ to $800\text{mm}$) and sensor aspect ratios ($32:9$ to $9:32$) frame cleanly.
-- 80 adversarial stress tests passing in 2.90s; 293 full regression tests passing in 30.11s.
+While Worker M2 succeeded on multi-harmonic fold harmonics ($n=6,8,12$), hemline scalloped undulation, quad manifold topology, UV seam wrapping, and conforming sash envelope, the implementation **fails the critical zero skin penetration specification**:
+1. Canonical bodice penetrates by **-3.55mm** (8 vertices).
+2. Slender bust scaling ($k_{\text{chest}}=0.70$) causes catastrophic strap penetration of **-20.71mm** (24 vertices).
+3. Bust expansion ($k_{\text{chest}}=1.40$) causes strap/cup penetration of **-4.57mm** (12 vertices).
 
-**Verdict**: **APPROVE**
+### Required Changes for Worker M2:
+1. **Decouple Strap Trajectory from $k_{\text{chest}}$**:
+   In `src/morphomesh/wardrobe.py` (`generate_dress_bodice`), scale strap keyframe Y-coordinates using $k_{\text{shoulder}}$ across the shoulder apex ($Z \ge 1.32\text{m}$) and posterior back, or interpolate smoothly from anterior anchor ($k_c$) to shoulder apex ($k_{\text{shoulder}}$) to posterior back ($k_{\text{shoulder}}$).
+2. **Add Faceted Chord Clearance Compensation**:
+   Increase inframammary bodice clearance by at least $+3.8\text{mm}$ across $Z \in [1.115\text{m}, 1.150\text{m}]$ and waist clearance by $+2.2\text{mm}$ across $Z \in [1.025\text{m}, 1.045\text{m}]$ to clear the outward-bowing straight chords of the body mesh triangles.
+3. **Verify Remediation**:
+   Run `uv run pytest tests/test_challenger_m2_empirical.py -v` until all 17 tests pass with 0 xfailed/failed.
 
 ---
 
 ## 5. Verification Method
 
-To independently verify this empirical evaluation:
+To independently verify these findings:
 
-1. **Run Adversarial Camera Mathematics Test Suite**:
+1. **Run Empirical Challenger Test Harness**:
    ```powershell
-   .venv\Scripts\pytest.exe -v tests/test_adversarial_camera_math.py
+   uv run pytest tests/test_challenger_m2_empirical.py -v
    ```
-   *Expected Output*: 80 passed in ~3s with exit code 0.
+   *Expected Output*: 16 passed, 1 xfailed in $<1.5\text{s}$. (The 1 xfailed test directly tracks the -3.55mm canonical and -20.71mm bust penetration bugs).
 
-2. **Run Full Subsystem Regression Suite**:
+2. **Inspect Penetrating Vertices Details via Python CLI**:
    ```powershell
-   .venv\Scripts\pytest.exe -v tests/test_inspector_camera.py tests/test_multiview_rendering.py tests/test_adversarial_camera_math.py tests/test_bridge_socket_parity.py tests/test_m1_adversarial_socket.py tests/test_adversarial_dispatch_m1_2.py tests/test_blender_bridge.py
+   uv run python -c "
+   from morphomesh.human_generator import generate_human_body
+   from morphomesh.wardrobe import generate_dress_bodice
+   from morphomesh.visual_critic import PurePythonBVHTree
+   bm, _ = generate_human_body(1.65)
+   bodice = generate_dress_bodice(1.65)
+   bvh = PurePythonBVHTree.FromPolygons(bm.vertices, bm.faces)
+   for i, v in enumerate(bodice.vertices):
+       loc, norm, _, d = bvh.find_nearest(v)
+       dot = sum((v[j]-loc[j])*norm[j] for j in range(3))
+       if dot < -0.0001:
+           print(f'v[{i}]: pos={v}, depth={-dot*1000:.2f}mm')
+   "
    ```
-   *Expected Output*: 293 passed in ~30s with exit code 0.
-
-3. **Run Headless Blender Direct Verification**:
-   ```powershell
-   & "C:\Program Files\Blender Foundation\Blender 4.5\blender.exe" --background --python-expr "import sys; sys.path.insert(0, 'src'); sys.path.insert(0, r'.venv\Lib\site-packages'); import pytest; sys.exit(pytest.main(['-v', 'tests/test_adversarial_camera_math.py']))"
-   ```
-   *Expected Output*: 80 passed in Blender environment with exit code 0.
-
-4. **Invalidation Conditions**:
-   - Any test failure or assertion error in `tests/test_adversarial_camera_math.py`.
-   - Any bounding sphere vertex projecting outside NDC $[-1.0, 1.0] \times [-1.0, 1.0]$ when `resolution` matches the render target.
-   - Any `ZeroDivisionError` or NaN produced by `calculate_character_bounds` or `calculate_optical_framing_distance`.
-   - Quaternion magnitude deviating from $1.00000 \pm 10^{-4}$ in Blender runtime.
-
+   *Expected Output*: 8 penetrating vertices printed with depths between 0.34mm and 3.55mm.

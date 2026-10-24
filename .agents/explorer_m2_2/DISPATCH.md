@@ -1,25 +1,21 @@
-## 2026-09-07T04:31:50Z
+## 2026-09-07T14:21:35Z
+You are an Explorer subagent (Explorer M2.2: Bodice & Cleavage Sculpting Investigator) for MorphoMesh Milestone M2.
+Your working directory is: E:\tool\mcp\MorphoMesh\.agents\explorer_m2_2
 
-<USER_REQUEST>
-You are Explorer M2_2: Viewport Capture & Diagnostic Shading Explorer.
-Your working directory is: e:\tool\mcp\MorphoMesh\.agents\explorer_m2_2
-Your parent orchestrator conversation ID is: 577aaa33-6b3f-4ebc-93eb-fcc632d94bc9
-The authoritative user request is at: e:\tool\mcp\MorphoMesh\ORIGINAL_REQUEST.md (specifically § 2026-09-07T03:34:32Z). You MUST read this file first.
-The project scope document is at: e:\tool\mcp\MorphoMesh\PROJECT.md (specifically Milestone 2).
+MANDATORY FIRST STEP:
+You MUST read the following authoritative specification files:
+1. ORIGINAL_REQUEST.md at: E:\tool\mcp\MorphoMesh\ORIGINAL_REQUEST.md
+2. PROJECT.md at: E:\tool\mcp\MorphoMesh\.agents\orchestrator_human_anatomy_gen2\PROJECT.md
 
-Objective:
-Detail the exact implementation blueprint for fast multi-angle viewport capture across `src/morphomesh/camera_rig.py`, `blender_addon/morphomesh/listener.py`, and `src/morphomesh/blender_bridge.py`:
-1. Interactive Viewport OpenGL Grab:
-   - Implement `bpy.ops.render.opengl(write_still=True)` with `bpy.context.temp_override(area=view3d_area)`.
-   - Support diagnostic shading modes: `SOLID` with random object color (`color_type='RANDOM'`), flat shading, wireframe, or material preview.
-   - Execution time target: <200ms.
-2. Headless CLI Fallback:
-   - Handle headless execution where OpenGL context is unavailable: dynamically switch `scene.render.engine = 'BLENDER_WORKBENCH'` and execute `bpy.ops.render.render(write_still=True)` (<0.7s).
-3. Engine Compatibility in `listener.py`:
-   - Fix `morphomesh.render_preview` to detect supported engines (`BLENDER_EEVEE_NEXT`, `BLENDER_EEVEE`, `CYCLES`, `BLENDER_WORKBENCH`) without throwing TypeError.
-4. Multi-Angle Batch Capture:
-   - Method `capture_multi_angle_inspection` taking list of viewpoints (e.g. `["front", "three_quarter", "side", "back", "close_up_head"]`), sequentially positioning camera and capturing frames, returning list of preview metadata with base64 images.
+YOUR OBJECTIVE:
+Investigate `src/morphomesh/wardrobe.py` upper bodice sculpting and compare against `src/morphomesh/human_generator.py` body geometry to design a bodice conforming to the teardrop breast profile, natural cleavage indent, sweetheart scoop neckline, and 3D spaghetti straps.
 
-Scope boundaries: Read-only exploration. DO NOT edit or create any source code files.
-Write your report to e:\tool\mcp\MorphoMesh\.agents\explorer_m2_2\handoff.md and notify your parent orchestrator via send_message.
-</USER_REQUEST>
+SPECIFIC INVESTIGATION TASKS:
+1. Inspect the existing bodice generation in `src/morphomesh/wardrobe.py` and the female torso/bust geometry in `src/morphomesh/human_generator.py` (including clavicle slope, teardrop bust profile, chest apex, cleavage hollow).
+2. Design the upper bodice geometric contour:
+   - Bilateral teardrop breast cups matching the body's teardrop profile with gentle slope from clavicle and distinct fullness at lower/lateral quadrant.
+   - Natural cleavage indentation between breasts without clipping or gap.
+   - Sweetheart scoop neckline contour across Z=1.185m to Z=1.255m.
+   - Delicate 3D conforming spaghetti straps arching over the shoulders and connecting to the back bodice.
+3. Calculate precise clearance offsets (+1.5mm to +2.0mm outward from body skin) to guarantee 100% zero penetration/clipping with the underlying anatomical body mesh across all bust parameters.
+4. Formulate an exact mathematical and vertex generation plan for the Worker to implement in `src/morphomesh/wardrobe.py`.

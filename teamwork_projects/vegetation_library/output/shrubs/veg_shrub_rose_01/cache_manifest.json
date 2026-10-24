@@ -1,0 +1,14 @@
+{
+  "species_id": "veg_shrub_rose_01",
+  "preview_task_id": "01a08b34-1a64-7079-8bbb-635bd17f5949",
+  "refine_task_id": "01a08b36-6684-7385-84be-ff602f48b1ad",
+  "vertex_count": 101629,
+  "face_count": 91812,
+  "source": "meshy",
+  "textures": {
+    "albedo": "textures/albedo.png",
+    "normal": "textures/normal.png",
+    "roughness": "textures/roughness.png",
+    "metallic": "textures/metallic.png"
+  }
+}

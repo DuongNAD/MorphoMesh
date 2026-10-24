@@ -1,0 +1,113 @@
+{
+  "schema_version": "1.0.0",
+  "species_id": "veg_tropical_palm_01",
+  "taxonomy": {
+    "common_name": "Windmill Fan Palm",
+    "scientific_name": "Trachycarpus fortunei",
+    "family": "Arecaceae",
+    "category": "tropical_foliage_palms",
+    "category_id": "tropical_foliage_palms",
+    "category_name": "Tropical Foliage & Palms",
+    "short_category": "tropical",
+    "biome": "Subtropical / Tropical Montane",
+    "growth_habit": "Erect solitary fan palm with terminal rounded frond crown",
+    "branching_pattern": "Unbranched columnar trunk crowned with dense radiating umbrella of palmate fronds",
+    "foliage_density": "dense"
+  },
+  "geometry": {
+    "vertex_count": 3960,
+    "face_count": 2442,
+    "triangle_count": 2442,
+    "has_armature": false,
+    "has_skins": false,
+    "pivot_grounded": true,
+    "ground_contact_z": 0.0,
+    "ground_z_min_m": 0.0,
+    "base_centroid_xy": [
+      0.0,
+      -0.0
+    ],
+    "bounding_box": {
+      "min_point": [
+        -1.3629,
+        -1.3271,
+        0.0
+      ],
+      "max_point": [
+        1.7313,
+        1.62,
+        5.5
+      ],
+      "dimensions": [
+        3.0942,
+        2.9471,
+        5.5
+      ]
+    },
+    "dimensions_m": {
+      "height_m": 5.5,
+      "canopy_spread_m": 3.0942,
+      "width_m": 3.0942,
+      "depth_m": 2.9471,
+      "target_height_m": 5.5,
+      "target_canopy_spread_m": 3.2
+    }
+  },
+  "normalization": {
+    "target_height_m": 5.5,
+    "target_canopy_spread_m": 3.2,
+    "scale_factor": 0.869845,
+    "normalized_height_m": 5.5,
+    "normalized_canopy_spread_m": 3.0942,
+    "strategy": "uniform_height"
+  },
+  "materials": {
+    "workflow": "Metallic-Roughness PBR",
+    "double_sided": true,
+    "channels": [
+      "albedo",
+      "normal",
+      "roughness",
+      "metallic"
+    ],
+    "texture_format": "PNG"
+  },
+  "files": {
+    "glb": "veg_tropical_palm_01.glb",
+    "obj": "veg_tropical_palm_01.obj",
+    "mtl": "veg_tropical_palm_01.mtl",
+    "textures": {
+      "albedo": "textures/albedo.png",
+      "normal": "textures/normal.png",
+      "roughness": "textures/roughness.png",
+      "metallic": "textures/metallic.png"
+    }
+  },
+  "provenance": {
+    "source": "procedural",
+    "export_timestamp": "2026-09-10T06:39:17.951147+00:00",
+    "generator_metadata": {
+      "species_id": "veg_tropical_palm_01",
+      "category_id": "tropical_foliage_palms",
+      "source": "procedural",
+      "seed": 1070746399,
+      "vertex_count": 3960,
+      "face_count": 2442,
+      "quad_count": 1221,
+      "tri_count": 0,
+      "quad_ratio": 1.0
+    }
+  },
+  "metadata": {
+    "scale_factor": 0.8698445215510224,
+    "species_id": "veg_tropical_palm_01",
+    "category_id": "tropical_foliage_palms",
+    "source": "procedural",
+    "seed": 1070746399,
+    "vertex_count": 3960,
+    "face_count": 2442,
+    "quad_count": 1221,
+    "tri_count": 0,
+    "quad_ratio": 1.0
+  }
+}

@@ -51,6 +51,12 @@ norecursedirs = ["m1_stress_harness"]
 addopts = "--ignore=tests/m1_stress_harness"
 asyncio_mode = "auto"
 pythonpath = ["src"]
+markers = [
+    "unit: Isolated fast unit tests (<100ms)",
+    "integration: End-to-end multi-component tests",
+    "live_blender: marks tests requiring live Blender runtime",
+    "adversarial: Stress testing, fuzzing, and AST attack injection suites",
+]
 filterwarnings = [
     "ignore::DeprecationWarning",
 ]

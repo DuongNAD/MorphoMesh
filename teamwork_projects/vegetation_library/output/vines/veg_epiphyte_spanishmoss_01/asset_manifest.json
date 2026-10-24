@@ -1,0 +1,113 @@
+{
+  "schema_version": "1.0.0",
+  "species_id": "veg_epiphyte_spanishmoss_01",
+  "taxonomy": {
+    "common_name": "Spanish Moss",
+    "scientific_name": "Tillandsia usneoides",
+    "family": "Bromeliaceae",
+    "category": "climbing_vines_epiphytes",
+    "category_id": "climbing_vines_epiphytes",
+    "category_name": "Climbing Vines & Epiphytes",
+    "short_category": "vines",
+    "biome": "Humid Subtropical Coastal Forest",
+    "growth_habit": "Rootless hanging festoon epiphyte with cascading slender curtains",
+    "branching_pattern": "Intertwined zigzagging thread-like stems forming hanging braided chain drapery",
+    "foliage_density": "medium"
+  },
+  "geometry": {
+    "vertex_count": 4064,
+    "face_count": 3280,
+    "triangle_count": 3280,
+    "has_armature": false,
+    "has_skins": false,
+    "pivot_grounded": true,
+    "ground_contact_z": 0.0,
+    "ground_z_min_m": 0.0,
+    "base_centroid_xy": [
+      0.0,
+      -0.0
+    ],
+    "bounding_box": {
+      "min_point": [
+        -0.2195,
+        -0.2449,
+        0.0
+      ],
+      "max_point": [
+        0.2272,
+        0.207,
+        1.6
+      ],
+      "dimensions": [
+        0.4467,
+        0.4518,
+        1.6
+      ]
+    },
+    "dimensions_m": {
+      "height_m": 1.6,
+      "canopy_spread_m": 0.4518,
+      "width_m": 0.4467,
+      "depth_m": 0.4518,
+      "target_height_m": 1.6,
+      "target_canopy_spread_m": 0.8
+    }
+  },
+  "normalization": {
+    "target_height_m": 1.6,
+    "target_canopy_spread_m": 0.8,
+    "scale_factor": 0.904129,
+    "normalized_height_m": 1.6,
+    "normalized_canopy_spread_m": 0.4518,
+    "strategy": "uniform_height"
+  },
+  "materials": {
+    "workflow": "Metallic-Roughness PBR",
+    "double_sided": true,
+    "channels": [
+      "albedo",
+      "normal",
+      "roughness",
+      "metallic"
+    ],
+    "texture_format": "PNG"
+  },
+  "files": {
+    "glb": "veg_epiphyte_spanishmoss_01.glb",
+    "obj": "veg_epiphyte_spanishmoss_01.obj",
+    "mtl": "veg_epiphyte_spanishmoss_01.mtl",
+    "textures": {
+      "albedo": "textures/albedo.png",
+      "normal": "textures/normal.png",
+      "roughness": "textures/roughness.png",
+      "metallic": "textures/metallic.png"
+    }
+  },
+  "provenance": {
+    "source": "procedural",
+    "export_timestamp": "2026-09-10T07:29:19.554713+00:00",
+    "generator_metadata": {
+      "species_id": "veg_epiphyte_spanishmoss_01",
+      "category_id": "climbing_vines_epiphytes",
+      "source": "procedural",
+      "seed": 2035622819,
+      "vertex_count": 4064,
+      "face_count": 3280,
+      "quad_count": 1640,
+      "tri_count": 0,
+      "quad_ratio": 1.0
+    }
+  },
+  "metadata": {
+    "scale_factor": 0.9041285908820528,
+    "species_id": "veg_epiphyte_spanishmoss_01",
+    "category_id": "climbing_vines_epiphytes",
+    "source": "procedural",
+    "seed": 2035622819,
+    "vertex_count": 4064,
+    "face_count": 3280,
+    "quad_count": 1640,
+    "tri_count": 0,
+    "quad_ratio": 1.0
+  }
+}

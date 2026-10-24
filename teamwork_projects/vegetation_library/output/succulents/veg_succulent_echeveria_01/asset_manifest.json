@@ -1,0 +1,113 @@
+{
+  "schema_version": "1.0.0",
+  "species_id": "veg_succulent_echeveria_01",
+  "taxonomy": {
+    "common_name": "Ghost Echeveria",
+    "scientific_name": "Echeveria elegans",
+    "family": "Crassulaceae",
+    "category": "succulents_cacti",
+    "category_id": "succulents_cacti",
+    "category_name": "Succulents & Cacti",
+    "short_category": "succulents",
+    "biome": "Subtropical Semiarid Rocky Slopes",
+    "growth_habit": "Acaulescent geometric symmetrical rosette producing offset clusters (pups)",
+    "branching_pattern": "Dense compact spiral rosette with short lateral stolon runners",
+    "foliage_density": "compact"
+  },
+  "geometry": {
+    "vertex_count": 3336,
+    "face_count": 3932,
+    "triangle_count": 3932,
+    "has_armature": false,
+    "has_skins": false,
+    "pivot_grounded": true,
+    "ground_contact_z": 0.0,
+    "ground_z_min_m": 0.0,
+    "base_centroid_xy": [
+      -0.0,
+      0.0
+    ],
+    "bounding_box": {
+      "min_point": [
+        -0.1117,
+        -0.1117,
+        0.0
+      ],
+      "max_point": [
+        0.1117,
+        0.1117,
+        0.25
+      ],
+      "dimensions": [
+        0.2233,
+        0.2233,
+        0.25
+      ]
+    },
+    "dimensions_m": {
+      "height_m": 0.25,
+      "canopy_spread_m": 0.2233,
+      "width_m": 0.2233,
+      "depth_m": 0.2233,
+      "target_height_m": 0.25,
+      "target_canopy_spread_m": 0.35
+    }
+  },
+  "normalization": {
+    "target_height_m": 0.25,
+    "target_canopy_spread_m": 0.35,
+    "scale_factor": 1.019691,
+    "normalized_height_m": 0.25,
+    "normalized_canopy_spread_m": 0.2233,
+    "strategy": "uniform_height"
+  },
+  "materials": {
+    "workflow": "Metallic-Roughness PBR",
+    "double_sided": true,
+    "channels": [
+      "albedo",
+      "normal",
+      "roughness",
+      "metallic"
+    ],
+    "texture_format": "PNG"
+  },
+  "files": {
+    "glb": "veg_succulent_echeveria_01.glb",
+    "obj": "veg_succulent_echeveria_01.obj",
+    "mtl": "veg_succulent_echeveria_01.mtl",
+    "textures": {
+      "albedo": "textures/albedo.png",
+      "normal": "textures/normal.png",
+      "roughness": "textures/roughness.png",
+      "metallic": "textures/metallic.png"
+    }
+  },
+  "provenance": {
+    "source": "procedural",
+    "export_timestamp": "2026-09-10T07:29:04.509466+00:00",
+    "generator_metadata": {
+      "species_id": "veg_succulent_echeveria_01",
+      "category_id": "succulents_cacti",
+      "source": "procedural",
+      "seed": 1669477597,
+      "vertex_count": 3336,
+      "face_count": 3932,
+      "quad_count": 1966,
+      "tri_count": 0,
+      "quad_ratio": 1.0
+    }
+  },
+  "metadata": {
+    "scale_factor": 1.0196905766526019,
+    "species_id": "veg_succulent_echeveria_01",
+    "category_id": "succulents_cacti",
+    "source": "procedural",
+    "seed": 1669477597,
+    "vertex_count": 3336,
+    "face_count": 3932,
+    "quad_count": 1966,
+    "tri_count": 0,
+    "quad_ratio": 1.0
+  }
+}

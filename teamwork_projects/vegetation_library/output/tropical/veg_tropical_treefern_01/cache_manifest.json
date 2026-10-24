@@ -1,0 +1,14 @@
+{
+  "species_id": "veg_tropical_treefern_01",
+  "preview_task_id": "01a08b2b-7a33-73f1-8b21-d6cb33248aaf",
+  "refine_task_id": "01a08b2e-f527-7242-87ff-f73109a34398",
+  "vertex_count": 116754,
+  "face_count": 102168,
+  "source": "meshy",
+  "textures": {
+    "albedo": "textures/albedo.png",
+    "normal": "textures/normal.png",
+    "roughness": "textures/roughness.png",
+    "metallic": "textures/metallic.png"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "species_id": "veg_tropical_birdofparadise_01",
+  "preview_task_id": "01a08b2b-85e6-727c-879c-e51596791c0d",
+  "refine_task_id": "01a08b2e-1c17-74d5-bd94-61b3a2ef0025",
+  "vertex_count": 54392,
+  "face_count": 58419,
+  "source": "meshy",
+  "textures": {
+    "albedo": "textures/albedo.png",
+    "normal": "textures/normal.png",
+    "roughness": "textures/roughness.png",
+    "metallic": "textures/metallic.png"
+  }
+}

@@ -1,216 +1,142 @@
-# Handoff Report — Challenger M3-1 (Adversarial Clearance, Manifold & PBR Verification)
+# Handoff Report: Milestone M3 Sandals Empirical Challenge
 
-**Author**: Challenger M3-1 (`challenger_m3_1`)  
-**Date**: 2026-09-05T17:00:00Z  
-**Milestone**: M3 — High-Fidelity Organic PBR Shader Engine & War Armor Integration  
-**Role**: Empirical Challenger (`critic`, `specialist`)  
-**Parent Orchestrator**: `504d045c-25c5-48a2-a65a-2a5b368eafa7`  
-**Verdict**: **REJECT** (Critical Topology, Inverted Normals & Scaling Collision Defects Found)
+**Agent**: Challenger 1 (Challenger M3.1: Sandals Clearance, Height & Toes Exposure Empirical Challenger)  
+**Parent Agent**: orchestrator_human_anatomy_gen2 (`c2422918-70a3-47d9-a8f9-883422a33af0`)  
+**Date**: 2026-09-07  
+**Verdict**: **REQUEST_CHANGES**  
+**Status**: Hard Handoff (Adversarial Audit Complete)
 
 ---
 
 ## 1. Observation
 
-### 1.1 Defect 1: `Armor_Pauldron_R` Non-Manifold Topology in Blender (140 Open Boundary Edges)
-- **File**: `src/morphomesh/armor.py`
-- **Line 665**:
-  ```python
-  faces.append((og[i][j], og[i][j+1], og[i+1][j+1], og[i][j]))
-  ```
-  In `get_armor_blender_script()` subroutine `make_pauldron(side)`:
-  For `side == 'R'`, the outer surface quad is generated with vertices `(og[i][j], og[i][j+1], og[i+1][j+1], og[i][j])`. The first and fourth vertex are identical (`og[i][j]`), instead of `og[i+1][j]`.
-- **Empirical Execution in Headless Blender 5.2.1 LTS**:
-  Command:
-  ```bash
-  /Applications/Blender.app/Contents/MacOS/Blender --background --python <audit_script>
-  ```
-  BMesh topology audit result on `Armor_Pauldron_R`:
-  ```json
-  {
-    "Armor_Pauldron_R": {
-      "vertex_count": 96,
-      "edge_count": 258,
-      "face_count": 94,
-      "non_manifold_edge_count": 140,
-      "zero_area_face_count": 0,
-      "is_watertight": false,
-      "edge_link_faces": {"1": 140, "2": 118}
-    }
-  }
-  ```
-  `Armor_Pauldron_R` in Blender has **140 non-manifold edges** (boundary edges with only 1 adjacent face). It is **not watertight** and violates the 2-manifold closed shell requirement.
-  *(Note: In `generate_pauldron()` in Python line 175, it was written correctly as `outer_grid[i + 1][j]`. However, `get_armor_blender_script()`, which generates the actual Blender asset, had a critical indexing typo).*
+1. **Height Scale Dilation at $H = 1.80\text{m}$**:
+   - In `src/morphomesh/wardrobe.py:1360-1363`:
+     ```python
+     z_mid = (0.0440 - 0.0015 * sin_t + 0.0010 * cos_t) * s
+     z_low = z_mid - 0.0025 * s
+     z_up  = z_mid + 0.0025 * s
+     ```
+   - Running `generate_flat_strappy_sandals(height=1.80, scale=1.0)`:
+     `min_z = 0.000000m`, `max_z = 0.052660m`, total footwear height = $52.66\text{mm} > 50.0\text{mm}$.
+   - Verbatim pytest assertion error in `tests/test_challenger_m3_sandals.py:141`:
+     ```
+     AssertionError: Scale dilation failure at H=1.8m: total height 52.66mm exceeds 50.0mm limit
+     assert 52.66 <= 50.0
+     ```
 
----
+2. **Sole Length Bound Violation at $H = 1.80\text{m}$**:
+   - In `src/morphomesh/wardrobe.py:1103-1104`:
+     ```python
+     y_heel_post = 0.100 * s
+     y_toe_ant   = -0.138 * s
+     ```
+   - At $H = 1.80\text{m}$ ($s = 1.80/1.65 = 1.090909$):
+     `y_heel_post = 0.1091m`, `y_toe_ant = -0.1505m`.
+     Sole length $L_{\text{sole}} = 0.1091 - (-0.1505) = 0.2676\text{m} > 0.25\text{m}$.
+   - Verbatim pytest assertion error in `tests/test_challenger_m3_sandals.py:154`:
+     ```
+     AssertionError: Sole length bounds failure at H=1.8m: sole length 0.2676m not in [0.22, 0.25]m
+     assert 0.26755 <= 0.25
+     ```
 
-### 1.2 Defect 2: `Armor_Backplate` Inverted Face Normals (Inside-Out Winding)
-- **File**: `src/morphomesh/armor.py`
-- **Lines 786–787** (Blender script) & **Lines 508–514** (Python generator):
-  ```python
-  # Outer surface quads
-  for i in range(u_steps - 1):
-      for j in range(v_steps - 1):
-          faces.append((og[i][j], og[i+1][j], og[i+1][j+1], og[i][j+1]))
-          faces.append((ig[i][j], ig[i][j+1], ig[i+1][j+1], ig[i+1][j]))
-  ```
-- **Vector Analysis**:
-  In `make_backplate`, index `i` steps along $+y$ and index `j` steps along $+x$.
-  The outer quad winding `(og[i][j], og[i+1][j], og[i+1][j+1], og[i][j+1])` traverses from $(0, 0)$ to $(0, +\Delta y)$ then to $(+\Delta x, +\Delta y)$.
-  The cross product $(v_1 - v_0) \times (v_3 - v_0) = (0, \Delta y, 0) \times (\Delta x, 0, 0) = (0, 0, -\Delta x \Delta y)$.
-  **Normal vector points in $-z$ (downward into the interior of the bear)** rather than outward $(+z)$.
-- **Empirical Execution in Blender 5.2.1 LTS**:
-  Signed volume computation over all faces via divergence theorem:
-  ```
-  Armor_Pauldron_L: Signed Volume = +0.001031 m^3
-  Armor_Pauldron_R: Signed Volume = +0.016745 m^3
-  Armor_Gorget:     Signed Volume = +0.001031 m^3
-  Armor_Bracer_L:   Signed Volume = +0.000219 m^3
-  Armor_Bracer_R:   Signed Volume = +0.000219 m^3
-  Armor_Backplate:  Signed Volume = -0.003077 m^3
-  ```
-  `Armor_Backplate` has a **negative signed volume** ($-0.003077 \text{ m}^3$), confirming that all outward face normals are pointing inwards towards the bear.
+3. **Toes Exposure and Landmark Clearance Discrepancies**:
+   - In `src/morphomesh/human_generator.py:1742-1751`:
+     `toe_big_L` landmark coordinate is `(0.0615, -0.138, 0.011)`.
+     `toe_fifth_L` landmark coordinate is `(0.1185, -0.103, 0.006)`.
+   - In `src/morphomesh/wardrobe.py:1104`:
+     `y_toe_ant = -0.138 * s`.
+   - Measured clearance against sole front $Y = -0.138\text{m}$:
+     * Big toe landmark clearance: `(-0.138) - (-0.138) = 0.00mm < 7.0mm`.
+     * Big toe mesh vertices ($Y_{\min} = -0.13812\text{m}$): clearance is `0.12mm < 7.0mm`.
+     * Pinky toe landmark clearance: `(-0.138) - (-0.103) = -35.00mm < 7.0mm` (landmark is $35\text{mm}$ behind the sole front).
+     * Pinky toe mesh vertices ($Y_{\min} = -0.11502\text{m}$): clearance is `-22.98mm < 7.0mm` (pinky toe sits on top of sole rather than projecting past it).
+   - Verbatim pytest assertion error in `tests/test_challenger_m3_sandals.py:175`:
+     ```
+     AssertionError: Big toe exposure clearance failure: clearance is 0.00mm < 7.0mm
+     assert 0.0 >= 7.0
+     ```
 
----
+4. **Canonical Skin Penetration on Ankle Collar Wrap (Band 3)**:
+   - In `src/morphomesh/wardrobe.py:1368`:
+     Vertex 206 coordinate is `(0.0880, 0.0180, 0.0425)`.
+   - Signed distance to closest body foot polygon (`loc = (0.0880, 0.0179, 0.0426)`, `norm = (-0.37, -0.64, 0.67)`):
+     $\text{offset} \cdot \vec{n} = -0.000132 \implies s_{\text{dist}} = -0.132\text{mm} < 0.0\text{mm}$ (penetration).
+   - Verbatim pytest assertion error in `tests/test_challenger_m3_sandals.py:201`:
+     ```
+     AssertionError: Skin penetration / buffer failure: min signed distance is -0.132mm < +1.5mm. Penetrating vertices count: 1, below buffer: 1.
+     assert -0.00013229419566845727 >= 0.0015
+     ```
 
-### 1.3 Defect 3: Backplate Severe Penetration / Intersection Under Scaling (Scale 0.5x)
-- **File**: `src/morphomesh/armor.py`
-- **Lines 460–464** (`generate_backplate`) & **Line 765** (`get_armor_blender_script`):
-  ```python
-  nearby = [
-      v[2]
-      for v in bear_mesh.vertices
-      if -0.15 <= v[1] <= 0.45 and abs(v[0]) <= 0.30 and v[2] >= 0.80
-      and (v[0] - x) ** 2 + (v[1] - y) ** 2 <= 0.08 ** 2
-  ]
-  ```
-- **Root Cause**:
-  The coordinate bounding box for adaptive scapular hump sampling contains **unscaled constants**: `v[2] >= 0.80` and `(v[0]-x)**2 + (v[1]-y)**2 <= 0.08**2`.
-  When `scale = 0.5`:
-  The bear's highest dorsal vertex is at $z \approx 0.72\text{m} < 0.80\text{m}$.
-  Therefore, `nearby` is **always empty (`[]`)**!
-  The engine falls back to the default analytic profile:
-  ```python
-  midline_z = (1.170 - 0.025 * math.sin(math.pi * t_y)) * scale
-  ```
-  At `x = 0.0`, `y = -0.05` ($y_{\text{unscaled}} = -0.10$):
-  - Backplate inner surface height: $z = 0.5975\text{m}$.
-  - Bear's actual scapular hump height at that point: $z = 0.7120\text{m}$.
-  - **The bear's hump protrudes through the backplate by $0.1145\text{m}$ (over 11 cm)!**
-- **Empirical Clearance Measurements**:
-  - In Python:
-    `min_d = 0.0000m` (Exact vertex collision: Backplate vertex `(0.0, 0.075, 0.585)` collides with Bear vertex `(0.0, 0.075, 0.585)`).
-  - In Blender:
-    `measured_clearances["Armor_Backplate"] = 0.0050m < 0.015m` (Severe clearance failure).
-  - Pauldrons at scale 0.5x:
-    `min_d = 0.0144m < 0.015m` because $0.025 \times 0.5 = 0.0125\text{m}$, breaching the absolute $0.015\text{m}$ threshold.
+5. **Unhandled Leg Girth Variation Parameter ($k_{\text{leg}}$)**:
+   - In `src/morphomesh/wardrobe.py:1077`, `k_leg: float = 1.0` is declared in `generate_flat_strappy_sandals` signature, but `k_leg` is referenced zero times in the function body (`occurrences of k_leg: 1` total).
+   - In `src/morphomesh/human_generator.py:1493`, foot vertical elevations scale with `s * k_leg`.
+   - Testing with $k_{\text{leg}} = 0.8$: Band 2 penetrates by $-7.64\text{mm}$, Band 1 penetrates by $-4.65\text{mm}$.
+   - Testing with $k_{\text{leg}} = 1.2$: Band 2 penetrates by $-4.05\text{mm}$, Band 3 penetrates by $-2.24\text{mm}$.
+   - Verbatim pytest assertion error in `tests/test_challenger_m3_sandals.py:218`:
+     ```
+     AssertionError: Leg variation clearance failure at k_leg=0.8: min signed clearance is -7.64mm < +1.5mm
+     assert -0.007639458935766613 >= 0.0015
+     ```
 
----
-
-### 1.4 Passing Elements Verified
-1. **Zero-Area Faces**:
-   All 6 plates in Blender 5.2.1 LTS have **zero degenerate faces** (min face area $\approx 2.2 \times 10^{-4}\text{ m}^2 > 10^{-7}\text{ m}^2$).
-2. **PBR Principled BSDF v2 Shaders**:
-   All 5 materials in Blender 5.2.1 LTS instantiate valid Principled BSDF v2 sockets:
-   - `Mat_Armor_WeatheredSteel`: `Metallic == 1.0`, `Roughness == 0.42`.
-   - `Mat_Armor_BrassTrim`: `Metallic == 1.0`, `Roughness == 0.32`.
-   - `Mat_Bear_Skin_Nose`: `Coat Weight == 0.85` ($\ge 0.80$), `Roughness == 0.15`, `Metallic == 0.0`.
-   - `Mat_Bear_Fur`: `Roughness == 0.85`, `Sheen Weight == 0.65`, `Subsurface Weight == 0.08`.
-   - `Mat_Bear_Claws`: `Roughness == 0.38`, `Specular IOR Level == 0.50`.
-3. **Canonical Scale 1.0 Clearance**:
-   At scale 1.0, all 6 plates in Python and Blender achieve $d_{\min} \in [0.0250, 0.0359]\text{m} \ge 0.015\text{m}$.
+6. **Passing Dimensions Verified**:
+   - Ground elevation: $Z_{\min} = 0.00000\text{m}$ (PASS).
+   - Degenerate faces: 0 degenerate faces; minimum triangle face area is $3.31 \times 10^{-6}\text{m}^2 > 10^{-9}$ (PASS).
+   - Normalized Rigify skinning: 100% of vertices have normalized weights $\sum w_i = 1.000000$ in `DEF-foot` and `DEF-toe` (PASS).
+   - Medial arch rise: $+3.95\text{mm} > +3.5\text{mm}$ relative rise along medial border (PASS).
+   - `uv run pytest tests/test_wardrobe_m3.py -v`: 25 passed in 0.08s (PASS).
 
 ---
 
 ## 2. Logic Chain
 
-1. **Topological Invalidation (Requirement 2 Violation)**:
-   - Worker M3 claimed: `Armor_Pauldron_R: 2-Manifold: True, Non-Manifold Edges: 0`.
-   - Observation 1.1 shows that when executed in headless Blender 5.2.1 LTS via `get_armor_blender_script()`, line 665 has a typo `(og[i][j], og[i][j+1], og[i+1][j+1], og[i][j])` repeating `og[i][j]`.
-   - This causes Blender's `from_pydata()` to construct collapsed quad faces, resulting in 140 non-manifold boundary edges.
-   - Therefore, the claim of watertight 2-manifold armor shells in Blender is empirically false.
-
-2. **Normal Orientation Invalidation**:
-   - Outward face normal vectors are necessary for lighting, shading, baking, and collision detection.
-   - Observation 1.2 proves that `Armor_Backplate` quads are wound clockwise from the outside view, generating downward-pointing normal vectors (signed volume $-0.003077\text{ m}^3$).
-   - This causes inverted shading artifacts and invalid displacement/bumping.
-
-3. **Scale Invariance Collapse (Requirements 1 & 5 Violation)**:
-   - Worker M3 claimed guaranteed clearance $\ge 0.015\text{m}$ across proportional variations.
-   - Observation 1.3 demonstrates that at scale $0.5\times$, unscaled filtering bounds (`v[2] >= 0.80`) fail to capture bear vertices.
-   - This produces complete geometrical penetration ($d_{\min} = 0.0000\text{m}$), with the bear's scapular hump protruding 11cm through the backplate.
-   - Pauldron clearance drops to $0.0144\text{m} < 0.015\text{m}$.
+1. From Observation 1, total footwear height is constrained to $\le 50.0\text{mm}$ across all scales. Because `wardrobe.py` scales all vertical coordinates by $s = H / 1.65$, at $H = 1.80\text{m}$, peak height expands to $52.66\text{mm}$. This directly breaks the height specification.
+2. From Observation 2, sole length is constrained to $[0.22\text{m}, 0.25\text{m}]$. At $H = 1.80\text{m}$, unconstrained scaling results in $L_{\text{sole}} = 0.2676\text{m}$, directly breaking the upper length bound.
+3. From Observation 3, Worker M3 asserted toe clearance in `test_wardrobe_m3.py` via hardcoded arithmetic `(-0.138) - (-0.145) = 0.007m`, but in the actual human generator model, `toe_big_L` landmark is at $-0.138\text{m}$ ($0.0\text{mm}$ clearance), and the pinky toe landmark is at $-0.103\text{m}$ ($35\text{mm}$ behind the sole front). A straight transverse sole front at $Y = -0.138\text{m}$ fails to provide $\ge 7\text{mm}$ clearance for the big toe and leaves the pinky toe enclosed rather than exposed.
+4. From Observation 4, vertex 206 of Band 3 collar wrap has a negative signed distance of $-0.132\text{mm}$, penetrating the ankle tissue and failing the $\ge +1.5\text{mm}$ skin buffer requirement.
+5. From Observation 5, because `generate_flat_strappy_sandals` ignores `k_leg`, variations in character leg girth / length ($k_{\text{leg}} \in [0.8, 1.2]$) cause severe strap clipping through the foot mesh (up to $-7.64\text{mm}$ penetration).
+6. Combining Steps 1-5, while baseline components function at canonical scale, the implementation fails adversarial stress testing under extreme scaling, leg variation, toe exposure geometry, and collar skin clearance. Therefore, the implementation cannot be approved in its current state.
 
 ---
 
 ## 3. Caveats
 
-- At canonical scale 1.0, clearances for all 6 plates in Python and Blender are within the expected range ($0.025 - 0.036\text{m}$).
-- The PBR Principled BSDF v2 shader pipeline is fully compliant with Blender 5.2.1 LTS specifications.
-- The defect in `Armor_Pauldron_R` exists in `get_armor_blender_script()`; in `generate_pauldron()` (Python `MeshGeometry`), line 175 was written correctly. Worker M3's tests passed only because they tested the Python `MeshGeometry` directly, failing to audit the BMesh topology of the generated Blender script.
+- **Props & Grooming Out of Scope for M3.1**: Marionette strings, butterflies, and 6-stratum hime cut were verified to pass their unit tests in `tests/test_wardrobe_m3.py` and `tests/test_hime_cut_6_strata.py`, but this report focuses strictly on sandals clearance, height, and toe exposure per the dispatch assignment.
+- **Blender Scene Verification**: Headless BVH and mathutils checks match the pure Python BVH results within $0.05\text{mm}$.
+- No other caveats.
 
 ---
 
 ## 4. Conclusion
 
-**Verdict: REJECT**
+**Verdict: REQUEST_CHANGES**
 
-Milestone M3 cannot be approved in its current state due to three critical, empirically confirmed defects:
-1. `Armor_Pauldron_R` is non-manifold with **140 open boundary edges** in Blender.
-2. `Armor_Backplate` has **inverted face normals** (negative signed volume).
-3. Under scaling to $0.5\times$, `Armor_Backplate` **intersects and clips through the bear body** ($d_{\min} = 0.0000\text{m}$), and pauldron clearance drops below $0.015\text{m}$.
-
-### Required Remediations for Worker M3:
-1. In `src/morphomesh/armor.py` line 665:
-   Change `faces.append((og[i][j], og[i][j+1], og[i+1][j+1], og[i][j]))`  
-   To `faces.append((og[i][j], og[i][j+1], og[i+1][j+1], og[i+1][j]))`.
-2. In `src/morphomesh/armor.py` lines 509 & 786:
-   Reverse the vertex winding on outer backplate quads:
-   Change `(og[i][j], og[i+1][j], og[i+1][j+1], og[i][j+1])`  
-   To `(og[i][j], og[i][j+1], og[i+1][j+1], og[i+1][j])`.
-   Reverse inner quads accordingly to point inward.
-3. In `src/morphomesh/armor.py` lines 460–464 and 765–768:
-   Scale all bounding box thresholds with `scale` (`sc`):
-   `-0.15*sc <= v[1] <= 0.45*sc`, `abs(v[0]) <= 0.30*sc`, `v[2] >= 0.80*sc`, and search radius `(0.08*sc)**2`.
-   Ensure pauldron minimum clearance is bounded below by $\max(0.015, \text{clearance} \times \text{scale})$ or fixed minimum.
+Worker M3 must address the following five defects in `src/morphomesh/wardrobe.py`:
+1. **Height Clamping**: Clamp or recalibrate peak ankle collar height so that total height $\le 50.0\text{mm}$ across all $H \in [1.50\text{m}, 1.80\text{m}]$.
+2. **Sole Length Clamping**: Constrain $L_{\text{sole}} \in [0.22\text{m}, 0.25\text{m}]$ across all character scales.
+3. **Anatomical Oblique Sole Front**: Adapt $y_{\text{toe\_ant}}$ across transverse coordinates to follow the oblique MTP angle, ensuring $\ge 7\text{mm}$ clearance for both the big toe and pinky toe landmarks.
+4. **Band 3 Collar Clearance**: Add $+2.0\text{mm}$ offset to Band 3 sector 0 to eliminate the $-0.132\text{mm}$ skin penetration at vertex 206.
+5. **Propagate $k_{\text{leg}}$**: Connect `k_leg` to strap and footbed Z-elevation in `generate_flat_strappy_sandals`.
 
 ---
 
 ## 5. Verification Method
 
-To independently reproduce every finding and verify the defects:
+To independently reproduce all observations and verify the defects:
 
-1. **Run Challenger M3 Adversarial Pytest Suite**:
+1. **Run the Adversarial Test Suite**:
    ```bash
-   pytest -v tests/test_m3_adversarial_materials_and_armor.py
+   uv run pytest tests/test_challenger_m3_sandals.py -v
    ```
-   *Result*: 10/10 tests pass, confirming empirical reproduction of all 3 defects (Pauldron R 140 non-manifold edges, Backplate negative volume, and Scale 0.5x clipping).
+   *Current Result*: 4 passed, 5 failed.
+   *Target Result after Worker M3 remediation*: 9 passed.
 
-2. **Run Headless Blender 5.2.1 LTS BMesh Topology Check**:
+2. **Run the Wardrobe M3 Regression Suite**:
    ```bash
-   /Applications/Blender.app/Contents/MacOS/Blender --background --python-expr "
-   import bpy, bmesh
-   from morphomesh.creature_generator import get_blender_generation_script
-   from morphomesh.armor import ProceduralArmorEngine
-   exec(get_blender_generation_script('Bear_Base_Mesh'))
-   exec(ProceduralArmorEngine().get_armor_blender_script('Bear_Base_Mesh'))
-   obj = bpy.data.objects['Armor_Pauldron_R']
-   bm = bmesh.new(); bm.from_mesh(obj.data)
-   nm = [e for e in bm.edges if not e.is_manifold or len(e.link_faces) != 2]
-   print(f'CRITICAL: Armor_Pauldron_R has {len(nm)} non-manifold edges (is_watertight={len(nm)==0})')
-   assert len(nm) == 140
-   "
+   uv run pytest tests/test_wardrobe_m3.py -v
    ```
+   *Expected*: 25 passed.
 
-3. **Run Scale 0.5x Collision Check in Python**:
-   ```bash
-   python3 -c "
-   from morphomesh.creature_generator import generate_bear_base_mesh, UrsineAnatomyConfig
-   from morphomesh.armor import ProceduralArmorEngine
-   bear = generate_bear_base_mesh(UrsineAnatomyConfig(scale=0.5)).mesh
-   engine = ProceduralArmorEngine()
-   plates = engine.generate_all_armor_plates(scale=0.5, bear_mesh=bear)
-   m = engine.compute_clearance_metrics(plates['Armor_Backplate'], bear)
-   print(f'CRITICAL: Backplate min distance at scale 0.5x is {m[\"min_distance\"]:.4f}m (collision!)')
-   assert m['min_distance'] == 0.0
-   "
-   ```
+*Invalidation Conditions*:
+- Any failure in the 4 invariant tests (`test_sandals_ground_elevation_invariant`, `test_sandals_topology_and_zero_degenerate_faces`, `test_sandals_normalized_rigify_skinning_all_vertices`, `test_sandals_medial_arch_rise_greater_than_3_5mm`).
+- Continued failure of the 5 stress tests in `tests/test_challenger_m3_sandals.py`.

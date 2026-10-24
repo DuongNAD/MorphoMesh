@@ -1,0 +1,113 @@
+{
+  "schema_version": "1.0.0",
+  "species_id": "veg_ground_fern_01",
+  "taxonomy": {
+    "common_name": "Boston Sword Fern",
+    "scientific_name": "Nephrolepis exaltata",
+    "family": "Lomariopsidaceae",
+    "category": "ferns_grasses_groundcover",
+    "category_id": "ferns_grasses_groundcover",
+    "category_name": "Ferns, Grasses & Groundcover",
+    "short_category": "groundcover",
+    "biome": "Tropical / Subtropical Swamp Forest Floor",
+    "growth_habit": "Tufted fountain rosette of gracefully weeping pinnate fronds",
+    "branching_pattern": "Radial explosion of fronds arching outward and downward from central rhizome crown",
+    "foliage_density": "dense"
+  },
+  "geometry": {
+    "vertex_count": 3656,
+    "face_count": 1872,
+    "triangle_count": 1872,
+    "has_armature": false,
+    "has_skins": false,
+    "pivot_grounded": true,
+    "ground_contact_z": 0.0,
+    "ground_z_min_m": 0.0,
+    "base_centroid_xy": [
+      -0.0,
+      0.0
+    ],
+    "bounding_box": {
+      "min_point": [
+        -1.0919,
+        -1.0651,
+        0.0
+      ],
+      "max_point": [
+        1.0322,
+        1.1042,
+        0.65
+      ],
+      "dimensions": [
+        2.1241,
+        2.1693,
+        0.65
+      ]
+    },
+    "dimensions_m": {
+      "height_m": 0.65,
+      "canopy_spread_m": 2.1693,
+      "width_m": 2.1241,
+      "depth_m": 2.1693,
+      "target_height_m": 0.65,
+      "target_canopy_spread_m": 1.0
+    }
+  },
+  "normalization": {
+    "target_height_m": 0.65,
+    "target_canopy_spread_m": 1.0,
+    "scale_factor": 2.024659,
+    "normalized_height_m": 0.65,
+    "normalized_canopy_spread_m": 2.1693,
+    "strategy": "uniform_height"
+  },
+  "materials": {
+    "workflow": "Metallic-Roughness PBR",
+    "double_sided": true,
+    "channels": [
+      "albedo",
+      "normal",
+      "roughness",
+      "metallic"
+    ],
+    "texture_format": "PNG"
+  },
+  "files": {
+    "glb": "veg_ground_fern_01.glb",
+    "obj": "veg_ground_fern_01.obj",
+    "mtl": "veg_ground_fern_01.mtl",
+    "textures": {
+      "albedo": "textures/albedo.png",
+      "normal": "textures/normal.png",
+      "roughness": "textures/roughness.png",
+      "metallic": "textures/metallic.png"
+    }
+  },
+  "provenance": {
+    "source": "procedural",
+    "export_timestamp": "2026-09-10T06:36:48.719526+00:00",
+    "generator_metadata": {
+      "species_id": "veg_ground_fern_01",
+      "category_id": "ferns_grasses_groundcover",
+      "source": "procedural",
+      "seed": 1869319843,
+      "vertex_count": 3656,
+      "face_count": 1872,
+      "quad_count": 936,
+      "tri_count": 0,
+      "quad_ratio": 1.0
+    }
+  },
+  "metadata": {
+    "scale_factor": 2.024658876833559,
+    "species_id": "veg_ground_fern_01",
+    "category_id": "ferns_grasses_groundcover",
+    "source": "procedural",
+    "seed": 1869319843,
+    "vertex_count": 3656,
+    "face_count": 1872,
+    "quad_count": 936,
+    "tri_count": 0,
+    "quad_ratio": 1.0
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "species_id": "veg_tropical_palm_01",
+  "preview_task_id": "01a08b24-9fba-735a-b8d7-21b293c41d5b",
+  "refine_task_id": "01a08b27-62b1-73b7-8d6e-5a04ac9de37c",
+  "vertex_count": 75412,
+  "face_count": 74306,
+  "source": "meshy",
+  "textures": {
+    "albedo": "textures/albedo.png",
+    "normal": "textures/normal.png",
+    "roughness": "textures/roughness.png",
+    "metallic": "textures/metallic.png"
+  }
+}

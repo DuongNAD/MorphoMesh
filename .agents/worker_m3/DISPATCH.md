@@ -1,50 +1,70 @@
-## 2026-09-07T05:39:11Z
+# Dispatch for Worker M3 — Asset Normalization, Headless Rendering & Viewer Synchronization
 
-You are Worker M3: Closed-Loop Visual Quality Critique Engine Implementer.
-Your working directory is: e:\tool\mcp\MorphoMesh\.agents\worker_m3
-Your parent orchestrator conversation ID is: 577aaa33-6b3f-4ebc-93eb-fcc632d94bc9
-The authoritative user request is at: e:\tool\mcp\MorphoMesh\ORIGINAL_REQUEST.md (specifically § 2026-09-07T03:34:32Z). You MUST read this file first.
-The project scope document is at: e:\tool\mcp\MorphoMesh\PROJECT.md (specifically Milestone 3).
+## Identity
+- Role: Asset Normalization, Rendering & Viewer Engineer
+- Working Directory: E:\tool\mcp\MorphoMesh\.agents\worker_m3
+- Parent Conversation ID: c89d3e85-2d1c-4b25-9e5b-bb4953ad2fc4
+
+## Mission & Instructions
+You are assigned Milestone 3 & Milestone 4: Asset Normalization, Ground Snapping, Headless Blender Rendering, Manifest Aggregation, and Interactive Viewer Synchronization for the Vegetation Library Rebuild.
+
+### Authoritative Files
+- Original Request: `E:\tool\mcp\MorphoMesh\.agents\ORIGINAL_REQUEST.md` (under `## 2026-09-10T11:11:31Z`)
+- Project Scope: `E:\tool\mcp\MorphoMesh\.agents\orchestrator_vegetation_rebuild_1\PROJECT.md`
+- Subproject Directory: `E:\tool\mcp\MorphoMesh\teamwork_projects\vegetation_library`
+- Worker M2 Report: `E:\tool\mcp\MorphoMesh\.agents\worker_m2\handoff.md`
+
+### Mandatory Integrity Warning
+DO NOT CHEAT. All implementations must be genuine. DO NOT hardcode test results, create dummy/facade implementations, or circumvent the intended task. A teamwork_preview_auditor will independently verify your work. Integrity violations WILL be detected and your work WILL be rejected.
+
+### Your Tasks
+1. **Asset Normalization & Ground Snapping (Milestone 3)**:
+   - For all downloaded genuine Meshy models (`raw_meshy_model.glb`), run `post_processor.process_and_export()`:
+     * Uniform metric scale normalization to real-world botanical heights (target $\pm 10\%$).
+     * Ground pivot snapping strictly at $Z_{\min} = 0.000\text{m} \pm 0.005\text{m}$.
+     * Base contact centroid centering at $(X=0, Y=0)$.
+     * Embed full 4-channel PBR textures (Albedo, Normal, Roughness, Metallic) with double-sided foliage and $N_{\text{bones}} = 0$.
+     * Export production `<species_id>.glb` and companion Wavefront `<species_id>.obj` / `<species_id>.mtl`.
+2. **Headless Blender Rendering (Milestone 3)**:
+   - Run `renderer.py` using Headless Blender 4.5 (`C:\Program Files\Blender Foundation\Blender 4.5\blender.exe`):
+     * Re-render high-resolution 4-angle turntable previews (`turntable_01.png` - `04.png`) with botanical 3-point studio lighting and shadow catcher.
+     * Re-render 1024x1024 2x2 contact sheet montages (`thumbnail.png`).
+3. **Manifest Aggregation & Verification (Milestone 4)**:
+   - Aggregate master `manifest.json` in `teamwork_projects/vegetation_library/output/manifest.json`:
+     * Include genuine Meshy cloud task provenance (`task_id`, `model_type`, `refine_status`, remote URLs).
+     * Include accurate vertex counts, face counts, dimensions, and validation status.
+4. **Interactive Viewer Synchronization (Milestone 4)**:
+   - Synchronize `teamwork_projects/vegetation_library/output/viewer.html` and `viewer.html`:
+     * Ensure all plant cards display genuine Meshy AI-generated models and metrics.
+     * Ensure thumbnail previews, turntable renders, and 3D GLB download links are fully synchronized.
+5. **Automated Verification**:
+   - Run `uv run pytest teamwork_projects/vegetation_library/tests/ -v`.
+   - Confirm 100% of tests pass with 0 failures.
+
+Write your completion report to `E:\tool\mcp\MorphoMesh\.agents\worker_m3\handoff.md`.
+When finished, send a message back to parent (`c89d3e85-2d1c-4b25-9e5b-bb4953ad2fc4`).
+
+## 2026-09-10T12:06:35Z
+You are Worker M3 (Asset Normalization, Rendering & Viewer Engineer).
+Your working directory is: E:\tool\mcp\MorphoMesh\.agents\worker_m3
+Your detailed dispatch assignment is in: E:\tool\mcp\MorphoMesh\.agents\worker_m3\DISPATCH.md
+Read DISPATCH.md, ORIGINAL_REQUEST.md (under ## 2026-09-10T11:11:31Z), PROJECT.md (E:\tool\mcp\MorphoMesh\.agents\orchestrator_vegetation_rebuild_1\PROJECT.md), and Worker M2 handoff (E:\tool\mcp\MorphoMesh\.agents\worker_m2\handoff.md).
 
 MANDATORY INTEGRITY WARNING:
 DO NOT CHEAT. All implementations must be genuine. DO NOT hardcode test results, create dummy/facade implementations, or circumvent the intended task. A teamwork_preview_auditor will independently verify your work. Integrity violations WILL be detected and your work WILL be rejected.
 
-File Ownership:
-You exclusively own and may edit the following files:
-- `src/morphomesh/visual_critic.py` (New module)
-- `src/morphomesh/models.py`
-- `src/morphomesh/blender_bridge.py`
-- `blender_addon/morphomesh/listener.py`
-- `tests/test_visual_critic.py` (New test suite)
-You MUST NOT edit any other implementation files.
+Your Tasks:
+1. Normalize and post-process all genuine Meshy models via post_processor.process_and_export():
+   - Ground pivot snapping strictly at Z_min = 0.000m +- 0.005m.
+   - Base contact centroid centered at (X=0, Y=0).
+   - Uniform scale to real-world botanical metric height (+-10%).
+   - Embed full 4-channel PBR textures (Albedo, Normal, Roughness, Metallic) with double-sided foliage rendering and N_bones = 0.
+   - Export production <species_id>.glb and companion OBJ/MTL.
+2. Re-render 4-angle turntable previews (turntable_01.png - 04.png) and contact sheets (thumbnail.png) using Headless Blender 4.5.
+3. Update master output/manifest.json with genuine cloud provenance and accurate face/vertex counts.
+4. Synchronize interactive viewer.html so all cards display genuine AI-generated models and distinct renders.
+5. Run the full automated verification test suite: uv run pytest teamwork_projects/vegetation_library/tests/ -v. Confirm 100% tests pass.
 
-Reference Input Artifacts (Read these for exact blueprints before coding):
-- `e:\tool\mcp\MorphoMesh\.agents\explorer_m3_1\handoff.md` (Penetration BVH signed distance, hair curve audit, and PurePythonBVHTree spatial index)
-- `e:\tool\mcp\MorphoMesh\.agents\explorer_m3_2\handoff.md` (Anthropometric proportions, joint volume conservation, dihedral creasing, slice volume math)
-- `e:\tool\mcp\MorphoMesh\.agents\explorer_m3_3\handoff.md` (Pydantic v2 schemas, bridge/listener RPC, 4 procedural defect injection fixtures, test plan)
-
-Milestone 3 Tasks:
-1. `src/morphomesh/models.py`:
-   - Add Pydantic v2 schemas: `DefectSeverity`, `DefectCategory`, `ActionableRecommendation`, `DefectItem`, `VisualCritiqueInput`, `VisualCritiqueOutput` with backward-compatible normalizers as blueprinted in explorer_m3_3/handoff.md.
-2. `src/morphomesh/visual_critic.py`:
-   - Implement `evaluate_mesh_penetration`: BVH signed distance $s_i = (w_i - p_i) \cdot \hat{n}_i < -0.5\text{mm}$, normal alignment filter, reverse penetration (skin burst), and triangle face overlap.
-   - Implement `evaluate_hair_grooming_intersections`: Submerged roots ($s < -1\text{mm}$), detached roots ($s > +4\text{mm}$), hair shaft penetration ($s_{\text{eff}} < -0.5\text{mm}$), clothing clipping.
-   - Implement `PurePythonBVHTree`: Self-contained offline AABB/BVH tree with exact point-to-triangle distance, ray-triangle intersection, and triangle overlap for 100% offline pytest execution without `mathutils.bvhtree`.
-   - Implement `evaluate_body_proportions`: Total height, head height ($H_{\text{total}}/H_{\text{head}}$ against `realistic_human`, `stylized_heroine`, `chibi_petite` presets), arm span to height ratio, shoulder-to-hip breadth ratio.
-   - Implement `evaluate_rig_skinning_deformation`: Volume conservation ($\rho_V = V_{\text{posed}} / V_{\text{rest}}$) and acute dihedral angle creasing ($\cos\theta < -0.85$).
-   - Implement `run_visual_critique(input_data: VisualCritiqueInput) -> VisualCritiqueOutput`.
-   - Implement procedural defect injection fixtures and clean baselines: garment penetration, proportion skew, joint skinning collapse, and hair root clipping with ground truth metrics demonstrating >95% accuracy.
-3. Hook into `src/morphomesh/blender_bridge.py` and `blender_addon/morphomesh/listener.py`:
-   - Add client method `critique_visual_quality()` in `blender_bridge.py`.
-   - Implement `morphomesh.critique_visual_quality` RPC handler in `listener.py` with native in-addon fallback.
-   - Sync `listener.py` to `%APPDATA%\Blender Foundation\Blender\4.5\scripts\addons\morphomesh\listener.py`.
-4. Create `tests/test_visual_critic.py`:
-   - Implement comprehensive unit and integration tests per explorer_m3_3 test plan covering all 4 defect categories, schema validation, bridge dispatch, and procedural defect injection fixtures.
-5. Verification:
-   - Run: `.venv\Scripts\pytest.exe -v tests/test_visual_critic.py`
-   - Run full regression: `.venv\Scripts\pytest.exe -v tests/test_inspector_camera.py tests/test_multiview_rendering.py tests/test_adversarial_camera_math.py tests/test_adversarial_viewport_capture.py tests/test_bridge_socket_parity.py tests/test_m1_adversarial_socket.py tests/test_adversarial_dispatch_m1_2.py tests/test_blender_bridge.py`
-   - Verify 100% pass rate.
-6. Reporting:
-   - Update progress in `e:\tool\mcp\MorphoMesh\.agents\worker_m3\progress.md`.
-   - Write comprehensive handoff report to `e:\tool\mcp\MorphoMesh\.agents\worker_m3\handoff.md`.
-   - Send completion message to parent orchestrator (`577aaa33-6b3f-4ebc-93eb-fcc632d94bc9`).
+Write your completion report to:
+E:\tool\mcp\MorphoMesh\.agents\worker_m3\handoff.md
+When finished, send a message to parent (conversation ID c89d3e85-2d1c-4b25-9e5b-bb4953ad2fc4).

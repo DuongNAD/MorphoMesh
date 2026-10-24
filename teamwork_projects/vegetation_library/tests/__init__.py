@@ -1,0 +1,3 @@
+"""
+Vegetation Library Test Suite.
+"""

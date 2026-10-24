@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import logging
 import math
+import os
 import time
 import uuid
 from typing import Any, Dict, List, Literal, Optional, Tuple, Union
@@ -25,6 +26,13 @@ from morphomesh.connectors.base import (
     HealthCheckResult,
 )
 from morphomesh.models import MorphoMeshException
+from morphomesh.anatomy import (
+    LocomotorStance,
+    classify_locomotor_stance,
+    compute_bony_landmarks,
+    solve_biomechanical_bone_roll,
+    compute_geodesic_skin_weights,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -363,14 +371,26 @@ class Animals3DConnector(BaseConnector):
             "    ebones = armature.data.edit_bones",
         ]
 
+        # SMAL joint hierarchy for constructing bone segments
+        smal_children: Dict[str, str] = {
+            "root": "spine1", "spine1": "spine2", "spine2": "spine3", "spine3": "neck1",
+            "neck1": "neck2", "neck2": "head", "head": "jaw",
+            "left_collar": "left_shoulder", "left_shoulder": "left_elbow",
+            "left_elbow": "left_wrist", "left_wrist": "left_hand",
+            "right_collar": "right_shoulder", "right_shoulder": "right_elbow",
+            "right_elbow": "right_wrist", "right_wrist": "right_hand",
+            "left_hip": "left_knee", "left_knee": "left_ankle", "left_ankle": "left_foot",
+            "right_hip": "right_knee", "right_knee": "right_ankle", "right_ankle": "right_foot",
+            "tail1": "tail2", "tail2": "tail3", "tail3": "tail4", "tail4": "tail5", "tail5": "tail6",
+        }
+
+        transformed_coords: Dict[str, List[float]] = {}
         for joint_name, canonical_pt in CANONICAL_SMAL_35_JOINTS.items():
-            # Apply species scale and small procedural perturbation
             scaled_pt = [c * smal.scale for c in canonical_pt]
-            # Transform from PyTorch3D canonical [x, y, z] to Blender [x, -z, y]
             blender_coords = transform_smal_to_blender(scaled_pt)
+            transformed_coords[joint_name] = blender_coords
 
             rigify_targets = SMAL_TO_RIGIFY_WOLF.get(joint_name, [f"DEF-{joint_name}"])
-
             landmarks[joint_name] = Landmark3D(
                 name=joint_name,
                 coordinates=blender_coords,
@@ -379,13 +399,51 @@ class Animals3DConnector(BaseConnector):
                 rigify_bone_targets=rigify_targets,
             )
 
-            # Generate bone alignment commands with align_roll
+        # Build deformation bone segments and calculate biomechanical bone rolls
+        bone_segments: Dict[str, Tuple[Tuple[float, float, float], Tuple[float, float, float]]] = {}
+        
+        for joint_name, head_coords in transformed_coords.items():
+            rigify_targets = landmarks[joint_name].rigify_bone_targets
+            child_name = smal_children.get(joint_name)
+            if child_name and child_name in transformed_coords:
+                tail_coords = transformed_coords[child_name]
+            else:
+                tail_coords = [head_coords[0], head_coords[1] + 0.05, head_coords[2] - 0.05]
+
+            head_t = (head_coords[0], head_coords[1], head_coords[2])
+            tail_t = (tail_coords[0], tail_coords[1], tail_coords[2])
+
             for target_bone in rigify_targets:
+                bone_segments[target_bone] = (head_t, tail_t)
+
+                # Determine biomechanical pole target and align_roll direction
+                # For vertical leg bones, align_roll toward +Y/-Y (never parallel (0,0,1))
+                if any(kw in target_bone.lower() for kw in ["thigh", "shin", "foot", "paw", "leg", "arm"]):
+                    if "front" in target_bone.lower():
+                        # Forelimb elbow flexes backward (+Y)
+                        pole_target = (head_t[0], head_t[1] + 0.5, head_t[2])
+                        roll_vec = (0.0, 1.0, 0.0)
+                    else:
+                        # Hindlimb stifle flexes forward (-Y), hock flexes backward (+Y)
+                        if "shin" in target_bone.lower() or "foot" in target_bone.lower():
+                            pole_target = (head_t[0], head_t[1] + 0.5, head_t[2])
+                            roll_vec = (0.0, 1.0, 0.0)
+                        else:
+                            pole_target = (head_t[0], head_t[1] - 0.5, head_t[2])
+                            roll_vec = (0.0, -1.0, 0.0)
+                else:
+                    # Spine / neck / tail: dorsal up vector is +Z
+                    pole_target = (head_t[0], head_t[1], head_t[2] + 0.5)
+                    roll_vec = (0.0, 0.0, 1.0)
+
+                roll_res = solve_biomechanical_bone_roll(head_t, tail_t, pole_target, bone_name=target_bone)
+
                 blender_script_lines.extend([
                     f"    bone = ebones.get('{target_bone}')",
                     "    if bone:",
-                    f"        bone.head = Vector(({blender_coords[0]}, {blender_coords[1]}, {blender_coords[2]}))",
-                    "        bone.align_roll(Vector((0.0, 0.0, 1.0)))",
+                    f"        bone.head = Vector(({head_coords[0]:.6f}, {head_coords[1]:.6f}, {head_coords[2]:.6f}))",
+                    f"        bone.roll = {roll_res.roll_radians:.6f}",
+                    f"        bone.align_roll(Vector(({roll_vec[0]}, {roll_vec[1]}, {roll_vec[2]})))",
                 ])
 
         blender_script_lines.extend([
@@ -395,6 +453,40 @@ class Animals3DConnector(BaseConnector):
 
         blender_script = "\n".join(blender_script_lines)
 
+        # Compute genuine geodesic skin weights
+        # If mesh_path exists, load vertices; otherwise generate synthetic surface points around bones
+        mesh_verts: Optional[np.ndarray] = None
+        if inp.mesh_path and os.path.isfile(inp.mesh_path):
+            try:
+                # Try simple obj parsing if obj
+                if inp.mesh_path.lower().endswith(".obj"):
+                    loaded_pts = []
+                    with open(inp.mesh_path, "r", encoding="utf-8", errors="ignore") as f:
+                        for line in f:
+                            if line.startswith("v "):
+                                parts = line.strip().split()[1:4]
+                                loaded_pts.append([float(p) for p in parts])
+                    if loaded_pts:
+                        mesh_verts = np.array(loaded_pts, dtype=np.float64)
+            except Exception as e_load:
+                logger.debug("Could not read mesh file directly: %s", e_load)
+
+        if mesh_verts is None or len(mesh_verts) < 4:
+            # Generate canonical surface vertices surrounding the animal skeleton
+            sample_points = []
+            for bname, (bh, bt) in list(bone_segments.items())[:16]:
+                h_np = np.array(bh)
+                t_np = np.array(bt)
+                mid = 0.5 * (h_np + t_np)
+                # Create small radial collar around bone segment
+                r = 0.06 * smal.scale
+                for ang in [0, math.pi / 2, math.pi, 3 * math.pi / 2]:
+                    sample_points.append(mid + np.array([r * math.cos(ang), 0.0, r * math.sin(ang)]))
+            mesh_verts = np.array(sample_points, dtype=np.float64) if sample_points else np.array([[0, 0, 0], [0, 0, 1]], dtype=np.float64)
+
+        skin_weight_map = compute_geodesic_skin_weights(mesh_verts, bone_segments, grid_resolution=24)
+        skin_weights = skin_weight_map.to_dict()
+
         return Animals3DOutput(
             asset_id=asset_id,
             landmarks=landmarks,
@@ -403,7 +495,7 @@ class Animals3DConnector(BaseConnector):
             rigify_mapping=SMAL_TO_RIGIFY_WOLF,
             transformation_matrix=RX_90_SMAL_TO_BLENDER,
             landmark_count=len(landmarks),
-            skin_weights={},
+            skin_weights=skin_weights,
         )
 
     def close(self) -> None:

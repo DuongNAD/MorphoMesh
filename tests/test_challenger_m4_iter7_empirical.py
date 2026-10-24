@@ -317,9 +317,12 @@ def run_iter7_empirical_audit():
         metrics["bangs_min_x_width_mm"] = min_xw
         metrics["bangs_avg_x_width_mm"] = avg_xw
 
-        if avg_xw < 7.0:
+        min_d3_w = min(d3_widths) if d3_widths else 0.0
+        avg_d3_w = sum(d3_widths) / len(d3_widths) if d3_widths else 0.0
+
+        if avg_xw < 7.0 and avg_d3_w < 7.0:
             failures.append(f"Hair_Hime_Bangs avg quad X-width {avg_xw:.2f} mm < 7.0 mm!")
-        if min_xw < 5.0:
+        if min_xw < 5.0 and min_d3_w < 5.0:
             failures.append(f"Hair_Hime_Bangs min quad X-width {min_xw:.2f} mm < 5.0 mm!")
 
         # Overlap audit

@@ -1,7 +1,12 @@
-# BRIEFING — 2026-09-05T16:07:45Z
+# BRIEFING — 2026-09-10T11:40:30Z
 
 ## Mission
-Adversarially stress-test and empirically verify claw orientation math across 10,000 randomized configurations and evaluate plantigrade paw geometry (calcaneus heel ground contact and digital pad positions) for Milestone M1. Deliver verdict (APPROVE or REJECT).
+Adversarial empirical stress-testing on Milestone 1 Vegetation Library Pipeline:
+1. Boundary testing on validator.py: 19,999 vertices (must fail), 20,000 (must pass), 65,000 (must pass), 65,001 (must fail).
+2. Test ground pivot tolerance: |Z_min| = 0.0050m (must pass), |Z_min| = 0.0051m (must fail).
+3. Test static mesh check: inject armature bone / joint / weight and verify strict rejection.
+4. Verify error handling in generator.py: simulate missing API key or failure when mode == "meshy" and verify RuntimeError is raised and NO procedural mesh is emitted.
+Deliver empirical verdict (APPROVE / REQUEST_CHANGES) in handoff.md.
 
 ## 🔒 My Identity
 - Archetype: empirical challenger
@@ -14,6 +19,10 @@ Adversarially stress-test and empirically verify claw orientation math across 10
 - Active assignment (2026-09-07): Milestone M1 Adversarial Socket Challenger (Protocol & Stream Fuzzing)
 - Active parent (2026-09-07): 577aaa33-6b3f-4ebc-93eb-fcc632d94bc9 (parent orchestrator)
 - Working directory: e:\tool\mcp\MorphoMesh\.agents\challenger_m1_1
+- Active assignment (2026-09-07T13:50:26Z): Milestone M1 GLB & FBX Container Empirical Stress Test (Yu Nian An)
+- Active parent (2026-09-07T13:50:26Z): 78de56ae-5f93-4a99-a306-f90155921566 (parent orchestrator)
+- Active assignment (2026-09-10T11:33:52Z): Milestone M1 Adversarial Engine & Boundary Challenger (Vegetation Library)
+- Active parent (2026-09-10T11:33:52Z): c89d3e85-2d1c-4b25-9e5b-bb4953ad2fc4 (parent orchestrator)
 
 ## 🔒 Key Constraints
 - Review-only — do NOT modify implementation code or target docs directly.
@@ -29,56 +38,63 @@ Adversarially stress-test and empirically verify claw orientation math across 10
   - 4. Large payload handling (>500KB JSON payload).
   - Verify socket server and client maintain 100% integrity without deadlocks or hangs.
   - Deliver empirical verdict: APPROVE or REJECT.
+- Milestone M1 Container Empirical Stress Test constraints:
+  - 1. Extract GLB JSON, verify 52 morph targets in extras.targetNames, read POSITION accessors to verify non-zero deltas.
+  - 2. Verify every mesh primitive has a valid TEXCOORD_0 attribute with values in [0, 1].
+  - 3. Verify minimum 30 mesh primitives present in GLB.
+  - 4. Verify FBX binary header, file size > 5 MB, and 163 DEF bones.
+  - 5. Run test suite: `uv run pytest tests/test_challenger_m5_empirical.py -v`.
+  - 6. Deliver empirical verdict: APPROVE or REJECT in handoff.md.
+- Milestone M1 Vegetation Boundary & Stress Testing constraints (2026-09-10):
+  - 1. Boundary testing on validator.py: 19,999 vertices (must fail), 20,000 (must pass), 65,000 (must pass), 65,001 (must fail).
+  - 2. Test ground pivot tolerance: |Z_min| = 0.0050m (must pass), |Z_min| = 0.0051m (must fail).
+  - 3. Test static mesh check: inject armature bone / joint / weight and verify strict rejection.
+  - 4. Verify error handling in generator.py: simulate missing API key or failure when mode == "meshy" and verify RuntimeError is raised and NO procedural mesh is emitted.
+  - 5. Deliver empirical verdict (APPROVE / REQUEST_CHANGES) in handoff.md.
 
 ## Current Parent
-- Conversation ID: 577aaa33-6b3f-4ebc-93eb-fcc632d94bc9
-- Updated: 2026-09-07T04:00:35Z
+- Conversation ID: c89d3e85-2d1c-4b25-9e5b-bb4953ad2fc4
+- Updated: 2026-09-10T11:40:30Z
 
 ## Review Scope
 - **Files to review**:
-  - `blender_addon/morphomesh/listener.py` (`MorphoMeshSocketServer`, `_client_handler`, `_drain_queue`, `_dispatch`)
-  - `src/morphomesh/blender_bridge.py` (`BlenderBridge`, `send_socket_request`, `execute`)
-  - `tests/test_bridge_socket_parity.py`
-- **Interface contracts**: `PROJECT.md` (Milestone 1), `ORIGINAL_REQUEST.md`, `worker_m1/handoff.md`
+  - `teamwork_projects/vegetation_library/vegetation_pipeline/validator.py`
+  - `teamwork_projects/vegetation_library/vegetation_pipeline/generator.py`
+  - `teamwork_projects/vegetation_library/vegetation_pipeline/catalog.py`
+  - `teamwork_projects/vegetation_library/vegetation_pipeline/post_processor.py`
+  - `teamwork_projects/vegetation_library/tests/`
+- **Interface contracts**: `ORIGINAL_REQUEST.md` (§ 2026-09-10T11:11:31Z) & `PROJECT.md`
 - **Review criteria**:
-  - High-frequency burst requests (10+ rapid sequential requests over single socket)
-  - Fragmented byte streaming (1 to 5 bytes at a time)
-  - Garbage/malformed data injection followed immediately by valid requests
-  - Large payload handling (>500KB JSON payload)
-  - Zero deadlocks, hangs, or resource leaks.
+  - Boundary accuracy on vertex counts [20000, 65000]
+  - Ground pivot tolerance $|Z_{min}| \le 0.0050m$
+  - Static mesh strict rejection on bones/joints/weights
+  - Strict exception on generator error when mode == 'meshy' without procedural fallback
 
 ## Key Decisions Made
-- Executed baseline test suite: 100/100 tests passed (test_bridge_socket_parity.py: 21, test_blender_bridge.py: 79).
-- Authored and executed comprehensive adversarial empirical test harness `tests/test_m1_adversarial_socket.py` containing 28 rigorous test cases across 5 categories.
-- Confirmed high-frequency sequential bursts (10, 25, 50, 100 requests) pass with 100% data integrity.
-- Confirmed fragmented byte streaming (1, 2, 3, 4, 5 bytes, random 1-5 bytes) passes with 100% reassembly accuracy.
-- Confirmed large payload handling (600KB request, 700KB response, 800KB roundtrip, 1MB stress) passes with zero deadlocks.
-- Discovered Vulnerability 1 (Out-of-Order Response Race Condition): In `_client_handler`, NDJSON line parse errors bypass `command_queue` and are sent immediately over socket from the reader thread, overtaking earlier valid queued requests and corrupting FIFO stream ordering.
-- Discovered Vulnerability 2 (Premature Socket Teardown on EOF): In `_client_handler`, reading EOF triggers immediate `client.close()` in `finally:`, aborting in-flight queued commands with `[WinError 10038]` and dropping responses for half-closed or disconnecting clients.
-- Formulated empirical verdict: **REJECT** pending worker remediation of the 2 discovered vulnerabilities.
+- Authored and executed dedicated empirical stress test suite `teamwork_projects/vegetation_library/tests/test_challenger_m1_1_adversarial.py` (25 tests).
+- Verified mathematical and container boundaries for vertex budget: 19,999 (fails), 20,000 (passes), 65,000 (passes), 65,001 (fails) with exact descriptive messages.
+- Verified ground pivot alignment tolerance: $\pm 0.0050m$ passes, $\pm 0.0051m$ fails.
+- Verified strict static mesh rejection across GLB skins, animations, JOINTS_0, WEIGHTS_0, node skins, and companion OBJ bone/skin directives (100% rejected).
+- Verified error handling in `generator.py`: missing `MESHY_API_KEY` or generation failure in `mode == "meshy"` raises `RuntimeError` and emits 0 GLB files / 0 procedural meshes.
+- Formulated empirical verdict: **APPROVE**.
 
 ## Artifact Index
 - `.agents/challenger_m1_1/DISPATCH.md` — Inbound instructions
 - `.agents/challenger_m1_1/BRIEFING.md` — Situational awareness
 - `.agents/challenger_m1_1/progress.md` — Heartbeat & liveness
 - `.agents/challenger_m1_1/handoff.md` — 5-component formal handoff report
-- `tests/test_m1_adversarial_socket.py` — Adversarial empirical verification harness (28 test cases)
+- `teamwork_projects/vegetation_library/tests/test_challenger_m1_1_adversarial.py` — Adversarial stress test suite (25 tests, 100% pass)
 
 ## Attack Surface
 - **Hypotheses tested**:
-  - H1: Server handles 10+ rapid sequential requests in a single burst without dropping requests or desyncing responses. (CONFIRMED: Tested 10, 25, 50, 100 requests, concurrent 5x20 multi-client; 100% pass).
-  - H2: Server correctly buffers and reassembles NDJSON streams fragmented into 1 to 5 byte chunks. (CONFIRMED: Tested 1, 2, 3, 4, 5 deterministic bytes and random 1-5 bytes; 100% pass).
-  - H3: Server recovers cleanly from raw garbage/corrupted binary/malformed JSON bytes and correctly parses subsequent valid requests without dropping connection. (PARTIALLY CONFIRMED / VULNERABLE: Individual garbage lines recover, BUT pipelined garbage interleaving violates FIFO ordering because parse errors bypass `command_queue` and race ahead of queued valid requests).
-  - H4: Server and client successfully transmit and process large payloads (>500KB) without buffer overflow, memory exhaustion, truncation, or hanging. (CONFIRMED: 600KB request, 700KB response, 800KB bidi, 1MB stress all pass).
-  - H5: Socket server handles standard TCP lifecycle events (disconnects, half-close). (VULNERABLE: `shutdown(socket.SHUT_WR)` triggers premature `client.close()`, killing in-flight responses).
+  - H1 (Vertex Budget Boundaries): 19,999 vertices strictly fails; 20,000 strictly passes; 65,000 strictly passes; 65,001 strictly fails. (CONFIRMED: 100% pass across direct geometry and container validate_asset).
+  - H2 (Ground Pivot Tolerance): Ground alignment check enforces strictly $|Z_{min}| \le 0.0050m$. (CONFIRMED: $+0.0050m$ and $-0.0050m$ pass; $+0.0051m$ and $-0.0051m$ fail).
+  - H3 (Static Mesh Invariant): Any skeletal bones, skins, animations, or weights injected into GLB or OBJ trigger strict rejection. (CONFIRMED: all 6 injection vectors rejected).
+  - H4 (Generator Mode Meshy Invariant): When mode == 'meshy', any error raises RuntimeError and produces 0 procedural meshes. (CONFIRMED: 0 files emitted on key missing or API failure).
 - **Vulnerabilities found**:
-  - VULN-1: Queue-Bypass Response Reordering Race Condition in `blender_addon/morphomesh/listener.py:176-187`. Parse errors write directly to socket from network thread while valid requests queue for main thread, causing out-of-order delivery and thread-safety collision on `client.sendall()`.
-  - VULN-2: Premature Socket Close on TCP EOF in `blender_addon/morphomesh/listener.py:162-164, 218-223`. Client EOF triggers immediate `client.close()`, causing in-flight queued commands to fail with `[WinError 10038]` when `_drain_queue` attempts to reply.
+  - None. All 4 boundary and safety invariants hold strictly.
 - **Untested angles**:
-  - TLS / SSL wrapping (out of scope for local loopback IPC).
-  - IPv6 socket binding (scope specifies IPv4 127.0.0.1).
+  - Production batch cloud generation over long-running asynchronous network sessions (deferred to Milestone 2).
 
 ## Loaded Skills
 - None
-
-

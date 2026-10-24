@@ -1,0 +1,113 @@
+{
+  "schema_version": "1.0.0",
+  "species_id": "veg_succulent_agave_01",
+  "taxonomy": {
+    "common_name": "Century Plant",
+    "scientific_name": "Agave americana",
+    "family": "Asparagaceae",
+    "category": "succulents_cacti",
+    "category_id": "succulents_cacti",
+    "category_name": "Succulents & Cacti",
+    "short_category": "succulents",
+    "biome": "Arid / Semiarid Scrubland & Slopes",
+    "growth_habit": "Massive monumental spreading succulent rosette",
+    "branching_pattern": "Basal spiral of huge rigid arching sword-like fleshy leaves radiating outward",
+    "foliage_density": "dense"
+  },
+  "geometry": {
+    "vertex_count": 3336,
+    "face_count": 3932,
+    "triangle_count": 3932,
+    "has_armature": false,
+    "has_skins": false,
+    "pivot_grounded": true,
+    "ground_contact_z": 0.0,
+    "ground_z_min_m": 0.0,
+    "base_centroid_xy": [
+      0.0,
+      0.0
+    ],
+    "bounding_box": {
+      "min_point": [
+        -1.1822,
+        -0.4568,
+        0.0
+      ],
+      "max_point": [
+        1.1763,
+        0.4568,
+        2.2
+      ],
+      "dimensions": [
+        2.3586,
+        0.9137,
+        2.2
+      ]
+    },
+    "dimensions_m": {
+      "height_m": 2.2,
+      "canopy_spread_m": 2.3586,
+      "width_m": 2.3586,
+      "depth_m": 0.9137,
+      "target_height_m": 2.2,
+      "target_canopy_spread_m": 3.0
+    }
+  },
+  "normalization": {
+    "target_height_m": 2.2,
+    "target_canopy_spread_m": 3.0,
+    "scale_factor": 1.052632,
+    "normalized_height_m": 2.2,
+    "normalized_canopy_spread_m": 2.3586,
+    "strategy": "uniform_height"
+  },
+  "materials": {
+    "workflow": "Metallic-Roughness PBR",
+    "double_sided": true,
+    "channels": [
+      "albedo",
+      "normal",
+      "roughness",
+      "metallic"
+    ],
+    "texture_format": "PNG"
+  },
+  "files": {
+    "glb": "veg_succulent_agave_01.glb",
+    "obj": "veg_succulent_agave_01.obj",
+    "mtl": "veg_succulent_agave_01.mtl",
+    "textures": {
+      "albedo": "textures/albedo.png",
+      "normal": "textures/normal.png",
+      "roughness": "textures/roughness.png",
+      "metallic": "textures/metallic.png"
+    }
+  },
+  "provenance": {
+    "source": "procedural",
+    "export_timestamp": "2026-09-10T07:29:08.832659+00:00",
+    "generator_metadata": {
+      "species_id": "veg_succulent_agave_01",
+      "category_id": "succulents_cacti",
+      "source": "procedural",
+      "seed": 92699136,
+      "vertex_count": 3336,
+      "face_count": 3932,
+      "quad_count": 1966,
+      "tri_count": 0,
+      "quad_ratio": 1.0
+    }
+  },
+  "metadata": {
+    "scale_factor": 1.0526315789473686,
+    "species_id": "veg_succulent_agave_01",
+    "category_id": "succulents_cacti",
+    "source": "procedural",
+    "seed": 92699136,
+    "vertex_count": 3336,
+    "face_count": 3932,
+    "quad_count": 1966,
+    "tri_count": 0,
+    "quad_ratio": 1.0
+  }
+}

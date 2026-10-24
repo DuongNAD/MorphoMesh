@@ -1,0 +1,13 @@
+{
+  "species_id": "veg_conifer_redcedar_01",
+  "source": "procedural",
+  "seed": 42,
+  "vertex_count": 5024,
+  "face_count": 4850,
+  "textures": {
+    "albedo": "textures/albedo.png",
+    "normal": "textures/normal.png",
+    "roughness": "textures/roughness.png",
+    "metallic": "textures/metallic.png"
+  }
+}

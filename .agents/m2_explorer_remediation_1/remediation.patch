@@ -1,0 +1,20 @@
+--- a/anime_pipeline/rigging/__init__.py
++++ b/anime_pipeline/rigging/__init__.py
+@@ -196,6 +196,16 @@
+-    # Attach DQS modifier to all submeshes and parent to armature
+-    dqs_count = dqs.configure_all_submeshes_dqs(list(submesh_objs.values()), arm_obj)
+-    for obj in submesh_objs.values():
+-        obj.parent = arm_obj
++    # Synchronize sub-mesh object transforms with Armature coordinate system
++    inv_world = arm_obj.matrix_world.inverted()
++    for obj in submesh_objs.values():
++        obj.rotation_euler = (0.0, 0.0, 0.0)
++        bpy.ops.object.select_all(action='DESELECT')
++        obj.select_set(True)
++        bpy.context.view_layer.objects.active = obj
++        bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
++        obj.parent = arm_obj
++        obj.matrix_parent_inverse = inv_world
++
++    # Attach DQS modifier to all submeshes
++    dqs_count = dqs.configure_all_submeshes_dqs(list(submesh_objs.values()), arm_obj)

@@ -1,0 +1,14 @@
+{
+  "species_id": "veg_conifer_cedar_01",
+  "preview_task_id": "01a08b34-0bf3-76c3-8140-4e5827533103",
+  "refine_task_id": "01a08b37-7a20-7555-9d1c-d42f5aed3531",
+  "vertex_count": 77348,
+  "face_count": 61238,
+  "source": "meshy",
+  "textures": {
+    "albedo": "textures/albedo.png",
+    "normal": "textures/normal.png",
+    "roughness": "textures/roughness.png",
+    "metallic": "textures/metallic.png"
+  }
+}

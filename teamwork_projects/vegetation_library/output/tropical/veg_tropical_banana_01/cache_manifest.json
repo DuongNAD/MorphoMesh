@@ -1,0 +1,14 @@
+{
+  "species_id": "veg_tropical_banana_01",
+  "preview_task_id": "01a08b24-e7ca-754a-b7d5-694d9f20201e",
+  "refine_task_id": "01a08b27-6553-70a5-a515-63a1c64b6691",
+  "vertex_count": 49189,
+  "face_count": 55728,
+  "source": "meshy",
+  "textures": {
+    "albedo": "textures/albedo.png",
+    "normal": "textures/normal.png",
+    "roughness": "textures/roughness.png",
+    "metallic": "textures/metallic.png"
+  }
+}

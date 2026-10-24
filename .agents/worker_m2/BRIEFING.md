@@ -1,101 +1,79 @@
-# BRIEFING — 2026-09-07T04:40:00Z
+# BRIEFING — 2026-09-10T11:42:09Z
 
 ## Mission
-Implement `src/morphomesh/camera_rig.py`, integrate with `blender_addon/morphomesh/listener.py` and `src/morphomesh/blender_bridge.py`, add Pydantic models to `src/morphomesh/models.py`, and build comprehensive automated test suites `tests/test_inspector_camera.py` and `tests/test_multiview_rendering.py` with 100% pytest pass rate.
+Execute Milestone 2: Meshy Cloud Batch Generation & Divergence for the Vegetation Library Rebuild. Inspect Meshy account, generate missing species via Meshy API, download refined GLBs & PBR textures, record provenance, and verify < 5% pairwise vertex count collision rate.
 
 ## 🔒 My Identity
-- Archetype: teamwork_preview_worker (Worker M2)
+- Archetype: worker
 - Roles: implementer, qa, specialist
-- Working directory: /Users/duongnad/Documents/tool/MorphoMesh/.agents/worker_m2
-- Original parent: 504d045c-25c5-48a2-a65a-2a5b368eafa7
-- Milestone: M2 (Volumetric Fur & Grooming Engine)
-- Milestone M2 (Multi-Angle Inspector Camera & Fast Viewport Capture):
-  - Archetype: teamwork_preview_worker (Worker M2)
-  - Roles: implementer, qa, specialist
-  - Working directory: e:\tool\mcp\MorphoMesh\.agents\worker_m2
-  - Original parent: 577aaa33-6b3f-4ebc-93eb-fcc632d94bc9
-  - Milestone: M2 (Multi-Angle Inspector Camera & Fast Viewport Capture)
+- Working directory: E:\tool\mcp\MorphoMesh\.agents\worker_m2
+- Original parent: c2422918-70a3-47d9-a8f9-883422a33af0
+- Milestone: M2
+- Current Archetype: worker
+- Current Roles: implementer, qa, specialist
+- Active Mission: Milestone 2 — Meshy Cloud Batch Generation & Divergence for Vegetation Library Rebuild
+- Parent: c89d3e85-2d1c-4b25-9e5b-bb4953ad2fc4
 
 ## 🔒 Key Constraints
-- Authoritative user request: ORIGINAL_REQUEST.md (§ 2026-09-05T15:44:52Z & § 2026-09-05T15:47:35Z)
-- Exclusive write ownership:
-  - `src/morphomesh/grooming.py`
-  - `src/morphomesh/blender_bridge.py`
-  - `tests/test_grooming.py`
-- Mandatory integrity: Genuine implementation, no hardcoding, genuine Blender 5.2.1 LTS hair curves/particle systems and ribbon mesh generators.
-- Follow .agents/ convention: only metadata in .agents/worker_m2/
-- Update progress.md and handoff.md; send message to parent upon completion
-- Milestone M2 Constraints:
-  - Authoritative user request: ORIGINAL_REQUEST.md (§ 2026-09-07T03:34:32Z)
-  - Project scope: PROJECT.md (Milestone 2)
-  - Exclusive write ownership:
-    - `src/morphomesh/camera_rig.py` (New module)
-    - `src/morphomesh/models.py`
-    - `src/morphomesh/blender_bridge.py`
-    - `blender_addon/morphomesh/listener.py`
-    - `tests/test_inspector_camera.py` (New test suite)
-    - `tests/test_multiview_rendering.py` (New test suite)
-  - Mandatory integrity: Genuine implementation, no hardcoding, genuine camera math, optical framing, dual-mode capture.
+- Exclusively own and edit: src/morphomesh/wardrobe.py and test files (tests/test_wardrobe.py or tests/test_wardrobe_m2.py).
+- DO NOT modify any other files in src/.
+- Maintain backwards-compatible function signatures for existing wardrobe functions.
+- Multi-harmonic cloth folds blueprint from Explorer M2.1: n=6, 8, 12, superlinear amplitude growth, anterior thigh flattening, scalloped hemline ~14mm sag, UV seam wrap continuity.
+- Bodice blueprint from Explorer M2.2: teardrop bust, medial cleavage indent, sweetheart scoop neckline (Z=1.185m to 1.255m), conforming spaghetti straps (+1.8mm clearance), zero skin penetration across bust scaling.
+- Conforming outer sash blueprint from Explorer M2.3: strict +2.5mm envelope clearance (r_sash = r_bodice + 0.0045m including fabric thickness), 3D volumetric bow knot (barrel cuff knot, folded loops, cascading ribbon streamers).
+- Rigify DEF skinning vertex groups normalized on all wardrobe meshes.
+- All tests passing 100%. Genuine implementation only (no dummy/facade/hardcoding).
+- Milestone 2 Vegetation Library Rebuild constraints:
+  - 100% Genuine Meshy AI Cloud Generation: Call live Meshy AI Text-to-3D OpenAPI v2 (/openapi/v2/text-to-3d) using MESHY_API_KEY from .env.
+  - Query existing completed tasks first (GET /openapi/v2/text-to-3d) to reuse previously generated matching tasks.
+  - For remaining species, submit Stage 1 Preview and Stage 2 Refine tasks with robust exponential backoff. Strictly 0% procedural dummy fallback meshes.
+  - Download genuine Meshy refined GLBs (raw_meshy_model.glb) and 2K PBR texture maps into each species directory.
+  - Record genuine cloud task provenance (task_id, model_type, refine_status, remote URLs) in each asset's asset_manifest.json.
+  - Ensure pairwise vertex count collision rate across distinct species is < 5%.
 
 ## Current Parent
-- Conversation ID: 577aaa33-6b3f-4ebc-93eb-fcc632d94bc9
-- Updated: 2026-09-07T04:40:00Z
+- Conversation ID: c89d3e85-2d1c-4b25-9e5b-bb4953ad2fc4
+- Updated: 2026-09-10T11:42:09Z
 
 ## Task Summary
-- **What to build**:
-  1. `src/morphomesh/camera_rig.py`:
-     - Calculate world-space AABB across multi-mesh character hierarchies using evaluated depsgraph.
-     - Calculate optical framing distance $d = \frac{R}{\sin(\alpha_{\min})} \cdot (1 + \mu)$ where $\alpha_{\min} = \frac{1}{2}\min(\text{FOV}_h, \text{FOV}_v)$ and margin $\mu \approx 0.15$.
-     - 5 anatomical sub-region centers (Full Body, Head, Torso, Hands, Feet) and canonical viewpoints (front, side, back, three_quarter, close_up_head, close_up_hands, turntable_4views).
-     - Track target center via `to_track_quat('-Z', 'Y')`.
-     - Fast viewport grab: `bpy.ops.render.opengl(write_still=True)` with `temp_override` on `VIEW_3D`, diagnostic shading modes (`SOLID` + `color_type='RANDOM'`, flat, wireframe, material).
-     - Headless CLI fallback: `scene.render.engine = 'BLENDER_WORKBENCH'` via `bpy.ops.render.render(write_still=True)`.
-     - Multi-angle batch capture method `capture_multi_angle_inspection()`.
-     - Pure-Python mathematical shims allowing offline test execution.
-  2. `src/morphomesh/models.py`:
-     - Pydantic v2 schemas for inspector camera setup, viewport capture, and multi-angle inspection.
-  3. `blender_addon/morphomesh/listener.py` & `src/morphomesh/blender_bridge.py`:
-     - Ensure clean invocation of `camera_rig.py`.
-     - Fix render engine enum reflection in `listener.py` to eliminate `TypeError` with `BLENDER_EEVEE_NEXT`.
-     - Add client methods `capture_multi_angle_inspection` and headless script generation.
-  4. Test suites:
-     - `tests/test_inspector_camera.py` per explorer_m2_3 blueprint.
-     - `tests/test_multiview_rendering.py` per explorer_m2_3 blueprint.
-- **Success criteria**: 100% pytest pass rate across all suites.
-- **Interface contracts**: PROJECT.md § Milestone 2 Interface Contracts
+- **What to build**: Meshy Cloud Batch Generation & Divergence for 35 species in the Vegetation Library Rebuild.
+- **Success criteria**:
+  - Live Meshy API inspection and execution.
+  - All species have genuine refined Meshy GLBs (`raw_meshy_model.glb`), PBR textures, and provenance in `asset_manifest.json`.
+  - Zero procedural fallback meshes.
+  - Pairwise vertex count collision rate < 5%.
+- **Interface contracts**: PROJECT.md & vegetation_pipeline interfaces.
+- **Code layout**: E:\tool\mcp\MorphoMesh\teamwork_projects\vegetation_library
 
 ## Key Decisions Made
-- Optical framing uses exact spherical tangency $\sin(\alpha_{\min})$ rather than planar $\tan(\alpha_{\min})$ to prevent frustum penetration on wide-angle lenses.
-- Camera tracking quaternion uses `-Z` optical axis tracking with `+Y` camera up vector.
-- Dual-mode capture: interactive OpenGL grab with context override (`window`, `area`, `region`) and headless Workbench render fallback.
-- Shading modes: `SOLID` with `RANDOM` color type to distinguish individual meshes and diagnose penetration/clipping.
-- Pure-Python fallback vector/quaternion math shims enable tests to execute in standard virtualenvs without Blender or C-extensions.
+- Discovered and connected directly to Meshy OpenAPI v2 (/openapi/v2/text-to-3d) with live MESHY_API_KEY.
+- Inspected existing account tasks and mapped English Oak task (01a089f7-2837-7074-af0e-89c25070c634).
+- Designed and launched continuous queue runner with concurrency limit = 4, handling two-stage preview -> refine progression with exponential backoff on HTTP 429/5xx.
+- Downloaded genuine Meshy refined GLBs (raw_meshy_model.glb) and 2K PBR textures (albedo, normal, roughness, metallic) for completed species.
+- Prioritized distinctive botanical species (Fan Palm, Monstera, Banana, Scots Pine, Tree Fern, Bird of Paradise, Saguaro).
+- Verified 0.00% pairwise vertex count collision rate across downloaded genuine Meshy models.
 
 ## Artifact Index
-- `src/morphomesh/camera_rig.py` — Camera positioning, framing math, viewport capture
-- `src/morphomesh/models.py` — Pydantic v2 schemas
-- `src/morphomesh/blender_bridge.py` — Bridge client methods
-- `blender_addon/morphomesh/listener.py` — In-Blender socket listener
-- `tests/test_inspector_camera.py` — Inspector camera math test suite
-- `tests/test_multiview_rendering.py` — Viewport capture test suite
-- `.agents/worker_m2/progress.md` — Progress tracker and heartbeat
-- `.agents/worker_m2/handoff.md` — 5-component handoff report
+- E:\tool\mcp\MorphoMesh\.agents\worker_m2\DISPATCH.md — Assignment instructions
+- E:\tool\mcp\MorphoMesh\.agents\worker_m2\BRIEFING.md — Situational awareness
+- E:\tool\mcp\MorphoMesh\.agents\worker_m2\progress.md — Liveness heartbeat
+- E:\tool\mcp\MorphoMesh\.agents\worker_m2\handoff.md — 5-component handoff report
+- E:\tool\mcp\MorphoMesh\teamwork_projects\vegetation_library\batch_orchestrator.py — Batch manager & divergence verifier
+- E:\tool\mcp\MorphoMesh\teamwork_projects\vegetation_library\run_continuous.py — Autonomous cloud runner
 
 ## Change Tracker
 - **Files modified**:
-  - `src/morphomesh/camera_rig.py`: Core module for AABB, framing distance, anatomical centering, viewpoints, OpenGL grab, headless Workbench fallback, and pure-Python math shims.
-  - `src/morphomesh/models.py`: Added Pydantic v2 schemas (`InspectorViewpoint`, `DiagnosticShadingMode`, `DiagnosticColorType`, `BoundingBox3D`, `SetupInspectorCameraInput`, `SetupInspectorCameraOutput`, `CaptureViewportInput`, `CaptureViewportOutput`, `MultiAngleCaptureFrame`, `CaptureMultiAngleInspectionInput`, `CaptureMultiAngleInspectionOutput`).
-  - `src/morphomesh/blender_bridge.py`: Added client method `capture_multi_angle_inspection()`, updated `setup_inspector_camera()`, added headless script generators.
-  - `blender_addon/morphomesh/listener.py`: Dynamically reflected render engine enums fixing `BLENDER_EEVEE_NEXT` TypeError, routed inspector and capture commands to `camera_rig.py`.
-  - `tests/test_inspector_camera.py`: 37 unit tests for camera framing, AABB, viewpoints, orbits, and mock Blender scenes.
-  - `tests/test_multiview_rendering.py`: 24 integration tests for OpenGL grab, Workbench fallback, diagnostic shading, and multi-angle capture.
-- **Build status**: 213 tests passed in 25.82s (100% pass rate)
-- **Pending issues**: None
+  - `vegetation_pipeline/validator.py`: enhanced task_id extraction to accept `prov.get('task_id')`.
+  - `teamwork_projects/vegetation_library/batch_orchestrator.py`: master batch orchestrator and divergence analyzer.
+  - `teamwork_projects/vegetation_library/run_continuous.py`: continuous background generation runner.
+- **Build status**: 311/311 tests passing. Collision test passing with 0.00% collision rate.
+- **Pending issues**: 25/35 botanical species completed and verified. Remaining 10 species blocked by live Meshy API HTTP 402 ("Insufficient funds").
 
 ## Quality Status
-- **Build/test result**: 213 passed, 0 failures, 0 errors
-- **Lint status**: Clean
-- **Tests added/modified**: 61 new tests (`test_inspector_camera.py`: 37, `test_multiview_rendering.py`: 24)
+- **Build/test result**: 311 passed (all acceptance and unit tests)
+- **Collision rate**: 0.00% across 25 completed genuine Meshy assets (300 pairs, 0 collisions)
+- **Completed species**: English Oak, Scots Pine, Monstera, Windmill Palm, Wild Banana, Sugar Maple, Silver Birch, European Beech, Bird of Paradise, Weeping Willow, Tree Fern, Mediterranean Cypress, Saguaro Cactus, Norway Spruce, Western Redcedar, Atlas Cedar, English Rose, French Hydrangea, English Lavender, Common Lilac, White Azalea, Sword Fern, Pampas Grass, Cushion Moss, Meadow Fescue (25 total)
+- **Tests added/modified**: Validated via test_pairwise_vertex_count_collisions.
 
 ## Loaded Skills
 - None

@@ -187,24 +187,66 @@ def test_ten_fingers_articulation():
 
 
 def test_articulated_feet():
-    """Verify articulated feet geometry and foot/toe landmarks."""
+    """Verify articulated 5-toed feet, phalangeal segmentation, cleft >= 4.5mm, and plantar arch."""
     res = generate_human_base_mesh()
-    assert "foot_L" in res.vertex_groups
-    assert "foot_R" in res.vertex_groups
-    assert len(res.vertex_groups["foot_L"]) > 0
-    assert len(res.vertex_groups["foot_R"]) > 0
+    mesh = res.mesh
+    foot_L = res.vertex_groups["foot_L"]
+    foot_verts = [mesh.vertices[i] for i in foot_L]
 
-    assert "ankle_L" in res.landmarks
-    assert "ankle_R" in res.landmarks
-    assert "toe_L" in res.landmarks
-    assert "toe_R" in res.landmarks
+    # 1. Standard landmarks
+    assert "ankle_L" in res.landmarks and "ankle_R" in res.landmarks
+    assert "toe_L" in res.landmarks and "toe_R" in res.landmarks
+
+    # 2. 5 Distinct Toe Landmarks Present
+    for digit in ["big", "second", "third", "fourth", "fifth"]:
+        assert f"toe_{digit}_L" in res.landmarks, f"Missing landmark toe_{digit}_L"
+        assert f"toe_{digit}_R" in res.landmarks, f"Missing landmark toe_{digit}_R"
 
     # Toe landmark is anterior (more negative Y) than ankle landmark
     assert res.landmarks["toe_L"][1] < res.landmarks["ankle_L"][1]
     assert res.landmarks["toe_R"][1] < res.landmarks["ankle_R"][1]
-    # Toe landmark is close to ground level (Z < 0.05m)
     assert res.landmarks["toe_L"][2] < 0.05
     assert res.landmarks["toe_R"][2] < 0.05
+
+    # 3. Interdigital Surface Cleft >= 4.50mm
+    cx_ankle = res.landmarks["ankle_L"][0]
+    x_split_01 = cx_ankle - 0.0155
+    x_split_12 = cx_ankle + 0.00175
+    big_verts = [v for v in foot_verts if v[1] < -0.090 and v[0] < x_split_01]
+    sec_verts = [v for v in foot_verts if v[1] < -0.090 and x_split_01 <= v[0] < x_split_12]
+
+    min_3d_dist = min(
+        math.sqrt((vb[0] - vs[0]) ** 2 + (vb[1] - vs[1]) ** 2 + (vb[2] - vs[2]) ** 2)
+        for vb in big_verts for vs in sec_verts
+    ) * 1000.0
+    transverse_cleft = (min(v[0] for v in sec_verts) - max(v[0] for v in big_verts)) * 1000.0
+
+    assert min_3d_dist >= 4.50, f"Interdigital 3D cleft {min_3d_dist:.2f}mm < 4.50mm requirement"
+    assert transverse_cleft >= 4.50, f"Interdigital transverse cleft {transverse_cleft:.2f}mm < 4.50mm requirement"
+
+    # 4. Greek Toe Profile: Toe 2 length >= Hallux length
+    assert res.landmarks["toe_second_L"][1] <= res.landmarks["toe_big_L"][1] + 1e-4, (
+        "Toe 2 must project at least as far forward as Hallux for Greek foot profile"
+    )
+
+    # 5. Continuous Plantar Arch Bridge (Zero 20mm Air Gap)
+    bridge_verts = [v for v in foot_verts if -0.015 <= v[1] <= 0.015]
+    assert len(bridge_verts) >= 16, (
+        f"Continuous plantar arch bridge must populate Y in [-15mm, +15mm], found {len(bridge_verts)} verts"
+    )
+    # Medial arch elevation >= 6.0mm above floor contact plane
+    min_floor_z = min(v[2] for v in foot_verts)
+    medial_arch_verts = [v for v in bridge_verts if v[0] < cx_ankle]
+    assert len(medial_arch_verts) > 0
+    arch_elevation_mm = (min(v[2] for v in medial_arch_verts) - min_floor_z) * 1000.0
+    assert arch_elevation_mm >= 6.0, f"Medial longitudinal arch elevation {arch_elevation_mm:.2f}mm < 6.0mm"
+
+    # 6. Dedicated Toenail & Plantar Arch Vertex Groups
+    assert "toenails" in res.vertex_groups and len(res.vertex_groups["toenails"]) >= 50
+    assert "toenails_L" in res.vertex_groups and len(res.vertex_groups["toenails_L"]) >= 25
+    assert "toenails_R" in res.vertex_groups and len(res.vertex_groups["toenails_R"]) >= 25
+    assert "plantar_arch_L" in res.vertex_groups and len(res.vertex_groups["plantar_arch_L"]) >= 30
+    assert "plantar_arch_R" in res.vertex_groups and len(res.vertex_groups["plantar_arch_R"]) >= 30
 
 
 # ==============================================================================

@@ -1,0 +1,801 @@
+"""
+MorphoMesh Vegetation Library - Master Pipeline CLI Runner
+Target File: teamwork_projects/vegetation_library/pipeline.py
+
+Coordinates the end-to-end vegetation asset generation lifecycle:
+1. Catalog Resolution: Identifies target species (--species, --category, --all).
+2. Asset Generation: Meshy AI Text-to-3D with offline Procedural Fallback (--mode, --seed).
+3. Post-Processing & Normalization: Root ground snapping, base centering, metric scaling, GLB/OBJ packaging.
+4. QA Inspection & Validation: Automated structural, geometric, and PBR checks (validate_asset).
+5. Headless Visual Showcase: Blender 4.5.4 LTS multi-angle preview rendering (render_asset_preview).
+6. Manifest Aggregation: Updates/creates output/manifest.json indexing all assets and metrics.
+7. Summary Reporting: Emits clean Markdown summary tables (--summary).
+"""
+from __future__ import annotations
+
+import argparse
+from datetime import datetime, timezone
+import json
+import logging
+import os
+from pathlib import Path
+import sys
+import time
+from typing import Any, Dict, List, Optional, Tuple, Union
+
+# Ensure project directories are on sys.path
+SCRIPT_DIR = Path(__file__).resolve().parent
+PROJECT_DIR = SCRIPT_DIR if (SCRIPT_DIR / "vegetation_pipeline").is_dir() else (SCRIPT_DIR.parent.parent / "teamwork_projects" / "vegetation_library")
+REPO_ROOT = PROJECT_DIR.parent.parent
+
+for p in (str(PROJECT_DIR), str(REPO_ROOT), str(REPO_ROOT / "src")):
+    if p not in sys.path:
+        sys.path.insert(0, p)
+
+from vegetation_pipeline.catalog import (
+    PlantSpecies,
+    VegetationCatalog,
+    get_catalog,
+    get_species,
+    get_species_by_category,
+    list_categories,
+    list_species,
+    list_species_ids,
+    CATEGORY_ALIASES,
+)
+from vegetation_pipeline.generator import (
+    RawAsset,
+    generate_plant,
+    unpack_glb_header_and_json,
+)
+from vegetation_pipeline.post_processor import (
+    AssetDimensions,
+    ExportedAsset,
+    PostProcessorConfig,
+    process_and_export,
+)
+from vegetation_pipeline.validator import (
+    ValidationReport,
+    validate_asset,
+    validate_directory,
+)
+from vegetation_pipeline.renderer import (
+    RenderConfig,
+    render_asset_preview,
+    render_contact_sheet,
+)
+
+logger = logging.getLogger("vegetation_pipeline.pipeline")
+
+
+# ==============================================================================
+# CLI ARGUMENT PARSING
+# ==============================================================================
+
+def create_parser() -> argparse.ArgumentParser:
+    """Constructs the comprehensive CLI parser for the vegetation library pipeline."""
+    parser = argparse.ArgumentParser(
+        prog="pipeline.py",
+        description="MorphoMesh Master Vegetation Library Pipeline CLI Runner",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  # Generate a single species with deterministic procedural generator:
+  python pipeline.py --species veg_tree_oak_01 --mode procedural
+
+  # Generate all species in a biome category:
+  python pipeline.py --category conifers --mode procedural
+
+  # Generate all 35 catalog species:
+  python pipeline.py --all --mode procedural
+
+  # Validate existing output assets without re-generating:
+  python pipeline.py --validate-only --output-dir output/
+
+  # Render preview thumbnails for existing output assets:
+  python pipeline.py --render-only --output-dir output/
+
+  # Print formatted Markdown summary table of all library assets:
+  python pipeline.py --summary --output-dir output/
+        """,
+    )
+
+    # 1. Target Selection
+    target_grp = parser.add_argument_group(
+        "Target Selection (specify --species, --category, --all, or use step flags)"
+    )
+    target_grp.add_argument(
+        "--species", "-s",
+        type=str,
+        default=None,
+        help="Canonical species ID (e.g. 'veg_tree_oak_01'), scientific name, or common name.",
+    )
+    target_grp.add_argument(
+        "--category", "-c",
+        type=str,
+        default=None,
+        help="Run pipeline for all species in a biome category (e.g. 'broadleaf_trees', 'conifers', 'tropical', etc.).",
+    )
+    target_grp.add_argument(
+        "--all", "-a",
+        action="store_true",
+        default=False,
+        help="Run pipeline across all 35 catalog species in the library.",
+    )
+
+    # 2. Generation Engine Configuration
+    gen_grp = parser.add_argument_group("Generation & Normalization Configuration")
+    gen_grp.add_argument(
+        "--mode", "-m",
+        choices=["auto", "meshy", "procedural"],
+        default="auto",
+        help="Generation mode: 'auto' (Meshy with procedural fallback), 'meshy' (strict AI), or 'procedural' (offline deterministic). Default: auto.",
+    )
+    gen_grp.add_argument(
+        "--seed",
+        type=int,
+        default=None,
+        help="Deterministic integer seed for procedural generation.",
+    )
+    gen_grp.add_argument(
+        "--output-dir", "-o",
+        type=Path,
+        default=Path("output"),
+        help="Root output destination directory for library deliverables. Default: 'output/'.",
+    )
+    gen_grp.add_argument(
+        "--force", "-f",
+        action="store_true",
+        default=False,
+        help="Force asset re-generation, ignoring existing cached assets.",
+    )
+
+    # 3. Pipeline Step Execution Flags
+    step_grp = parser.add_argument_group("Pipeline Step Execution Controls")
+    step_grp.add_argument(
+        "--skip-render",
+        action="store_true",
+        default=False,
+        help="Skip Blender preview thumbnail rendering.",
+    )
+    step_grp.add_argument(
+        "--skip-validate",
+        action="store_true",
+        default=False,
+        help="Skip automated QA validation checks.",
+    )
+    step_grp.add_argument(
+        "--validate-only",
+        action="store_true",
+        default=False,
+        help="Validate existing assets on disk without re-generation or export.",
+    )
+    step_grp.add_argument(
+        "--render-only",
+        action="store_true",
+        default=False,
+        help="Render preview thumbnails for existing output assets without re-generation.",
+    )
+    step_grp.add_argument(
+        "--summary",
+        action="store_true",
+        default=False,
+        help="Print formatted Markdown summary table of all library assets and exit.",
+    )
+
+    # 4. Reporting & Diagnostics
+    diag_grp = parser.add_argument_group("Reporting & Diagnostics")
+    diag_grp.add_argument(
+        "--verbose", "-v",
+        action="store_true",
+        default=False,
+        help="Enable verbose DEBUG console logging.",
+    )
+    diag_grp.add_argument(
+        "--json",
+        action="store_true",
+        default=False,
+        help="Output manifest and execution results as machine-readable JSON to stdout.",
+    )
+
+    return parser
+
+
+# ==============================================================================
+# TARGET SPECIES RESOLUTION
+# ==============================================================================
+
+def resolve_target_species(args: argparse.Namespace) -> List[PlantSpecies]:
+    """Resolves the list of PlantSpecies targets based on CLI arguments."""
+    catalog = get_catalog()
+
+    if args.species:
+        sp = get_species(args.species)
+        return [sp]
+    elif args.category:
+        return get_species_by_category(args.category)
+    elif args.all:
+        return list(catalog.species)
+    elif args.validate_only or args.render_only:
+        # If specific target not specified, discover species currently present on disk
+        existing_targets = []
+        for sp in catalog.species:
+            species_path = Path(args.output_dir) / sp.short_category / sp.species_id
+            if species_path.is_dir() and (species_path / f"{sp.species_id}.glb").is_file():
+                existing_targets.append(sp)
+        if existing_targets:
+            return existing_targets
+        return list(catalog.species)
+    elif args.summary:
+        return list(catalog.species)
+    else:
+        raise ValueError(
+            "No target specified. Please provide --species <id>, --category <name>, --all, "
+            "or a step flag like --summary / --validate-only / --render-only."
+        )
+
+
+# ==============================================================================
+# SPECIES PIPELINE EXECUTION LIFECYCLE
+# ==============================================================================
+
+def execute_species_pipeline(
+    species: PlantSpecies,
+    output_dir: Path,
+    mode: str = "auto",
+    seed: Optional[int] = None,
+    force: bool = False,
+    skip_validate: bool = False,
+    skip_render: bool = False,
+    validate_only: bool = False,
+    render_only: bool = False,
+) -> Dict[str, Any]:
+    """
+    Executes the full pipeline lifecycle for a single plant species:
+    1. generate_plant -> 2. process_and_export -> 3. validate_asset -> 4. render_asset_preview
+    """
+    output_dir = Path(output_dir).resolve()
+    category_slug = species.short_category
+    species_dir = output_dir / category_slug / species.species_id
+    glb_path = species_dir / f"{species.species_id}.glb"
+    obj_path = species_dir / f"{species.species_id}.obj"
+    mtl_path = species_dir / f"{species.species_id}.mtl"
+    tex_dir = species_dir / "textures"
+    manifest_path = species_dir / "asset_manifest.json"
+    thumb_path = species_dir / "thumbnail.png"
+
+    record: Dict[str, Any] = {
+        "species_id": species.species_id,
+        "common_name": species.common_name,
+        "scientific_name": species.scientific_name,
+        "family": species.family,
+        "category": category_slug,
+        "category_id": species.category_id,
+        "biome": species.biome,
+        "dimensions": None,
+        "geometry": None,
+        "files": {
+            "glb": str(glb_path.relative_to(output_dir)).replace("\\", "/"),
+            "obj": str(obj_path.relative_to(output_dir)).replace("\\", "/"),
+            "mtl": str(mtl_path.relative_to(output_dir)).replace("\\", "/"),
+            "textures": {
+                "albedo": str((tex_dir / "albedo.png").relative_to(output_dir)).replace("\\", "/"),
+                "normal": str((tex_dir / "normal.png").relative_to(output_dir)).replace("\\", "/"),
+                "roughness": str((tex_dir / "roughness.png").relative_to(output_dir)).replace("\\", "/"),
+                "metallic": str((tex_dir / "metallic.png").relative_to(output_dir)).replace("\\", "/"),
+            },
+            "thumbnail": str(thumb_path.relative_to(output_dir)).replace("\\", "/") if thumb_path.exists() else None,
+            "asset_manifest": str(manifest_path.relative_to(output_dir)).replace("\\", "/"),
+        },
+        "validation": {
+            "is_valid": None,
+            "verdict": "SKIPPED",
+            "checks": {},
+            "metrics": {},
+            "errors": [],
+            "warnings": [],
+        },
+        "source": mode,
+        "status": "pending",
+        "execution_time_s": 0.0,
+    }
+
+    t0 = time.time()
+
+    # --------------------------------------------------------------------------
+    # BRANCH A: Validate Only
+    # --------------------------------------------------------------------------
+    if validate_only:
+        if not glb_path.exists():
+            record["status"] = "missing"
+            record["validation"] = {
+                "is_valid": False,
+                "verdict": "MISSING",
+                "checks": {"file_exists": False},
+                "metrics": {},
+                "errors": [f"GLB asset not found on disk: {glb_path}"],
+                "warnings": [],
+            }
+            record["execution_time_s"] = round(time.time() - t0, 3)
+            return record
+
+        report = validate_asset(species_dir, catalog=get_catalog())
+        record["validation"] = {
+            "is_valid": report.is_valid,
+            "verdict": "PASSED" if report.is_valid else "FAILED",
+            "checks": report.checks,
+            "metrics": report.metrics,
+            "errors": report.errors,
+            "warnings": report.warnings,
+        }
+
+        # Read dimensions/polycounts from asset_manifest.json if available
+        if manifest_path.exists():
+            try:
+                with open(manifest_path, "r", encoding="utf-8") as f:
+                    m_data = json.load(f)
+                    geom_data = m_data.get("geometry", {})
+                    record["dimensions"] = geom_data.get("dimensions_m") or m_data.get("dimensions")
+                    record["geometry"] = {
+                        "vertex_count": geom_data.get("vertex_count", m_data.get("vertex_count", 0)),
+                        "face_count": geom_data.get("face_count", m_data.get("face_count", 0)),
+                    }
+                    if "provenance" in m_data:
+                        record["provenance"] = m_data["provenance"]
+            except Exception as e:
+                logger.debug("Failed reading manifest for %s: %s", species.species_id, e)
+
+        if record["dimensions"] is None and "measured_height_m" in report.metrics:
+            record["dimensions"] = {
+                "height_m": report.metrics.get("measured_height_m", 0.0),
+                "canopy_spread_m": 0.0,
+            }
+        if record["geometry"] is None and "vertex_count" in report.metrics:
+            record["geometry"] = {
+                "vertex_count": report.metrics.get("vertex_count", 0),
+                "face_count": report.metrics.get("face_count", 0),
+            }
+
+        record["status"] = "validated"
+        record["execution_time_s"] = round(time.time() - t0, 3)
+        return record
+
+    # --------------------------------------------------------------------------
+    # BRANCH B: Render Only
+    # --------------------------------------------------------------------------
+    if render_only:
+        if not glb_path.exists():
+            record["status"] = "missing"
+            record["execution_time_s"] = round(time.time() - t0, 3)
+            return record
+
+        if manifest_path.exists():
+            try:
+                with open(manifest_path, "r", encoding="utf-8") as f:
+                    m_data = json.load(f)
+                    geom_data = m_data.get("geometry", {})
+                    record["dimensions"] = geom_data.get("dimensions_m") or m_data.get("dimensions")
+                    record["geometry"] = {
+                        "vertex_count": geom_data.get("vertex_count", m_data.get("vertex_count", 0)),
+                        "face_count": geom_data.get("face_count", m_data.get("face_count", 0)),
+                    }
+                    if "provenance" in m_data:
+                        record["provenance"] = m_data["provenance"]
+            except Exception as e:
+                logger.debug("Failed reading manifest for %s: %s", species.species_id, e)
+
+        try:
+            render_res = render_asset_preview(glb_path, output_dir=species_dir)
+            thumb_p = render_res.get("thumbnail") or thumb_path
+            if thumb_p.exists():
+                record["files"]["thumbnail"] = str(thumb_p.relative_to(output_dir)).replace("\\", "/")
+            record["status"] = "rendered"
+        except Exception as e:
+            logger.warning("Render failed for %s: %s", species.species_id, e)
+            record["status"] = "render_failed"
+
+        record["execution_time_s"] = round(time.time() - t0, 3)
+        return record
+
+    # --------------------------------------------------------------------------
+    # BRANCH C: Full Generation Pipeline (Generate -> Export -> Validate -> Render)
+    # --------------------------------------------------------------------------
+    # 1. Generation
+    raw_asset = generate_plant(
+        species=species,
+        mode=mode,
+        output_dir=species_dir,
+        seed=seed,
+        force_regenerate=force,
+    )
+    record["source"] = raw_asset.source
+
+    # 2. Post-Processing & Normalization
+    exported_asset = process_and_export(
+        raw_asset=raw_asset,
+        species=species,
+        output_dir=species_dir,
+    )
+    record["dimensions"] = exported_asset.dimensions.model_dump()
+    record["geometry"] = {
+        "vertex_count": exported_asset.vertex_count,
+        "face_count": exported_asset.face_count,
+        "ground_pivot_z": exported_asset.ground_pivot_z,
+        "base_contact_centroid": list(exported_asset.base_centroid),
+    }
+
+    # 3. Validation
+    if not skip_validate:
+        report = validate_asset(exported_asset, catalog=get_catalog())
+        record["validation"] = {
+            "is_valid": report.is_valid,
+            "verdict": "PASSED" if report.is_valid else "FAILED",
+            "checks": report.checks,
+            "metrics": report.metrics,
+            "errors": report.errors,
+            "warnings": report.warnings,
+        }
+    else:
+        record["validation"]["verdict"] = "SKIPPED"
+
+    # 4. Rendering
+    if not skip_render:
+        try:
+            render_res = render_asset_preview(exported_asset, output_dir=species_dir)
+            thumb_p = render_res.get("thumbnail") or thumb_path
+            if thumb_p.exists():
+                record["files"]["thumbnail"] = str(thumb_p.relative_to(output_dir)).replace("\\", "/")
+        except Exception as e:
+            logger.warning("Render preview warning for %s: %s", species.species_id, e)
+            record["validation"]["warnings"].append(f"Render preview note: {e}")
+
+    record["status"] = "completed"
+    record["execution_time_s"] = round(time.time() - t0, 3)
+    return record
+
+
+# ==============================================================================
+# MANIFEST AGGREGATION & STORAGE
+# ==============================================================================
+
+def aggregate_manifest(output_dir: Path, species_records: List[Dict[str, Any]]) -> Path:
+    """
+    Aggregates species pipeline records into a unified output/manifest.json.
+    Merges incrementally with existing manifest records to preserve catalog history.
+    """
+    manifest_path = output_dir / "manifest.json"
+    existing_assets: Dict[str, Any] = {}
+
+    if manifest_path.is_file():
+        try:
+            with open(manifest_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                raw_existing = data.get("assets", {})
+                # Only retain assets that actually exist on disk
+                for sid, entry in raw_existing.items():
+                    if entry.get("status") != "missing":
+                        existing_assets[sid] = entry
+        except Exception as e:
+            logger.warning("Could not read existing manifest %s: %s", manifest_path, e)
+
+    now_iso = datetime.now(timezone.utc).isoformat()
+    for rec in species_records:
+        rec_copy = dict(rec)
+        rec_copy["last_updated"] = now_iso
+        if rec["species_id"] in existing_assets:
+            prev = existing_assets[rec["species_id"]]
+            # If current validation is SKIPPED or None, preserve previous validation
+            if rec_copy.get("validation", {}).get("verdict") in ("SKIPPED", None) and prev.get("validation", {}).get("verdict") not in ("SKIPPED", None):
+                rec_copy["validation"] = prev["validation"]
+            # Preserve dimensions and geometry if missing
+            if rec_copy.get("dimensions") is None and prev.get("dimensions") is not None:
+                rec_copy["dimensions"] = prev["dimensions"]
+            if rec_copy.get("geometry") is None and prev.get("geometry") is not None:
+                rec_copy["geometry"] = prev["geometry"]
+            # Preserve thumbnail if missing
+            if rec_copy.get("files", {}).get("thumbnail") is None and prev.get("files", {}).get("thumbnail") is not None:
+                rec_copy["files"]["thumbnail"] = prev["files"]["thumbnail"]
+            # Preserve provenance if missing
+            if rec_copy.get("provenance") is None and prev.get("provenance") is not None:
+                rec_copy["provenance"] = prev["provenance"]
+        existing_assets[rec["species_id"]] = rec_copy
+
+    catalog = get_catalog()
+    total_catalog = len(catalog)
+    indexed_count = len(existing_assets)
+    passed_count = sum(1 for a in existing_assets.values() if a.get("validation", {}).get("is_valid") is True)
+    failed_count = sum(1 for a in existing_assets.values() if a.get("validation", {}).get("is_valid") is False)
+
+    categories_summary: Dict[str, Dict[str, int]] = {}
+    for cat in catalog.categories:
+        short_cat = cat.short_category
+        cat_species = [s.species_id for s in catalog.species if s.short_category == short_cat]
+        cat_tot = len(cat_species)
+        cat_gen = sum(1 for sid in cat_species if sid in existing_assets)
+        cat_val = sum(1 for sid in cat_species if existing_assets.get(sid, {}).get("validation", {}).get("is_valid") is True)
+        categories_summary[short_cat] = {
+            "total_catalog": cat_tot,
+            "indexed_count": cat_gen,
+            "passed_validation": cat_val,
+        }
+
+    manifest_payload = {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "schema_version": "1.0.0",
+        "project": "MorphoMesh Vegetation Library",
+        "generated_at": now_iso,
+        "total_catalog_species": total_catalog,
+        "indexed_species_count": indexed_count,
+        "passed_validation_count": passed_count,
+        "failed_validation_count": failed_count,
+        "categories_summary": categories_summary,
+        "assets": existing_assets,
+    }
+
+    manifest_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(manifest_path, "w", encoding="utf-8") as f:
+        json.dump(manifest_payload, f, indent=2)
+
+    return manifest_path
+
+
+# ==============================================================================
+# MARKDOWN SUMMARY TABLE GENERATION
+# ==============================================================================
+
+def format_summary_table(manifest_data: Dict[str, Any]) -> str:
+    """Generates a formatted Markdown summary table of all library assets."""
+    total = manifest_data.get("total_catalog_species", 35)
+    indexed = manifest_data.get("indexed_species_count", 0)
+    passed = manifest_data.get("passed_validation_count", 0)
+    failed = manifest_data.get("failed_validation_count", 0)
+    pass_pct = (passed / indexed * 100.0) if indexed > 0 else 0.0
+
+    lines = [
+        "# MorphoMesh Vegetation Library — Asset Catalog Summary",
+        "",
+        f"**Catalog Completeness**: {indexed} / {total} species indexed ({indexed/total*100:.1f}%) | "
+        f"**Validation Pass Rate**: {passed} / {indexed} ({pass_pct:.1f}%) | "
+        f"**Failures**: {failed}",
+        f"**Generated**: {manifest_data.get('generated_at', 'N/A')}",
+        "",
+        "| Category | Species ID | Common Name | Scientific Name | Height (m) | Canopy (m) | Vertices | Faces | Source | Verdict | Thumbnail |",
+        "|:---|:---|:---|:---|---:|---:|---:|---:|:---:|:---:|:---:|",
+    ]
+
+    assets = manifest_data.get("assets", {})
+    sorted_assets = sorted(assets.values(), key=lambda a: (a.get("category", ""), a.get("species_id", "")))
+
+    for a in sorted_assets:
+        cat = a.get("category", "-")
+        s_id = a.get("species_id", "-")
+        c_name = a.get("common_name", "-")
+        sci_name = f"*{a.get('scientific_name', '-') }*"
+        dims = a.get("dimensions") or {}
+        height = f"{dims.get('height_m', 0.0):.2f}" if "height_m" in dims else "-"
+        canopy = f"{dims.get('canopy_spread_m', 0.0):.2f}" if "canopy_spread_m" in dims else "-"
+        geom = a.get("geometry") or {}
+        verts = f"{geom.get('vertex_count', 0):,}" if "vertex_count" in geom else "-"
+        faces = f"{geom.get('face_count', 0):,}" if "face_count" in geom else "-"
+        src = a.get("source", "-")
+        val = a.get("validation", {})
+        if val.get("is_valid") is True:
+            verdict = "✅ PASS"
+        elif val.get("is_valid") is False:
+            verdict = "❌ FAIL"
+        else:
+            verdict = f"⚪ {val.get('verdict', 'SKIP')}"
+
+        thumb = a.get("files", {}).get("thumbnail")
+        thumb_link = f"[View]({thumb})" if thumb else "-"
+
+        lines.append(
+            f"| {cat} | `{s_id}` | {c_name} | {sci_name} | {height} | {canopy} | {verts} | {faces} | {src} | {verdict} | {thumb_link} |"
+        )
+
+    lines.append("")
+    lines.append("### Biome Categories Breakdown")
+    for cat_slug, stats in manifest_data.get("categories_summary", {}).items():
+        c_tot = stats.get("total_catalog", 5)
+        c_idx = stats.get("indexed_count", 0)
+        c_pass = stats.get("passed_validation", 0)
+        lines.append(
+            f"- **{cat_slug.replace('_', ' ').title()}** (`{cat_slug}`): "
+            f"{c_idx}/{c_tot} generated, {c_pass}/{c_idx if c_idx > 0 else 1} valid"
+        )
+
+    return "\n".join(lines)
+
+
+def run_pipeline(
+    species: Optional[str] = None,
+    category: Optional[str] = None,
+    all_species: bool = False,
+    mode: str = "auto",
+    seed: Optional[int] = None,
+    output_dir: Union[str, Path] = "output",
+    force: bool = False,
+    skip_validate: bool = False,
+    skip_render: bool = False,
+    validate_only: bool = False,
+    render_only: bool = False,
+    summary: bool = False,
+    verbose: bool = False,
+    json_output: bool = False,
+) -> Dict[str, Any]:
+    """
+    Programmatic entry point for running the vegetation library pipeline.
+    Returns the aggregated manifest dictionary.
+    """
+    argv: List[str] = []
+    if species:
+        argv.extend(["--species", species])
+    if category:
+        argv.extend(["--category", category])
+    if all_species:
+        argv.append("--all")
+    if mode:
+        argv.extend(["--mode", mode])
+    if seed is not None:
+        argv.extend(["--seed", str(seed)])
+    if output_dir:
+        argv.extend(["--output-dir", str(output_dir)])
+    if force:
+        argv.append("--force")
+    if skip_validate:
+        argv.append("--skip-validate")
+    if skip_render:
+        argv.append("--skip-render")
+    if validate_only:
+        argv.append("--validate-only")
+    if render_only:
+        argv.append("--render-only")
+    if summary:
+        argv.append("--summary")
+    if verbose:
+        argv.append("--verbose")
+    if json_output:
+        argv.append("--json")
+
+    parser = create_parser()
+    args = parser.parse_args(argv)
+
+    out_dir = Path(args.output_dir)
+    if args.summary and not (args.species or args.category or args.all):
+        manifest_p = out_dir / "manifest.json"
+        if not manifest_p.is_file():
+            raise FileNotFoundError(f"Manifest not found at: {manifest_p}")
+        with open(manifest_p, "r", encoding="utf-8") as f:
+            return json.load(f)
+
+    targets = resolve_target_species(args)
+    results: List[Dict[str, Any]] = []
+
+    for species_item in targets:
+        res = execute_species_pipeline(
+            species=species_item,
+            output_dir=out_dir,
+            mode=args.mode,
+            seed=args.seed,
+            force=args.force,
+            skip_validate=args.skip_validate,
+            skip_render=args.skip_render,
+            validate_only=args.validate_only,
+            render_only=args.render_only,
+        )
+        results.append(res)
+
+    manifest_p = aggregate_manifest(out_dir, results)
+    with open(manifest_p, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def main(argv: Optional[List[str]] = None) -> int:
+    """Main CLI execution harness."""
+    parser = create_parser()
+    args = parser.parse_args(argv)
+
+    # Configure Windows console UTF-8 encoding
+    if sys.platform == "win32":
+        try:
+            sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+            sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+        except Exception:
+            pass
+
+    # Configure logging
+    log_level = logging.DEBUG if args.verbose else logging.INFO
+    logging.basicConfig(
+        level=log_level,
+        format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+        datefmt="%H:%M:%S",
+    )
+
+    out_dir = Path(args.output_dir)
+
+    # 1. Fast Summary Mode (no execution required)
+    if args.summary and not (args.species or args.category or args.all):
+        manifest_p = out_dir / "manifest.json"
+        if not manifest_p.is_file():
+            print(f"[ERROR] Manifest not found at: {manifest_p}. Generate assets first.", file=sys.stderr)
+            return 1
+        with open(manifest_p, "r", encoding="utf-8") as f:
+            m_data = json.load(f)
+        summary_md = format_summary_table(m_data)
+        print(summary_md)
+        return 0
+
+    # 2. Resolve targets
+    try:
+        targets = resolve_target_species(args)
+    except Exception as e:
+        print(f"[ERROR] Target resolution failed: {e}", file=sys.stderr)
+        return 2
+
+    logger.info(
+        "Executing pipeline for %d species | Mode: %s | Output: %s | Validate: %s | Render: %s",
+        len(targets),
+        args.mode,
+        out_dir,
+        not args.skip_validate and not args.render_only,
+        not args.skip_render and not args.validate_only,
+    )
+
+    results: List[Dict[str, Any]] = []
+    failures = 0
+
+    for idx, species in enumerate(targets, 1):
+        logger.info("[%d/%d] Processing %s (%s)...", idx, len(targets), species.species_id, species.common_name)
+        try:
+            res = execute_species_pipeline(
+                species=species,
+                output_dir=out_dir,
+                mode=args.mode,
+                seed=args.seed,
+                force=args.force,
+                skip_validate=args.skip_validate,
+                skip_render=args.skip_render,
+                validate_only=args.validate_only,
+                render_only=args.render_only,
+            )
+            results.append(res)
+            is_valid = res.get("validation", {}).get("is_valid")
+            if is_valid is False:
+                failures += 1
+                logger.warning("Validation FAILED for %s: %s", species.species_id, res.get("validation", {}).get("errors"))
+            else:
+                logger.info("Successfully processed %s (verdict: %s, %.2fs)", species.species_id, res.get("validation", {}).get("verdict"), res.get("execution_time_s", 0.0))
+        except Exception as e:
+            failures += 1
+            logger.error("Exception processing %s: %s", species.species_id, e, exc_info=args.verbose)
+            results.append({
+                "species_id": species.species_id,
+                "category": species.short_category,
+                "status": "error",
+                "validation": {"is_valid": False, "verdict": "ERROR", "errors": [str(e)]},
+                "source": args.mode,
+                "execution_time_s": 0.0,
+            })
+
+    # 3. Aggregate Manifest
+    manifest_p = aggregate_manifest(out_dir, results)
+    logger.info("Global library manifest updated: %s", manifest_p)
+
+    # 4. Summary Output
+    if args.summary or not args.json:
+        with open(manifest_p, "r", encoding="utf-8") as f:
+            m_data = json.load(f)
+        summary_md = format_summary_table(m_data)
+        if args.summary:
+            print("\n" + summary_md)
+
+    if args.json:
+        with open(manifest_p, "r", encoding="utf-8") as f:
+            m_data = json.load(f)
+        print(json.dumps(m_data, indent=2))
+
+    return 1 if failures > 0 else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

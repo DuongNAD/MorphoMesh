@@ -1,0 +1,113 @@
+{
+  "schema_version": "1.0.0",
+  "species_id": "veg_vine_pothos_01",
+  "taxonomy": {
+    "common_name": "Golden Pothos",
+    "scientific_name": "Epipremnum aureum",
+    "family": "Araceae",
+    "category": "climbing_vines_epiphytes",
+    "category_id": "climbing_vines_epiphytes",
+    "category_name": "Climbing Vines & Epiphytes",
+    "short_category": "vines",
+    "biome": "Tropical Rainforest Understory & Epiphytic Canopy",
+    "growth_habit": "Cascading scrambling evergreen vine with trailing runners and climbing roots",
+    "branching_pattern": "Flexible trailing and climbing stems with nodal rootlets creating layered trailing sheets",
+    "foliage_density": "dense"
+  },
+  "geometry": {
+    "vertex_count": 4064,
+    "face_count": 3280,
+    "triangle_count": 3280,
+    "has_armature": false,
+    "has_skins": false,
+    "pivot_grounded": true,
+    "ground_contact_z": 0.0,
+    "ground_z_min_m": 0.0,
+    "base_centroid_xy": [
+      -0.0,
+      -0.0
+    ],
+    "bounding_box": {
+      "min_point": [
+        -0.3069,
+        -0.309,
+        0.0
+      ],
+      "max_point": [
+        0.3292,
+        0.3135,
+        1.2
+      ],
+      "dimensions": [
+        0.636,
+        0.6226,
+        1.2
+      ]
+    },
+    "dimensions_m": {
+      "height_m": 1.2,
+      "canopy_spread_m": 0.636,
+      "width_m": 0.636,
+      "depth_m": 0.6226,
+      "target_height_m": 1.2,
+      "target_canopy_spread_m": 1.3
+    }
+  },
+  "normalization": {
+    "target_height_m": 1.2,
+    "target_canopy_spread_m": 1.3,
+    "scale_factor": 0.814464,
+    "normalized_height_m": 1.2,
+    "normalized_canopy_spread_m": 0.636,
+    "strategy": "uniform_height"
+  },
+  "materials": {
+    "workflow": "Metallic-Roughness PBR",
+    "double_sided": true,
+    "channels": [
+      "albedo",
+      "normal",
+      "roughness",
+      "metallic"
+    ],
+    "texture_format": "PNG"
+  },
+  "files": {
+    "glb": "veg_vine_pothos_01.glb",
+    "obj": "veg_vine_pothos_01.obj",
+    "mtl": "veg_vine_pothos_01.mtl",
+    "textures": {
+      "albedo": "textures/albedo.png",
+      "normal": "textures/normal.png",
+      "roughness": "textures/roughness.png",
+      "metallic": "textures/metallic.png"
+    }
+  },
+  "provenance": {
+    "source": "procedural",
+    "export_timestamp": "2026-09-10T07:29:22.641265+00:00",
+    "generator_metadata": {
+      "species_id": "veg_vine_pothos_01",
+      "category_id": "climbing_vines_epiphytes",
+      "source": "procedural",
+      "seed": 1311754115,
+      "vertex_count": 4064,
+      "face_count": 3280,
+      "quad_count": 1640,
+      "tri_count": 0,
+      "quad_ratio": 1.0
+    }
+  },
+  "metadata": {
+    "scale_factor": 0.8144638323776088,
+    "species_id": "veg_vine_pothos_01",
+    "category_id": "climbing_vines_epiphytes",
+    "source": "procedural",
+    "seed": 1311754115,
+    "vertex_count": 4064,
+    "face_count": 3280,
+    "quad_count": 1640,
+    "tri_count": 0,
+    "quad_ratio": 1.0
+  }
+}

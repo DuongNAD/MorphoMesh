@@ -1,217 +1,149 @@
-# Handoff Report — Challenger M3-2 (Adversarial Clearance & Topology Re-Audit)
+# Handoff Report: Milestone M3 Props Snapping, Butterfly Topology & Flocking Challenger
 
-**Author**: Challenger M3-2 (`challenger_m3_2`)  
-**Date**: 2026-09-05T17:48:00Z  
-**Milestone**: M3 — High-Fidelity Organic PBR Shader Engine & War Armor Integration (Iteration 2)  
-**Role**: Empirical Challenger (`critic`, `specialist`)  
-**Parent Orchestrator**: `504d045c-25c5-48a2-a65a-2a5b368eafa7`  
-**Verdict**: **APPROVE** (All 4 Adversarial Acceptance Criteria Confirmed Empirically)
+**Module**: MorphoMesh Milestone M3 Character Realism Upgrade (Yu Nian An)  
+**Agent**: Challenger 2 (Challenger M3.2: Props Snapping, Butterfly Topology & Flocking Empirical Challenger)  
+**Recipient**: Parent Agent (`c2422918-70a3-47d9-a8f9-883422a33af0`) / Worker M3  
+**Date**: 2026-09-07  
+**Status**: Hard Handoff  
+**Explicit Verdict**: **`REQUEST_CHANGES`**
 
 ---
 
 ## 1. Observation
 
-### 1.1 Task 1: Adversarial Pytest Suite Execution
-- **Command**:
-  ```bash
-  pytest -v tests/test_m3_adversarial_materials_and_armor.py
-  ```
-- **Result**:
-  ```
-  ============================= test session starts ==============================
-  platform darwin -- Python 3.11.8, pytest-9.1.1, pluggy-1.6.0
-  rootdir: /Users/duongnad/Documents/tool/MorphoMesh
-  configfile: pyproject.toml
+1. **Props Topology & Snapping Precision in `src/morphomesh/wardrobe.py`**:
+   - `generate_catenary_magic_strings(count=10, height=1.65, rest_pose=True)`:
+     * Total vertices: exactly `140` across 10 cords (`verts_per_cord = 14`).
+     * Total faces: exactly `120` triangular faces (60 quads, 6 quads per cord).
+     * Face areas: all 120 faces have positive area $\ge 1.0546 \times 10^{-5}\text{m}^2 \gg 10^{-9}\text{m}^2$.
+     * Ribbon width: $\|\vec{v}_1 - \vec{v}_0\| = 0.8000\text{mm}$, with symmetric offsets $\|\vec{v}_0 - \vec{t}\| = 0.4000\text{mm}$ and $\|\vec{v}_1 - \vec{t}\| = 0.4000\text{mm}$.
+     * Root vertex midpoint snap error against `generate_rigify_human_metarig().bones`:
+       - Thumb L/R: $0.0049\text{mm}$ ($4.9\ \mu\text{m}$)
+       - Index L/R: $0.0056\text{mm}$ ($5.6\ \mu\text{m}$)
+       - Middle L/R: $0.0024\text{mm}$ ($2.4\ \mu\text{m}$)
+       - Ring L/R: $0.0032\text{mm}$ ($3.2\ \mu\text{m}$)
+       - Pinky L/R: $0.0050\text{mm}$ ($5.0\ \mu\text{m}$)
+       All 10 cords achieve sub-10-micron error in standalone Python, and strictly $0.0000\text{mm}$ algebraic error in character assembler.
 
-  tests/test_m3_adversarial_materials_and_armor.py::TestPBRShaderForensicAudit::test_principled_bsdf_v2_sockets_and_physical_properties PASSED [ 10%]
-  tests/test_m3_adversarial_materials_and_armor.py::TestBlenderArmorTopologyAdversarialAudit::test_zero_area_faces_all_plates PASSED [ 20%]
-  tests/test_m3_adversarial_materials_and_armor.py::TestBlenderArmorTopologyAdversarialAudit::test_armor_pauldron_r_blender_manifold_defect PASSED [ 30%]
-  tests/test_m3_adversarial_materials_and_armor.py::TestBlenderArmorTopologyAdversarialAudit::test_armor_backplate_inverted_normals_defect PASSED [ 40%]
-  tests/test_m3_adversarial_materials_and_armor.py::TestArmorScaleStressAudit::test_scale_clearance_behavior[1.5] PASSED [ 50%]
-  tests/test_m3_adversarial_materials_and_armor.py::TestArmorScaleStressAudit::test_scale_clearance_behavior[1.0] PASSED [ 60%]
-  tests/test_m3_adversarial_materials_and_armor.py::TestArmorScaleStressAudit::test_scale_clearance_behavior[2.0] PASSED [ 70%]
-  tests/test_m3_adversarial_materials_and_armor.py::TestArmorScaleStressAudit::test_scale_clearance_behavior[0.5] PASSED [ 80%]
-  tests/test_m3_adversarial_materials_and_armor.py::TestArmorScaleStressAudit::test_scale_clearance_behavior[0.75] PASSED [ 90%]
-  tests/test_m3_adversarial_materials_and_armor.py::TestCanonicalArmorClearance::test_all_six_plates_clearance_strictly_positive PASSED [100%]
+2. **Butterfly Morphology & Dihedral Flutter in `src/morphomesh/wardrobe.py`**:
+   - `generate_swallowtail_quad_butterfly(scale=0.045, wing_angle_deg=25.0)`:
+     * Exactly 48 vertices, 48 faces (24 quads).
+     * Minimum face surface area: $2.7248 \times 10^{-6}\text{m}^2 > 10^{-6}\text{m}^2$. Zero degenerate faces.
+     * Dual antennae tips at vertices 20 and 26 project forward ($Y = 0.035$) and upward ($Z = 0.006$).
+     * Swallowtail caudal spurs at vertices 36 and 46 project backward ($Y = -0.053$) and outward ($|X| = 0.033$).
+     * Dihedral flutter angles $\theta \in [-30^\circ, +80^\circ]$ maintain strictly non-zero face areas ($> 10^{-7}\text{m}^2$).
 
-  ============================== 10 passed in 4.66s ==============================
-  ```
-- All 10 tests passed with exit code 0.
+3. **Flocking Vortex in `src/morphomesh/wardrobe.py`**:
+   - `get_butterfly_vortex_positions(scale=1.0)`:
+     * 10 positions: 5 on left flank ($X > 0$), 5 on right flank ($X < 0$).
+     * Elevation range: $Z \in [0.88000\text{m}, 1.31709\text{m}] \subset [0.88\text{m}, 1.32\text{m}]$.
+     * Minimum pairwise Euclidean separation: **153.31mm** (between butterfly 1 and 2), strictly satisfying $\ge 150\text{mm} \ge 50\text{mm}$.
+     * Lateral flank clearance: $|X| \in [0.375\text{m}, 0.510\text{m}] \ge 0.35\text{m}$.
+     * String tip midpoints coincide with butterfly target positions with $0.0000\text{mm}$ error.
 
----
+4. **Flocking Overwrite Defect in `src/morphomesh/character_assembler.py` (CRITICAL)**:
+   - Verbatim code at `character_assembler.py:1296-1314`:
+     ```python
+     flutter_positions = [
+         (0.46 * s, -0.16 * s, 0.96 * s),
+         (0.52 * s, -0.06 * s, 1.14 * s),
+         (0.44 * s, 0.12 * s, 1.28 * s),
+         (0.54 * s, 0.08 * s, 1.06 * s),
+         (0.42 * s, -0.10 * s, 0.88 * s),
+         (-0.46 * s, -0.16 * s, 0.96 * s),
+         (-0.52 * s, -0.06 * s, 1.14 * s),
+         (-0.44 * s, 0.12 * s, 1.28 * s),
+         (-0.54 * s, 0.08 * s, 1.06 * s),
+         (-0.42 * s, -0.10 * s, 0.88 * s),
+     ]
 
-### 1.2 Task 2: Headless Blender 5.2.1 LTS BMesh Topology Audit
-- **Execution**: Direct Python-to-Blender execution querying `bmesh` topology for all 6 plates across 5 scales ($0.5\times, 0.75\times, 1.0\times, 1.5\times, 2.0\times$):
-- **Metrics Table**:
-  | Scale | Armor Plate | Vertex Count | Edge Count | Face Count | Non-Manifold Edges | Zero-Area Faces | `is_watertight` |
-  |---|---|---|---|---|---|---|---|
-  | **0.5x** | `Armor_Pauldron_L` | 96 | 188 | 94 | **0** | **0** | **True** |
-  | **0.5x** | `Armor_Pauldron_R` | 96 | 188 | 94 | **0** | **0** | **True** |
-  | **0.5x** | `Armor_Gorget` | 128 | 256 | 128 | **0** | **0** | **True** |
-  | **0.5x** | `Armor_Bracer_L` | 96 | 192 | 96 | **0** | **0** | **True** |
-  | **0.5x** | `Armor_Bracer_R` | 96 | 192 | 96 | **0** | **0** | **True** |
-  | **0.5x** | `Armor_Backplate` | 98 | 192 | 96 | **0** | **0** | **True** |
-  | **1.0x** | `Armor_Pauldron_L` | 96 | 188 | 94 | **0** | **0** | **True** |
-  | **1.0x** | `Armor_Pauldron_R` | 96 | 188 | 94 | **0** | **0** | **True** |
-  | **1.0x** | `Armor_Gorget` | 128 | 256 | 128 | **0** | **0** | **True** |
-  | **1.0x** | `Armor_Bracer_L` | 96 | 192 | 96 | **0** | **0** | **True** |
-  | **1.0x** | `Armor_Bracer_R` | 96 | 192 | 96 | **0** | **0** | **True** |
-  | **1.0x** | `Armor_Backplate` | 98 | 192 | 96 | **0** | **0** | **True** |
-  | **2.0x** | `Armor_Pauldron_L` | 96 | 188 | 94 | **0** | **0** | **True** |
-  | **2.0x** | `Armor_Pauldron_R` | 96 | 188 | 94 | **0** | **0** | **True** |
-  | **2.0x** | `Armor_Gorget` | 128 | 256 | 128 | **0** | **0** | **True** |
-  | **2.0x** | `Armor_Bracer_L` | 96 | 192 | 96 | **0** | **0** | **True** |
-  | **2.0x** | `Armor_Bracer_R` | 96 | 192 | 96 | **0** | **0** | **True** |
-  | **2.0x** | `Armor_Backplate` | 98 | 192 | 96 | **0** | **0** | **True** |
-- Every single edge across all 6 armor plates connects to exactly 2 faces (`len(e.link_faces) == 2`).
-- 0 non-manifold edges. 0 zero-area degenerate faces. Strictly 2-manifold closed watertight shells.
+     mat_bf = bpy.data.materials.get("Mat_Magic_Butterfly")
+     for i in range({cfg_obj.butterfly_count}):
+         bf_obj = bpy.data.objects.get(f"Prop_Butterfly_{{i:02d}}")
+         if bf_obj:
+             pos = flutter_positions[i % len(flutter_positions)]
+             bf_obj.location = pos
+     ```
+   - Pairwise distance between position 0 `(0.46, -0.16, 0.96)` and position 4 `(0.42, -0.10, 0.88)` is **107.70mm**, failing the requirement $\ge 150\text{mm}$.
+   - Distance between string tips and butterflies:
+     * Cord 0: 136.03mm
+     * Cord 1: 167.70mm
+     * Cord 2: 247.04mm
+     * Cord 3: 152.63mm
+     * **Cord 4: 590.39mm**
+     * Cord 5: 97.59mm
+     * Cord 6: 147.83mm
+     * Cord 7: 219.17mm
+     * Cord 8: 201.92mm
+     * **Cord 9: 635.15mm**
+   - The strings terminate up to **0.635m** away from the butterflies!
 
----
-
-### 1.3 Task 3: Signed Volume of `Armor_Backplate` in Blender 5.2.1 LTS
-- **Measurement**: Computed via Gauss Divergence Theorem / `bmesh.calc_volume(signed=True)`:
-  - **Scale 0.5x**: Signed Volume = $+0.000421 \text{ m}^3 > 0$
-  - **Scale 0.75x**: Signed Volume = $+0.001361 \text{ m}^3 > 0$
-  - **Scale 1.0x**: Signed Volume = $+0.003077 \text{ m}^3 > 0$
-  - **Scale 1.5x**: Signed Volume = $+0.009576 \text{ m}^3 > 0$
-  - **Scale 2.0x**: Signed Volume = $+0.021478 \text{ m}^3 > 0$
-- **Result**: Strictly positive across all scale factors ($> 0$), confirming outward face normal orientation on dorsal surfaces (+z).
-
----
-
-### 1.4 Task 4: Multi-Scale Clearance Audit ($d_{\min} \ge 0.015\text{m}$)
-- **Measurement Method**: In headless Blender 5.2.1 LTS, full 3D point cloud distance calculation from every vertex of every generated armor object to all vertices of `Bear_Base_Mesh`:
-  $$\min_{v_{\text{armor}} \in \text{Armor}, v_{\text{bear}} \in \text{Bear}} \| v_{\text{armor}} - v_{\text{bear}} \|$$
-- **Empirical Measured Clearances ($d_{\min}$)**:
-  | Armor Plate | Scale 0.5x | Scale 0.75x | Scale 1.0x | Scale 1.5x | Scale 2.0x | Threshold | Pass/Fail |
-  |---|---|---|---|---|---|---|---|
-  | `Armor_Pauldron_L` | 0.0217 m | 0.0295 m | 0.0395 m | 0.0596 m | 0.0797 m | $\ge 0.015$ m | **PASS** |
-  | `Armor_Pauldron_R` | 0.0217 m | 0.0295 m | 0.0395 m | 0.0596 m | 0.0797 m | $\ge 0.015$ m | **PASS** |
-  | `Armor_Gorget` | 0.0242 m | 0.0326 m | 0.0435 m | 0.0652 m | 0.0869 m | $\ge 0.015$ m | **PASS** |
-  | `Armor_Bracer_L` | 0.0159 m | 0.0227 m | 0.0302 m | 0.0453 m | 0.0604 m | $\ge 0.015$ m | **PASS** |
-  | `Armor_Bracer_R` | 0.0159 m | 0.0227 m | 0.0302 m | 0.0453 m | 0.0604 m | $\ge 0.015$ m | **PASS** |
-  | `Armor_Backplate` | 0.0150 m | 0.0188 m | 0.0250 m | 0.0375 m | 0.0500 m | $\ge 0.015$ m | **PASS** |
-- In Python (`ProceduralArmorEngine.compute_clearance_metrics`), identical results were confirmed: $d_{\min} \in [0.0150, 0.0797]\text{m} \ge 0.015\text{m}$. Zero mesh intersections or collisions.
-
----
-
-### 1.5 Full Repository Regression Checks
-- `pytest -v tests/test_materials_and_armor.py`: 19/19 PASSED in 0.82s.
-- `pytest -v tests/`: 309/309 PASSED in 14.25s (0 failures, 0 regressions).
+5. **Stale M2 Props in On-Disk `Yu_Nian_An_Master.blend` (HIGH)**:
+   - Direct headless Blender query on `output/yu_nian_an/Yu_Nian_An_Master.blend`:
+     ```
+     bf0 is: <bpy_struct, Object("Prop_Butterfly_00")>
+     bf0.data.vertices count: 18
+     bf0.data.polygons count: 10
+     v0 = <Vector (0.3894, -0.0798, 0.7307)>, v1 = <Vector (0.3894, -0.0798, 0.7307)>
+     diff = 0.0mm
+     ```
+   - Butterflies on disk have only 18 vertices (10 faces), and strings have collapsed 0.0mm root vertices with degenerate zero-area faces.
 
 ---
 
 ## 2. Logic Chain
 
-1. **Topology Remediation Verification (Resolution of Defect 1)**:
-   - In Iteration 1, `Armor_Pauldron_R` contained 140 non-manifold edges because line 665 duplicated vertex `og[i][j]`.
-   - Worker M3-2 updated the indexing to `(og[i][j], og[i][j+1], og[i+1][j+1], og[i+1][j])`.
-   - Observation 1.2 proves that in Blender 5.2.1 LTS BMesh audit, `Armor_Pauldron_R` has exactly 0 non-manifold edges, 0 zero-area faces, and `is_watertight is True` across all 5 scales.
-   - Defect 1 is completely resolved.
-
-2. **Normal Orientation & Positive Volume (Resolution of Defect 2)**:
-   - In Iteration 1, `Armor_Backplate` had inverted normals causing a negative signed volume ($-0.003077\text{ m}^3$).
-   - Worker M3-2 re-ordered outer quad windings to counter-clockwise outward `(outer_grid[i][j], outer_grid[i][j + 1], outer_grid[i + 1][j + 1], outer_grid[i + 1][j])` and inner quads inward.
-   - Observation 1.3 proves that in Blender 5.2.1 LTS, `Armor_Backplate` has a strictly positive signed volume ($+0.003077\text{ m}^3$ at scale 1.0x, $+0.000421\text{ m}^3$ at scale 0.5x).
-   - Defect 2 is completely resolved.
-
-3. **Scale Clearance Robustness (Resolution of Defect 3)**:
-   - In Iteration 1, unscaled coordinate bounds (`v[2] >= 0.80`) dropped backplate sampling at scale $0.5\times$, causing severe clipping ($d_{\min} = 0.0000\text{m}$).
-   - Worker M3-2 scaled all filter bounds by `scale` (`sc`) and enforced an absolute floor:
-     `eff_clearance = max(0.015, clearance_offset * scale)`.
-   - Observation 1.4 proves that at scale $0.5\times$, minimum measured clearance is $0.0150\text{m} \ge 0.015\text{m}$ on the backplate, $0.0217\text{m}$ on pauldrons, $0.0242\text{m}$ on gorget, and $0.0159\text{m}$ on bracers.
-   - Across all 5 scales ($0.5\times$ through $2.0\times$), every plate maintains guaranteed clearance $\ge 0.015\text{m}$.
-   - Defect 3 is completely resolved.
+1. From Observation 1, `generate_catenary_magic_strings()` satisfies all topological invariants (`verts_per_cord = 14`, 140 verts, 120 faces, positive area $> 10^{-5}\text{m}^2$, $0.8\text{mm}$ ribbon width).
+2. From Observation 2, `generate_swallowtail_quad_butterfly()` satisfies all anatomical requirements (24 quads, 48 verts, 0 degenerate faces $> 10^{-6}\text{m}^2$, valid dihedral flutter).
+3. From Observation 3, `get_butterfly_vortex_positions()` in `wardrobe.py` produces valid upward vortex spiral coordinates with pairwise distance $\ge 153.31\text{mm} \ge 150\text{mm}$ and perfect 0.00mm string tip tethering.
+4. From Observation 4, `character_assembler.py:1296-1314` contains redundant legacy code that re-assigns `bf_obj.location` to an obsolete hardcoded array. This overrides the valid positions set by `wardrobe_script`, degrading pairwise separation to 107.70mm (< 150mm requirement) and detaching cords from butterflies by up to 635.15mm.
+5. From Observation 5, `output/yu_nian_an/Yu_Nian_An_Master.blend` was not regenerated following M3 props implementation, containing outdated 18-vertex butterflies and collapsed zero-width cords.
+6. Combining Observations 4 and 5, character generation through `character_assembler.py` and the existing master deliverable fail key acceptance criteria for flocking separation and prop coherence. Therefore, the implementation cannot be approved as-is.
 
 ---
 
 ## 3. Caveats
 
-1. **`Armor_Pauldron_R` Parameterization Winding**:
-   - In `make_pauldron(side)` and `generate_pauldron(side)`:
-     For `side == 'L'`, outer quads are `(og[i][j], og[i+1][j], og[i+1][j+1], og[i][j+1])` (outward normals, signed volume $+0.001031\text{ m}^3$).
-     For `side == 'R'`, outer quads were written as `(og[i][j], og[i][j+1], og[i+1][j+1], og[i+1][j])` to match Challenger M3-1's prompt. This reverses the normal direction along the sphere patch, giving a signed volume of $-0.001031\text{ m}^3$.
-   - **Impact Assessment**: The mesh is 100% 2-manifold, watertight, and has 0 non-manifold edges. Blender PBR Principled BSDF v2 renders both sides cleanly without backface culling artifacts. However, for Milestone M4 scene assembly and GLTF export, a one-line `bpy.ops.mesh.normals_make_consistent(inside=False)` can be executed during final scene assembly if uniform outward normal vectors are strictly desired.
-   - All required acceptance criteria in the dispatch specified positive volume for `Armor_Backplate`, which is fully satisfied.
-
-2. **No other caveats**: 309/309 repository tests pass without errors or warnings.
+- **Scope of Defect 1**: The defect is localized entirely to lines 1296–1314 of `src/morphomesh/character_assembler.py`. Removing or updating this block immediately restores the 153.3mm vortex positions and 0.00mm string tethering already provided by `wardrobe_script`.
+- **Milestone M4 Interaction**: Milestone M4 plans a master asset regeneration for PBR shaders and lighting. However, if `character_assembler.py` is not corrected now, M4 will bake the corrupted 107.7mm flocking positions and detached strings into the final deliverables.
+- No other caveats.
 
 ---
 
 ## 4. Conclusion
 
-**Verdict: APPROVE**
+**Verdict: `REQUEST_CHANGES`**
 
-Worker M3-2's remediations have been adversarially verified in headless Blender 5.2.1 LTS and Python:
-1. `pytest -v tests/test_m3_adversarial_materials_and_armor.py` passes 10/10.
-2. BMesh topology audit confirms all 6 armor plates possess strictly **0 non-manifold edges** and `is_watertight is True` across all test scales ($0.5\times, 0.75\times, 1.0\times, 1.5\times, 2.0\times$).
-3. Signed volume of `Armor_Backplate` in Blender 5.2.1 LTS is **strictly positive** ($+0.003077\text{ m}^3 > 0$ at 1.0x; $+0.000421\text{ m}^3 > 0$ at 0.5x).
-4. Minimum clearance $d_{\min} \ge 0.015\text{m}$ is **strictly maintained** across all 6 armor plates across all scales ($0.5\times, 0.75\times, 1.0\times, 1.5\times, 2.0\times$), with zero geometric penetrations.
-
-Milestone M3 is verified, hardened, and approved for progression to Milestone M4 (Master Scene Assembly, GLTF/Blend Export & Verification Renders).
+While the low-level geometry generators in `src/morphomesh/wardrobe.py` successfully meet all specifications, two integration issues must be remediated:
+1. **Fix `src/morphomesh/character_assembler.py` lines 1296–1314**: Stop overwriting `bf_obj.location` with the hardcoded 10-point array so that the vortex positions ($153.31\text{mm} \ge 150\text{mm}$) and cord attachments are preserved.
+2. **Regenerate Master Deliverable**: Re-execute the assembly script to produce an updated `output/yu_nian_an/Yu_Nian_An_Master.blend` containing the 48-vertex butterflies and 0.8mm ribbon strings.
 
 ---
 
 ## 5. Verification Method
 
-To independently reproduce the empirical findings:
+To independently verify these findings and reproduce the defects:
 
-1. **Run Adversarial Pytest Suite**:
+1. **Run the Challenger Test Battery**:
    ```bash
-   pytest -v tests/test_m3_adversarial_materials_and_armor.py
+   uv run pytest tests/test_challenger_m3_props.py -v
    ```
-   *Expected*: 10 passed in ~4.5s.
+   *Expected Result*: 29 passed, 3 xfailed (the 3 xfails strictly verify the 3 documented defects).
 
-2. **Run Headless Blender 5.2.1 LTS BMesh Topology & Multi-Scale Clearance Audit**:
+2. **Run the Full Milestone M3 Regression Battery**:
    ```bash
-   python3 -c '
-   import subprocess, json, tempfile, os
-   from morphomesh.creature_generator import get_blender_generation_script
-   from morphomesh.materials import CreaturePBRSuite
-   from morphomesh.armor import ProceduralArmorEngine
+   uv run pytest tests/test_wardrobe_m3.py tests/test_adversarial_character_assembler.py -v
+   ```
+   *Expected Result*: 32 passed in ~7s.
 
-   scales = [0.5, 0.75, 1.0, 1.5, 2.0]
-   for sc in scales:
-       s_mesh = get_blender_generation_script("Bear_Base_Mesh", scale=sc)
-       s_mats = CreaturePBRSuite().get_materials_blender_script("Bear_Base_Mesh")
-       s_arm = ProceduralArmorEngine().get_armor_blender_script("Bear_Base_Mesh", scale=sc)
-
-       audit_code = s_mesh + "\n" + s_mats + "\n" + s_arm + f"""
-   import bpy, bmesh
-   bear_obj = bpy.data.objects.get("Bear_Base_Mesh")
-   bear_verts = [v.co.copy() for v in bear_obj.data.vertices]
-   for a_name in created_armor_objects:
-       obj = bpy.data.objects.get(a_name)
-       bm = bmesh.new()
-       bm.from_mesh(obj.data)
-       nm = [e for e in bm.edges if not e.is_manifold or len(e.link_faces) != 2]
-       assert len(nm) == 0, f"Non-manifold edges found in {{a_name}}"
-       min_d = min(min((v.co - bv).length for bv in bear_verts) for v in obj.data.vertices)
-       assert min_d >= 0.015, f"Clearance violation {{min_d}} in {{a_name}}"
-       bm.free()
-   bp = bpy.data.objects.get("Armor_Backplate")
-   bm = bmesh.new(); bm.from_mesh(bp.data)
-   assert bm.calc_volume(signed=True) > 0, "Backplate volume not positive"
-   bm.free()
-   print(f"SCALE_{{sc}}_AUDIT_SUCCESS")
-   """
-       with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
-           f.write(audit_code)
-           p = f.name
-       try:
-           res = subprocess.run(["/Applications/Blender.app/Contents/MacOS/Blender", "--background", "--python", p], capture_output=True, text=True)
-           assert res.returncode == 0
-           assert f"SCALE_{sc}_AUDIT_SUCCESS" in res.stdout
-           print(f"Scale {sc}: PASS")
-       finally:
-           if os.path.exists(p): os.remove(p)
-   '
-   ```
-   *Expected Output*:
-   ```
-   Scale 0.5: PASS
-   Scale 0.75: PASS
-   Scale 1.0: PASS
-   Scale 1.5: PASS
-   Scale 2.0: PASS
-   ```
+3. **Empirical Measurement Commands**:
+   - Verify string detachment in `character_assembler.py`:
+     ```bash
+     uv run python -c "import numpy as np; from morphomesh.wardrobe import get_butterfly_vortex_positions, generate_catenary_magic_strings; targets = get_butterfly_vortex_positions(); s = generate_catenary_magic_strings(rest_pose=True, target_positions=targets); old_bf = [(0.46,-0.16,0.96), (0.52,-0.06,1.14), (0.44,0.12,1.28), (0.54,0.08,1.06), (0.42,-0.10,0.88), (-0.46,-0.16,0.96), (-0.52,-0.06,1.14), (-0.44,0.12,1.28), (-0.54,0.08,1.06), (-0.42,-0.10,0.88)]; print('Cord 9 detachment:', np.linalg.norm(0.5*(np.array(s.vertices[9*14+12])+np.array(s.vertices[9*14+13])) - np.array(old_bf[9]))*1000.0, 'mm')"
+     ```
+     *Output*: `Cord 9 detachment: 635.15 mm`
+   - Verify stale on-disk blend file:
+     ```bash
+     & "C:\Program Files\Blender Foundation\Blender 4.5\blender.exe" --background "output/yu_nian_an/Yu_Nian_An_Master.blend" --python-expr "import bpy; bf = bpy.data.objects['Prop_Butterfly_00']; print('On-disk butterfly verts:', len(bf.data.vertices))"
+     ```
+     *Output*: `On-disk butterfly verts: 18` (Expected: 48).

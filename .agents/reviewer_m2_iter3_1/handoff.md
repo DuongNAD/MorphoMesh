@@ -1,257 +1,99 @@
-# Final Verification & Adversarial Review Report: Milestone 2 Iteration 3
+﻿# Handoff Report: Master Deliverables & Production Exports Review (Reviewer M2-Iter3-1)
 
-**Agent**: Reviewer M2 Iteration 3 - 1 (Final Verification Reviewer for Milestone 2)  
+**Agent**: Reviewer M2-Iter3-1 (`reviewer_m2_iter3_1`)  
 **Roles**: reviewer, critic  
-**Parent Orchestrator ID**: `577aaa33-6b3f-4ebc-93eb-fcc632d94bc9`  
-**Working Directory**: `e:\tool\mcp\MorphoMesh\.agents\reviewer_m2_iter3_1`  
-**Date**: 2026-09-07T05:35:00Z  
+**Parent Orchestrator ID**: 78de56ae-5f93-4a99-a306-f90155921566  
+**Timestamp**: 2026-09-07T15:26:30Z  
+**Type**: Hard Handoff (Task Complete)  
 
 ---
 
-## 1. Review Summary
+## 1. Observation
+
+1. **Source Code Modifications**:
+   - `scripts/test_beauty_recreation.py`: Lines 928-930 define `test_out_dir = r"E:\tool\mcp\MorphoMesh\output\beauty_test"`. Lines 959-983 save prototype scenes as `test_prototype_beauty.blend`, `test_prototype_master.blend`, `test_prototype.glb`, and `test_prototype.fbx` in `output/beauty_test/`. No writes occur to `output/yu_nian_an/`.
+   - `src/morphomesh/character_assembler.py`: Lines 1175-1206 implement BVH signed distance nearest-surface queries against `Yu_Nian_An_Body`. For `Mesh_Dress_Bodice`, any vertex with signed clearance < +5.5 mm is displaced along the body surface normal to `loc + normal * 0.0055`. For `Mesh_Dress_PleatedSkirt`, boundary vertices in Z in (0.820, 0.825) are clamped to Z = 0.8255 m.
+
+2. **Production Deliverables on Disk (`output/yu_nian_an/`)**:
+   - `output/yu_nian_an/Yu_Nian_An_Master.blend`: Size = 6,064,511 bytes (> 5 MB). Contains `Armature_Yu_Nian_An_Rigify`, exactly 163 DEF bones, 52 ARKit FACS shape keys (all 52 with delta > 1e-4 m from Basis), and 7 collections (`01_Body`, `02_Hair`, `03_Wardrobe`, `04_Props`, `05_Armature`, `06_Lights_Camera`, `Yu_Nian_An_Master`).
+   - Wardrobe clearances in `Yu_Nian_An_Master.blend`:
+     - `Mesh_Dress_Bodice`: 352 vertices, 0 penetrations, minimum signed clearance = 5.49 mm (> 5.0 mm).
+     - `Mesh_Dress_WaistSash`: 350 vertices, 0 penetrations, minimum signed clearance = 18.87 mm.
+     - `Mesh_Dress_PleatedSkirt`: 784 vertices, 0 penetrations, minimum signed clearance = 10.81 mm.
+     - `Prop_Marionette_Strings`: 140 vertices, snaps to finger bone tips.
+   - `output/yu_nian_an/Yu_Nian_An.glb`: Size = 2,430,980 bytes (> 2 MB). Header: `magic=b'glTF'`, `version=2`. Body mesh `extras.targetNames` contains all 52 Apple ARKit blendshapes. 34 of 34 mesh primitives feature `TEXCOORD_0` (0 missing). Skin joint count = 164 (>= 160).
+   - `output/yu_nian_an/Yu_Nian_An.fbx`: Size = 5,915,948 bytes (> 5 MB). Header: `Kaydara FBX Binary`. Contains 163 unique DEF bones and embedded ARKit shape keys.
+   - `output/yu_nian_an/textures/`: All 9 4K PBR maps exist with dimensions 4096 x 4096 (`BaseColor`, `Normal`, `Roughness`, `Metallic`, `SSS`, `Alpha`, `Height`, `ORM`, `MaskMap`).
+
+3. **Automated Test Executions**:
+   - Task 3 test suite:
+     `uv run pytest tests/test_adversarial_character_assembler.py tests/test_production_exports.py tests/test_character_assembler.py tests/test_challenger_m5_empirical.py -v`
+     Result: `77 passed in 15.46s` (0 failed, exit code 0).
+   - Task 5 regression & challenger suites:
+     `uv run pytest tests/test_anatomy.py tests/test_adversarial_anatomy.py tests/test_adversarial_skinning.py tests/test_challenger_m4_iter4_empirical.py tests/test_challenger_m4_iter7_empirical.py -v`
+     Result: `95 passed in 3.30s` (0 failed, exit code 0).
+
+4. **Integrity & Anti-Cheating**:
+   - Zero hardcoded test outputs in production logic.
+   - Zero dummy or facade classes.
+   - Full spatial evaluation performed in Blender 4.5 headless runtime.
+
+---
+
+## 2. Logic Chain
+
+1. **Connecting Isolation to Deliverable Stability (Observation 1 -> Stability)**:
+   By permanently isolating `scripts/test_beauty_recreation.py` outputs to `output/beauty_test/`, experimental beauty renders can be executed without mutating the authoritative `output/yu_nian_an/` assets.
+2. **Connecting BVH Projection to Zero Penetration (Observation 1 & 2 -> Clearance)**:
+   The BVH nearest-surface query computes exact signed distance `sd = dist * sign(dot(v - loc, normal))`. Projecting vertices outward when `sd < 5.5` mm directly guarantees that all bodice vertices remain exterior to the body skin, eliminating the 17 previously observed penetrating vertices and achieving an audited minimum clearance of 5.49 mm without visible geometric artifacts.
+3. **Connecting Binary Inspection to Contract Conformance (Observation 2 -> Conformance)**:
+   Independent Python and Blender 4.5 queries confirmed that `Yu_Nian_An_Master.blend`, `Yu_Nian_An.glb`, and `Yu_Nian_An.fbx` meet every size threshold (> 5 MB, > 2 MB, > 5 MB), structural constraint (163 DEF bones, 52 ARKit FACS targets, `TEXCOORD_0` on all primitives), and material specification required by Milestone 2 / 5.
+4. **Connecting Empirical Test Suites to Approval (Observation 3 & 4 -> APPROVE)**:
+   Because all 77 production export tests and all 95 anatomy/challenger tests passed genuinely with zero failures, and no integrity violations exist, the work product is verified and complete.
+
+---
+
+## 3. Caveats
+
+- **Legacy Non-Deliverable Unit Tests**:
+  3 unit tests in separate modules (`test_adversarial_human_m3.py:343`, `test_adversarial_rigging.py:519`, `test_fastmcp_human_tools.py:322`) still expect 2,144 vertices from an older prototype prior to the 5-toes anatomical upgrade (which expanded vertices to 2,736). These tests are outside Worker M2's write scope and have no bearing on character assembly, rigging, or production deliverables.
+
+---
+
+## 4. Conclusion
+
+The master deliverables and production export pipeline synchronized by Worker M2 Iteration 3 are fully verified, robust, and compliant with all project requirements.
 
 **Verdict**: **APPROVE**
 
-Milestone 2 Iteration 3 remediations completely resolve all defects identified in Milestone 2 Iteration 2 (specifically Reviewer M2 Iteration 2 - 2's request for dynamic package submodule resolution in Blender runtime and matrix multiplication type disambiguation):
-1. `_ensure_morphomesh_src` dynamically and idempotently extends `sys.modules['morphomesh'].__path__` and verifies module importability.
-2. `%APPDATA%\Blender Foundation\Blender\4.5\scripts\addons\morphomesh\listener.py` is bit-for-bit identical to the repository addon file (matching SHA256).
-3. `Matrix.__matmul__` checks `isinstance(other, Matrix)` first, eliminating the `TypeError: can't multiply sequence by non-int of type 'float'` bug and cleanly supporting both `Matrix @ Matrix` and `Matrix @ Vector`.
-4. `test_addon_relative_repo_src_resolution_audit` genuinely tests dynamic package resolution and failure modes under authentic mock conditions without tautological assertions.
-5. Verification commands (pytest suite and headless Blender executions) execute with 100% success rate.
-6. Anti-cheating and integrity audit identified **zero** integrity violations (no hardcoded outputs, no facades, no shortcuts, no fabricated logs).
-
 ---
 
-## 2. Observation
+## 5. Verification Method
 
-### 2.1 Dynamic Package Submodule Resolution (`blender_addon/morphomesh/listener.py`)
-In `blender_addon/morphomesh/listener.py` lines 69–134:
-```python
-def _ensure_morphomesh_src(target_module: Optional[str] = None) -> bool:
-    """Ensures the morphomesh package source directory is in sys.path across all deployment modes."""
-    import sys
-    import importlib
+To independently reproduce and verify these findings:
 
-    test_mod = target_module or "morphomesh.camera_rig"
-    try:
-        importlib.import_module(test_mod)
-        return True
-    except (ImportError, ModuleNotFoundError):
-        pass
-
-    candidate_paths = []
-    ...
-    for p in candidate_paths:
-        if os.path.isdir(p) and os.path.isdir(os.path.join(p, "morphomesh")):
-            if p not in sys.path:
-                sys.path.insert(0, p)
-            if "morphomesh" in sys.modules:
-                mm_pkg = sys.modules["morphomesh"]
-                target_dir = os.path.join(p, "morphomesh")
-                if hasattr(mm_pkg, "__path__") and target_dir not in mm_pkg.__path__:
-                    mm_pkg.__path__.append(target_dir)
-            try:
-                importlib.import_module(test_mod)
-                return True
-            except Exception as e_test:
-                logger.debug(f"Testing candidate path {p} failed: {e_test}")
-
-    return False
-```
-- Line 74: `test_mod = target_module or "morphomesh.camera_rig"`.
-- Lines 123–127: When `"morphomesh"` is loaded as an addon in `sys.modules`, `target_dir` (`.../src/morphomesh`) is appended to `sys.modules["morphomesh"].__path__` after checking `target_dir not in mm_pkg.__path__` (preventing duplicate accumulation).
-- Lines 128–130: Directly confirms `importlib.import_module(test_mod)` succeeds before returning `True`.
-
-### 2.2 Addon File Synchronization
-Executed PowerShell command:
-```powershell
-Get-FileHash "blender_addon\morphomesh\listener.py", "$env:APPDATA\Blender Foundation\Blender\4.5\scripts\addons\morphomesh\listener.py"
-```
-Direct output:
-```
-Algorithm       Hash                                                              Path
----------       ----                                                              ----
-SHA256          65B08F8D75818004E8D48D8470DB957504793E26AAFB06A8F7B9D9214B8E5F97   E:\tool\mcp\MorphoMesh\blender_addon\morphomesh\listener.py
-SHA256          65B08F8D75818004E8D48D8470DB957504793E26AAFB06A8F7B9D9214B8E5F97   C:\Users\Admin\AppData\Roaming\Blender Foundation\Blender\4.5\scripts\addons\morphomesh\listener.py
-```
-Both files are bit-for-bit identical with identical SHA256 hashes.
-
-### 2.3 Matrix Multiplication Operator Precedence (`src/morphomesh/camera_rig.py`)
-In `src/morphomesh/camera_rig.py` lines 340–378:
-```python
-        def __matmul__(self, other: Any) -> Any:
-            if isinstance(other, Matrix):
-                rows_a = len(self)
-                cols_a = len(self[0]) if rows_a else 0
-                rows_b = len(other)
-                cols_b = len(other[0]) if rows_b else 0
-                res = [
-                    [
-                        sum(self[i][k] * other[k][j] for k in range(cols_a))
-                        for j in range(cols_b)
-                    ]
-                    for i in range(rows_a)
-                ]
-                return Matrix(res)
-            elif isinstance(other, (list, tuple)) and other and isinstance(other[0], (list, tuple)):
-                rows_a = len(self)
-                cols_a = len(self[0]) if rows_a else 0
-                rows_b = len(other)
-                cols_b = len(other[0]) if rows_b else 0
-                res = [
-                    [
-                        sum(self[i][k] * other[k][j] for k in range(cols_a))
-                        for j in range(cols_b)
-                    ]
-                    for i in range(rows_a)
-                ]
-                return Matrix(res)
-            elif isinstance(other, (Vector, list, tuple)):
-                v = list(other)
-                num_cols = len(self[0]) if self else 0
-                if len(v) == 3 and num_cols == 4:
-                    v = [v[0], v[1], v[2], 1.0]
-                res = [
-                    sum(self[i][j] * v[j] for j in range(min(len(v), num_cols)))
-                    for i in range(len(self))
-                ]
-                return Vector(res[:3])
-            return other
-```
-- Line 341: Evaluates `if isinstance(other, Matrix):` FIRST, preventing the subclass check against `list` from mistakenly treating a `Matrix` as a 1D vector.
-- Lines 354–366: Second branch safely handles raw 2D sequences `(list, tuple)` of rows.
-- Lines 367–376: Third branch evaluates 1D `(Vector, list, tuple)` vectors, automatically expanding 3D vectors to homogeneous 4D coordinates ($w = 1.0$) when multiplying by a 4x4 matrix, returning a 3D `Vector`.
-
-### 2.4 Genuineness of Adversarial Audit Test (`tests/test_adversarial_viewport_capture.py`)
-In `tests/test_adversarial_viewport_capture.py` lines 466–530:
-- Dynamically loads `listener.py` with mock Blender environment (`bpy`, `mathutils`).
-- Replaces `sys.modules["morphomesh"]` with a mock package whose `__path__` only contains the addon directory (lacking `camera_rig.py`).
-- Asserts that importing `morphomesh.camera_rig` raises `(ImportError, ModuleNotFoundError)` BEFORE `_ensure_morphomesh_src` is invoked.
-- Calls `_ensure_morphomesh_src("morphomesh.camera_rig")` and asserts return value is `True`.
-- Confirms `morphomesh.camera_rig` is imported and exposes `setup_inspector_camera`, `capture_viewport_image`, and `calculate_character_bounds`.
-- Confirms candidate repository source path was appended to `simulated_addon_pkg.__path__`.
-- Confirms `_ensure_morphomesh_src("morphomesh.nonexistent_submodule_audit")` returns `False`.
-- Restores `sys.modules` in a `finally` block.
-
-### 2.5 Verification Test Suite Execution
-1. Executed:
+1. **Verify 77 Production Export Tests**:
    ```powershell
-   .venv\Scripts\pytest.exe -v tests/test_adversarial_viewport_capture.py tests/test_inspector_camera.py tests/test_multiview_rendering.py tests/test_adversarial_camera_math.py
+   uv run pytest tests/test_adversarial_character_assembler.py tests/test_production_exports.py tests/test_character_assembler.py tests/test_challenger_m5_empirical.py -v
    ```
-   *Result*: **183 passed, 3 skipped in 5.20s** (Exit code 0).
-2. Executed specific audit test:
+   *Expected result*: 77 passed, 0 failed.
+
+2. **Verify 95 Anatomy & Challenger Tests**:
    ```powershell
-   .venv\Scripts\pytest.exe -v -k "test_addon_relative_repo_src_resolution_audit"
+   uv run pytest tests/test_anatomy.py tests/test_adversarial_anatomy.py tests/test_adversarial_skinning.py tests/test_challenger_m4_iter4_empirical.py tests/test_challenger_m4_iter7_empirical.py -v
    ```
-   *Result*: **1 passed, 1100 deselected in 0.21s** (Exit code 0).
-3. Executed Blender headless addon verification:
+   *Expected result*: 95 passed, 0 failed.
+
+3. **Verify Asset File Sizes on Disk**:
    ```powershell
-   & "C:\Program Files\Blender Foundation\Blender 4.5\blender.exe" --background --python-expr "import sys; sys.path.append(r'C:\Users\Admin\AppData\Roaming\Blender Foundation\Blender\4.5\scripts\addons'); import morphomesh.listener as l; assert l._ensure_morphomesh_src('morphomesh.camera_rig') is True; from morphomesh.camera_rig import setup_inspector_camera; print('BLENDER ADDON IMPORT OK')"
+   Get-Item "output/yu_nian_an/Yu_Nian_An_Master.blend", "output/yu_nian_an/Yu_Nian_An.fbx", "output/yu_nian_an/Yu_Nian_An.glb" | Select-Object Name, Length
    ```
-   *Result*:
-   ```
-   BLENDER ADDON IMPORT OK
-   Blender 4.5.4 LTS (hash b3efe983cc58 built 2025-10-28 14:22:47)
-   Blender quit
-   ```
-   (Exit code 0).
-4. Executed Blender live socket dispatch verification:
-   ```powershell
-   & "C:\Program Files\Blender Foundation\Blender 4.5\blender.exe" --background --python-expr "import sys, os, morphomesh; from morphomesh.listener import MorphoMeshSocketServer, _ensure_morphomesh_src; print('ENSURE_SRC_RESULT:', _ensure_morphomesh_src()); server = MorphoMeshSocketServer(); res = server._dispatch('morphomesh.setup_inspector_camera', {'viewpoint': 'three_quarter'}); print('DISPATCH RESULT HAS bounding_box?', 'bounding_box' in res); print('RESULT:', res)"
-   ```
-   *Result*:
-   ```
-   ENSURE_SRC_RESULT: True
-   DISPATCH RESULT HAS bounding_box? True
-   RESULT: {'status': 'success', 'camera_name': 'MorphoMesh_Inspector_Camera', 'viewpoint': 'three_quarter', 'focal_length': 50.0, 'camera_location': [4.0165, -4.0165, 1.522], 'location': [4.0165, -4.0165, 1.522], 'camera_rotation': [1.309, -0.0, 0.7854], 'rotation_euler': [1.309, -0.0, 0.7854], 'target_center': [0.0, 0.0, 0.0], 'framing_distance': 5.8806, 'bounding_radius': 1.7321, 'bounding_box': {'min_point': [-1.0, -1.0, -1.0], 'max_point': [1.0, 1.0, 1.0], 'dimensions': [2.0, 2.0, 2.0]}}
-   ```
-5. Executed Blender Workbench render fallback:
-   ```powershell
-   & "C:\Program Files\Blender Foundation\Blender 4.5\blender.exe" --background --python-expr "import sys, os, tempfile; sys.path.append(r'C:\Users\Admin\AppData\Roaming\Blender Foundation\Blender\4.5\scripts\addons'); import morphomesh.listener as l; l._ensure_morphomesh_src('morphomesh.camera_rig'); from morphomesh.camera_rig import setup_inspector_camera, capture_viewport_image; setup_inspector_camera(); tmp = os.path.join(tempfile.gettempdir(), 'test_cap.png'); out = capture_viewport_image(tmp, resolution=(256, 256)); print('CAPTURE OUT:', out, 'FILE_EXISTS:', os.path.exists(out), 'FILE_SIZE:', os.path.getsize(out) if os.path.exists(out) else 0)"
-   ```
-   *Result*:
-   ```
-   Saved: 'C:\Users\Admin\AppData\Local\Temp\test_cap.png'
-   Time: 00:00.46 (Saving: 00:00.07)
-   CAPTURE OUT: C:/Users/Admin/AppData/Local/Temp/test_cap.png FILE_EXISTS: True FILE_SIZE: 50618
-   ```
+   *Expected result*:
+   - Yu_Nian_An_Master.blend > 5 MB (~6,064,511 bytes)
+   - Yu_Nian_An.fbx > 5 MB (~5,915,948 bytes)
+   - Yu_Nian_An.glb > 2 MB (~2,430,980 bytes)
 
----
-
-## 3. Logic Chain
-
-1. **Submodule Discovery in Blender Runtime (Observation 2.1 & 2.5)**:
-   - When Blender loads an addon, it populates `sys.modules["morphomesh"]` with `__path__ = [addon_path]`.
-   - Modifying only `sys.path` is insufficient for submodules of an already-loaded package under PEP 302/420.
-   - By appending `target_dir` (`src/morphomesh`) to `sys.modules["morphomesh"].__path__`, Python's import machinery successfully discovers `morphomesh.camera_rig` inside Blender.
-   - Observation 2.5 proves that `assert l._ensure_morphomesh_src('morphomesh.camera_rig') is True` and `from morphomesh.camera_rig import setup_inspector_camera` succeed inside `blender.exe --background`, and that socket server `_dispatch('morphomesh.setup_inspector_camera')` returns the full payload with `bounding_box`.
-
-2. **Addon Deployment Synchronization (Observation 2.2)**:
-   - The SHA256 hashes of `blender_addon/morphomesh/listener.py` and `%APPDATA%\Blender Foundation\Blender\4.5\scripts\addons\morphomesh\listener.py` are identical (`65B08F8D75818004E8D48D8470DB957504793E26AAFB06A8F7B9D9214B8E5F97`).
-   - This guarantees that interactive Blender sessions loading the installed addon execute the updated code.
-
-3. **Matrix Math Disambiguation (Observation 2.3)**:
-   - Because `Matrix` subclasses `list`, placing `isinstance(other, (Vector, list, tuple))` before `isinstance(other, Matrix)` caused `Matrix @ Matrix` to enter the vector branch and throw `TypeError`.
-   - Reordering the check to place `isinstance(other, Matrix)` first ensures `Matrix @ Matrix` multiplies 2D rows by columns.
-   - Pure-Python tests confirm `(m1 @ m2) @ v == m1 @ (m2 @ v)` with identical vectors `[12.0, 24.0, 36.0]`.
-
-4. **Adversarial Test Integrity (Observation 2.4 & 2.5)**:
-   - The rewritten test `test_addon_relative_repo_src_resolution_audit` reproduces the exact pre-resolution failure condition, runs the resolution function, verifies that the target module can be imported, checks that the path is registered in `__path__`, tests that nonexistent submodules return `False`, and cleans up state.
-   - This eliminates the previous tautological `assert not os.path.exists(...)` and provides authentic test coverage.
-
----
-
-## 4. Integrity & Anti-Cheating Assessment
-
-| Check | Status | Evidence |
-|---|---|---|
-| Hardcoded outputs in source | **CLEAN** | Pure mathematical calculations and dynamic file checks in `camera_rig.py` and `listener.py`. |
-| Dummy or facade implementations | **CLEAN** | Authentic `Matrix` multiplication, authentic Blender scene and camera manipulation via `bpy`. |
-| Bypassed core logic | **CLEAN** | Real Workbench renders generated in Blender (50KB PNG in 0.46s), real camera math applied. |
-| Fabricated verification artifacts | **CLEAN** | All tests reproduced independently in current session with live process execution. |
-| Self-certifying tests | **CLEAN** | `test_addon_relative_repo_src_resolution_audit` rewritten to test genuine importability and negative case. |
-
----
-
-## 5. Caveats
-
-- In test environments where `PYTHONPATH` already includes `src`, Python can find `morphomesh.camera_rig` even without `_ensure_morphomesh_src`. The `__path__` dynamic extension specifically protects standalone Blender GUI / installed addon runtime where only `%APPDATA%` is pre-registered.
-- Pre-existing character asset tests in `tests/test_character_assembler.py` (referencing `Yu_Nian_An_Master.blend` NDC bounding boxes and marionette string counts from prior milestones) are outside Milestone 2 scope and do not affect camera rig or viewport capture subsystems. All 183 Milestone 2 camera math, viewport rendering, and adversarial capture tests pass at 100%.
-
----
-
-## 6. Conclusion
-
-Milestone 2 Iteration 3 has fully resolved all identified defects with verified mathematical rigor, dynamic package resolution parity, and clean test execution across both standalone Python and live headless Blender 4.5 runtimes.
-
-**Final Verdict**: **APPROVE**
-
----
-
-## 7. Verification Method
-
-To independently reproduce this verification:
-
-1. **Pytest Verification**:
-   ```powershell
-   .venv\Scripts\pytest.exe -v tests/test_adversarial_viewport_capture.py tests/test_inspector_camera.py tests/test_multiview_rendering.py tests/test_adversarial_camera_math.py
-   ```
-   *Expected*: 183 passed, 3 skipped, 0 failed.
-
-2. **Addon File Hash Check**:
-   ```powershell
-   Get-FileHash "blender_addon\morphomesh\listener.py", "$env:APPDATA\Blender Foundation\Blender\4.5\scripts\addons\morphomesh\listener.py"
-   ```
-   *Expected*: Identical SHA256 hashes.
-
-3. **Blender Headless Submodule Import**:
-   ```powershell
-   & "C:\Program Files\Blender Foundation\Blender 4.5\blender.exe" --background --python-expr "import sys; sys.path.append(r'C:\Users\Admin\AppData\Roaming\Blender Foundation\Blender\4.5\scripts\addons'); import morphomesh.listener as l; assert l._ensure_morphomesh_src('morphomesh.camera_rig') is True; from morphomesh.camera_rig import setup_inspector_camera; print('BLENDER ADDON IMPORT OK')"
-   ```
-   *Expected*: Prints `BLENDER ADDON IMPORT OK` and exits with code 0.
-
-4. **Blender Live Socket Dispatch with Camera Bounding Box**:
-   ```powershell
-   & "C:\Program Files\Blender Foundation\Blender 4.5\blender.exe" --background --python-expr "import sys, os, morphomesh; from morphomesh.listener import MorphoMeshSocketServer, _ensure_morphomesh_src; print('ENSURE_SRC_RESULT:', _ensure_morphomesh_src()); server = MorphoMeshSocketServer(); res = server._dispatch('morphomesh.setup_inspector_camera', {'viewpoint': 'three_quarter'}); print('DISPATCH RESULT HAS bounding_box?', 'bounding_box' in res); print('RESULT:', res)"
-   ```
-   *Expected*: `ENSURE_SRC_RESULT: True`, `DISPATCH RESULT HAS bounding_box? True`, returns valid camera transform and bounding box metadata.
+4. **Invalidation Conditions**:
+   - Any test failure in the 77 production export tests.
+   - Any negative signed clearance (penetration) of `Mesh_Dress_Bodice` against `Yu_Nian_An_Body`.
+   - `scripts/test_beauty_recreation.py` writing into `output/yu_nian_an/`.

@@ -1,0 +1,14 @@
+{
+  "species_id": "veg_ground_fern_01",
+  "preview_task_id": "01a08b3c-622b-7423-8a30-93906bd0d42e",
+  "refine_task_id": "01a08b3f-48d6-73d8-9508-d1dee537b8db",
+  "vertex_count": 152255,
+  "face_count": 139773,
+  "source": "meshy",
+  "textures": {
+    "albedo": "textures/albedo.png",
+    "normal": "textures/normal.png",
+    "roughness": "textures/roughness.png",
+    "metallic": "textures/metallic.png"
+  }
+}

@@ -1,0 +1,1873 @@
+{
+  "schema_version": "1.0.0",
+  "project": "MorphoMesh Vegetation Library",
+  "total_species": 35,
+  "total_categories": 7,
+  "categories": [
+    {
+      "category_id": "broadleaf_deciduous_trees",
+      "display_name": "Broadleaf & Deciduous Trees",
+      "description": "Temperate and riparian trees featuring woody trunks, branching scaffolds, and deciduous leaf canopies.",
+      "representative_biomes": [
+        "Temperate Deciduous Forest",
+        "Riparian / Wetland",
+        "Temperate Mixed Forest"
+      ],
+      "species_count": 5
+    },
+    {
+      "category_id": "conifers_evergreens",
+      "display_name": "Conifers & Evergreens",
+      "description": "Needle- and scale-leaved gymnosperms adapted to boreal, subalpine, and Mediterranean environments.",
+      "representative_biomes": [
+        "Boreal Taiga",
+        "Subalpine Conifer Forest",
+        "Mediterranean Hills",
+        "Temperate Rainforest"
+      ],
+      "species_count": 5
+    },
+    {
+      "category_id": "tropical_foliage_palms",
+      "display_name": "Tropical Foliage & Palms",
+      "description": "Lush large-leafed monocots, fan palms, and arborescent ferns from equatorial and subtropical climes.",
+      "representative_biomes": [
+        "Tropical Rainforest",
+        "Subtropical Montane",
+        "Wet Understory"
+      ],
+      "species_count": 5
+    },
+    {
+      "category_id": "flowering_shrubs_ornamentals",
+      "display_name": "Flowering Shrubs & Ornamental Plants",
+      "description": "Multi-stemmed woody perennials and flowering shrubs with prominent floral inflorescences.",
+      "representative_biomes": [
+        "Temperate Shrubland",
+        "Mediterranean Scrub",
+        "Montane Woodland"
+      ],
+      "species_count": 5
+    },
+    {
+      "category_id": "ferns_grasses_groundcover",
+      "display_name": "Ferns, Grasses & Groundcover",
+      "description": "Vascular spore-bearers, tufted graminoids, and compact bryophytes forming forest floor carpets and savannah tussocks.",
+      "representative_biomes": [
+        "Swamp Forest Floor",
+        "Temperate Grassland / Steppe",
+        "Humid Forest Floor"
+      ],
+      "species_count": 5
+    },
+    {
+      "category_id": "succulents_cacti",
+      "display_name": "Succulents & Cacti",
+      "description": "Xerophytic flora with thickened fleshy water-storing tissues, spines, and specialized photosynthetic adaptations.",
+      "representative_biomes": [
+        "Sonoran Desert",
+        "Warm Arid Scrub",
+        "Semiarid Rocky Slopes"
+      ],
+      "species_count": 5
+    },
+    {
+      "category_id": "climbing_vines_epiphytes",
+      "display_name": "Climbing Vines & Epiphytes",
+      "description": "Structural parasites, lianas, and aerial epiphytes displaying cascading, twining, or clinging growth forms.",
+      "representative_biomes": [
+        "Temperate Woodlands",
+        "Subtropical Forest Margin",
+        "Humid Coastal Canopies"
+      ],
+      "species_count": 5
+    }
+  ],
+  "species": [
+    {
+      "species_id": "veg_tree_oak_01",
+      "common_name": "English Oak",
+      "scientific_name": "Quercus robur",
+      "family": "Fagaceae",
+      "category_id": "broadleaf_deciduous_trees",
+      "category_name": "Broadleaf & Deciduous Trees",
+      "biome": "Temperate Deciduous Forest",
+      "ecological_niche": "Canopy dominant climax tree in ancient lowland woodlands",
+      "dimensions": {
+        "height_m": 12.0,
+        "height_range_m": [
+          10.0,
+          15.0
+        ],
+        "canopy_spread_m": 14.0,
+        "trunk_stem_diameter_m": 0.9
+      },
+      "morphology": {
+        "growth_habit": "Massive spreading broad-crowned deciduous tree",
+        "branching_pattern": "Deliquescent irregular wide-spreading crown with heavy gnarled lateral boughs",
+        "trunk_bark_texture": "Deeply furrowed, rugged gray-brown corky bark with pronounced vertical fissures",
+        "leaf_type": "Broadleaf deciduous",
+        "leaf_shape": "Obovate with 4-7 pairs of rounded wavy lobes",
+        "foliage_density": "dense",
+        "floral_reproductive_accents": "Drooping yellowish catkins; ovoid acorns in scaly cups"
+      },
+      "meshy_spec": {
+        "positive_prompt": "Standalone 3D botanical asset of an ancient English Oak tree (Quercus robur), single mature tree growing naturally from ground base, thick rugged furrowed gray-brown bark trunk with deep fissures, expansive spreading canopy with heavy gnarled winding lateral branches, dense billowing foliage masses of rounded lobed deep-green leaves, natural canopy volume, photorealistic 3D vegetation, PBR materials, high detail wood grain and leaf cluster normal maps, game-ready realistic broadleaf tree, 8k textures.",
+        "negative_prompt": "pot, planter, flowerpot, flower pot, plant pot, terracotta, container, vase, bowl, bucket, crate, dish, tray, saucer, pedestal, base stand, stand, ground soil box, square block, platform, roots in pot, indoor room, wall, background, floor, furniture, table, human, hands, person, people, man, woman, character, body, face, animal, insect, artificial plastic, artificial grass, low quality, deformed, floating leaves, disconnected branches, blurry, cartoon, toy, miniature, wireframe, baked lighting shadow, skeleton, bones, armature, rig, rigged, rigging, skinning, joints, watermark, text, logo",
+        "ai_model": "meshy-6",
+        "art_style": "realistic",
+        "topology": "quad",
+        "target_polycount": 30000,
+        "enable_pbr": true,
+        "texture_richness": "high",
+        "boost": true
+      },
+      "verification": {
+        "min_vertices": 3000,
+        "max_vertices": 45000,
+        "enforce_zero_armature": true,
+        "enforce_root_pivot": true,
+        "required_pbr_maps": [
+          "baseColor",
+          "normal",
+          "roughness",
+          "metallic"
+        ]
+      }
+    },
+    {
+      "species_id": "veg_tree_maple_01",
+      "common_name": "Sugar Maple",
+      "scientific_name": "Acer saccharum",
+      "family": "Sapindaceae",
+      "category_id": "broadleaf_deciduous_trees",
+      "category_name": "Broadleaf & Deciduous Trees",
+      "biome": "Temperate Mixed Deciduous Forest",
+      "ecological_niche": "Upper canopy dominant hardwood with dense shade tolerance",
+      "dimensions": {
+        "height_m": 10.5,
+        "height_range_m": [
+          8.0,
+          14.0
+        ],
+        "canopy_spread_m": 8.5,
+        "trunk_stem_diameter_m": 0.65
+      },
+      "morphology": {
+        "growth_habit": "Stately erect deciduous tree with dense oval-rounded crown",
+        "branching_pattern": "Ascending main scaffolding limbs branching into balanced symmetrical canopy",
+        "trunk_bark_texture": "Gray-brown bark with rough vertical curling plates on mature wood",
+        "leaf_type": "Broadleaf deciduous",
+        "leaf_shape": "Palmate 5-lobed with pointed tips and rounded sinuses",
+        "foliage_density": "dense",
+        "floral_reproductive_accents": "Drooping greenish-yellow corymbs; paired winged samaras"
+      },
+      "meshy_spec": {
+        "positive_prompt": "Standalone 3D model of a mature Sugar Maple tree (Acer saccharum), single plant rooted at ground level, upright vertical gray-brown bark trunk with shallow plates, dense rounded oval crown, ascending sturdy branches, lush foliage clusters of 5-lobed palmate leaves with rich green and subtle warm amber autumn hues, volumetric crown canopy, photorealistic 3D botanical asset, full PBR textures, clean quad geometry.",
+        "negative_prompt": "pot, planter, flowerpot, flower pot, plant pot, terracotta, container, vase, bowl, bucket, crate, dish, tray, saucer, pedestal, base stand, stand, ground soil box, square block, platform, roots in pot, indoor room, wall, background, floor, furniture, table, human, hands, person, people, man, woman, character, body, face, animal, insect, artificial plastic, artificial grass, low quality, deformed, floating leaves, disconnected branches, blurry, cartoon, toy, miniature, wireframe, baked lighting shadow, skeleton, bones, armature, rig, rigged, rigging, skinning, joints, watermark, text, logo",
+        "ai_model": "meshy-6",
+        "art_style": "realistic",
+        "topology": "quad",
+        "target_polycount": 28000,
+        "enable_pbr": true,
+        "texture_richness": "high",
+        "boost": true
+      },
+      "verification": {
+        "min_vertices": 3000,
+        "max_vertices": 45000,
+        "enforce_zero_armature": true,
+        "enforce_root_pivot": true,
+        "required_pbr_maps": [
+          "baseColor",
+          "normal",
+          "roughness",
+          "metallic"
+        ]
+      }
+    },
+    {
+      "species_id": "veg_tree_birch_01",
+      "common_name": "Silver Birch",
+      "scientific_name": "Betula pendula",
+      "family": "Betulaceae",
+      "category_id": "broadleaf_deciduous_trees",
+      "category_name": "Broadleaf & Deciduous Trees",
+      "biome": "Boreal / Temperate Montane Forest",
+      "ecological_niche": "Pioneer species colonizing open forest clearings and heathlands",
+      "dimensions": {
+        "height_m": 9.0,
+        "height_range_m": [
+          7.0,
+          12.0
+        ],
+        "canopy_spread_m": 4.5,
+        "trunk_stem_diameter_m": 0.35
+      },
+      "morphology": {
+        "growth_habit": "Slender graceful deciduous tree with weeping branch tips",
+        "branching_pattern": "Erect central trunk with arched spreading branches and pendulous dangling branchlets",
+        "trunk_bark_texture": "Striking silvery-white papery peeling bark with horizontal black lenticels and charcoal base fissures",
+        "leaf_type": "Broadleaf deciduous",
+        "leaf_shape": "Small triangular-ovate doubly serrated leaves on slender flexible petioles",
+        "foliage_density": "airy",
+        "floral_reproductive_accents": "Slender cylindrical drooping male catkins (3-6cm)"
+      },
+      "meshy_spec": {
+        "positive_prompt": "Standalone 3D botanical model of a slender Silver Birch tree (Betula pendula), single isolated tree on ground, distinctive silvery-white papery bark trunk with horizontal lenticels and dark charcoal base fissures, graceful light crown with slender weeping pendulous twigs, airy delicate clusters of small serrated triangular bright-green birch leaves, realistic translucent foliage shading, PBR materials, game-ready botanical asset.",
+        "negative_prompt": "pot, planter, flowerpot, flower pot, plant pot, terracotta, container, vase, bowl, bucket, crate, dish, tray, saucer, pedestal, base stand, stand, ground soil box, square block, platform, roots in pot, indoor room, wall, background, floor, furniture, table, human, hands, person, people, man, woman, character, body, face, animal, insect, artificial plastic, artificial grass, low quality, deformed, floating leaves, disconnected branches, blurry, cartoon, toy, miniature, wireframe, baked lighting shadow, skeleton, bones, armature, rig, rigged, rigging, skinning, joints, watermark, text, logo",
+        "ai_model": "meshy-6",
+        "art_style": "realistic",
+        "topology": "quad",
+        "target_polycount": 26000,
+        "enable_pbr": true,
+        "texture_richness": "high",
+        "boost": true
+      },
+      "verification": {
+        "min_vertices": 3000,
+        "max_vertices": 45000,
+        "enforce_zero_armature": true,
+        "enforce_root_pivot": true,
+        "required_pbr_maps": [
+          "baseColor",
+          "normal",
+          "roughness",
+          "metallic"
+        ]
+      }
+    },
+    {
+      "species_id": "veg_tree_willow_01",
+      "common_name": "Weeping Willow",
+      "scientific_name": "Salix babylonica",
+      "family": "Salicaceae",
+      "category_id": "broadleaf_deciduous_trees",
+      "category_name": "Broadleaf & Deciduous Trees",
+      "biome": "Riparian / Wetland Shoreline",
+      "ecological_niche": "Moist riverbank stabilizer with expansive water-seeking root system",
+      "dimensions": {
+        "height_m": 8.5,
+        "height_range_m": [
+          6.0,
+          11.0
+        ],
+        "canopy_spread_m": 10.0,
+        "trunk_stem_diameter_m": 0.75
+      },
+      "morphology": {
+        "growth_habit": "Stout weeping tree with flowing vertical curtain branches",
+        "branching_pattern": "Short massive trunk dividing into ascending limbs with long pendulous flexible branchlets cascading to ground",
+        "trunk_bark_texture": "Deeply furrowed, coarse dark grayish-brown interlaced corky bark",
+        "leaf_type": "Broadleaf deciduous",
+        "leaf_shape": "Narrow linear-lanceolate finely serrulate leaves, pale silky underside",
+        "foliage_density": "dense",
+        "floral_reproductive_accents": "Slender pale yellow-green catkins emerging with spring foliage"
+      },
+      "meshy_spec": {
+        "positive_prompt": "Standalone 3D model of a majestic Weeping Willow tree (Salix babylonica), single isolated tree growing naturally from ground base, thick twisted dark-gray furrowed trunk, wide sweeping crown with long curtain-like pendulous branches cascading vertically towards the ground, dense flowing foliage of narrow lanceolate pale silvery-green leaves, soft organic weeping canopy silhouette, realistic botanical PBR texturing, clean natural structure, 8k resolution.",
+        "negative_prompt": "pot, planter, flowerpot, flower pot, plant pot, terracotta, container, vase, bowl, bucket, crate, dish, tray, saucer, pedestal, base stand, stand, ground soil box, square block, platform, roots in pot, indoor room, wall, background, floor, furniture, table, human, hands, person, people, man, woman, character, body, face, animal, insect, artificial plastic, artificial grass, low quality, deformed, floating leaves, disconnected branches, blurry, cartoon, toy, miniature, wireframe, baked lighting shadow, skeleton, bones, armature, rig, rigged, rigging, skinning, joints, watermark, text, logo",
+        "ai_model": "meshy-6",
+        "art_style": "realistic",
+        "topology": "quad",
+        "target_polycount": 30000,
+        "enable_pbr": true,
+        "texture_richness": "high",
+        "boost": true
+      },
+      "verification": {
+        "min_vertices": 3000,
+        "max_vertices": 45000,
+        "enforce_zero_armature": true,
+        "enforce_root_pivot": true,
+        "required_pbr_maps": [
+          "baseColor",
+          "normal",
+          "roughness",
+          "metallic"
+        ]
+      }
+    },
+    {
+      "species_id": "veg_tree_beech_01",
+      "common_name": "European Beech",
+      "scientific_name": "Fagus sylvatica",
+      "family": "Fagaceae",
+      "category_id": "broadleaf_deciduous_trees",
+      "category_name": "Broadleaf & Deciduous Trees",
+      "biome": "Temperate Montane Forest",
+      "ecological_niche": "Late-successional climax hardwood creating dense high canopies",
+      "dimensions": {
+        "height_m": 11.5,
+        "height_range_m": [
+          9.0,
+          15.0
+        ],
+        "canopy_spread_m": 9.0,
+        "trunk_stem_diameter_m": 0.8
+      },
+      "morphology": {
+        "growth_habit": "Tall stately forest tree with massive rounded dome canopy",
+        "branching_pattern": "Columnar trunk with layered horizontal fan-like tiered lateral branches",
+        "trunk_bark_texture": "Remarkably smooth, elephantine pale silver-gray bark",
+        "leaf_type": "Broadleaf deciduous",
+        "leaf_shape": "Elliptical-ovate with wavy ciliate margins and prominent parallel lateral veins",
+        "foliage_density": "dense",
+        "floral_reproductive_accents": "Paired triangular beechnuts enclosed in 4-lobed bristly cupules"
+      },
+      "meshy_spec": {
+        "positive_prompt": "Standalone 3D botanical asset of a stately European Beech tree (Fagus sylvatica), single mature tree growing naturally from ground base, smooth pale silver-gray elephantine bark trunk, wide rounded dome canopy with fan-like tiered horizontal branches, glossy elliptical wavy-edged deep-green leaves arranged in dense layered planes, natural organic canopy volume, photorealistic PBR material, realistic wood and leaf shaders, clean quad geometry.",
+        "negative_prompt": "pot, planter, flowerpot, flower pot, plant pot, terracotta, container, vase, bowl, bucket, crate, dish, tray, saucer, pedestal, base stand, stand, ground soil box, square block, platform, roots in pot, indoor room, wall, background, floor, furniture, table, human, hands, person, people, man, woman, character, body, face, animal, insect, artificial plastic, artificial grass, low quality, deformed, floating leaves, disconnected branches, blurry, cartoon, toy, miniature, wireframe, baked lighting shadow, skeleton, bones, armature, rig, rigged, rigging, skinning, joints, watermark, text, logo",
+        "ai_model": "meshy-6",
+        "art_style": "realistic",
+        "topology": "quad",
+        "target_polycount": 28000,
+        "enable_pbr": true,
+        "texture_richness": "high",
+        "boost": true
+      },
+      "verification": {
+        "min_vertices": 3000,
+        "max_vertices": 45000,
+        "enforce_zero_armature": true,
+        "enforce_root_pivot": true,
+        "required_pbr_maps": [
+          "baseColor",
+          "normal",
+          "roughness",
+          "metallic"
+        ]
+      }
+    },
+    {
+      "species_id": "veg_conifer_pine_01",
+      "common_name": "Scots Pine",
+      "scientific_name": "Pinus sylvestris",
+      "family": "Pinaceae",
+      "category_id": "conifers_evergreens",
+      "category_name": "Conifers & Evergreens",
+      "biome": "Boreal Taiga / Temperate Montane",
+      "ecological_niche": "Cold-hardy evergreen pioneer on nutrient-poor sandy soils and bogs",
+      "dimensions": {
+        "height_m": 9.5,
+        "height_range_m": [
+          7.0,
+          13.0
+        ],
+        "canopy_spread_m": 5.5,
+        "trunk_stem_diameter_m": 0.5
+      },
+      "morphology": {
+        "growth_habit": "Mature conifer with irregular umbrella-like flat-topped crown",
+        "branching_pattern": "Self-pruned bare lower trunk; upper crown irregular horizontal gnarled limbs",
+        "trunk_bark_texture": "Dark scaly fissures at base transitioning to bright orange-cinnamon flaky bark on upper trunk",
+        "leaf_type": "Evergreen needle",
+        "leaf_shape": "Twisted stiff needle pairs (fascicles of 2), glaucous blue-green",
+        "foliage_density": "medium",
+        "floral_reproductive_accents": "Pointed conical woody pine cones (3-6cm) clustered on twigs"
+      },
+      "meshy_spec": {
+        "positive_prompt": "Standalone 3D model of a mature Scots Pine tree (Pinus sylvestris), single conifer rooted in ground, distinctive two-toned bark with dark scaly base and warm glowing orange-cinnamon peeling bark on upper trunk, picturesque asymmetrical umbrella-like flat-topped crown, dense tufts of twisted glaucous blue-green pine needles in clustered pom-poms, woody pine cones on branches, realistic PBR conifer textures, clean 3D geometry.",
+        "negative_prompt": "pot, planter, flowerpot, flower pot, plant pot, terracotta, container, vase, bowl, bucket, crate, dish, tray, saucer, pedestal, base stand, stand, ground soil box, square block, platform, roots in pot, indoor room, wall, background, floor, furniture, table, human, hands, person, people, man, woman, character, body, face, animal, insect, artificial plastic, artificial grass, low quality, deformed, floating leaves, disconnected branches, blurry, cartoon, toy, miniature, wireframe, baked lighting shadow, skeleton, bones, armature, rig, rigged, rigging, skinning, joints, watermark, text, logo",
+        "ai_model": "meshy-6",
+        "art_style": "realistic",
+        "topology": "quad",
+        "target_polycount": 28000,
+        "enable_pbr": true,
+        "texture_richness": "high",
+        "boost": true
+      },
+      "verification": {
+        "min_vertices": 3000,
+        "max_vertices": 45000,
+        "enforce_zero_armature": true,
+        "enforce_root_pivot": true,
+        "required_pbr_maps": [
+          "baseColor",
+          "normal",
+          "roughness",
+          "metallic"
+        ]
+      }
+    },
+    {
+      "species_id": "veg_conifer_spruce_01",
+      "common_name": "Norway Spruce",
+      "scientific_name": "Picea abies",
+      "family": "Pinaceae",
+      "category_id": "conifers_evergreens",
+      "category_name": "Conifers & Evergreens",
+      "biome": "Subalpine / Boreal Coniferous Forest",
+      "ecological_niche": "Montane slope stabilizer and primary taiga canopy conifer",
+      "dimensions": {
+        "height_m": 11.0,
+        "height_range_m": [
+          8.0,
+          14.0
+        ],
+        "canopy_spread_m": 4.5,
+        "trunk_stem_diameter_m": 0.55
+      },
+      "morphology": {
+        "growth_habit": "Symmetrical pyramidal-conical evergreen spire",
+        "branching_pattern": "Excurrent straight central trunk with whorled horizontal branches and drooping pendulous branchlets",
+        "trunk_bark_texture": "Reddish-brown to gray-brown bark flaking in thin circular scales",
+        "leaf_type": "Evergreen needle",
+        "leaf_shape": "Four-angled, stiff, dark green pointed needles radially arranged around shoots",
+        "foliage_density": "dense",
+        "floral_reproductive_accents": "Long cylindrical hanging pendulous cones (10-18cm) at branch tips"
+      },
+      "meshy_spec": {
+        "positive_prompt": "Standalone 3D model of an authentic Norway Spruce tree (Picea abies), single conical conifer tree rooted naturally at ground base, straight central trunk spire with flaky reddish-brown bark, tiered whorled horizontal branches with graceful drooping pendulous side twigs, dense dark-green needle foliage, hanging cylindrical pine cones, photorealistic conifer botanical asset, high fidelity PBR texture maps, realistic pine needle depth.",
+        "negative_prompt": "pot, planter, flowerpot, flower pot, plant pot, terracotta, container, vase, bowl, bucket, crate, dish, tray, saucer, pedestal, base stand, stand, ground soil box, square block, platform, roots in pot, indoor room, wall, background, floor, furniture, table, human, hands, person, people, man, woman, character, body, face, animal, insect, artificial plastic, artificial grass, low quality, deformed, floating leaves, disconnected branches, blurry, cartoon, toy, miniature, wireframe, baked lighting shadow, skeleton, bones, armature, rig, rigged, rigging, skinning, joints, watermark, text, logo",
+        "ai_model": "meshy-6",
+        "art_style": "realistic",
+        "topology": "quad",
+        "target_polycount": 29000,
+        "enable_pbr": true,
+        "texture_richness": "high",
+        "boost": true
+      },
+      "verification": {
+        "min_vertices": 3000,
+        "max_vertices": 45000,
+        "enforce_zero_armature": true,
+        "enforce_root_pivot": true,
+        "required_pbr_maps": [
+          "baseColor",
+          "normal",
+          "roughness",
+          "metallic"
+        ]
+      }
+    },
+    {
+      "species_id": "veg_conifer_cypress_01",
+      "common_name": "Italian Cypress",
+      "scientific_name": "Cupressus sempervirens",
+      "family": "Cupressaceae",
+      "category_id": "conifers_evergreens",
+      "category_name": "Conifers & Evergreens",
+      "biome": "Mediterranean Coastal Hills",
+      "ecological_niche": "Drought-adapted architectural conifer of limestone hills and Mediterranean terraces",
+      "dimensions": {
+        "height_m": 8.0,
+        "height_range_m": [
+          6.0,
+          12.0
+        ],
+        "canopy_spread_m": 1.4,
+        "trunk_stem_diameter_m": 0.35
+      },
+      "morphology": {
+        "growth_habit": "Strictly fastigiate pencil-thin columnar evergreen spire",
+        "branching_pattern": "Tightly appressed erect vertical branches forming a compact dense flame silhouette",
+        "trunk_bark_texture": "Fibrous, thin dark gray-brown bark with shallow vertical fissures",
+        "leaf_type": "Evergreen scale",
+        "leaf_shape": "Minute overlapping scale-like aromatic dark green leaves pressed tightly to twigs",
+        "foliage_density": "compact",
+        "floral_reproductive_accents": "Small spherical to ovoid woody seed cones (2-4cm) with peltate scales"
+      },
+      "meshy_spec": {
+        "positive_prompt": "Standalone 3D botanical model of an Italian Cypress (Cupressus sempervirens), single slender columnar evergreen tree growing naturally from ground base, pencil-thin flame silhouette, fibrous bark trunk anchored at ground level, tightly packed vertical branches, rich deep-green scale-like foliage texture with subtle surface depth, photorealistic Mediterranean vegetation, PBR materials, clean geometry.",
+        "negative_prompt": "pot, planter, flowerpot, flower pot, plant pot, terracotta, container, vase, bowl, bucket, crate, dish, tray, saucer, pedestal, base stand, stand, ground soil box, square block, platform, roots in pot, indoor room, wall, background, floor, furniture, table, human, hands, person, people, man, woman, character, body, face, animal, insect, artificial plastic, artificial grass, low quality, deformed, floating leaves, disconnected branches, blurry, cartoon, toy, miniature, wireframe, baked lighting shadow, skeleton, bones, armature, rig, rigged, rigging, skinning, joints, watermark, text, logo",
+        "ai_model": "meshy-6",
+        "art_style": "realistic",
+        "topology": "quad",
+        "target_polycount": 25000,
+        "enable_pbr": true,
+        "texture_richness": "high",
+        "boost": true
+      },
+      "verification": {
+        "min_vertices": 3000,
+        "max_vertices": 45000,
+        "enforce_zero_armature": true,
+        "enforce_root_pivot": true,
+        "required_pbr_maps": [
+          "baseColor",
+          "normal",
+          "roughness",
+          "metallic"
+        ]
+      }
+    },
+    {
+      "species_id": "veg_conifer_redcedar_01",
+      "common_name": "Western Redcedar",
+      "scientific_name": "Thuja plicata",
+      "family": "Cupressaceae",
+      "category_id": "conifers_evergreens",
+      "category_name": "Conifers & Evergreens",
+      "biome": "Pacific Northwest Temperate Rainforest",
+      "ecological_niche": "Massive shade-tolerant climax conifer in wet river valleys and coastal fog belts",
+      "dimensions": {
+        "height_m": 12.0,
+        "height_range_m": [
+          9.0,
+          15.0
+        ],
+        "canopy_spread_m": 5.0,
+        "trunk_stem_diameter_m": 0.85
+      },
+      "morphology": {
+        "growth_habit": "Massive conical evergreen with strongly buttressed fluted base",
+        "branching_pattern": "Conical crown with horizontal branches arching upward at tips (J-shape)",
+        "trunk_bark_texture": "Stringy shaggy fibrous cinnamon-red bark peeling in long vertical strips",
+        "leaf_type": "Evergreen scale",
+        "leaf_shape": "Flat horizontal sprays of scale leaves, glossy yellow-green above with white stomatal bands beneath",
+        "foliage_density": "dense",
+        "floral_reproductive_accents": "Small leathery oblong seed cones (1-1.5cm) clustered near spray tips"
+      },
+      "meshy_spec": {
+        "positive_prompt": "Standalone 3D model of a majestic Western Redcedar (Thuja plicata), single tree rooted at base, flared buttressed trunk with stringy shaggy fibrous cinnamon-red bark peeling in vertical strips, conical canopy with horizontal sweeping branches curving up at tips, layered flat fan-like sprays of scale foliage in vibrant yellow-green, realistic wet temperate rainforest conifer, PBR materials, clean 3D mesh.",
+        "negative_prompt": "pot, planter, flowerpot, flower pot, plant pot, terracotta, container, vase, bowl, bucket, crate, dish, tray, saucer, pedestal, base stand, stand, ground soil box, square block, platform, roots in pot, indoor room, wall, background, floor, furniture, table, human, hands, person, people, man, woman, character, body, face, animal, insect, artificial plastic, artificial grass, low quality, deformed, floating leaves, disconnected branches, blurry, cartoon, toy, miniature, wireframe, baked lighting shadow, skeleton, bones, armature, rig, rigged, rigging, skinning, joints, watermark, text, logo",
+        "ai_model": "meshy-6",
+        "art_style": "realistic",
+        "topology": "quad",
+        "target_polycount": 28000,
+        "enable_pbr": true,
+        "texture_richness": "high",
+        "boost": true
+      },
+      "verification": {
+        "min_vertices": 3000,
+        "max_vertices": 45000,
+        "enforce_zero_armature": true,
+        "enforce_root_pivot": true,
+        "required_pbr_maps": [
+          "baseColor",
+          "normal",
+          "roughness",
+          "metallic"
+        ]
+      }
+    },
+    {
+      "species_id": "veg_conifer_cedar_01",
+      "common_name": "Atlas Cedar",
+      "scientific_name": "Cedrus atlantica",
+      "family": "Pinaceae",
+      "category_id": "conifers_evergreens",
+      "category_name": "Conifers & Evergreens",
+      "biome": "Mediterranean Montane Forest",
+      "ecological_niche": "High-altitude montane conifer enduring snowy winters and dry summers",
+      "dimensions": {
+        "height_m": 10.0,
+        "height_range_m": [
+          8.0,
+          13.0
+        ],
+        "canopy_spread_m": 7.0,
+        "trunk_stem_diameter_m": 0.7
+      },
+      "morphology": {
+        "growth_habit": "Stately evergreen with horizontal stratified tabular plateaus",
+        "branching_pattern": "Wide spreading massive horizontal limbs forming layered flat shelves",
+        "trunk_bark_texture": "Dark gray furrowed bark with thick scaly plates",
+        "leaf_type": "Evergreen needle",
+        "leaf_shape": "Short stiff needles in dense spiraling rosettes on spur shoots, striking silvery-blue glaucous",
+        "foliage_density": "dense",
+        "floral_reproductive_accents": "Erect barrel-shaped cylindrical seed cones (5-7cm) standing on upper branch surfaces"
+      },
+      "meshy_spec": {
+        "positive_prompt": "Standalone 3D botanical asset of a mature Blue Atlas Cedar (Cedrus atlantica), single conifer on ground, stout dark-gray furrowed trunk, wide spreading horizontal tabular tiered branches forming layered plateaus, dense rosette clusters of striking silvery-blue glaucous needles, erect barrel-shaped cones on top of branches, majestic alpine conifer silhouette, full PBR textures, clean quad topology.",
+        "negative_prompt": "pot, planter, flowerpot, flower pot, plant pot, terracotta, container, vase, bowl, bucket, crate, dish, tray, saucer, pedestal, base stand, stand, ground soil box, square block, platform, roots in pot, indoor room, wall, background, floor, furniture, table, human, hands, person, people, man, woman, character, body, face, animal, insect, artificial plastic, artificial grass, low quality, deformed, floating leaves, disconnected branches, blurry, cartoon, toy, miniature, wireframe, baked lighting shadow, skeleton, bones, armature, rig, rigged, rigging, skinning, joints, watermark, text, logo",
+        "ai_model": "meshy-6",
+        "art_style": "realistic",
+        "topology": "quad",
+        "target_polycount": 28000,
+        "enable_pbr": true,
+        "texture_richness": "high",
+        "boost": true
+      },
+      "verification": {
+        "min_vertices": 3000,
+        "max_vertices": 45000,
+        "enforce_zero_armature": true,
+        "enforce_root_pivot": true,
+        "required_pbr_maps": [
+          "baseColor",
+          "normal",
+          "roughness",
+          "metallic"
+        ]
+      }
+    },
+    {
+      "species_id": "veg_tropical_palm_01",
+      "common_name": "Windmill Fan Palm",
+      "scientific_name": "Trachycarpus fortunei",
+      "family": "Arecaceae",
+      "category_id": "tropical_foliage_palms",
+      "category_name": "Tropical Foliage & Palms",
+      "biome": "Subtropical / Tropical Montane",
+      "ecological_niche": "Cold-hardy montane palm growing in high rainfall subtropical forests",
+      "dimensions": {
+        "height_m": 5.5,
+        "height_range_m": [
+          4.0,
+          7.0
+        ],
+        "canopy_spread_m": 3.2,
+        "trunk_stem_diameter_m": 0.3
+      },
+      "morphology": {
+        "growth_habit": "Erect solitary fan palm with terminal rounded frond crown",
+        "branching_pattern": "Unbranched columnar trunk crowned with dense radiating umbrella of palmate fronds",
+        "trunk_bark_texture": "Trunk densely covered in coarse woven dark brown hairy fibers and old persistent petiole bases",
+        "leaf_type": "Palmate palm frond",
+        "leaf_shape": "Rounded fan-shaped blade deeply segmented into stiff radiating pleated emerald-green leaflets",
+        "foliage_density": "dense",
+        "floral_reproductive_accents": "Branched panicles of small golden-yellow flowers emerging from fibrous spathes"
+      },
+      "meshy_spec": {
+        "positive_prompt": "Standalone 3D botanical model of a Windmill Fan Palm tree (Trachycarpus fortunei), single palm growing from ground base, slender erect trunk wrapped in dense coarse dark-brown hairy fibers and old leaf bases, crowned by a vibrant spherical explosion of fan-shaped palmate fronds with segmented radiating pleated leaflets, rich emerald-green, photorealistic tropical palm asset, PBR textures with fiber normal maps, game-ready 3D mesh.",
+        "negative_prompt": "pot, planter, flowerpot, flower pot, plant pot, terracotta, container, vase, bowl, bucket, crate, dish, tray, saucer, pedestal, base stand, stand, ground soil box, square block, platform, roots in pot, indoor room, wall, background, floor, furniture, table, human, hands, person, people, man, woman, character, body, face, animal, insect, artificial plastic, artificial grass, low quality, deformed, floating leaves, disconnected branches, blurry, cartoon, toy, miniature, wireframe, baked lighting shadow, skeleton, bones, armature, rig, rigged, rigging, skinning, joints, watermark, text, logo",
+        "ai_model": "meshy-6",
+        "art_style": "realistic",
+        "topology": "quad",
+        "target_polycount": 27000,
+        "enable_pbr": true,
+        "texture_richness": "high",
+        "boost": true
+      },
+      "verification": {
+        "min_vertices": 3000,
+        "max_vertices": 45000,
+        "enforce_zero_armature": true,
+        "enforce_root_pivot": true,
+        "required_pbr_maps": [
+          "baseColor",
+          "normal",
+          "roughness",
+          "metallic"
+        ]
+      }
+    },
+    {
+      "species_id": "veg_tropical_monstera_01",
+      "common_name": "Swiss Cheese Plant",
+      "scientific_name": "Monstera deliciosa",
+      "family": "Araceae",
+      "category_id": "tropical_foliage_palms",
+      "category_name": "Tropical Foliage & Palms",
+      "biome": "Tropical Rainforest Understory",
+      "ecological_niche": "Hemiepiphytic jungle climber rooting in ground and climbing host trunks",
+      "dimensions": {
+        "height_m": 1.8,
+        "height_range_m": [
+          1.2,
+          2.5
+        ],
+        "canopy_spread_m": 2.0,
+        "trunk_stem_diameter_m": 0.08
+      },
+      "morphology": {
+        "growth_habit": "Robust sprawling tropical climber with descending cord-like aerial roots",
+        "branching_pattern": "Jointed ascending fleshy stem producing heavy curving petioles and aerial anchor roots",
+        "trunk_bark_texture": "Green to brown jointed stem with prominent ring-like leaf scars and woody aerial roots",
+        "leaf_type": "Broadleaf tropical foliage",
+        "leaf_shape": "Massive glossy cordate (heart-shaped) leathery leaves with deep pinnatifid slits and oval holes",
+        "foliage_density": "medium",
+        "floral_reproductive_accents": "Creamy-white boat-shaped spathe enclosing a conical spadix"
+      },
+      "meshy_spec": {
+        "positive_prompt": "Standalone 3D botanical asset of a lush wild Monstera deliciosa plant, single tropical specimen growing directly on ground with descending aerial roots, thick jointed green stem, large broad heart-shaped glossy deep-green leaves with natural deep side fenestrations and oblong hole cutouts, distinct thick leaf veins and curving petioles, photorealistic jungle understory plant, complete PBR materials, high-poly organic geometry.",
+        "negative_prompt": "pot, planter, flowerpot, flower pot, plant pot, terracotta, container, vase, bowl, bucket, crate, dish, tray, saucer, pedestal, base stand, stand, ground soil box, square block, platform, roots in pot, indoor room, wall, background, floor, furniture, table, human, hands, person, people, man, woman, character, body, face, animal, insect, artificial plastic, artificial grass, low quality, deformed, floating leaves, disconnected branches, blurry, cartoon, toy, miniature, wireframe, baked lighting shadow, skeleton, bones, armature, rig, rigged, rigging, skinning, joints, watermark, text, logo",
+        "ai_model": "meshy-6",
+        "art_style": "realistic",
+        "topology": "quad",
+        "target_polycount": 26000,
+        "enable_pbr": true,
+        "texture_richness": "high",
+        "boost": true
+      },
+      "verification": {
+        "min_vertices": 3000,
+        "max_vertices": 45000,
+        "enforce_zero_armature": true,
+        "enforce_root_pivot": true,
+        "required_pbr_maps": [
+          "baseColor",
+          "normal",
+          "roughness",
+          "metallic"
+        ]
+      }
+    },
+    {
+      "species_id": "veg_tropical_banana_01",
+      "common_name": "Wild Banana Plant",
+      "scientific_name": "Musa acuminata",
+      "family": "Musaceae",
+      "category_id": "tropical_foliage_palms",
+      "category_name": "Tropical Foliage & Palms",
+      "biome": "Tropical Humid Rainforest",
+      "ecological_niche": "Rapidly growing pioneer mega-herb along moist rainforest edges and stream banks",
+      "dimensions": {
+        "height_m": 3.5,
+        "height_range_m": [
+          2.5,
+          4.5
+        ],
+        "canopy_spread_m": 3.0,
+        "trunk_stem_diameter_m": 0.25
+      },
+      "morphology": {
+        "growth_habit": "Giant succulent monocot herb with cylindrical pseudostem and broad paddle canopy",
+        "branching_pattern": "Basal sucker cluster with main pseudostem radiating spirally arranged arching leaves",
+        "trunk_bark_texture": "Succulent emerald-green pseudostem of tightly overlapping leaf sheaths mottled with purple-brown",
+        "leaf_type": "Giant paddle leaf",
+        "leaf_shape": "Enormous oblong blade (1.5-2.5m) with prominent midrib and naturally fraying lateral veins",
+        "foliage_density": "medium",
+        "floral_reproductive_accents": "Large drooping flower spike with dark maroon-purple bracts and wild seeded green bananas"
+      },
+      "meshy_spec": {
+        "positive_prompt": "Standalone 3D model of a wild Banana Plant (Musa acuminata), single tropical giant herb rooted at ground, thick juicy green and purple-mottled pseudostem of wrapped sheaths, majestic outward-arching paddle leaves with thick sturdy midribs and natural slight wind-split edge frays, pendulous purple flower bud bract, photorealistic tropical vegetation, PBR material maps with subsurface scattering translucency, clean 3D mesh.",
+        "negative_prompt": "pot, planter, flowerpot, flower pot, plant pot, terracotta, container, vase, bowl, bucket, crate, dish, tray, saucer, pedestal, base stand, stand, ground soil box, square block, platform, roots in pot, indoor room, wall, background, floor, furniture, table, human, hands, person, people, man, woman, character, body, face, animal, insect, artificial plastic, artificial grass, low quality, deformed, floating leaves, disconnected branches, blurry, cartoon, toy, miniature, wireframe, baked lighting shadow, skeleton, bones, armature, rig, rigged, rigging, skinning, joints, watermark, text, logo",
+        "ai_model": "meshy-6",
+        "art_style": "realistic",
+        "topology": "quad",
+        "target_polycount": 27000,
+        "enable_pbr": true,
+        "texture_richness": "high",
+        "boost": true
+      },
+      "verification": {
+        "min_vertices": 3000,
+        "max_vertices": 45000,
+        "enforce_zero_armature": true,
+        "enforce_root_pivot": true,
+        "required_pbr_maps": [
+          "baseColor",
+          "normal",
+          "roughness",
+          "metallic"
+        ]
+      }
+    },
+    {
+      "species_id": "veg_tropical_treefern_01",
+      "common_name": "Silver Tree Fern",
+      "scientific_name": "Cyathea dealbata",
+      "family": "Cyatheaceae",
+      "category_id": "tropical_foliage_palms",
+      "category_name": "Tropical Foliage & Palms",
+      "biome": "Temperate / Subtropical Wet Forest",
+      "ecological_niche": "Sub-canopy giant spore-bearing tree of temperate rainforest gullies",
+      "dimensions": {
+        "height_m": 4.5,
+        "height_range_m": [
+          3.0,
+          6.0
+        ],
+        "canopy_spread_m": 3.8,
+        "trunk_stem_diameter_m": 0.3
+      },
+      "morphology": {
+        "growth_habit": "Arborescent tree fern with erect fibrous trunk and umbrella crown",
+        "branching_pattern": "Unbranched trunk crowned with wide spreading horizontal-arching tripinnate fronds",
+        "trunk_bark_texture": "Dark brown-black fibrous trunk encased in interwoven wiry aerial roots and stipe bases",
+        "leaf_type": "Bipinnate/tripinnate frond",
+        "leaf_shape": "Feathery arching frond (2-3m), deep green above with iconic bright silvery-white undersides",
+        "foliage_density": "dense",
+        "floral_reproductive_accents": "Unrolling spiral fiddleheads (crosiers) at apex; circular sori on undersides"
+      },
+      "meshy_spec": {
+        "positive_prompt": "Standalone 3D model of a majestic Silver Tree Fern (Cyathea dealbata), single specimen rooted in forest ground, slender erect dark fibrous trunk wrapped in dense woven aerial root mat, spreading crown of delicate bipinnate arching fronds, rich dark-green upper foliage with iconic bright silvery-white undersides, unrolling spiral fiddlehead crosiers at center, photorealistic botanical PBR textures, clean quad-remeshed topology.",
+        "negative_prompt": "pot, planter, flowerpot, flower pot, plant pot, terracotta, container, vase, bowl, bucket, crate, dish, tray, saucer, pedestal, base stand, stand, ground soil box, square block, platform, roots in pot, indoor room, wall, background, floor, furniture, table, human, hands, person, people, man, woman, character, body, face, animal, insect, artificial plastic, artificial grass, low quality, deformed, floating leaves, disconnected branches, blurry, cartoon, toy, miniature, wireframe, baked lighting shadow, skeleton, bones, armature, rig, rigged, rigging, skinning, joints, watermark, text, logo",
+        "ai_model": "meshy-6",
+        "art_style": "realistic",
+        "topology": "quad",
+        "target_polycount": 29000,
+        "enable_pbr": true,
+        "texture_richness": "high",
+        "boost": true
+      },
+      "verification": {
+        "min_vertices": 3000,
+        "max_vertices": 45000,
+        "enforce_zero_armature": true,
+        "enforce_root_pivot": true,
+        "required_pbr_maps": [
+          "baseColor",
+          "normal",
+          "roughness",
+          "metallic"
+        ]
+      }
+    },
+    {
+      "species_id": "veg_tropical_birdofparadise_01",
+      "common_name": "Bird of Paradise",
+      "scientific_name": "Strelitzia reginae",
+      "family": "Strelitziaceae",
+      "category_id": "tropical_foliage_palms",
+      "category_name": "Tropical Foliage & Palms",
+      "biome": "Subtropical Coastal Scrub / Savanna",
+      "ecological_niche": "Evergreen clumping perennial along riverine thickets and coastal bush",
+      "dimensions": {
+        "height_m": 1.6,
+        "height_range_m": [
+          1.2,
+          2.0
+        ],
+        "canopy_spread_m": 1.5,
+        "trunk_stem_diameter_m": 0.4
+      },
+      "morphology": {
+        "growth_habit": "Acaulescent clump-forming evergreen perennial with fan-like leaf ranks",
+        "branching_pattern": "Dense basal rosette of stiff erect grooved petioles emerging from ground crown",
+        "trunk_bark_texture": "Acaulescent trunkless base with tightly clustered fibrous petiole sheaths",
+        "leaf_type": "Broadleaf evergreen",
+        "leaf_shape": "Oblong-lanceolate leathery waxy blade, glaucous blue-gray-green with reddish central vein",
+        "foliage_density": "compact",
+        "floral_reproductive_accents": "Horizontal boat-shaped green and pink spathe with brilliant orange sepals and blue arrow petals"
+      },
+      "meshy_spec": {
+        "positive_prompt": "Standalone 3D botanical model of an exotic Bird of Paradise plant (Strelitzia reginae), single natural clump rooted on ground, stiff upright bluish-green petioles bearing paddle-shaped leathery glaucous-green leaves, featuring iconic exotic flowers with horizontal boat-shaped spathe and vivid brilliant orange sepals with electric-blue arrow petals, photorealistic ornamental flora, full PBR material maps, clean organic geometry.",
+        "negative_prompt": "pot, planter, flowerpot, flower pot, plant pot, terracotta, container, vase, bowl, bucket, crate, dish, tray, saucer, pedestal, base stand, stand, ground soil box, square block, platform, roots in pot, indoor room, wall, background, floor, furniture, table, human, hands, person, people, man, woman, character, body, face, animal, insect, artificial plastic, artificial grass, low quality, deformed, floating leaves, disconnected branches, blurry, cartoon, toy, miniature, wireframe, baked lighting shadow, skeleton, bones, armature, rig, rigged, rigging, skinning, joints, watermark, text, logo",
+        "ai_model": "meshy-6",
+        "art_style": "realistic",
+        "topology": "quad",
+        "target_polycount": 26000,
+        "enable_pbr": true,
+        "texture_richness": "high",
+        "boost": true
+      },
+      "verification": {
+        "min_vertices": 3000,
+        "max_vertices": 45000,
+        "enforce_zero_armature": true,
+        "enforce_root_pivot": true,
+        "required_pbr_maps": [
+          "baseColor",
+          "normal",
+          "roughness",
+          "metallic"
+        ]
+      }
+    },
+    {
+      "species_id": "veg_shrub_rose_01",
+      "common_name": "Garden Rose Bush",
+      "scientific_name": "Rosa gallica",
+      "family": "Rosaceae",
+      "category_id": "flowering_shrubs_ornamentals",
+      "category_name": "Flowering Shrubs & Ornamental Plants",
+      "biome": "Temperate Shrubland / Meadow",
+      "ecological_niche": "Understory and forest-margin deciduous thorny thicket shrub",
+      "dimensions": {
+        "height_m": 1.2,
+        "height_range_m": [
+          0.9,
+          1.5
+        ],
+        "canopy_spread_m": 1.1,
+        "trunk_stem_diameter_m": 0.02
+      },
+      "morphology": {
+        "growth_habit": "Multi-stemmed suckering deciduous shrub with arching prickly canes",
+        "branching_pattern": "Erect and outward-arching woody cane stems forming an intertwined rounded thicket",
+        "trunk_bark_texture": "Greenish-brown woody canes densely armed with straight and curved prickles/thorns",
+        "leaf_type": "Broadleaf deciduous pinnate",
+        "leaf_shape": "Odd-pinnate with 3-5 ovate leathery serrated dark green leaflets",
+        "foliage_density": "dense",
+        "floral_reproductive_accents": "Fragrant semi-double deep crimson to magenta cup-shaped roses with golden stamens; scarlet hips"
+      },
+      "meshy_spec": {
+        "positive_prompt": "Standalone 3D model of a wild Garden Rose Bush (Rosa gallica), single multi-stemmed flowering shrub rooted on ground, natural sprawling arching woody canes with sharp prickly thorns, dense clusters of serrated dark-green pinnate leaflets, adorned with blossoming deep-magenta and crimson roses with visible golden central stamens, photorealistic flowering shrub asset, full PBR textures, clean quad-dominant geometry.",
+        "negative_prompt": "pot, planter, flowerpot, flower pot, plant pot, terracotta, container, vase, bowl, bucket, crate, dish, tray, saucer, pedestal, base stand, stand, ground soil box, square block, platform, roots in pot, indoor room, wall, background, floor, furniture, table, human, hands, person, people, man, woman, character, body, face, animal, insect, artificial plastic, artificial grass, low quality, deformed, floating leaves, disconnected branches, blurry, cartoon, toy, miniature, wireframe, baked lighting shadow, skeleton, bones, armature, rig, rigged, rigging, skinning, joints, watermark, text, logo",
+        "ai_model": "meshy-6",
+        "art_style": "realistic",
+        "topology": "quad",
+        "target_polycount": 28000,
+        "enable_pbr": true,
+        "texture_richness": "high",
+        "boost": true
+      },
+      "verification": {
+        "min_vertices": 3000,
+        "max_vertices": 45000,
+        "enforce_zero_armature": true,
+        "enforce_root_pivot": true,
+        "required_pbr_maps": [
+          "baseColor",
+          "normal",
+          "roughness",
+          "metallic"
+        ]
+      }
+    },
+    {
+      "species_id": "veg_shrub_hydrangea_01",
+      "common_name": "Bigleaf Hydrangea",
+      "scientific_name": "Hydrangea macrophylla",
+      "family": "Hydrangeaceae",
+      "category_id": "flowering_shrubs_ornamentals",
+      "category_name": "Flowering Shrubs & Ornamental Plants",
+      "biome": "Temperate / Oceanic Coastal Shrubland",
+      "ecological_niche": "Moist maritime shrub flourishing in humid sea breezes and rich organic soils",
+      "dimensions": {
+        "height_m": 1.4,
+        "height_range_m": [
+          1.0,
+          1.8
+        ],
+        "canopy_spread_m": 1.6,
+        "trunk_stem_diameter_m": 0.025
+      },
+      "morphology": {
+        "growth_habit": "Rounded mounding deciduous shrub with abundant mophead floral globes",
+        "branching_pattern": "Multiple basal upright woody shoots branching into a hemispherical dome",
+        "trunk_bark_texture": "Yellowish-tan peeling base stems; upper young stems smooth olive-green with lenticels",
+        "leaf_type": "Broadleaf deciduous",
+        "leaf_shape": "Broadly ovate to elliptical coarsely serrate opposite leaves with sunken veins",
+        "foliage_density": "dense",
+        "floral_reproductive_accents": "Massive spherical mophead corymb clusters (15-22cm) in soft lavender-blue to violet"
+      },
+      "meshy_spec": {
+        "positive_prompt": "Standalone 3D model of a lush Bigleaf Hydrangea shrub (Hydrangea macrophylla), single rounded mound bush growing from ground, multi-stemmed green and tan woody branches, large broad coarsely-toothed vibrant-green leaves, smothered with massive spherical mophead flower heads in soft gradient lavender-blue and violet, intricate four-petaled floret surface detail, photorealistic garden shrub, PBR materials, clean 3D mesh.",
+        "negative_prompt": "pot, planter, flowerpot, flower pot, plant pot, terracotta, container, vase, bowl, bucket, crate, dish, tray, saucer, pedestal, base stand, stand, ground soil box, square block, platform, roots in pot, indoor room, wall, background, floor, furniture, table, human, hands, person, people, man, woman, character, body, face, animal, insect, artificial plastic, artificial grass, low quality, deformed, floating leaves, disconnected branches, blurry, cartoon, toy, miniature, wireframe, baked lighting shadow, skeleton, bones, armature, rig, rigged, rigging, skinning, joints, watermark, text, logo",
+        "ai_model": "meshy-6",
+        "art_style": "realistic",
+        "topology": "quad",
+        "target_polycount": 29000,
+        "enable_pbr": true,
+        "texture_richness": "high",
+        "boost": true
+      },
+      "verification": {
+        "min_vertices": 3000,
+        "max_vertices": 45000,
+        "enforce_zero_armature": true,
+        "enforce_root_pivot": true,
+        "required_pbr_maps": [
+          "baseColor",
+          "normal",
+          "roughness",
+          "metallic"
+        ]
+      }
+    },
+    {
+      "species_id": "veg_shrub_lavender_01",
+      "common_name": "English Lavender",
+      "scientific_name": "Lavandula angustifolia",
+      "family": "Lamiaceae",
+      "category_id": "flowering_shrubs_ornamentals",
+      "category_name": "Flowering Shrubs & Ornamental Plants",
+      "biome": "Mediterranean Dry Rocky Shrubland",
+      "ecological_niche": "Xeric calciphile subshrub growing on exposed sunny limestone slopes",
+      "dimensions": {
+        "height_m": 0.7,
+        "height_range_m": [
+          0.5,
+          0.9
+        ],
+        "canopy_spread_m": 0.8,
+        "trunk_stem_diameter_m": 0.03
+      },
+      "morphology": {
+        "growth_habit": "Compact mounded woody subshrub with erect herbaceous floral spikes",
+        "branching_pattern": "Gnarled woody branching base producing numerous erect square annual stems",
+        "trunk_bark_texture": "Twisted flaking grayish-brown woody bark at base; green downy square stems above",
+        "leaf_type": "Linear aromatic foliage",
+        "leaf_shape": "Narrow linear-lanceolate revolute leaves, silvery-gray-green with fine tomentose velvet",
+        "foliage_density": "compact",
+        "floral_reproductive_accents": "Dense terminal spikes of tubular violet-purple aromatic blossoms"
+      },
+      "meshy_spec": {
+        "positive_prompt": "Standalone 3D botanical model of an English Lavender bush (Lavandula angustifolia), single compact mounded subshrub rooted on rocky ground, gnarled woody base giving rise to dense cushion of narrow linear silvery-gray-green aromatic foliage, topped with numerous slender erect stems holding vibrant violet-purple flower spikes, realistic dry Mediterranean scrub flora, PBR textures, clean quad mesh.",
+        "negative_prompt": "pot, planter, flowerpot, flower pot, plant pot, terracotta, container, vase, bowl, bucket, crate, dish, tray, saucer, pedestal, base stand, stand, ground soil box, square block, platform, roots in pot, indoor room, wall, background, floor, furniture, table, human, hands, person, people, man, woman, character, body, face, animal, insect, artificial plastic, artificial grass, low quality, deformed, floating leaves, disconnected branches, blurry, cartoon, toy, miniature, wireframe, baked lighting shadow, skeleton, bones, armature, rig, rigged, rigging, skinning, joints, watermark, text, logo",
+        "ai_model": "meshy-6",
+        "art_style": "realistic",
+        "topology": "quad",
+        "target_polycount": 25000,
+        "enable_pbr": true,
+        "texture_richness": "high",
+        "boost": true
+      },
+      "verification": {
+        "min_vertices": 3000,
+        "max_vertices": 45000,
+        "enforce_zero_armature": true,
+        "enforce_root_pivot": true,
+        "required_pbr_maps": [
+          "baseColor",
+          "normal",
+          "roughness",
+          "metallic"
+        ]
+      }
+    },
+    {
+      "species_id": "veg_shrub_lilac_01",
+      "common_name": "Common Lilac",
+      "scientific_name": "Syringa vulgaris",
+      "family": "Oleaceae",
+      "category_id": "flowering_shrubs_ornamentals",
+      "category_name": "Flowering Shrubs & Ornamental Plants",
+      "biome": "Temperate Rocky Scrub & Woodland Margin",
+      "ecological_niche": "Hardy deciduous shrub of calcareous hillsides and forest edges",
+      "dimensions": {
+        "height_m": 2.8,
+        "height_range_m": [
+          2.0,
+          3.5
+        ],
+        "canopy_spread_m": 2.4,
+        "trunk_stem_diameter_m": 0.06
+      },
+      "morphology": {
+        "growth_habit": "Large upright multi-stemmed deciduous shrub or small branching tree",
+        "branching_pattern": "Vase-shaped ascending woody branches with opposite lateral twigs",
+        "trunk_bark_texture": "Smooth gray-brown bark developing narrow vertical fissures and peeling strips with age",
+        "leaf_type": "Broadleaf deciduous",
+        "leaf_shape": "Broadly ovate to heart-shaped (cordate) smooth bluish-green leaves with acute apex",
+        "foliage_density": "dense",
+        "floral_reproductive_accents": "Showy dense pyramidal panicles (10-20cm) of fragrant 4-petaled lilac-purple florets"
+      },
+      "meshy_spec": {
+        "positive_prompt": "Standalone 3D model of a flowering Common Lilac shrub (Syringa vulgaris), single upright multi-stemmed bush rooted at ground, smooth gray-brown branches, lush foliage of heart-shaped dark-green leaves, loaded with showy dense pyramidal conical panicles of fragrant lilac-purple blossoms, natural garden shrub silhouette, photorealistic botanical 3D asset, full PBR texture maps, clean geometry.",
+        "negative_prompt": "pot, planter, flowerpot, flower pot, plant pot, terracotta, container, vase, bowl, bucket, crate, dish, tray, saucer, pedestal, base stand, stand, ground soil box, square block, platform, roots in pot, indoor room, wall, background, floor, furniture, table, human, hands, person, people, man, woman, character, body, face, animal, insect, artificial plastic, artificial grass, low quality, deformed, floating leaves, disconnected branches, blurry, cartoon, toy, miniature, wireframe, baked lighting shadow, skeleton, bones, armature, rig, rigged, rigging, skinning, joints, watermark, text, logo",
+        "ai_model": "meshy-6",
+        "art_style": "realistic",
+        "topology": "quad",
+        "target_polycount": 28000,
+        "enable_pbr": true,
+        "texture_richness": "high",
+        "boost": true
+      },
+      "verification": {
+        "min_vertices": 3000,
+        "max_vertices": 45000,
+        "enforce_zero_armature": true,
+        "enforce_root_pivot": true,
+        "required_pbr_maps": [
+          "baseColor",
+          "normal",
+          "roughness",
+          "metallic"
+        ]
+      }
+    },
+    {
+      "species_id": "veg_shrub_azalea_01",
+      "common_name": "Flame Azalea",
+      "scientific_name": "Rhododendron calendulaceum",
+      "family": "Ericaceae",
+      "category_id": "flowering_shrubs_ornamentals",
+      "category_name": "Flowering Shrubs & Ornamental Plants",
+      "biome": "Temperate Montane Woodland & Ridge",
+      "ecological_niche": "Acidophilic understory shrub of montane oak-hickory forests and mountain balds",
+      "dimensions": {
+        "height_m": 1.8,
+        "height_range_m": [
+          1.3,
+          2.4
+        ],
+        "canopy_spread_m": 1.7,
+        "trunk_stem_diameter_m": 0.035
+      },
+      "morphology": {
+        "growth_habit": "Open upright deciduous shrub with tiered horizontal branches",
+        "branching_pattern": "Whorled tiered slender branchlets creating an airy graceful layered canopy",
+        "trunk_bark_texture": "Thin, smooth reddish-brown to grayish bark, lightly grooved at root crown",
+        "leaf_type": "Broadleaf deciduous",
+        "leaf_shape": "Obovate to elliptical olive-green leaves with finely ciliated margins",
+        "foliage_density": "medium",
+        "floral_reproductive_accents": "Terminal trusses of 5-10 fiery trumpet-shaped flowers in radiant golden-orange and vermilion with long exerted stamens"
+      },
+      "meshy_spec": {
+        "positive_prompt": "Standalone 3D model of a wild Flame Azalea shrub (Rhododendron calendulaceum), single deciduous shrub rooted in woodland ground, slender tiered woody gray-brown branches, clustered obovate medium-green leaves, ablaze with brilliant fiery golden-orange and vermilion trumpet-shaped flowers with long curving stamens, photorealistic flowering woodland bush, PBR materials with petal translucency, clean 3D mesh.",
+        "negative_prompt": "pot, planter, flowerpot, flower pot, plant pot, terracotta, container, vase, bowl, bucket, crate, dish, tray, saucer, pedestal, base stand, stand, ground soil box, square block, platform, roots in pot, indoor room, wall, background, floor, furniture, table, human, hands, person, people, man, woman, character, body, face, animal, insect, artificial plastic, artificial grass, low quality, deformed, floating leaves, disconnected branches, blurry, cartoon, toy, miniature, wireframe, baked lighting shadow, skeleton, bones, armature, rig, rigged, rigging, skinning, joints, watermark, text, logo",
+        "ai_model": "meshy-6",
+        "art_style": "realistic",
+        "topology": "quad",
+        "target_polycount": 27000,
+        "enable_pbr": true,
+        "texture_richness": "high",
+        "boost": true
+      },
+      "verification": {
+        "min_vertices": 3000,
+        "max_vertices": 45000,
+        "enforce_zero_armature": true,
+        "enforce_root_pivot": true,
+        "required_pbr_maps": [
+          "baseColor",
+          "normal",
+          "roughness",
+          "metallic"
+        ]
+      }
+    },
+    {
+      "species_id": "veg_ground_fern_01",
+      "common_name": "Boston Sword Fern",
+      "scientific_name": "Nephrolepis exaltata",
+      "family": "Lomariopsidaceae",
+      "category_id": "ferns_grasses_groundcover",
+      "category_name": "Ferns, Grasses & Groundcover",
+      "biome": "Tropical / Subtropical Swamp Forest Floor",
+      "ecological_niche": "Humid forest understory and epiphytic tree-crotch dweller in tropical wetlands",
+      "dimensions": {
+        "height_m": 0.65,
+        "height_range_m": [
+          0.4,
+          0.9
+        ],
+        "canopy_spread_m": 1.0,
+        "trunk_stem_diameter_m": 0.3
+      },
+      "morphology": {
+        "growth_habit": "Tufted fountain rosette of gracefully weeping pinnate fronds",
+        "branching_pattern": "Radial explosion of fronds arching outward and downward from central rhizome crown",
+        "trunk_bark_texture": "Short scaly rhizome crown producing slender wiry stolon runners",
+        "leaf_type": "Pinnate fern frond",
+        "leaf_shape": "Once-pinnate sword frond with alternating oblong-falcate ruffled lime-green pinnae",
+        "foliage_density": "dense",
+        "floral_reproductive_accents": "Submarginal circular sori with kidney-shaped indusia under fertile fronds"
+      },
+      "meshy_spec": {
+        "positive_prompt": "Standalone 3D botanical model of a wild Boston Sword Fern (Nephrolepis exaltata), single lush fern clump rooted on forest ground, radial explosion of long gracefully arching pinnate fronds with ruffled vibrant lime-green leaflets, dense fountain-like cascading growth habit, delicate botanical detail, photorealistic forest undergrowth, PBR materials, clean organic topology.",
+        "negative_prompt": "pot, planter, flowerpot, flower pot, plant pot, terracotta, container, vase, bowl, bucket, crate, dish, tray, saucer, pedestal, base stand, stand, ground soil box, square block, platform, roots in pot, indoor room, wall, background, floor, furniture, table, human, hands, person, people, man, woman, character, body, face, animal, insect, artificial plastic, artificial grass, low quality, deformed, floating leaves, disconnected branches, blurry, cartoon, toy, miniature, wireframe, baked lighting shadow, skeleton, bones, armature, rig, rigged, rigging, skinning, joints, watermark, text, logo",
+        "ai_model": "meshy-6",
+        "art_style": "realistic",
+        "topology": "quad",
+        "target_polycount": 27000,
+        "enable_pbr": true,
+        "texture_richness": "high",
+        "boost": true
+      },
+      "verification": {
+        "min_vertices": 3000,
+        "max_vertices": 45000,
+        "enforce_zero_armature": true,
+        "enforce_root_pivot": true,
+        "required_pbr_maps": [
+          "baseColor",
+          "normal",
+          "roughness",
+          "metallic"
+        ]
+      }
+    },
+    {
+      "species_id": "veg_ground_pampas_01",
+      "common_name": "White Pampas Grass",
+      "scientific_name": "Cortaderia selloana",
+      "family": "Poaceae",
+      "category_id": "ferns_grasses_groundcover",
+      "category_name": "Ferns, Grasses & Groundcover",
+      "biome": "Temperate Grassland / Semiarid Steppe",
+      "ecological_niche": "Dominant tussock grass of deep river valleys and open temperate plains",
+      "dimensions": {
+        "height_m": 2.5,
+        "height_range_m": [
+          1.8,
+          3.2
+        ],
+        "canopy_spread_m": 2.2,
+        "trunk_stem_diameter_m": 1.0
+      },
+      "morphology": {
+        "growth_habit": "Massive fountain-like dense perennial grass tussock with towering flower plumes",
+        "branching_pattern": "Basal fountain of cascading foliage with stiff erect central flowering culms",
+        "trunk_bark_texture": "Dense woody-fibrous tussock base of compressed sheath bases",
+        "leaf_type": "Graminoid blade",
+        "leaf_shape": "Long narrow arching linear blades (1-2m) with razor-sharp serrated margins and glaucous blue-green tint",
+        "foliage_density": "dense",
+        "floral_reproductive_accents": "Enormous silky feathery silvery-white plumose panicles (40-90cm) held high on stout culms"
+      },
+      "meshy_spec": {
+        "positive_prompt": "Standalone 3D model of a majestic White Pampas Grass tussock (Cortaderia selloana), single large ornamental grass clump on ground, massive fountain of cascading narrow arching blue-green blade leaves, crowned by tall erect culms holding huge feathery plume-like silvery-white silky plumes, realistic volumetric grass clump, photorealistic PBR materials, clean game-ready 3D asset.",
+        "negative_prompt": "pot, planter, flowerpot, flower pot, plant pot, terracotta, container, vase, bowl, bucket, crate, dish, tray, saucer, pedestal, base stand, stand, ground soil box, square block, platform, roots in pot, indoor room, wall, background, floor, furniture, table, human, hands, person, people, man, woman, character, body, face, animal, insect, artificial plastic, artificial grass, low quality, deformed, floating leaves, disconnected branches, blurry, cartoon, toy, miniature, wireframe, baked lighting shadow, skeleton, bones, armature, rig, rigged, rigging, skinning, joints, watermark, text, logo",
+        "ai_model": "meshy-6",
+        "art_style": "realistic",
+        "topology": "quad",
+        "target_polycount": 28000,
+        "enable_pbr": true,
+        "texture_richness": "high",
+        "boost": true
+      },
+      "verification": {
+        "min_vertices": 3000,
+        "max_vertices": 45000,
+        "enforce_zero_armature": true,
+        "enforce_root_pivot": true,
+        "required_pbr_maps": [
+          "baseColor",
+          "normal",
+          "roughness",
+          "metallic"
+        ]
+      }
+    },
+    {
+      "species_id": "veg_ground_moss_01",
+      "common_name": "Forest Cushion Moss",
+      "scientific_name": "Leucobryum glaucum",
+      "family": "Leucobryaceae",
+      "category_id": "ferns_grasses_groundcover",
+      "category_name": "Ferns, Grasses & Groundcover",
+      "biome": "Temperate Humid Forest Floor & Boulder",
+      "ecological_niche": "Moisture-retaining bryophyte cushion on acidic forest soils and damp granite rocks",
+      "dimensions": {
+        "height_m": 0.15,
+        "height_range_m": [
+          0.08,
+          0.25
+        ],
+        "canopy_spread_m": 0.45,
+        "trunk_stem_diameter_m": 0.45
+      },
+      "morphology": {
+        "growth_habit": "Compact rounded hemispherical pincushion mound",
+        "branching_pattern": "Densely packed vertical micro-stems forming a solid continuous velvety hummock",
+        "trunk_bark_texture": "Subterranean brown tomentum rhizoids anchoring pad to soil",
+        "leaf_type": "Bryophyte microphyll",
+        "leaf_shape": "Tiny lanceolate-subulate leaves imbricated tightly, whitish-glaucous green dry, vivid emerald moist",
+        "foliage_density": "compact",
+        "floral_reproductive_accents": "Slender curved reddish setae bearing asymmetric spore capsules (sporophytes)"
+      },
+      "meshy_spec": {
+        "positive_prompt": "Standalone 3D model of a Forest Cushion Moss mound (Leucobryum glaucum), single rounded hemispherical dome of dense velvety pincushion moss resting naturally on forest ground base, micro-textured surface of millions of tiny packed emerald and glaucous-green moss leaflets, subtle organic surface undulations, photorealistic woodland groundcover, PBR normal and displacement maps, clean 3D geometry.",
+        "negative_prompt": "pot, planter, flowerpot, flower pot, plant pot, terracotta, container, vase, bowl, bucket, crate, dish, tray, saucer, pedestal, base stand, stand, ground soil box, square block, platform, roots in pot, indoor room, wall, background, floor, furniture, table, human, hands, person, people, man, woman, character, body, face, animal, insect, artificial plastic, artificial grass, low quality, deformed, floating leaves, disconnected branches, blurry, cartoon, toy, miniature, wireframe, baked lighting shadow, skeleton, bones, armature, rig, rigged, rigging, skinning, joints, watermark, text, logo",
+        "ai_model": "meshy-6",
+        "art_style": "realistic",
+        "topology": "quad",
+        "target_polycount": 22000,
+        "enable_pbr": true,
+        "texture_richness": "high",
+        "boost": true
+      },
+      "verification": {
+        "min_vertices": 3000,
+        "max_vertices": 45000,
+        "enforce_zero_armature": true,
+        "enforce_root_pivot": true,
+        "required_pbr_maps": [
+          "baseColor",
+          "normal",
+          "roughness",
+          "metallic"
+        ]
+      }
+    },
+    {
+      "species_id": "veg_ground_grass_01",
+      "common_name": "Japanese Forest Grass",
+      "scientific_name": "Hakonechloa macra",
+      "family": "Poaceae",
+      "category_id": "ferns_grasses_groundcover",
+      "category_name": "Ferns, Grasses & Groundcover",
+      "biome": "Moist Mountain Woodlands & Wet Rock Slopes",
+      "ecological_niche": "Shade-loving lithophyte draping over damp mountain cliff ledges and ravine banks",
+      "dimensions": {
+        "height_m": 0.45,
+        "height_range_m": [
+          0.3,
+          0.6
+        ],
+        "canopy_spread_m": 0.75,
+        "trunk_stem_diameter_m": 0.5
+      },
+      "morphology": {
+        "growth_habit": "Flowing weeping perennial grass mound resembling a cascading bamboo waterfall",
+        "branching_pattern": "Rhizomatous spreading stems arching unidirectionally in graceful weeping tiers",
+        "trunk_bark_texture": "Slender scaly creeping subterranean rhizomes",
+        "leaf_type": "Graminoid ribbon blade",
+        "leaf_shape": "Paper-thin linear-lanceolate leaves in luminous chartreuse-gold with delicate green pinstripes",
+        "foliage_density": "dense",
+        "floral_reproductive_accents": "Airy open purplish-green spikelet panicles on wiry stems in late summer"
+      },
+      "meshy_spec": {
+        "positive_prompt": "Standalone 3D botanical model of Japanese Forest Grass (Hakonechloa macra), single flowing ornamental grass clump rooted on ground, soft cascading mound of arching ribbon-like leaves draping like a golden waterfall, luminous chartreuse-gold and lime-green foliage blades with subtle leaf venation, photorealistic shade garden groundcover, PBR materials, clean quad topology.",
+        "negative_prompt": "pot, planter, flowerpot, flower pot, plant pot, terracotta, container, vase, bowl, bucket, crate, dish, tray, saucer, pedestal, base stand, stand, ground soil box, square block, platform, roots in pot, indoor room, wall, background, floor, furniture, table, human, hands, person, people, man, woman, character, body, face, animal, insect, artificial plastic, artificial grass, low quality, deformed, floating leaves, disconnected branches, blurry, cartoon, toy, miniature, wireframe, baked lighting shadow, skeleton, bones, armature, rig, rigged, rigging, skinning, joints, watermark, text, logo",
+        "ai_model": "meshy-6",
+        "art_style": "realistic",
+        "topology": "quad",
+        "target_polycount": 25000,
+        "enable_pbr": true,
+        "texture_richness": "high",
+        "boost": true
+      },
+      "verification": {
+        "min_vertices": 3000,
+        "max_vertices": 45000,
+        "enforce_zero_armature": true,
+        "enforce_root_pivot": true,
+        "required_pbr_maps": [
+          "baseColor",
+          "normal",
+          "roughness",
+          "metallic"
+        ]
+      }
+    },
+    {
+      "species_id": "veg_ground_ostrich_01",
+      "common_name": "Ostrich Fern",
+      "scientific_name": "Matteuccia struthiopteris",
+      "family": "Onocleaceae",
+      "category_id": "ferns_grasses_groundcover",
+      "category_name": "Ferns, Grasses & Groundcover",
+      "biome": "Temperate Riparian Woodland & Moist Bottomlands",
+      "ecological_niche": "Colony-forming rhizomatous fern in floodplains and shaded stream banks",
+      "dimensions": {
+        "height_m": 1.4,
+        "height_range_m": [
+          1.0,
+          1.7
+        ],
+        "canopy_spread_m": 1.2,
+        "trunk_stem_diameter_m": 0.4
+      },
+      "morphology": {
+        "growth_habit": "Stately architectural vase-shaped rosette crown (shuttlecock)",
+        "branching_pattern": "Strictly erect-arching sterile fronds radiating from a central vertical rootstock mound",
+        "trunk_bark_texture": "Erect woody rootstock forming a distinct raised crown",
+        "leaf_type": "Bipinnatifid dimorphic frond",
+        "leaf_shape": "Broadly lanceolate feather-like bright green sterile fronds tapering toward base",
+        "foliage_density": "dense",
+        "floral_reproductive_accents": "Central erect plume of rigid dark chocolate-brown fertile fronds resembling ostrich feathers"
+      },
+      "meshy_spec": {
+        "positive_prompt": "Standalone 3D model of a wild Ostrich Fern (Matteuccia struthiopteris), single stately fern rooted on forest soil, architectural shuttlecock-shaped rosette crown of tall erect-arching feathery bipinnate sterile fronds in vibrant fresh spring green, featuring central rigid dark-brown fertile spike plumes, photorealistic riparian wetland flora, PBR materials, clean organic geometry.",
+        "negative_prompt": "pot, planter, flowerpot, flower pot, plant pot, terracotta, container, vase, bowl, bucket, crate, dish, tray, saucer, pedestal, base stand, stand, ground soil box, square block, platform, roots in pot, indoor room, wall, background, floor, furniture, table, human, hands, person, people, man, woman, character, body, face, animal, insect, artificial plastic, artificial grass, low quality, deformed, floating leaves, disconnected branches, blurry, cartoon, toy, miniature, wireframe, baked lighting shadow, skeleton, bones, armature, rig, rigged, rigging, skinning, joints, watermark, text, logo",
+        "ai_model": "meshy-6",
+        "art_style": "realistic",
+        "topology": "quad",
+        "target_polycount": 27000,
+        "enable_pbr": true,
+        "texture_richness": "high",
+        "boost": true
+      },
+      "verification": {
+        "min_vertices": 3000,
+        "max_vertices": 45000,
+        "enforce_zero_armature": true,
+        "enforce_root_pivot": true,
+        "required_pbr_maps": [
+          "baseColor",
+          "normal",
+          "roughness",
+          "metallic"
+        ]
+      }
+    },
+    {
+      "species_id": "veg_succulent_saguaro_01",
+      "common_name": "Saguaro Cactus",
+      "scientific_name": "Carnegiea gigantea",
+      "family": "Cactaceae",
+      "category_id": "succulents_cacti",
+      "category_name": "Succulents & Cacti",
+      "biome": "Sonoran Desert",
+      "ecological_niche": "Keystone desert tree-cactus providing nesting cavities and nectar for arid fauna",
+      "dimensions": {
+        "height_m": 6.0,
+        "height_range_m": [
+          4.5,
+          8.0
+        ],
+        "canopy_spread_m": 2.2,
+        "trunk_stem_diameter_m": 0.55
+      },
+      "morphology": {
+        "growth_habit": "Massive columnar tree-like stem succulent with candelabra arms",
+        "branching_pattern": "Stout central column with 2-4 upward-curving lateral vertical branches",
+        "trunk_bark_texture": "Deeply accordion-pleated green succulent stem with 12-30 vertical ribs lined with brown areoles",
+        "leaf_type": "Modified spine",
+        "leaf_shape": "Clusters of stout gray-brown radial spines (3-5cm) radiating from felted areoles",
+        "foliage_density": "compact",
+        "floral_reproductive_accents": "Wreath of creamy-white night-blooming trumpet flowers at stem tips, followed by red edible fruit"
+      },
+      "meshy_spec": {
+        "positive_prompt": "Standalone 3D model of an iconic mature Saguaro Cactus (Carnegiea gigantea), single desert cactus growing naturally from ground, stout columnar central trunk with two upward-curving majestic candelabra arms, deeply accordion-ribbed green fleshy surface lined with regular rows of spine areoles and sharp needle clusters, waxy desert-adapted cuticle, photorealistic arid vegetation, PBR material maps, clean quad geometry.",
+        "negative_prompt": "pot, planter, flowerpot, flower pot, plant pot, terracotta, container, vase, bowl, bucket, crate, dish, tray, saucer, pedestal, base stand, stand, ground soil box, square block, platform, roots in pot, indoor room, wall, background, floor, furniture, table, human, hands, person, people, man, woman, character, body, face, animal, insect, artificial plastic, artificial grass, low quality, deformed, floating leaves, disconnected branches, blurry, cartoon, toy, miniature, wireframe, baked lighting shadow, skeleton, bones, armature, rig, rigged, rigging, skinning, joints, watermark, text, logo",
+        "ai_model": "meshy-6",
+        "art_style": "realistic",
+        "topology": "quad",
+        "target_polycount": 26000,
+        "enable_pbr": true,
+        "texture_richness": "high",
+        "boost": true
+      },
+      "verification": {
+        "min_vertices": 3000,
+        "max_vertices": 45000,
+        "enforce_zero_armature": true,
+        "enforce_root_pivot": true,
+        "required_pbr_maps": [
+          "baseColor",
+          "normal",
+          "roughness",
+          "metallic"
+        ]
+      }
+    },
+    {
+      "species_id": "veg_succulent_aloe_01",
+      "common_name": "Aloe Vera",
+      "scientific_name": "Aloe barbadensis",
+      "family": "Asphodelaceae",
+      "category_id": "succulents_cacti",
+      "category_name": "Succulents & Cacti",
+      "biome": "Arid / Semiarid Tropical Scrub",
+      "ecological_niche": "Drought-resilient stemless succulent on rocky hillsides and gravelly washes",
+      "dimensions": {
+        "height_m": 0.8,
+        "height_range_m": [
+          0.6,
+          1.0
+        ],
+        "canopy_spread_m": 0.9,
+        "trunk_stem_diameter_m": 0.08
+      },
+      "morphology": {
+        "growth_habit": "Stemless basal succulent rosette of turgid dagger-like leaves",
+        "branching_pattern": "Acaulescent radial whorl of upright and outward-spreading fleshy leaves",
+        "trunk_bark_texture": "Extremely short stout woody base stem anchored by fleshy roots",
+        "leaf_type": "Succulent blade",
+        "leaf_shape": "Thick lanceolate turgid fleshy leaves, pale glaucous-green with soft white-translucent serrated edge teeth",
+        "foliage_density": "dense",
+        "floral_reproductive_accents": "Tall erect central flowering stalk with a dense raceme of pendulous bright yellow tubular flowers"
+      },
+      "meshy_spec": {
+        "positive_prompt": "Standalone 3D botanical asset of an Aloe Vera plant (Aloe barbadensis), single succulent rosette growing directly from dry ground, thick fleshy dagger-shaped lanceolate leaves packed with soothing gel volume, pale glaucous-green epidermis with subtle white spots and soft translucent serrated teeth along edges, central tall yellow tubular flower spike, photorealistic succulent 3D model, PBR textures with subsurface scattering.",
+        "negative_prompt": "pot, planter, flowerpot, flower pot, plant pot, terracotta, container, vase, bowl, bucket, crate, dish, tray, saucer, pedestal, base stand, stand, ground soil box, square block, platform, roots in pot, indoor room, wall, background, floor, furniture, table, human, hands, person, people, man, woman, character, body, face, animal, insect, artificial plastic, artificial grass, low quality, deformed, floating leaves, disconnected branches, blurry, cartoon, toy, miniature, wireframe, baked lighting shadow, skeleton, bones, armature, rig, rigged, rigging, skinning, joints, watermark, text, logo",
+        "ai_model": "meshy-6",
+        "art_style": "realistic",
+        "topology": "quad",
+        "target_polycount": 24000,
+        "enable_pbr": true,
+        "texture_richness": "high",
+        "boost": true
+      },
+      "verification": {
+        "min_vertices": 3000,
+        "max_vertices": 45000,
+        "enforce_zero_armature": true,
+        "enforce_root_pivot": true,
+        "required_pbr_maps": [
+          "baseColor",
+          "normal",
+          "roughness",
+          "metallic"
+        ]
+      }
+    },
+    {
+      "species_id": "veg_succulent_echeveria_01",
+      "common_name": "Ghost Echeveria",
+      "scientific_name": "Echeveria elegans",
+      "family": "Crassulaceae",
+      "category_id": "succulents_cacti",
+      "category_name": "Succulents & Cacti",
+      "biome": "Subtropical Semiarid Rocky Slopes",
+      "ecological_niche": "Crevice-dwelling lithophyte of volcanic rock faces in central Mexico",
+      "dimensions": {
+        "height_m": 0.25,
+        "height_range_m": [
+          0.15,
+          0.35
+        ],
+        "canopy_spread_m": 0.35,
+        "trunk_stem_diameter_m": 0.05
+      },
+      "morphology": {
+        "growth_habit": "Acaulescent geometric symmetrical rosette producing offset clusters (pups)",
+        "branching_pattern": "Dense compact spiral rosette with short lateral stolon runners",
+        "trunk_bark_texture": "Short fleshy stem anchoring directly to substrate",
+        "leaf_type": "Succulent blade",
+        "leaf_shape": "Plump spoon-shaped obovate leaves with acute tips, powdery alabaster-blue with waxy farina bloom",
+        "foliage_density": "compact",
+        "floral_reproductive_accents": "Curved arching pink scapes holding bell-shaped coral-pink and yellow blossoms"
+      },
+      "meshy_spec": {
+        "positive_prompt": "Standalone 3D model of a Ghost Echeveria succulent (Echeveria elegans), single geometric rosette cluster rooted in rocky ground, compact spiral of plump spoon-shaped fleshy leaves with sharp tiny tips, striking pale powdery blue-green and icy-mint color with a chalky waxy farina coating, arching slender pink stalk with coral bell flowers, photorealistic succulent geometry, full PBR materials, clean quad topology.",
+        "negative_prompt": "pot, planter, flowerpot, flower pot, plant pot, terracotta, container, vase, bowl, bucket, crate, dish, tray, saucer, pedestal, base stand, stand, ground soil box, square block, platform, roots in pot, indoor room, wall, background, floor, furniture, table, human, hands, person, people, man, woman, character, body, face, animal, insect, artificial plastic, artificial grass, low quality, deformed, floating leaves, disconnected branches, blurry, cartoon, toy, miniature, wireframe, baked lighting shadow, skeleton, bones, armature, rig, rigged, rigging, skinning, joints, watermark, text, logo",
+        "ai_model": "meshy-6",
+        "art_style": "realistic",
+        "topology": "quad",
+        "target_polycount": 22000,
+        "enable_pbr": true,
+        "texture_richness": "high",
+        "boost": true
+      },
+      "verification": {
+        "min_vertices": 3000,
+        "max_vertices": 45000,
+        "enforce_zero_armature": true,
+        "enforce_root_pivot": true,
+        "required_pbr_maps": [
+          "baseColor",
+          "normal",
+          "roughness",
+          "metallic"
+        ]
+      }
+    },
+    {
+      "species_id": "veg_succulent_barrel_01",
+      "common_name": "Golden Barrel Cactus",
+      "scientific_name": "Echinocactus grusonii",
+      "family": "Cactaceae",
+      "category_id": "succulents_cacti",
+      "category_name": "Succulents & Cacti",
+      "biome": "Warm Arid Rocky Desert",
+      "ecological_niche": "Endemic cliff dweller on steep volcanic ravines in thermal desert gorges",
+      "dimensions": {
+        "height_m": 0.6,
+        "height_range_m": [
+          0.4,
+          0.8
+        ],
+        "canopy_spread_m": 0.65,
+        "trunk_stem_diameter_m": 0.55
+      },
+      "morphology": {
+        "growth_habit": "Solitary globular to cylindrical ribbed barrel cactus",
+        "branching_pattern": "Single spherical fleshy stem crowned with apical wool",
+        "trunk_bark_texture": "Vivid green ribbed succulent body with 20-35 pronounced vertical accordion ribs",
+        "leaf_type": "Modified spine",
+        "leaf_shape": "Curved radial golden-yellow spines (3-5cm) radiating from felted areoles along rib ridges",
+        "foliage_density": "compact",
+        "floral_reproductive_accents": "Ring of small vibrant yellow cup-shaped flowers embedded in creamy crown wool"
+      },
+      "meshy_spec": {
+        "positive_prompt": "Standalone 3D model of a Golden Barrel Cactus (Echinocactus grusonii), single spherical globe cactus resting on desert gravel, pronounced sharp vertical ribs running from base to crown, dense armor of brilliant glowing golden-yellow radial spines, soft white woolly tuft at apex crown with tiny yellow blossoms, photorealistic desert xerophyte, PBR texture maps, clean organic geometry.",
+        "negative_prompt": "pot, planter, flowerpot, flower pot, plant pot, terracotta, container, vase, bowl, bucket, crate, dish, tray, saucer, pedestal, base stand, stand, ground soil box, square block, platform, roots in pot, indoor room, wall, background, floor, furniture, table, human, hands, person, people, man, woman, character, body, face, animal, insect, artificial plastic, artificial grass, low quality, deformed, floating leaves, disconnected branches, blurry, cartoon, toy, miniature, wireframe, baked lighting shadow, skeleton, bones, armature, rig, rigged, rigging, skinning, joints, watermark, text, logo",
+        "ai_model": "meshy-6",
+        "art_style": "realistic",
+        "topology": "quad",
+        "target_polycount": 24000,
+        "enable_pbr": true,
+        "texture_richness": "high",
+        "boost": true
+      },
+      "verification": {
+        "min_vertices": 3000,
+        "max_vertices": 45000,
+        "enforce_zero_armature": true,
+        "enforce_root_pivot": true,
+        "required_pbr_maps": [
+          "baseColor",
+          "normal",
+          "roughness",
+          "metallic"
+        ]
+      }
+    },
+    {
+      "species_id": "veg_succulent_agave_01",
+      "common_name": "Century Plant",
+      "scientific_name": "Agave americana",
+      "family": "Asparagaceae",
+      "category_id": "succulents_cacti",
+      "category_name": "Succulents & Cacti",
+      "biome": "Arid / Semiarid Scrubland & Slopes",
+      "ecological_niche": "Massive monocarpic desert rosette on rocky hillsides and xeric plateau edges",
+      "dimensions": {
+        "height_m": 2.2,
+        "height_range_m": [
+          1.6,
+          2.8
+        ],
+        "canopy_spread_m": 3.0,
+        "trunk_stem_diameter_m": 0.6
+      },
+      "morphology": {
+        "growth_habit": "Massive monumental spreading succulent rosette",
+        "branching_pattern": "Basal spiral of huge rigid arching sword-like fleshy leaves radiating outward",
+        "trunk_bark_texture": "Short massive subterranean caudex rootstock",
+        "leaf_type": "Succulent blade",
+        "leaf_shape": "Thick rigid lanceolate leaves (1.5-2m), glaucous blue-gray with wavy margins armed with recurved brown teeth and sharp terminal spine",
+        "foliage_density": "dense",
+        "floral_reproductive_accents": "Spectacular monumental paniculate candelabra inflorescence stalk (once in lifespan)"
+      },
+      "meshy_spec": {
+        "positive_prompt": "Standalone 3D botanical model of a massive Century Plant (Agave americana), single monumental succulent rosette rooted in arid ground, huge thick rigid dagger-shaped arching leaves in powdery glaucous blue-gray, vicious curved brown teeth along wavy leaf margins and sharp dark terminal spike tips, photorealistic desert botanical asset, full PBR materials, clean quad-dominant geometry.",
+        "negative_prompt": "pot, planter, flowerpot, flower pot, plant pot, terracotta, container, vase, bowl, bucket, crate, dish, tray, saucer, pedestal, base stand, stand, ground soil box, square block, platform, roots in pot, indoor room, wall, background, floor, furniture, table, human, hands, person, people, man, woman, character, body, face, animal, insect, artificial plastic, artificial grass, low quality, deformed, floating leaves, disconnected branches, blurry, cartoon, toy, miniature, wireframe, baked lighting shadow, skeleton, bones, armature, rig, rigged, rigging, skinning, joints, watermark, text, logo",
+        "ai_model": "meshy-6",
+        "art_style": "realistic",
+        "topology": "quad",
+        "target_polycount": 27000,
+        "enable_pbr": true,
+        "texture_richness": "high",
+        "boost": true
+      },
+      "verification": {
+        "min_vertices": 3000,
+        "max_vertices": 45000,
+        "enforce_zero_armature": true,
+        "enforce_root_pivot": true,
+        "required_pbr_maps": [
+          "baseColor",
+          "normal",
+          "roughness",
+          "metallic"
+        ]
+      }
+    },
+    {
+      "species_id": "veg_vine_ivy_01",
+      "common_name": "English Ivy",
+      "scientific_name": "Hedera helix",
+      "family": "Araliaceae",
+      "category_id": "climbing_vines_epiphytes",
+      "category_name": "Climbing Vines & Epiphytes",
+      "biome": "Temperate Woodlands & Shaded Cliffs",
+      "ecological_niche": "Evergreen liana climbing forest canopies and carpeting shady ground",
+      "dimensions": {
+        "height_m": 1.8,
+        "height_range_m": [
+          1.2,
+          2.5
+        ],
+        "canopy_spread_m": 1.4,
+        "trunk_stem_diameter_m": 0.05
+      },
+      "morphology": {
+        "growth_habit": "Woody evergreen creeping and climbing liana thicket",
+        "branching_pattern": "Intertwined twisting vine runners with climbing aerial rootlet pads forming a natural clump",
+        "trunk_bark_texture": "Flexible to woody grayish-brown stems with microscopic adventitious cling rootlets",
+        "leaf_type": "Broadleaf evergreen",
+        "leaf_shape": "Alternate leathery leaves with 3-5 pointed lobes, glossy dark green with pale ivory veins",
+        "foliage_density": "dense",
+        "floral_reproductive_accents": "Small globose yellowish-green umbels followed by spherical purplish-black berries"
+      },
+      "meshy_spec": {
+        "positive_prompt": "Standalone 3D model of a wild English Ivy vine clump (Hedera helix), single natural self-supporting climbing thicket grounded at base, twisting intertwined woody brown vine stems, dense cascading layers of glossy dark-green leathery leaves with 3 to 5 pointed lobes and pale ivory veins, organic trailing runners, photorealistic climbing vine asset, PBR materials, clean quad topology.",
+        "negative_prompt": "pot, planter, flowerpot, flower pot, plant pot, terracotta, container, vase, bowl, bucket, crate, dish, tray, saucer, pedestal, base stand, stand, ground soil box, square block, platform, roots in pot, indoor room, wall, background, floor, furniture, table, human, hands, person, people, man, woman, character, body, face, animal, insect, artificial plastic, artificial grass, low quality, deformed, floating leaves, disconnected branches, blurry, cartoon, toy, miniature, wireframe, baked lighting shadow, skeleton, bones, armature, rig, rigged, rigging, skinning, joints, watermark, text, logo",
+        "ai_model": "meshy-6",
+        "art_style": "realistic",
+        "topology": "quad",
+        "target_polycount": 28000,
+        "enable_pbr": true,
+        "texture_richness": "high",
+        "boost": true
+      },
+      "verification": {
+        "min_vertices": 3000,
+        "max_vertices": 45000,
+        "enforce_zero_armature": true,
+        "enforce_root_pivot": true,
+        "required_pbr_maps": [
+          "baseColor",
+          "normal",
+          "roughness",
+          "metallic"
+        ]
+      }
+    },
+    {
+      "species_id": "veg_vine_wisteria_01",
+      "common_name": "Chinese Wisteria",
+      "scientific_name": "Wisteria sinensis",
+      "family": "Fabaceae",
+      "category_id": "climbing_vines_epiphytes",
+      "category_name": "Climbing Vines & Epiphytes",
+      "biome": "Subtropical / Temperate Forest Margin & Rocky Slopes",
+      "ecological_niche": "Vigorous high-climbing woody deciduous liana smothering canopy trees and cliff sides",
+      "dimensions": {
+        "height_m": 3.2,
+        "height_range_m": [
+          2.2,
+          4.0
+        ],
+        "canopy_spread_m": 2.8,
+        "trunk_stem_diameter_m": 0.18
+      },
+      "morphology": {
+        "growth_habit": "Woody twining deciduous liana forming a sculptural freestanding gnarled trunk",
+        "branching_pattern": "Counter-clockwise twisting muscular woody vines forming a sinuous trunk and cascading boughs",
+        "trunk_bark_texture": "Deeply fluted, sinuous muscled gray-brown bark resembling braided ropes",
+        "leaf_type": "Deciduous pinnate",
+        "leaf_shape": "Odd-pinnate with 9-13 ovate-oblong bright green leaflets",
+        "foliage_density": "medium",
+        "floral_reproductive_accents": "Massive cascading pendulous racemes (20-35cm) of fragrant pea-like lilac-lavender blossoms"
+      },
+      "meshy_spec": {
+        "positive_prompt": "Standalone 3D botanical model of a freestanding Chinese Wisteria shrub-tree (Wisteria sinensis), single plant rooted at ground, sculptural gnarled twisted gray-brown woody vine trunk with sinuous braided ropes, open canopy of soft pinnate bright-green leaves, smothered with magnificent cascading pendulous racemes of violet-lavender pea-like blossoms hanging gracefully, photorealistic flowering liana, PBR materials, clean 3D mesh.",
+        "negative_prompt": "pot, planter, flowerpot, flower pot, plant pot, terracotta, container, vase, bowl, bucket, crate, dish, tray, saucer, pedestal, base stand, stand, ground soil box, square block, platform, roots in pot, indoor room, wall, background, floor, furniture, table, human, hands, person, people, man, woman, character, body, face, animal, insect, artificial plastic, artificial grass, low quality, deformed, floating leaves, disconnected branches, blurry, cartoon, toy, miniature, wireframe, baked lighting shadow, skeleton, bones, armature, rig, rigged, rigging, skinning, joints, watermark, text, logo",
+        "ai_model": "meshy-6",
+        "art_style": "realistic",
+        "topology": "quad",
+        "target_polycount": 29000,
+        "enable_pbr": true,
+        "texture_richness": "high",
+        "boost": true
+      },
+      "verification": {
+        "min_vertices": 3000,
+        "max_vertices": 45000,
+        "enforce_zero_armature": true,
+        "enforce_root_pivot": true,
+        "required_pbr_maps": [
+          "baseColor",
+          "normal",
+          "roughness",
+          "metallic"
+        ]
+      }
+    },
+    {
+      "species_id": "veg_vine_bougainvillea_01",
+      "common_name": "Common Bougainvillea",
+      "scientific_name": "Bougainvillea spectabilis",
+      "family": "Nyctaginaceae",
+      "category_id": "climbing_vines_epiphytes",
+      "category_name": "Climbing Vines & Epiphytes",
+      "biome": "Tropical / Subtropical Scrub & Coastal Cliffs",
+      "ecological_niche": "Scrambling thorny woody climber flourishing on rocky slopes and coastal scrub",
+      "dimensions": {
+        "height_m": 2.4,
+        "height_range_m": [
+          1.8,
+          3.2
+        ],
+        "canopy_spread_m": 2.2,
+        "trunk_stem_diameter_m": 0.08
+      },
+      "morphology": {
+        "growth_habit": "Sprawling woody scrambling vine or large arching flowering shrub",
+        "branching_pattern": "Tangled arching spiny woody canes forming a dense mounded thicket",
+        "trunk_bark_texture": "Gnarled gray-brown woody main stem armed with sharp hooked thorns in leaf axils",
+        "leaf_type": "Broadleaf evergreen",
+        "leaf_shape": "Alternate ovate dull dark green leaves with wavy margins",
+        "foliage_density": "dense",
+        "floral_reproductive_accents": "Prolific vibrant magenta-pink papery petal-like bracts surrounding small white tubular flowers"
+      },
+      "meshy_spec": {
+        "positive_prompt": "Standalone 3D model of a wild Bougainvillea bush (Bougainvillea spectabilis), single freestanding thorny woody vine shrub rooted on ground, sprawling arching tangled gray-brown stems with green leaves, completely blanketed in massive vibrant clusters of paper-thin translucent magenta-pink floral bracts with tiny white center flowers, photorealistic tropical flowering vine, full PBR materials, clean geometry.",
+        "negative_prompt": "pot, planter, flowerpot, flower pot, plant pot, terracotta, container, vase, bowl, bucket, crate, dish, tray, saucer, pedestal, base stand, stand, ground soil box, square block, platform, roots in pot, indoor room, wall, background, floor, furniture, table, human, hands, person, people, man, woman, character, body, face, animal, insect, artificial plastic, artificial grass, low quality, deformed, floating leaves, disconnected branches, blurry, cartoon, toy, miniature, wireframe, baked lighting shadow, skeleton, bones, armature, rig, rigged, rigging, skinning, joints, watermark, text, logo",
+        "ai_model": "meshy-6",
+        "art_style": "realistic",
+        "topology": "quad",
+        "target_polycount": 28000,
+        "enable_pbr": true,
+        "texture_richness": "high",
+        "boost": true
+      },
+      "verification": {
+        "min_vertices": 3000,
+        "max_vertices": 45000,
+        "enforce_zero_armature": true,
+        "enforce_root_pivot": true,
+        "required_pbr_maps": [
+          "baseColor",
+          "normal",
+          "roughness",
+          "metallic"
+        ]
+      }
+    },
+    {
+      "species_id": "veg_epiphyte_spanishmoss_01",
+      "common_name": "Spanish Moss",
+      "scientific_name": "Tillandsia usneoides",
+      "family": "Bromeliaceae",
+      "category_id": "climbing_vines_epiphytes",
+      "category_name": "Climbing Vines & Epiphytes",
+      "biome": "Humid Subtropical Coastal Forest",
+      "ecological_niche": "True atmospheric epiphyte hanging from host tree canopies in high humidity coastal wetlands",
+      "dimensions": {
+        "height_m": 1.6,
+        "height_range_m": [
+          1.0,
+          2.2
+        ],
+        "canopy_spread_m": 0.8,
+        "trunk_stem_diameter_m": 0.02
+      },
+      "morphology": {
+        "growth_habit": "Rootless hanging festoon epiphyte with cascading slender curtains",
+        "branching_pattern": "Intertwined zigzagging thread-like stems forming hanging braided chain drapery",
+        "trunk_bark_texture": "Wiry central fiber core wrapped in gray scale-like trichome foliage",
+        "leaf_type": "Epiphytic scale blade",
+        "leaf_shape": "Slender linear awl-shaped leaves (2-6cm, 1mm wide) densely covered in silvery peltate water trichomes",
+        "foliage_density": "medium",
+        "floral_reproductive_accents": "Tiny inconspicuous fragrant pale greenish-blue flowers in leaf axils"
+      },
+      "meshy_spec": {
+        "positive_prompt": "Standalone 3D botanical model of a cascading Spanish Moss cluster (Tillandsia usneoides), single dense epiphyte beard drapery cluster rooted at ground base with vertical self-supporting form, intricate zigzagging silvery-gray tendril strands, soft velvety micro-scale texture, authentic southern coastal swamp epiphyte, photorealistic botanical PBR materials, clean organic topology.",
+        "negative_prompt": "pot, planter, flowerpot, flower pot, plant pot, terracotta, container, vase, bowl, bucket, crate, dish, tray, saucer, pedestal, base stand, stand, ground soil box, square block, platform, roots in pot, indoor room, wall, background, floor, furniture, table, human, hands, person, people, man, woman, character, body, face, animal, insect, artificial plastic, artificial grass, low quality, deformed, floating leaves, disconnected branches, blurry, cartoon, toy, miniature, wireframe, baked lighting shadow, skeleton, bones, armature, rig, rigged, rigging, skinning, joints, watermark, text, logo",
+        "ai_model": "meshy-6",
+        "art_style": "realistic",
+        "topology": "quad",
+        "target_polycount": 26000,
+        "enable_pbr": true,
+        "texture_richness": "high",
+        "boost": true
+      },
+      "verification": {
+        "min_vertices": 3000,
+        "max_vertices": 45000,
+        "enforce_zero_armature": true,
+        "enforce_root_pivot": true,
+        "required_pbr_maps": [
+          "baseColor",
+          "normal",
+          "roughness",
+          "metallic"
+        ]
+      }
+    },
+    {
+      "species_id": "veg_vine_pothos_01",
+      "common_name": "Golden Pothos",
+      "scientific_name": "Epipremnum aureum",
+      "family": "Araceae",
+      "category_id": "climbing_vines_epiphytes",
+      "category_name": "Climbing Vines & Epiphytes",
+      "biome": "Tropical Rainforest Understory & Epiphytic Canopy",
+      "ecological_niche": "Robust tropical climbing and trailing liana forming dense understory ground carpets and canopy curtains",
+      "dimensions": {
+        "height_m": 1.2,
+        "height_range_m": [
+          0.8,
+          1.6
+        ],
+        "canopy_spread_m": 1.3,
+        "trunk_stem_diameter_m": 0.025
+      },
+      "morphology": {
+        "growth_habit": "Cascading scrambling evergreen vine with trailing runners and climbing roots",
+        "branching_pattern": "Flexible trailing and climbing stems with nodal rootlets creating layered trailing sheets",
+        "trunk_bark_texture": "Smooth cylindrical green stems with brownish nodal rings and short aerial root nubs",
+        "leaf_type": "Broadleaf tropical foliage",
+        "leaf_shape": "Heart-shaped (cordate) glossy waxy leaves with pointed tips, emerald-green with golden-yellow variegation marbling",
+        "foliage_density": "dense",
+        "floral_reproductive_accents": "Spathe and spadix (rare in wild); predominantly vigorous vegetative growth"
+      },
+      "meshy_spec": {
+        "positive_prompt": "Standalone 3D model of a wild Golden Pothos vine clump (Epipremnum aureum), single cascading tropical climbing vine rooted naturally at ground, flexible green jointed trailing stems, lush dense layers of glossy waxy heart-shaped leaves with distinct yellow and cream marbling variegation across deep-green blades, photorealistic jungle understory plant, full PBR materials with clearcoat sheen, clean 3D mesh.",
+        "negative_prompt": "pot, planter, flowerpot, flower pot, plant pot, terracotta, container, vase, bowl, bucket, crate, dish, tray, saucer, pedestal, base stand, stand, ground soil box, square block, platform, roots in pot, indoor room, wall, background, floor, furniture, table, human, hands, person, people, man, woman, character, body, face, animal, insect, artificial plastic, artificial grass, low quality, deformed, floating leaves, disconnected branches, blurry, cartoon, toy, miniature, wireframe, baked lighting shadow, skeleton, bones, armature, rig, rigged, rigging, skinning, joints, watermark, text, logo",
+        "ai_model": "meshy-6",
+        "art_style": "realistic",
+        "topology": "quad",
+        "target_polycount": 27000,
+        "enable_pbr": true,
+        "texture_richness": "high",
+        "boost": true
+      },
+      "verification": {
+        "min_vertices": 3000,
+        "max_vertices": 45000,
+        "enforce_zero_armature": true,
+        "enforce_root_pivot": true,
+        "required_pbr_maps": [
+          "baseColor",
+          "normal",
+          "roughness",
+          "metallic"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "species_id": "veg_succulent_saguaro_01",
+  "preview_task_id": "01a08b30-8b4a-74b2-b179-1769d4b17875",
+  "refine_task_id": "01a08b32-1612-71b2-9e59-7ae8ba9e7d1f",
+  "vertex_count": 37179,
+  "face_count": 40199,
+  "source": "meshy",
+  "textures": {
+    "albedo": "textures/albedo.png",
+    "normal": "textures/normal.png",
+    "roughness": "textures/roughness.png",
+    "metallic": "textures/metallic.png"
+  }
+}

@@ -30,3 +30,34 @@ Scope boundaries:
 - Write your progress to `e:\tool\mcp\MorphoMesh\.agents\explorer_m3_3\progress.md`.
 - Write your comprehensive handoff report to `e:\tool\mcp\MorphoMesh\.agents\explorer_m3_3\handoff.md`.
 - Send completion message to parent orchestrator.
+
+## 2026-09-07T15:44:03Z
+
+You are an Explorer subagent (Explorer M3.3: Hair Grooming Specialist — 6-Stratum Hime Cut Investigator) for MorphoMesh Milestone M3.
+Your working directory is: E:\tool\mcp\MorphoMesh\.agents\explorer_m3_3
+
+MANDATORY FIRST STEP:
+You MUST read the following authoritative specification files:
+1. ORIGINAL_REQUEST.md at: E:\tool\mcp\MorphoMesh\ORIGINAL_REQUEST.md
+2. PROJECT.md at: E:\tool\mcp\MorphoMesh\.agents\orchestrator_human_anatomy_gen2\PROJECT.md
+
+YOUR OBJECTIVE:
+Investigate hair generation in `src/morphomesh/human_grooming.py` and compare against the concept art requirements (long sleek black hair flowing down the back with elegant straight bangs).
+
+SPECIFIC INVESTIGATION TASKS:
+1. Inspect `src/morphomesh/human_grooming.py` and `src/morphomesh/character_assembler.py`.
+2. Design the 6-stratum hime cut procedural hair system:
+   - Stratum 1: Blunt straight bangs cleanly cut across the forehead above the eyebrows ($Z \approx 1.54\text{m}-1.57\text{m}$).
+   - Stratum 2: Symmetrical cheek-length sidelocks (bins/binzas) framing the jawline and V-line chin down to $Z \approx 1.42\text{m}$.
+   - Stratum 3: Scalp crown cap providing root volume and parting line.
+   - Stratum 4: Temporal transitions wrapping naturally around the ears.
+   - Stratum 5: Flowing dorsal cascade falling past the shoulders down to the mid-back ($Z \approx 0.95\text{m}$).
+   - Stratum 6: Fine flyaway strands for natural photorealism.
+3. Verify quad-strip / curve representation, clean UV coordinates for anisotropic hair shading, and Rigify `DEF-head` parenting/skinning.
+4. Formulate precise function signatures and drop-in Python code for Worker M3.
+
+COMPLETION REQUIREMENTS:
+- DO NOT edit source code files. You are read-only.
+- Write your investigation report to: `E:\tool\mcp\MorphoMesh\.agents\explorer_m3_3\analysis.md`
+- Write your 5-component handoff report to: `E:\tool\mcp\MorphoMesh\.agents\explorer_m3_3\handoff.md`
+- Update `progress.md` and send a completion message with report path.

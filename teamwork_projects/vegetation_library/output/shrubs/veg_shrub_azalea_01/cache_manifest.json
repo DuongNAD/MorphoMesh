@@ -1,0 +1,14 @@
+{
+  "species_id": "veg_shrub_azalea_01",
+  "preview_task_id": "01a08b39-8b98-723e-8524-12c49104bbe1",
+  "refine_task_id": "01a08b3c-b4dc-764c-b10a-b1df493bda63",
+  "vertex_count": 132363,
+  "face_count": 106147,
+  "source": "meshy",
+  "textures": {
+    "albedo": "textures/albedo.png",
+    "normal": "textures/normal.png",
+    "roughness": "textures/roughness.png",
+    "metallic": "textures/metallic.png"
+  }
+}

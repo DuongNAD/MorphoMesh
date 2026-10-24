@@ -1,158 +1,123 @@
-# Milestone M2 Adversarial Challenge Report: Multi-Angle Capture & Viewport Robustness
+# Handoff Report — Challenger M2.2: Sash Clearance, Z-Fighting & Rigify Skinning
 
-**Agent**: Challenger M2_2 (Multi-Angle Capture & Viewport Robustness Challenger)  
-**Date**: 2026-09-07T04:55:00Z  
-**Working Directory**: `e:\tool\mcp\MorphoMesh\.agents\challenger_m2_2`  
-**Parent Orchestrator ID**: `577aaa33-6b3f-4ebc-93eb-fcc632d94bc9`  
-**Target Subsystems**: `src/morphomesh/camera_rig.py`, `src/morphomesh/blender_bridge.py`, `blender_addon/morphomesh/listener.py`, `src/morphomesh/__init__.py`, `tests/test_adversarial_viewport_capture.py`  
-**Verdict**: **REJECT** (Critical Live Socket & Deployment Deficiencies Uncovered)  
-**Handoff Type**: Hard  
+**Agent**: Challenger M2.2 (`teamwork_preview_critic`, `teamwork_preview_specialist`)  
+**Roles**: critic, specialist  
+**Recipient**: Parent Orchestrator (`c2422918-70a3-47d9-a8f9-883422a33af0`)  
+**Timestamp**: 2026-09-07T15:15:00Z  
+**Type**: Hard (Task Complete)  
+**Explicit Verdict**: **`REQUEST_CHANGES`**
 
 ---
 
 ## 1. Observation
 
-1. **Test Suite Verification**:
-   - Developed and executed comprehensive adversarial test harness `tests/test_adversarial_viewport_capture.py` comprising 42 tests across 4 categories:
-     - *Suite 1 (Batch Fuzzing)*: Empty list, invalid viewpoint strings, duplicate viewpoints, 16-angle turntable orbit sweeps, non-standard and 4K resolutions (64x64 to 3840x2160, 32:9 ultrawide, 9:16 vertical).
-     - *Suite 2 (Diagnostic Shading Fuzzing)*: All 9 combinations of `shading_mode` (`SOLID`, `WIREFRAME`, `MATERIAL`) x `color_type` (`RANDOM`, `SINGLE`, `OBJECT`), fuzzed invalid modes with fallback checks, and execution benchmarking (<0.55s in Blender Workbench, <0.05s in mock).
-     - *Suite 3 (Fault Injection & Recovery)*: Missing scene (`scene=None`), nonexistent camera objects, deleted target mesh objects, truncated corrupted PNG fallback audit, and file handle leak checks over 50 rapid captures.
-     - *Suite 4 (Live Socket & Packaging Audit)*: Live socket probing on port 9876, RPC method availability, addon deployment relative path resolution, and bundled Blender Python dependency isolation.
-   - Result of `pytest -v tests/test_adversarial_viewport_capture.py`: **42 passed in 0.64s**.
-   - Result of combined M2 unit + integration + adversarial tests (`tests/test_inspector_camera.py`, `tests/test_multiview_rendering.py`, `tests/test_adversarial_viewport_capture.py`): **103 passed in 0.86s**.
+1. **Test Suite Execution & Results**:
+   - Master Wardrobe Test Suite:
+     ```powershell
+     uv run pytest tests/test_wardrobe.py tests/test_wardrobe_m2.py -v
+     ```
+     Result: `30 passed in 0.30s` (100% pass rate).
+   - Challenger M2.2 Empirical Stress Test Suite (`tests/test_challenger_m2_sash.py`):
+     ```powershell
+     uv run pytest tests/test_challenger_m2_sash.py -v
+     ```
+     Result: `11 passed, 4 xfailed in 1.43s`.
+     * `test_contract_sash_clearance_parameter_sweep`: PASSED (81/81 parameter sweeps maintain $> 6.0\text{mm}$ clearance over bodice).
+     * `test_default_wardrobe_sash_bodice_clearance_all_angles`: PASSED (min clearance $= 4.56\text{mm}$).
+     * `test_empirical_posterior_skirt_sash_penetration_discovery`: XFAIL (reproduced $-0.06\text{mm}$ penetration at posterior waistband).
+     * `test_costal_margin_flare_clearance_narrowing`: PASSED (verified positive clearance under costal margin flare).
+     * `test_bow_loops_strictly_positive_volume`: PASSED (left loop $= 10.52\,\text{cm}^3$, right loop $= 13.77\,\text{cm}^3$).
+     * `test_bow_loops_closed_2_manifold`: PASSED (0 boundary edges, 0 non-manifold edges).
+     * `test_barrel_knot_manifold_closed_caps`: XFAIL (reproduced 8 unclosed boundary edges on knot caps).
+     * `test_ribbon_streamer_cascade_trajectory`: PASSED (Z descends below $0.75\text{m}$, lateral flare $> 0.030\text{m}$).
+     * `test_ribbon_streamer_tip_bias_cut`: XFAIL (reproduced $\Delta Z = 0.000\text{m}$ dead code on tip bias).
+     * `test_organic_skirt_faces_outward_normals`: XFAIL (reproduced 1440/1440 faces with inverted normals).
+     * `test_bodice_skin_weights_normalization_and_orphans`: PASSED (352/352 normalized, 0 orphans, 0 negative weights).
+     * `test_skirt_skin_weights_normalization_and_orphans`: PASSED (784/784 normalized, 0 orphans, 0 negative weights).
+     * `test_sash_skin_weights_normalization_and_orphans`: PASSED (350/350 normalized, 0 orphans, 0 negative weights).
+     * `test_rigify_def_bones_schema_compliance`: PASSED (all assigned bones in DEF-spine, DEF-shoulder, DEF-thigh).
+     * `test_wardrobe_script_bone_weights_and_solidify`: PASSED (AST valid, `solid_mod.offset = 1.0`).
 
-2. **Verbatim Live Socket Probing Failures (Port 9876)**:
-   - Live Blender 4.5.4 LTS was active on `127.0.0.1:9876` (PID 30652).
-   - Probing raw JSON-RPC for `morphomesh.setup_inspector_camera`:
-     ```json
-     {"jsonrpc": "2.0", "id": "test-cam", "status": "error", "error": {"code": -32000, "message": "Unknown RPC method: morphomesh.setup_inspector_camera"}}
-     ```
-   - Probing raw JSON-RPC for `morphomesh.capture_viewport`:
-     ```json
-     {"jsonrpc": "2.0", "id": "test-cap", "status": "error", "error": {"code": -32000, "message": "Unknown RPC method: morphomesh.capture_viewport"}}
-     ```
-   - Invoking `BlenderBridge.setup_inspector_camera()` against the live connection:
-     ```
-     Interactive socket execute_code failed ([ERR_BLENDER_EXECUTION_FAILED] Blender Socket Error: Forbidden import: sys), falling back to headless runner.
-     ```
-
-3. **Verbatim Blender Subprocess Addon Execution Crash**:
-   - Invoking `_dispatch('morphomesh.capture_multi_angle_inspection', {'viewpoints': ['front']})` inside real Blender 4.5.4 LTS:
-     ```
-     Multi-angle capture failed: No module named 'morphomesh.camera_rig'
-     Traceback (most recent call last):
-       File "C:\Users\Admin\AppData\Roaming\Blender Foundation\Blender\4.5\scripts\addons\morphomesh\listener.py", line 1200, in _dispatch
-         from morphomesh.camera_rig import capture_multi_angle_inspection
-     ModuleNotFoundError: No module named 'morphomesh.camera_rig'
-     ```
-
-4. **Verbatim Truncated Corrupted PNG Fallback**:
-   - Calling `capture_viewport_image(resolution=(0, 0))` writes raw 29-byte truncated header:
-     `b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x04\x00\x00\x00\x04\x00\x08\x02\x00\x00\x00"`
-   - Reading with PIL raises:
-     ```
-     PIL.UnidentifiedImageError: cannot identify image file '.../corrupted_test.png'
-     ```
+2. **Empirical Code Observations**:
+   - `src/morphomesh/wardrobe.py`:
+     * Lines 915–921: `generate_dress_organic_skirt` constructs quads via `mesh.add_quad(v_bl, v_br, v_tr, v_tl)` where $r$ decreases downwards ($Z$ goes from $1.030\text{m}$ to $0.520\text{m}$). This clockwise order causes face normals to point inward (into the body). Dot product with character radial vector $\vec{c} \cdot \vec{n} < 0$ for all 1440 faces.
+     * Lines 641–648: `generate_dress_waist_sash` adds only 2 quads for each 8-gon cap on the barrel knot. Vertices 2, 3, 4, 5 are omitted on both caps, leaving 8 boundary edges (`(122,123), (123,124), (124,125), (122,125), (146,147), (147,148), (148,149), (146,149)`).
+     * Lines 548–570: Sash lowest ring is placed at $Z = 1.0275\cdot s$ with forward offset `yo = -0.007 * s`. At posterior angle $\theta = \pi/2$, sash vertex 6 ($Y = 0.10550\text{m}$) penetrates the flared skirt surface ($Y = 0.10556\text{m}$) by $-0.06\text{mm}$, with adjacent vertices 4, 5, 7, 8 having clearances of $+0.16\text{mm}$ to $+0.92\text{mm}$ ($< +2.0\text{mm}$).
+     * Line 773: `tip_bias = (0.008 * s * (1.0 - t)) if step == streamer_steps else 0.0`. When `step == streamer_steps`, $t = 1.0 \implies 1.0 - t = 0.0 \implies \text{tip\_bias} = 0.0$ identically.
 
 ---
 
 ## 2. Logic Chain
 
-1. **Defect 1: Live Interactive Socket Out of Parity (Unregistered Methods)**:
-   - *Observation*: Live Blender session listening on port 9876 rejected `morphomesh.setup_inspector_camera` and `morphomesh.capture_viewport` with `Unknown RPC method`.
-   - *Logic*: The Blender addon was originally loaded from `%APPDATA%\Blender Foundation\Blender\4.5\scripts\addons\morphomesh\listener.py` (10KB stub). While Worker M2 updated `blender_addon/morphomesh/listener.py` in the git repository (100KB), the changes were never installed into Blender's addon directory or reloaded. Consequently, interactive socket calls fail in real sessions.
-   - *Blast Radius*: Antigravity 2.0 and MCP tools cannot communicate interactively with Blender on port 9876 for inspection camera or viewport capture.
+1. **Organic Skirt Inverted Normals (Defect 1)**:
+   - Observation: 1440/1440 skirt faces point toward $(-X, -Y)$.
+   - Deduction: In `generate_dress_organic_skirt`, `r=0` is at $Z=1.030\text{m}$ (top) and `r=15` is at $Z=0.520\text{m}$ (bottom). The quad loop constructs `v_bl = rings[r][i]` (top left), `v_br = rings[r][i+1]` (top right), `v_tr = rings[r+1][i+1]` (bottom right), `v_tl = rings[r+1][i]` (bottom left).
+   - In 3D space, this creates a clockwise winding. By the right-hand rule, $\vec{n} = (\vec{v}_{\text{br}} - \vec{v}_{\text{bl}}) \times (\vec{v}_{\text{tr}} - \vec{v}_{\text{bl}})$ points inward.
+   - Inference: Inverted normals violate `ORIGINAL_REQUEST.md` line 222 ("không có inverted normals") and will produce rendering artifacts in Cycles/EEVEE.
 
-2. **Defect 2: Interactive Fallback Crashes on `import sys` Violation**:
-   - *Observation*: When `BlenderBridge.execute()` receives an RPC error from the socket, it attempts to fall back to `self.send_socket_request("execute_code", {"code": script})`.
-   - *Logic*: `_generate_headless_script()` in `src/morphomesh/blender_bridge.py` (line 743) generates Python code containing `import sys` and `import os`. The in-Blender `AddonSecurityValidator` in `listener.py` blocks `sys` and `os` from untrusted script execution. This causes `execute_code` to fail with `Blender Socket Error: Forbidden import: sys`, completely breaking the interactive bridge fallback mechanism.
-   - *Blast Radius*: The fallback mechanism does not recover interactively and is forced to spawn headless CLI processes, defeating the purpose of an interactive bridge.
+2. **Barrel Knot Unclosed Caps (Defect 2)**:
+   - Observation: 8 edges in `knot_faces` have an edge count of 1.
+   - Deduction: An 8-vertex perimeter partitioned into quads requires 3 quads: $Q_1 = (0,7,6,1)$, $Q_2 = (1,6,5,2)$, $Q_3 = (2,5,4,3)$.
+   - Lines 643–647 only define $Q_1$ and $Q_2$. $Q_3$ is omitted on both top and bottom.
+   - Inference: The barrel knot is not a manifold closed shell, leaving two 4-vertex quadrilateral holes on the dorsal side of the knot.
 
-3. **Defect 3: Invalid Relative Path Resolution (`repo_src`) in Addon**:
-   - *Observation*: In `blender_addon/morphomesh/listener.py` lines 918, 1095, and 1195:
-     ```python
-     repo_src = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "src"))
-     if os.path.exists(repo_src) and repo_src not in sys.path:
-         sys.path.insert(0, repo_src)
-     ```
-   - *Logic*: When the addon is installed in standard Blender location (`%APPDATA%\Blender Foundation\Blender\4.5\scripts\addons\morphomesh\`), `os.path.dirname(__file__)` is `.../scripts/addons/morphomesh`. Traversing `../../src` evaluates to `.../scripts/src`, which NEVER exists in user environments.
-   - *Blast Radius*: In real Blender installations, `repo_src` is not added to `sys.path`, preventing Blender from locating `morphomesh.camera_rig`.
+3. **Posterior Sash Band Z-Fighting (Defect 3)**:
+   - Observation: At $Z = 1.0275\cdot s$, sash vertex 6 has clearance $-0.06\text{mm}$ relative to the skirt.
+   - Deduction: The sash band extends from $Z = 1.0275\cdot s$ to $1.0725\cdot s$. The skirt begins at $Z = 1.030\cdot s$ and flares outward towards the gluteals. The sash envelope includes a forward shift `yo = -0.007 * s`, pulling the posterior sash band 7mm forward towards the spine.
+   - At $Z = 1.0275\cdot s$ on the posterior side, the skirt has flared to $Y = 0.10556\text{m}$, while the sash band is at $Y = 0.10550\text{m}$.
+   - Inference: The sash band and skirt penetrate and Z-fight on the posterior waistband.
 
-4. **Defect 4: Packaging Dependency Pollution (`pydantic` in Blender Python)**:
-   - *Observation*: `src/morphomesh/__init__.py` line 7 executes `from morphomesh.models import ...`, which requires `from pydantic import BaseModel`.
-   - *Logic*: Blender's bundled Python does not include third-party package `pydantic`. Even if `e:\tool\mcp\MorphoMesh\src` is manually placed on `sys.path`, executing `from morphomesh.camera_rig import ...` triggers package root `morphomesh/__init__.py`, which crashes with `ModuleNotFoundError: No module named 'pydantic'`.
-   - *Blast Radius*: In `listener.py`:
-     - `setup_inspector_camera` silently swallows the `ImportError` and falls back to a legacy unoptimized camera calculation.
-     - `capture_viewport` silently swallows the `ImportError` and falls back to unoptimized viewport grab.
-     - `capture_multi_angle_inspection` does NOT catch `ImportError` and raises an unhandled `ModuleNotFoundError`, crashing the batch inspection RPC call.
-
-5. **Defect 5: Corrupted Fallback PNG Header**:
-   - *Observation*: In `src/morphomesh/camera_rig.py` lines 703-704 and 838-839:
-     ```python
-     with open(clean_path, "wb") as f:
-         f.write(b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x04\x00\x00\x00\x04\x00\x08\x02\x00\x00\x00")
-     ```
-   - *Logic*: If PIL encounters an error (e.g. resolution 0x0 or resource failure), `camera_rig.py` writes a truncated 29-byte file containing only the 8-byte PNG signature and a partial IHDR chunk without checksum, image data (IDAT), or end chunk (IEND). This file is corrupt and cannot be decoded by any standard image parser or base64 preview generator.
-   - *Blast Radius*: Downstream tools and users receive corrupted images when fallback paths trigger.
+4. **Streamer Tip Bias Dead Code (Defect 4)**:
+   - Observation: Streamer tip vertices have identical $Z$ values ($\Delta Z = 0.000\text{m}$).
+   - Deduction: Line 773 evaluates `0.008 * s * (1.0 - t)` only at `step == streamer_steps`. At this step, $t = 1.0$, multiplying the expression by $0.0$.
+   - Inference: The 45° bias cut never manifests in geometry.
 
 ---
 
 ## 3. Caveats
 
-1. **Pure-Python Algorithmic Correctness**: The core mathematical solvers in `src/morphomesh/camera_rig.py` (AABB bounding box calculation, optical distance trigonometry $d = \frac{R}{\sin(\alpha_{\min})} \cdot (1 + \mu)$, spherical camera placement, anatomical centers, and pure-Python matrix/quaternion shims) are well-designed and passed all 42 adversarial stress tests with zero algorithmic errors.
-2. **Headless Workbench Performance**: When `camera_rig.py` is invoked standalone in Blender 4.5.4 LTS via script without the package `__init__.py` dependency block, Workbench capture completes in ~0.54s, satisfying the performance criteria.
-3. **Addon Deployment State**: The installed addon in `%APPDATA%` was synchronized with the repo version during verification, but Blender requires either module hot-reloading or session restart to bind the updated dispatcher methods to `_global_server`.
+- **Scope of Inverted Normals**: The inverted normals are isolated to `Dress_OrganicSkirt` / `Dress_PleatedSkirt`. `Dress_Bodice` and `Dress_WaistSash` both possess 100% outward-facing normals.
+- **Contract Robustness**: When used purely as specified in `PROJECT.md` (`generate_organic_dress` + `generate_waist_sash_and_bow`), anterior and lateral clearance exceeds $6.0\text{mm}$ across all 81 tested parameter configurations. Only the posterior junction below $Z=1.030\text{m}$ incurs penetration.
+- **Skinning Quality**: The Rigify DEF skinning implementation is verified to be 100% compliant with zero defects.
 
 ---
 
-## 4. Conclusion
+## 4. Conclusion & Actionable Verdict
 
-**Verdict: REJECT**
+### Verdict: **`REQUEST_CHANGES`**
 
-While the core math and pure-Python unit tests in `src/morphomesh/camera_rig.py` are robust, Milestone 2 cannot be approved in its current state due to critical architectural and runtime bridge integration failures:
-1. Live socket interactive calls fail on port 9876 with `Unknown RPC method`.
-2. Socket fallback crashes with `Blender Socket Error: Forbidden import: sys`.
-3. Relative path resolution `repo_src` in `listener.py` fails in all standard Blender installations.
-4. `morphomesh/__init__.py` pollutes Blender's execution environment by requiring `pydantic`, causing `capture_multi_angle_inspection` to crash with `ModuleNotFoundError: No module named 'morphomesh.camera_rig'`.
-5. Fallback PNG writer outputs corrupted 29-byte unidentifiable image files.
+Milestone M2 cannot be approved in its current state due to the four identified defects. Worker M2 must remediate the following in `src/morphomesh/wardrobe.py`:
 
-### Required Remediations for Worker M2:
-1. **Decouple Package Root from Pydantic in Blender**: In `src/morphomesh/__init__.py`, wrap imports of `models.py` in `try...except (ImportError, ModuleNotFoundError)` or guard them so importing `morphomesh.camera_rig` inside Blender does not import `pydantic`.
-2. **Fix `repo_src` Path Resolution in `listener.py`**: Support an environment variable (e.g. `MORPHOMESH_SRC_PATH`), check parent directories dynamically, or embed `camera_rig.py` within `blender_addon/morphomesh/` to eliminate cross-package external path dependencies.
-3. **Catch `ImportError` in `capture_multi_angle_inspection`**: Ensure `capture_multi_angle_inspection` in `listener.py` does not raise an unhandled exception when delegating to `camera_rig`.
-4. **Remove Forbidden Imports from Script Generator**: Ensure `_generate_headless_script()` in `blender_bridge.py` does not inject forbidden modules (`sys`, `os`) when routing through the interactive socket's `execute_code` endpoint.
-5. **Fix Truncated Fallback PNG**: Replace the 29-byte truncated header with a valid 1x1 or 4x4 RGBA transparent PNG byte stream (e.g. 68 bytes complete PNG).
-6. **Provide Addon Hot-Reload / Deploy Command**: Provide automated deployment or hot-reload capability so live Blender sessions pick up updated RPC handlers immediately.
+1. **Fix Organic Skirt Normals** (Line 921): Change quad winding to counter-clockwise:
+   `mesh.add_quad(v_bl, v_tl, v_tr, v_br)`
+2. **Fix Barrel Knot Caps** (Lines 644 & 648): Add the 3rd quad to both bottom and top caps:
+   `mesh.add_quad(knot_rings[0][2], knot_rings[0][5], knot_rings[0][4], knot_rings[0][3])` (bottom)  
+   `mesh.add_quad(knot_rings[3][2], knot_rings[3][3], knot_rings[3][4], knot_rings[3][5])` (top)
+3. **Fix Posterior Sash Clearance**: Ensure the sash band does not descend below the skirt waistline ($Z \ge 1.030\cdot s$), or ensure posterior radius at ring 0 accommodates the flared skirt ($+2.5\text{mm}$ net clearance).
+4. **Fix Ribbon Streamer Bias Cut** (Line 773): Remove the `(1.0 - t)` factor:
+   `tip_bias = (0.008 * s) if step == streamer_steps else 0.0`
 
 ---
 
 ## 5. Verification Method
 
-To reproduce these empirical findings independently:
+To independently reproduce the empirical challenger findings:
 
-1. **Run Full Adversarial Test Suite**:
+1. **Execute Challenger M2.2 Test Suite**:
    ```powershell
-   .venv\Scripts\pytest.exe -v tests/test_adversarial_viewport_capture.py
+   uv run pytest tests/test_challenger_m2_sash.py -v
    ```
-   *Expected result*: 42 passed in <1.0s, including verification of corrupted fallback PNG detection and path resolution failure.
+   *Expected Output*: `11 passed, 4 xfailed in ~1.5s`.
+   The 4 XFAIL tests reproduce each of the 4 defects with strict assertion traces.
 
-2. **Reproduce Live Socket `Unknown RPC method` on Port 9876**:
+2. **Verify Inverted Normals on Organic Skirt**:
    ```powershell
-   .venv\Scripts\python.exe -c "import socket, json; s = socket.socket(); s.connect(('127.0.0.1', 9876)); s.sendall(json.dumps({'jsonrpc': '2.0', 'id': 't1', 'method': 'morphomesh.setup_inspector_camera', 'params': {'viewpoint': 'three_quarter'}}).encode('utf-8') + b'\n'); print(s.recv(4096).decode('utf-8'))"
+   uv run python -c "from morphomesh.wardrobe import generate_dress_organic_skirt; s = generate_dress_organic_skirt(); print('Inward faces:', sum((v[0]*((v1[1]-v0[1])*(v2[2]-v0[2]) - (v1[2]-v0[2])*(v2[1]-v0[1])) + v[1]*((v1[2]-v0[2])*(v2[0]-v0[0]) - (v1[0]-v0[0])*(v2[2]-v0[2])) < 0) for f in s.faces for v0, v1, v2 in [(s.vertices[f[0]], s.vertices[f[1]], s.vertices[f[2]])] for v in [((v0[0]+v1[0]+v2[0])/3, (v0[1]+v1[1]+v2[1])/3)]))"
    ```
-   *Verbatim output*:
-   `{"jsonrpc": "2.0", "id": "t1", "status": "error", "error": {"code": -32000, "message": "Unknown RPC method: morphomesh.setup_inspector_camera"}}`
+   *Expected Output*: `Inward faces: 1440` (100% inverted).
 
-3. **Reproduce `pydantic` Import Failure in Blender Bundled Python**:
+3. **Verify Barrel Knot Open Boundary Edges**:
    ```powershell
-   & "C:\Program Files\Blender Foundation\Blender 4.5\blender.exe" --background --python-expr "import sys; sys.path.insert(0, r'e:\tool\mcp\MorphoMesh\src'); from morphomesh.camera_rig import setup_inspector_camera"
+   uv run python -c "from collections import defaultdict; from morphomesh.wardrobe import generate_dress_waist_sash; s = generate_dress_waist_sash(); kf = [f for f in s.faces if all(120 <= i < 152 for i in f)]; ec = defaultdict(int); [ec.__setitem__(e, ec[e]+1) for f in kf for e in [(min(f[0],f[1]), max(f[0],f[1])), (min(f[1],f[2]), max(f[1],f[2])), (min(f[2],f[0]), max(f[2],f[0]))]]; print('Boundary edges:', sum(1 for c in ec.values() if c == 1))"
    ```
-   *Verbatim output*:
-   `ModuleNotFoundError: No module named 'pydantic'`
-
-4. **Reproduce `capture_multi_angle_inspection` Addon Crash in Blender**:
-   ```powershell
-   & "C:\Program Files\Blender Foundation\Blender 4.5\blender.exe" --background --python-expr "import sys; sys.path.append(r'C:\Users\Admin\AppData\Roaming\Blender Foundation\Blender\4.5\scripts\addons'); import morphomesh.listener as l; s = l.MorphoMeshSocketServer(); res = s._dispatch('morphomesh.capture_multi_angle_inspection', {'viewpoints': ['front']})"
-   ```
-   *Verbatim output*:
-   `ModuleNotFoundError: No module named 'morphomesh.camera_rig'`
+   *Expected Output*: `Boundary edges: 8`.

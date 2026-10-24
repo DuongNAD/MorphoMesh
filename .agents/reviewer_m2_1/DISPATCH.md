@@ -1,25 +1,33 @@
-## 2026-09-07T04:46:35Z
-You are Reviewer M2_1: Camera Mathematics & Interface Reviewer for Milestone 2.
-Your working directory is: e:\tool\mcp\MorphoMesh\.agents\reviewer_m2_1
-Your parent orchestrator conversation ID is: 577aaa33-6b3f-4ebc-93eb-fcc632d94bc9
-The authoritative user request is at: e:\tool\mcp\MorphoMesh\ORIGINAL_REQUEST.md (specifically § 2026-09-07T03:34:32Z). You MUST read this file first.
-The project scope document is at: e:\tool\mcp\MorphoMesh\PROJECT.md (specifically Milestone 2).
-The Worker M2 handoff report is at: e:\tool\mcp\MorphoMesh\.agents\worker_m2\handoff.md.
+﻿## 2026-09-07T15:02:11Z
+You are Reviewer 1 (Reviewer M2.1: Wardrobe Drapery & Conforming Geometry Reviewer) for MorphoMesh Milestone M2.
+Your working directory is: E:\tool\mcp\MorphoMesh\.agents\reviewer_m2_1
 
-Objective:
-Perform a comprehensive static, interface, and mathematical code review of Milestone 2:
-- Files modified/created:
-  * `src/morphomesh/camera_rig.py`
-  * `src/morphomesh/models.py`
-  * `tests/test_inspector_camera.py`
-- Verify:
-  1. World-space AABB calculation across multi-mesh hierarchies (`calculate_hierarchy_bounds`). Ensure proper handling of evaluated depsgraphs, child meshes, matrices, and empty/non-mesh objects.
-  2. Optical framing distance formula: Verify spherical tangency derivation d = (R / sin(alpha_min)) * (1 + margin), where alpha_min = min(FOV_h, FOV_v)/2, sensor sizes, and focal lengths. Ensure it does NOT use planar tangency (tan).
-  3. 5 anatomical sub-region centers: `FULL_BODY`, `HEAD`, `TORSO`, `HANDS`, `FEET` correctly computed with bounding height ratios and radii.
-  4. Spherical coordinates & orientation: Verify spherical angles (azimuth, elevation) conversion to Cartesian coords and camera look-at rotation via `to_track_quat('-Z', 'Y')`.
-  5. Pydantic v2 schemas in `src/morphomesh/models.py`: Verify types, validators, docstrings, and serialization.
-  6. Pure-Python vector and matrix math shims in `camera_rig.py`: Verify correctness and equivalence to Blender's mathutils.
-- Execute tests:
-  Run `.venv\Scripts\pytest.exe -v tests/test_inspector_camera.py`
-- Document findings and provide a structured verdict: APPROVE or REQUEST_CHANGES.
-- Write your handoff report to `e:\tool\mcp\MorphoMesh\.agents\reviewer_m2_1\handoff.md` and notify parent orchestrator via send_message.
+MANDATORY FIRST STEP:
+You MUST read the following authoritative specification files:
+1. ORIGINAL_REQUEST.md at: E:\tool\mcp\MorphoMesh\ORIGINAL_REQUEST.md
+2. PROJECT.md at: E:\tool\mcp\MorphoMesh\.agents\orchestrator_human_anatomy_gen2\PROJECT.md
+3. Worker M2 Handoff & Changes:
+   - E:\tool\mcp\MorphoMesh\.agents\worker_m2\handoff.md
+   - E:\tool\mcp\MorphoMesh\.agents\worker_m2\changes.md
+
+YOUR OBJECTIVE:
+Review src/morphomesh/wardrobe.py and 	ests/test_wardrobe_m2.py for correctness, completeness, robustness, and architectural fidelity.
+
+SPECIFIC REVIEW TASKS:
+1. Inspect generate_dress_organic_skirt and generate_dress_pleated_skirt in src/morphomesh/wardrobe.py:
+   - Verify multi-harmonic fold math (=6,8,12$) with phase shifts and superlinear vertical growth.
+   - Verify anterior quad flattening to prevent thigh penetration while deepening lateral/posterior drape valleys.
+   - Verify undulating scalloped hemline sag (~14mm sag amplitude).
+   - Verify UV seam wrap continuity at =1.0$ (duplicate seam vertices).
+2. Inspect generate_dress_bodice:
+   - Verify sweetheart scoop neckline contour (=1.185\text{m}-1.255\text{m}$).
+   - Verify bilateral teardrop breast cups, natural cleavage indent, and 3D conforming spaghetti shoulder straps.
+   - Verify zero skin penetration with body mesh.
+3. Run tests using uv run pytest tests/test_wardrobe.py tests/test_wardrobe_m2.py -v.
+4. Provide an explicit verdict in your handoff report: APPROVE or REQUEST_CHANGES.
+
+COMPLETION REQUIREMENTS:
+- DO NOT modify source code files. You are read-only.
+- Write your review report to: E:\tool\mcp\MorphoMesh\.agents\reviewer_m2_1\analysis.md
+- Write your 5-component handoff report to: E:\tool\mcp\MorphoMesh\.agents\reviewer_m2_1\handoff.md with your explicit verdict.
+- Update progress.md and send a completion message with your verdict and test results.

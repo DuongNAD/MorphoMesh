@@ -1,0 +1,14 @@
+{
+  "species_id": "veg_tree_maple_01",
+  "preview_task_id": "01a08b27-67ee-71af-b37b-ff08ac9df435",
+  "refine_task_id": "01a08b29-b2fe-70bc-9ee1-863394ea8620",
+  "vertex_count": 64991,
+  "face_count": 59330,
+  "source": "meshy",
+  "textures": {
+    "albedo": "textures/albedo.png",
+    "normal": "textures/normal.png",
+    "roughness": "textures/roughness.png",
+    "metallic": "textures/metallic.png"
+  }
+}

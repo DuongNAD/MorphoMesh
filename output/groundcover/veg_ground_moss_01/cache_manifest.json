@@ -1,0 +1,13 @@
+{
+  "species_id": "veg_ground_moss_01",
+  "source": "procedural",
+  "seed": 42,
+  "vertex_count": 3656,
+  "face_count": 1872,
+  "textures": {
+    "albedo": "textures/albedo.png",
+    "normal": "textures/normal.png",
+    "roughness": "textures/roughness.png",
+    "metallic": "textures/metallic.png"
+  }
+}

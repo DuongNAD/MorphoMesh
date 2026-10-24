@@ -1,7 +1,7 @@
-# BRIEFING — 2026-09-05T16:54:00Z
+# BRIEFING — 2026-09-07T16:17:35Z
 
 ## Mission
-Adversarially stress-test and verify Milestone M3 deliverables: War armor clearances ($d_{\min} \ge 0.015$m), 2-manifold watertight geometry, zero degenerate zero-area faces, Principled BSDF v2 PBR material sockets & physical properties, and scale invariance (0.5x - 2.0x) in headless Blender 5.2.1 LTS.
+Empirically stress-test the new procedural flat strappy sandals implementation in `src/morphomesh/wardrobe.py` for MorphoMesh Milestone M3 (Yu Nian An Character Realism Upgrade). Verify total footwear height <= 50.0mm across all scales, sole length in [0.22, 0.25]m, ground elevation Z = 0.0m, 100% exposed toes and toenails (perimeter terminates at Y = -0.138m, toe landmarks clearance >= 7mm), zero skin penetration (signed clearance >= +1.5mm), medial arch rise > +3.5mm, normalized Rigify skinning in DEF-foot and DEF-toe, and topology with 0 degenerate faces under extreme scaling H in [1.50m, 1.80m] and leg girth k_leg in [0.8, 1.2].
 
 ## 🔒 My Identity
 - Archetype: empirical_challenger
@@ -10,6 +10,9 @@ Adversarially stress-test and verify Milestone M3 deliverables: War armor cleara
 - Original parent: 504d045c-25c5-48a2-a65a-2a5b368eafa7
 - Milestone: M3
 - Instance: 1 of 1
+- [2026-09-07]: Working directory: E:\tool\mcp\MorphoMesh\.agents\challenger_m3_1
+- [2026-09-07]: Original parent: c2422918-70a3-47d9-a8f9-883422a33af0
+- [2026-09-07]: Subagent Name: Challenger M3.1 (Sandals Clearance, Height & Toes Exposure Empirical Challenger)
 
 ## 🔒 Key Constraints
 - Review-only & empirical verification — do NOT modify implementation code.
@@ -17,52 +20,60 @@ Adversarially stress-test and verify Milestone M3 deliverables: War armor cleara
 - Must test in headless Blender 5.2.1 LTS (`/Applications/Blender.app/Contents/MacOS/Blender`).
 - Write only to own folder (`.agents/challenger_m3_1/`).
 - Send verdict (APPROVE or REJECT) via handoff.md and send_message to orchestrator.
+- [2026-09-07]: Review-only — do NOT modify implementation code in `src/morphomesh/`.
+- [2026-09-07]: Write and run empirical stress tests in `tests/test_challenger_m3_sandals.py`.
+- [2026-09-07]: Test extreme scaling H in [1.50m, 1.80m], leg girth k_leg in [0.8, 1.2], height <= 50.0mm, toe exposure, clearance >= +1.5mm, medial arch rise > +3.5mm, Rigify skinning, topology.
+- [2026-09-07]: Deliver verdict (APPROVE or REQUEST_CHANGES).
 
 ## Current Parent
-- Conversation ID: 504d045c-25c5-48a2-a65a-2a5b368eafa7
-- Updated: not yet
+- Conversation ID: c2422918-70a3-47d9-a8f9-883422a33af0
+- Updated: 2026-09-07T16:17:35Z
 
 ## Review Scope
 - **Files to review**:
-  * `src/morphomesh/materials.py`
-  * `src/morphomesh/armor.py`
-  * `src/morphomesh/blender_bridge.py`
-  * `tests/test_materials_and_armor.py`
+  * `src/morphomesh/wardrobe.py` (specifically `generate_flat_strappy_sandals` and `generate_flat_sandals`)
+  * `src/morphomesh/human_generator.py` (specifically foot, arch, toe mesh, and landmarks)
+  * `src/morphomesh/human_rigging.py`
+  * `tests/test_wardrobe_m3.py`
 - **Interface contracts**:
-  * `PROJECT.md` M3 specs: 5-slot Principled BSDF v2 PBR suite (`Mat_Bear_Fur`, `Mat_Bear_Skin_Nose`, `Mat_Bear_Claws`, `Mat_Armor_WeatheredSteel`, `Mat_Armor_BrassTrim`)
-  * Non-intersecting radial armor clearance $\Delta r \ge 0.015$m (expected 0.025 - 0.036m)
-  * 2-manifold closed shell (0 non-manifold edges)
+  * `PROJECT.md` M3 specs: Feature 19 (Flat Strappy Sandals 7mm Sole & Arch), Feature 20 (4-Band Sandal Straps Exposing 5 Toes)
+  * Sole length in [0.22, 0.25]m, ground Z = 0.0m, height <= 50.0mm
+  * Medial arch rise > +3.5mm, zero skin penetration (clearance >= +1.5mm)
+  * Toes & toenails 100% exposed, sole terminates at Y = -0.138m, toe clearance >= 7mm
+  * Normalized Rigify skinning: sum w_i = 1.0 +- 1e-4 in DEF-foot and DEF-toe
   * 0 degenerate faces
-- **Review criteria**:
-  * Empirical mathematical accuracy
-  * Robustness across extreme scaling (0.5x to 2.0x)
-  * AST security compliance & Blender execution safety
 
 ## Attack Surface
 - **Hypotheses tested**:
-  * [PASS] Armor clearance $d_{\min} \ge 0.015$m at canonical scale 1.0 ($0.0250 - 0.0359$m in Python, $0.0250 - 0.0435$m in Blender).
-  * [FAIL] 2-manifold closed shell in Blender: `Armor_Pauldron_R` contains 140 non-manifold edges due to typo in quad vertex indexing (`og[i][j]` repeated on line 665).
-  * [FAIL] Normal vector orientation: `Armor_Backplate` has reversed/inverted face normals pointing inward (-z) with signed volume -0.003077 m^3.
-  * [PASS] Zero degenerate zero-area faces (min area $\approx 2.2 \times 10^{-4}$ m$^2$).
-  * [PASS] Principled BSDF v2 socket compliance: all 5 materials verified in Blender 5.2.1 LTS with metallic 1.0 on steel & brass, coat weight 0.85 on wet nose, and correct v2 sockets.
-  * [FAIL] Scaling stress test (0.5x to 2.0x): at scale 0.5x, `Armor_Backplate` severely clips through bear scapular hump ($d_{\min} = 0.0000$m in Python, 0.005m in Blender, hump penetrates 11cm through plate) due to unscaled filter `v[2] >= 0.80`; Pauldron clearance drops to $0.0144$m (< 0.015m).
+  * [PASS] Ground elevation Z = 0.00000m across all scales.
+  * [PASS] Zero degenerate faces (min face area >= 3.31e-6 m^2 > 10^-9).
+  * [PASS] Normalized Rigify skinning weights (100% sum w_i = 1.000000).
+  * [PASS] Medial longitudinal arch rise (+3.95mm > +3.5mm).
+  * [FAIL] Height bound <= 50.0mm across scales: expands to 52.66mm at H = 1.80m.
+  * [FAIL] Sole length in [0.22, 0.25]m: expands to 0.2676m at H = 1.80m.
+  * [FAIL] Toe exposure: big toe landmark clearance is 0.0mm (mesh 0.12mm < 7mm); pinky toe landmark is 35mm behind sole front.
+  * [FAIL] Canonical skin penetration: vertex 206 (Band 3) penetrates by -0.132mm (< +1.5mm).
+  * [FAIL] Leg variation clipping: k_leg ignored; k_leg=0.8 penetrates by -7.64mm; k_leg=1.2 penetrates by -4.05mm.
 - **Vulnerabilities found**:
-  1. `Armor_Pauldron_R` 140 non-manifold boundary edges in `get_armor_blender_script()`.
-  2. `Armor_Backplate` inverted face normals and negative signed volume.
-  3. Scale 0.5x catastrophic intersection and clearance collapse on backplate and pauldrons.
-- **Untested angles**: None. All 5 core checks empirically executed and audited.
+  1. Height scale dilation at H=1.80m (52.66mm).
+  2. Sole length bound overflow at H=1.80m (0.2676m).
+  3. Straight transverse sole perimeter encloses pinky toe and fails big toe 7mm projection.
+  4. Band 3 sector 0 vertex 206 skin penetration (-0.132mm).
+  5. Missing k_leg propagation inducing up to -7.64mm strap clipping.
+- **Untested angles**:
+  - None within M3.1 scope.
 
 ## Loaded Skills
 - None
 
 ## Key Decisions Made
-- Executed empirical tests directly in headless Blender 5.2.1 LTS via BMesh and Pytest.
-- Created reproducible adversarial test suite `tests/test_m3_adversarial_materials_and_armor.py`.
-- Formulated final verdict: **REJECT** with detailed, actionable root cause analysis for Worker M3.
+- Authored adversarial test suite `tests/test_challenger_m3_sandals.py` with 9 empirical stress tests.
+- Formulated explicit verdict: **REQUEST_CHANGES** with 5 actionable remediation items for Worker M3.
 
 ## Artifact Index
-- `DISPATCH.md` — User assignment and dispatch instructions
-- `BRIEFING.md` — Persistent situational awareness
-- `progress.md` — Liveness heartbeat and progress log
-- `handoff.md` — Final adversarial evaluation and verdict
-- `tests/test_m3_adversarial_materials_and_armor.py` — 10-test adversarial verification suite
+- `E:\tool\mcp\MorphoMesh\.agents\challenger_m3_1\DISPATCH.md` — Assignment instructions
+- `E:\tool\mcp\MorphoMesh\.agents\challenger_m3_1\BRIEFING.md` — Situational awareness
+- `E:\tool\mcp\MorphoMesh\.agents\challenger_m3_1\progress.md` — Progress tracker
+- `E:\tool\mcp\MorphoMesh\.agents\challenger_m3_1\analysis.md` — Empirical test results and analysis
+- `E:\tool\mcp\MorphoMesh\.agents\challenger_m3_1\handoff.md` — 5-component handoff report with verdict
+- `tests/test_challenger_m3_sandals.py` — Adversarial stress test suite

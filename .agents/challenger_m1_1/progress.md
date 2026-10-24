@@ -1,20 +1,32 @@
-# Progress — Challenger M1_1: Adversarial Socket Challenger (Protocol & Stream Fuzzing)
+# Progress — Challenger M1-1: Vegetation Library Pipeline Adversarial Stress Testing
 
-Last visited: 2026-09-07T04:03:00Z
+Last visited: 2026-09-10T11:40:15Z
 
-- [x] Received dispatch assignment for Milestone M1 (Interactive Socket Bridge Parity & Reliability - Adversarial Protocol & Stream Fuzzing)
-- [x] Read DISPATCH.md, ORIGINAL_REQUEST.md (§ 2026-09-07T03:34:32Z), PROJECT.md, and worker_m1/handoff.md
-- [x] Inspected implementation in `blender_addon/morphomesh/listener.py`, `src/morphomesh/blender_bridge.py`, and `tests/test_bridge_socket_parity.py`
-- [x] Verified baseline test suite: `pytest tests/test_bridge_socket_parity.py` passes (21/21 passed in 14.19s)
+- [x] Received dispatch assignment for Milestone M1 Challenger (Vegetation Library)
+- [x] Read DISPATCH.md, ORIGINAL_REQUEST.md (§ 2026-09-10T11:11:31Z), and Worker M1 handoff report
 - [x] Initialized situational awareness in BRIEFING.md and DISPATCH.md
-- [x] Implement comprehensive adversarial stress test suite in `tests/test_m1_adversarial_socket.py`:
-  - [x] 1. High-frequency burst requests (10, 25, 50, 100 rapid sequential requests, pipelining, concurrent multi-client bursts: 6/6 PASS)
-  - [x] 2. Fragmented byte streaming (1 to 5 bytes at a time, boundary-crossing streams, randomized chunks: 7/7 PASS)
-  - [x] 3. Garbage & malformed data injection (binary garbage, broken JSON, non-dict payloads, chaos interleaving, recovery: 5/6 PASS, 1 FAIL)
-  - [x] 4. Large payload handling (>500KB up to 1MB request/response, bidirectional streaming, client bridge validation: 5/5 PASS)
-  - [x] 5. Deadlock & resource lifecycle stress tests (immediate disconnect, half-close, descriptor leaks: 3/4 PASS, 1 FAIL)
-- [x] Run empirical adversarial test harness and collect metrics (26 passed, 2 failed across 28 stress cases)
-- [x] Formulate empirical verdict: REJECT (with actionable mitigation guidance)
-- [x] Compile 5-component handoff report in `.agents/challenger_m1_1/handoff.md`
-- [x] Notify parent orchestrator via `send_message`
-
+- [x] Investigate `validator.py` and `generator.py` implementation
+- [x] Create and execute empirical boundary tests on `validator.py`:
+  - [x] Test 19,999 vertices (confirmed strictly fails: under budget error)
+  - [x] Test 20,000 vertices (confirmed strictly passes: exact lower boundary)
+  - [x] Test 65,000 vertices (confirmed strictly passes: exact upper boundary)
+  - [x] Test 65,001 vertices (confirmed strictly fails: over budget error)
+- [x] Create and execute ground pivot tolerance tests on `validator.py`:
+  - [x] Test $|Z_{min}| = 0.0050m$ (+0.0050m and -0.0050m confirmed strictly pass)
+  - [x] Test $|Z_{min}| = 0.0051m$ (+0.0051m and -0.0051m confirmed strictly fail)
+- [x] Create and execute static mesh tests on `validator.py`:
+  - [x] Inject glTF skins array -> confirmed strict rejection
+  - [x] Inject glTF animations array -> confirmed strict rejection
+  - [x] Inject primitive JOINTS_0 attribute -> confirmed strict rejection
+  - [x] Inject primitive WEIGHTS_0 attribute -> confirmed strict rejection
+  - [x] Inject node skin reference -> confirmed strict rejection
+  - [x] Inject companion OBJ bone/skin directives -> confirmed strict rejection
+- [x] Create and execute error handling tests on `generator.py`:
+  - [x] Simulate missing API key when `mode == "meshy"` -> verified RuntimeError raised, 0 GLB files / 0 procedural meshes emitted
+  - [x] Simulate generation failure when `mode == "meshy"` -> verified RuntimeError raised, 0 GLB files / 0 procedural meshes emitted
+  - [x] Verified contrast with `mode == "auto"` (graceful procedural fallback vs strict refusal)
+- [x] Executed full adversarial suite `test_challenger_m1_1_adversarial.py` (25/25 passed)
+- [x] Executed full library test suite (311/311 passed in 30.70s)
+- [x] Formulated empirical verdict: APPROVE
+- [ ] Compile 5-component formal handoff report in `handoff.md`
+- [ ] Notify parent orchestrator via `send_message`

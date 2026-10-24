@@ -1,0 +1,168 @@
+{
+  "all_aligned": true,
+  "all_dqs_enabled": true,
+  "all_parented": true,
+  "submeshes": {
+    "Anime_Head": {
+      "found": true,
+      "vertex_count": 4246,
+      "rotation_euler_rad": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation_euler_deg": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "matrix_world_diff_from_armature": 0.0,
+      "is_aligned": true,
+      "parent": "Anime_Armature",
+      "is_parented_to_armature": true,
+      "matrix_parent_inverse_is_identity": true,
+      "armature_modifier_present": true,
+      "dqs_preserve_volume": true,
+      "vertex_groups_count": 2
+    },
+    "Anime_Torso": {
+      "found": true,
+      "vertex_count": 1814,
+      "rotation_euler_rad": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation_euler_deg": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "matrix_world_diff_from_armature": 0.0,
+      "is_aligned": true,
+      "parent": "Anime_Armature",
+      "is_parented_to_armature": true,
+      "matrix_parent_inverse_is_identity": true,
+      "armature_modifier_present": true,
+      "dqs_preserve_volume": true,
+      "vertex_groups_count": 7
+    },
+    "Anime_Arms": {
+      "found": true,
+      "vertex_count": 4270,
+      "rotation_euler_rad": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation_euler_deg": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "matrix_world_diff_from_armature": 0.0,
+      "is_aligned": true,
+      "parent": "Anime_Armature",
+      "is_parented_to_armature": true,
+      "matrix_parent_inverse_is_identity": true,
+      "armature_modifier_present": true,
+      "dqs_preserve_volume": true,
+      "vertex_groups_count": 36
+    },
+    "Anime_Legs": {
+      "found": true,
+      "vertex_count": 3238,
+      "rotation_euler_rad": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation_euler_deg": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "matrix_world_diff_from_armature": 0.0,
+      "is_aligned": true,
+      "parent": "Anime_Armature",
+      "is_parented_to_armature": true,
+      "matrix_parent_inverse_is_identity": true,
+      "armature_modifier_present": true,
+      "dqs_preserve_volume": true,
+      "vertex_groups_count": 9
+    },
+    "Anime_Hair": {
+      "found": true,
+      "vertex_count": 324,
+      "rotation_euler_rad": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation_euler_deg": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "matrix_world_diff_from_armature": 0.0,
+      "is_aligned": true,
+      "parent": "Anime_Armature",
+      "is_parented_to_armature": true,
+      "matrix_parent_inverse_is_identity": true,
+      "armature_modifier_present": true,
+      "dqs_preserve_volume": true,
+      "vertex_groups_count": 11
+    },
+    "Anime_Skirt": {
+      "found": true,
+      "vertex_count": 480,
+      "rotation_euler_rad": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation_euler_deg": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "matrix_world_diff_from_armature": 0.0,
+      "is_aligned": true,
+      "parent": "Anime_Armature",
+      "is_parented_to_armature": true,
+      "matrix_parent_inverse_is_identity": true,
+      "armature_modifier_present": true,
+      "dqs_preserve_volume": true,
+      "vertex_groups_count": 12
+    },
+    "Anime_Shoes": {
+      "found": true,
+      "vertex_count": 160,
+      "rotation_euler_rad": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation_euler_deg": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "matrix_world_diff_from_armature": 0.0,
+      "is_aligned": true,
+      "parent": "Anime_Armature",
+      "is_parented_to_armature": true,
+      "matrix_parent_inverse_is_identity": true,
+      "armature_modifier_present": true,
+      "dqs_preserve_volume": true,
+      "vertex_groups_count": 4
+    }
+  },
+  "volume_retention": {
+    "rest_vol": 0.006004307588710826,
+    "vol_90": 0.005976154190786751,
+    "rv_90": 0.9953111332975332,
+    "vol_180": 0.006031383416118502,
+    "rv_180": 1.0045094004608597
+  }
+}

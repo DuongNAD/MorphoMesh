@@ -1,0 +1,113 @@
+{
+  "schema_version": "1.0.0",
+  "species_id": "veg_conifer_pine_01",
+  "taxonomy": {
+    "common_name": "Scots Pine",
+    "scientific_name": "Pinus sylvestris",
+    "family": "Pinaceae",
+    "category": "conifers_evergreens",
+    "category_id": "conifers_evergreens",
+    "category_name": "Conifers & Evergreens",
+    "short_category": "conifers",
+    "biome": "Boreal Taiga / Temperate Montane",
+    "growth_habit": "Mature conifer with irregular umbrella-like flat-topped crown",
+    "branching_pattern": "Self-pruned bare lower trunk; upper crown irregular horizontal gnarled limbs",
+    "foliage_density": "medium"
+  },
+  "geometry": {
+    "vertex_count": 5024,
+    "face_count": 4850,
+    "triangle_count": 4850,
+    "has_armature": false,
+    "has_skins": false,
+    "pivot_grounded": true,
+    "ground_contact_z": 0.0,
+    "ground_z_min_m": 0.0,
+    "base_centroid_xy": [
+      0.0,
+      0.0
+    ],
+    "bounding_box": {
+      "min_point": [
+        -2.9486,
+        -2.9486,
+        0.0
+      ],
+      "max_point": [
+        2.9486,
+        2.9486,
+        9.5
+      ],
+      "dimensions": [
+        5.8972,
+        5.8972,
+        9.5
+      ]
+    },
+    "dimensions_m": {
+      "height_m": 9.5,
+      "canopy_spread_m": 5.8972,
+      "width_m": 5.8972,
+      "depth_m": 5.8972,
+      "target_height_m": 9.5,
+      "target_canopy_spread_m": 5.5
+    }
+  },
+  "normalization": {
+    "target_height_m": 9.5,
+    "target_canopy_spread_m": 5.5,
+    "scale_factor": 0.971127,
+    "normalized_height_m": 9.5,
+    "normalized_canopy_spread_m": 5.8972,
+    "strategy": "uniform_height"
+  },
+  "materials": {
+    "workflow": "Metallic-Roughness PBR",
+    "double_sided": true,
+    "channels": [
+      "albedo",
+      "normal",
+      "roughness",
+      "metallic"
+    ],
+    "texture_format": "PNG"
+  },
+  "files": {
+    "glb": "veg_conifer_pine_01.glb",
+    "obj": "veg_conifer_pine_01.obj",
+    "mtl": "veg_conifer_pine_01.mtl",
+    "textures": {
+      "albedo": "textures/albedo.png",
+      "normal": "textures/normal.png",
+      "roughness": "textures/roughness.png",
+      "metallic": "textures/metallic.png"
+    }
+  },
+  "provenance": {
+    "source": "procedural",
+    "export_timestamp": "2026-09-10T06:39:17.859665+00:00",
+    "generator_metadata": {
+      "species_id": "veg_conifer_pine_01",
+      "category_id": "conifers_evergreens",
+      "source": "procedural",
+      "seed": 800572607,
+      "vertex_count": 5024,
+      "face_count": 4850,
+      "quad_count": 2425,
+      "tri_count": 0,
+      "quad_ratio": 1.0
+    }
+  },
+  "metadata": {
+    "scale_factor": 0.9711267665345232,
+    "species_id": "veg_conifer_pine_01",
+    "category_id": "conifers_evergreens",
+    "source": "procedural",
+    "seed": 800572607,
+    "vertex_count": 5024,
+    "face_count": 4850,
+    "quad_count": 2425,
+    "tri_count": 0,
+    "quad_ratio": 1.0
+  }
+}

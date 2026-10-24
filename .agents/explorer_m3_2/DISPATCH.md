@@ -1,32 +1,29 @@
-## 2026-09-07T05:35:03Z
+## 2026-09-07T15:44:03Z
+You are an Explorer subagent (Explorer M3.2: Signature Props Specialist — Crimson Strings & Glowing Butterflies Investigator) for MorphoMesh Milestone M3.
+Your working directory is: E:\tool\mcp\MorphoMesh\.agents\explorer_m3_2
 
-<USER_REQUEST>
-You are Explorer M3_2: Proportions & Rig Skinning Deformation Explorer for Milestone 3.
-Your working directory is: e:\tool\mcp\MorphoMesh\.agents\explorer_m3_2
-Your parent orchestrator conversation ID is: 577aaa33-6b3f-4ebc-93eb-fcc632d94bc9
-The authoritative user request is at: e:\tool\mcp\MorphoMesh\ORIGINAL_REQUEST.md (specifically § 2026-09-07T03:34:32Z). You MUST read this file first.
-The project scope document is at: e:\tool\mcp\MorphoMesh\PROJECT.md (specifically Milestone 3).
+MANDATORY FIRST STEP:
+You MUST read the following authoritative specification files:
+1. ORIGINAL_REQUEST.md at: E:\tool\mcp\MorphoMesh\ORIGINAL_REQUEST.md
+2. PROJECT.md at: E:\tool\mcp\MorphoMesh\.agents\orchestrator_human_anatomy_gen2\PROJECT.md
 
-Objective:
-Detail the exact implementation blueprint for body proportion analysis and skinning deformation critique in `src/morphomesh/visual_critic.py`:
-1. Anthropometric Body Proportion Analysis:
-   - Calculate total height, head height, arm span, shoulder breadth, and hip breadth.
-   - Evaluate head ratio: H_total / H_head against target presets:
-     * Realistic Human: 7.0 - 8.0 heads
-     * Stylized / Heroine: 6.0 - 6.5 heads
-     * Chibi / Petite: 3.5 - 5.0 heads
-   - Evaluate arm span to height ratio (~1.00 +/- 0.05).
-   - Evaluate shoulder-to-hip breadth ratio (masculine vs feminine).
-2. Rig Skinning Deformation & Volume Conservation:
-   - Evaluate joint volume conservation: ratio rho_V = V_posed / V_rest.
-   - Detect candy-wrapper collapse / pinching (rho_V < 0.80) or abnormal bulging (rho_V > 1.25) around active bending joints (elbows, knees, shoulders).
-   - Detect acute dihedral angle creasing: cos(theta) < -0.85 (fold angle < 30°) indicating pinched or collapsing skinning geometry.
-3. Pure-Python Mathematical Algorithms:
-   - Provide clean algorithms for bounding-slice volume estimation, dihedral angles, and anthropometric ratios runnable offline.
+YOUR OBJECTIVE:
+Investigate signature accessories in `src/morphomesh/wardrobe.py` and `src/morphomesh/character_assembler.py` and design the procedural generators for the 10 crimson magic strings and 10 glowing white butterflies in flight.
 
-Scope boundaries:
-- Read-only exploration. DO NOT edit or create any source code files.
-- Write your progress to `e:\tool\mcp\MorphoMesh\.agents\explorer_m3_2\progress.md`.
-- Write your comprehensive handoff report to `e:\tool\mcp\MorphoMesh\.agents\explorer_m3_2\handoff.md`.
-- Send completion message to parent orchestrator.
-</USER_REQUEST>
+SPECIFIC INVESTIGATION TASKS:
+1. Inspect existing accessories in `src/morphomesh/wardrobe.py` and bone hierarchies in `src/morphomesh/human_rigging.py`.
+2. Design the 10 Crimson Magic Strings:
+   - Identify the 10 distal finger phalanx DEF bones: `DEF-finger_thumb.03.L/R`, `DEF-finger_index.03.L/R`, `DEF-finger_middle.03.L/R`, `DEF-finger_ring.03.L/R`, `DEF-finger_pinky.03.L/R`.
+   - Procedural catenary/Bezier 3D curve geometry connecting each fingertip to a corresponding flying butterfly in the flock.
+   - Delicate thread thickness (~0.8mm), tension drape, and crimson material binding (`Mat_Red_Thread`).
+3. Design the 10 Glowing White Butterflies:
+   - Procedural 3D quad butterfly mesh (forewings, hindwings, thorax, antennae).
+   - Dynamic flocking distribution orbiting around Yu Nian An in a graceful upward vortex spiral.
+   - Wing dihedral flutter angles and emissive translucent shader parameters (`Mat_Butterfly_Glow`).
+4. Formulate precise code-level function signatures and drop-in Python code for Worker M3.
+
+COMPLETION REQUIREMENTS:
+- DO NOT edit source code files. You are read-only.
+- Write your investigation report to: `E:\tool\mcp\MorphoMesh\.agents\explorer_m3_2\analysis.md`
+- Write your 5-component handoff report to: `E:\tool\mcp\MorphoMesh\.agents\explorer_m3_2\handoff.md`
+- Update `progress.md` and send a completion message with report path.

@@ -1,0 +1,14 @@
+{
+  "species_id": "veg_shrub_hydrangea_01",
+  "preview_task_id": "01a08b34-f694-7332-b6a2-66a0b82195e5",
+  "refine_task_id": "01a08b39-88f9-7155-b7de-f325def647a3",
+  "vertex_count": 130798,
+  "face_count": 105298,
+  "source": "meshy",
+  "textures": {
+    "albedo": "textures/albedo.png",
+    "normal": "textures/normal.png",
+    "roughness": "textures/roughness.png",
+    "metallic": "textures/metallic.png"
+  }
+}

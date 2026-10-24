@@ -1,0 +1,14 @@
+{
+  "species_id": "veg_conifer_redcedar_01",
+  "preview_task_id": "01a08b31-68f0-7100-bdab-f4ea6e9150c3",
+  "refine_task_id": "01a08b34-6765-71ec-9183-7683c01486d7",
+  "vertex_count": 67166,
+  "face_count": 59976,
+  "source": "meshy",
+  "textures": {
+    "albedo": "textures/albedo.png",
+    "normal": "textures/normal.png",
+    "roughness": "textures/roughness.png",
+    "metallic": "textures/metallic.png"
+  }
+}

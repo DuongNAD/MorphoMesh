@@ -1,23 +1,25 @@
-## 2026-09-07T03:36:57Z
-You are Explorer 2: Interactive Socket Bridge & Viewport Capture Explorer.
-Your working directory is: e:\tool\mcp\MorphoMesh\.agents\explorer_survey_2
-Your parent orchestrator conversation ID is: 577aaa33-6b3f-4ebc-93eb-fcc632d94bc9
-The authoritative user request is at: e:\tool\mcp\MorphoMesh\ORIGINAL_REQUEST.md (specifically § 2026-09-07T03:34:32Z). You MUST read this file first.
+# Dispatch for Explorer Survey 2
 
-Objective:
-Survey the technical requirements and design specifications for:
-1. R1: Multi-Angle Inspector Camera & Fast Viewport Capture
-   - Automated inspection camera rig in Blender that frames the active 3D character/mesh based on its bounding box and anatomical center.
-   - Mathematical formulas and algorithms for camera positioning: bounding box calculation (global space across hierarchies), anatomical center estimation (head, torso, hands, feet), framing distance d = R / sin(fov/2), elevation and azimuth angles for standard viewpoints (Front, Side, Back, Three-Quarter Perspective, Close-ups for head/hands).
-   - Fast image capture mechanism: Viewport OpenGL grab (bpy.ops.render.opengl) vs headless batch rendering (bpy.ops.render.render). Viewport shading modes (SOLID, MATERIAL, RENDERED), camera switching, temporary output handling.
-2. R3: Interactive Blender Socket Bridge Parity & Reliability
-   - Examine blender_addon/morphomesh/listener.py and src/morphomesh/blender_bridge.py.
-   - Examine the socket communication protocol: JSON-RPC / message format, connection lifecycle, thread safety in Blender (executing commands in main thread via bpy.app.timers), error handling, socket timeouts.
-   - Full parity between interactive socket listener and bridge client: ping, scene status (cameras, lights, meshes, polycounts, materials), camera inspection commands, grooming, wardrobe, preview dispatch.
-   - Prevention of dropped connections, race conditions, and unhandled exceptions.
+## Identity
+- Role: Asset Pipeline & Viewer Explorer
+- Working Directory: E:\tool\mcp\MorphoMesh\.agents\explorer_survey_2
+- Parent Conversation ID: c89d3e85-2d1c-4b25-9e5b-bb4953ad2fc4
 
-Scope boundaries:
-- Read-only exploration. DO NOT edit or create any source code files.
-- Write your progress to e:\tool\mcp\MorphoMesh\.agents\explorer_survey_2\progress.md.
-- Write your comprehensive handoff report to e:\tool\mcp\MorphoMesh\.agents\explorer_survey_2\handoff.md.
-- Upon completion, send a message to your parent orchestrator (conv ID: 577aaa33-6b3f-4ebc-93eb-fcc632d94bc9) summarizing your findings.
+## 2026-09-10T11:13:53Z
+You are Explorer 2 (Asset Pipeline & Viewer Explorer).
+Your working directory is: E:\tool\mcp\MorphoMesh\.agents\explorer_survey_2
+Your task assignment is in: E:\tool\mcp\MorphoMesh\.agents\explorer_survey_2\DISPATCH.md
+The Authoritative User Request is in: E:\tool\mcp\MorphoMesh\.agents\ORIGINAL_REQUEST.md (under ## 2026-09-10T11:11:31Z).
+Project Directory: E:\tool\mcp\MorphoMesh\teamwork_projects\vegetation_library
+
+Read ORIGINAL_REQUEST.md and DISPATCH.md first.
+Then thoroughly investigate:
+1. Inspect GLB post-processing, normalization, and validation scripts in teamwork_projects/vegetation_library (e.g. normalize_assets.py, process_glb.py, or similar). How are scale normalization, centering at X=0, Y=0, and ground pivot snapping (Z_min = 0.000m +- 0.005m) implemented?
+2. Inspect Blender rendering scripts (e.g. render_previews.py, turntable scripts). How does headless Blender run? Where are turntable_01.png through 04.png rendered? How are contact sheets / thumbnail.png created?
+3. Inspect manifest.json structure, schema, metadata fields (task_id, model_type, refine_status, polygon/vertex metrics, materials, dimensions, bounding box).
+4. Inspect viewer.html implementation: How does it load manifest.json? Does it use Three.js or model-viewer? How are cards rendered, how are 3D previews and thumbnails displayed, and what updates are needed to synchronize with genuine models?
+
+Write your detailed findings to:
+E:\tool\mcp\MorphoMesh\.agents\explorer_survey_2\handoff.md
+Follow the standard Handoff Protocol (Observation, Logic Chain, Caveats, Conclusion, Verification).
+When finished, send a message back to parent (conversation ID c89d3e85-2d1c-4b25-9e5b-bb4953ad2fc4) with a concise summary and reference to your handoff.md.

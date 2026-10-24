@@ -206,15 +206,22 @@ class MorphoMeshSocketServer:
         logger.info("MorphoMesh socket server stopped")
 
     def _accept_loop(self) -> None:
-        self.socket.settimeout(1.0)
+        try:
+            if self.socket is not None:
+                self.socket.settimeout(1.0)
+        except (OSError, AttributeError):
+            return
+
         while self.running:
             try:
+                if not self.running or self.socket is None:
+                    break
                 client, addr = self.socket.accept()
                 threading.Thread(target=self._client_handler, args=(client,), daemon=True).start()
-            except socket.timeout:
+            except (socket.timeout, TimeoutError):
                 continue
-            except Exception:
-                if not self.running:
+            except (OSError, Exception):
+                if not self.running or self.socket is None:
                     break
 
     def _client_handler(self, client: socket.socket) -> None:
@@ -1670,6 +1677,22 @@ class MorphoMeshSocketServer:
             arm_obj = None
             bones_list = ["root", "spine_01", "neck", "head"]
 
+            if mesh_obj and hasattr(mesh_obj, "data") and len(getattr(mesh_obj.data, "vertices", [])) > 0:
+                verts_co = [v.co for v in mesh_obj.data.vertices]
+                min_x, max_x = min(v.x for v in verts_co), max(v.x for v in verts_co)
+                min_y, max_y = min(v.y for v in verts_co), max(v.y for v in verts_co)
+                min_z, max_z = min(v.z for v in verts_co), max(v.z for v in verts_co)
+            else:
+                min_x, max_x = -0.4, 0.4
+                min_y, max_y = -0.6, 0.6
+                min_z, max_z = 0.0, 1.2
+
+            h = max(max_z - min_z, 0.1)
+            mid_x = 0.5 * (min_x + max_x)
+            mid_y = 0.5 * (min_y + max_y)
+            span_x = max(max_x - min_x, 0.1)
+            span_y = max(max_y - min_y, 0.1)
+
             if creature_type in ("quadruped", "winged_quadruped", "hybrid"):
                 bones_list.extend(["front_leg.L", "front_leg.R", "back_leg.L", "back_leg.R", "tail_01"])
             else:
@@ -1689,68 +1712,112 @@ class MorphoMeshSocketServer:
                             bpy.ops.object.mode_set(mode='EDIT')
                             eb = arm_data.edit_bones
                             root = eb.new("root")
-                            root.head = (0.0, 0.0, 0.0)
-                            root.tail = (0.0, 0.0, 0.5)
+                            root.head = (mid_x, mid_y - 0.15 * span_y, min_z + 0.50 * h)
+                            root.tail = (mid_x, mid_y, min_z + 0.62 * h)
 
                             spine = eb.new("spine_01")
-                            spine.head = (0.0, 0.0, 0.5)
-                            spine.tail = (0.0, 0.0, 1.0)
+                            spine.head = root.tail
+                            spine.tail = (mid_x, mid_y + 0.20 * span_y, min_z + 0.78 * h)
                             spine.parent = root
 
                             neck = eb.new("neck")
-                            neck.head = (0.0, 0.0, 1.0)
-                            neck.tail = (0.0, 0.2, 1.3)
+                            neck.head = spine.tail
+                            neck.tail = (mid_x, mid_y + 0.35 * span_y, min_z + 0.90 * h)
                             neck.parent = spine
 
                             head = eb.new("head")
-                            head.head = (0.0, 0.2, 1.3)
-                            head.tail = (0.0, 0.5, 1.4)
+                            head.head = neck.tail
+                            head.tail = (mid_x, max_y, min_z + 0.96 * h)
                             head.parent = neck
 
                             if creature_type in ("quadruped", "winged_quadruped", "hybrid"):
                                 for side, sign in [("L", 1.0), ("R", -1.0)]:
                                     fl = eb.new(f"front_leg.{side}")
-                                    fl.head = (sign * 0.3, 0.4, 0.8)
-                                    fl.tail = (sign * 0.3, 0.4, 0.0)
+                                    fl.head = (mid_x + sign * 0.32 * span_x, mid_y + 0.25 * span_y, min_z + 0.68 * h)
+                                    fl.tail = (mid_x + sign * 0.32 * span_x, mid_y + 0.20 * span_y, min_z + 0.05 * h)
                                     fl.parent = spine
 
                                     bl = eb.new(f"back_leg.{side}")
-                                    bl.head = (sign * 0.3, -0.4, 0.8)
-                                    bl.tail = (sign * 0.3, -0.4, 0.0)
+                                    bl.head = (mid_x + sign * 0.28 * span_x, mid_y - 0.25 * span_y, min_z + 0.66 * h)
+                                    bl.tail = (mid_x + sign * 0.28 * span_x, mid_y - 0.20 * span_y, min_z + 0.05 * h)
                                     bl.parent = root
 
                                 tail = eb.new("tail_01")
-                                tail.head = (0.0, -0.5, 0.7)
-                                tail.tail = (0.0, -0.9, 0.5)
+                                tail.head = (mid_x, mid_y - 0.25 * span_y, min_z + 0.60 * h)
+                                tail.tail = (mid_x, min_y - 0.10 * span_y, min_z + 0.45 * h)
                                 tail.parent = root
                             else:
                                 for side, sign in [("L", 1.0), ("R", -1.0)]:
                                     arm = eb.new(f"arm.{side}")
-                                    arm.head = (sign * 0.2, 0.0, 0.9)
-                                    arm.tail = (sign * 0.6, 0.0, 0.8)
+                                    arm.head = (mid_x + sign * 0.20 * span_x, mid_y, min_z + 0.78 * h)
+                                    arm.tail = (mid_x + sign * 0.45 * span_x, mid_y, min_z + 0.50 * h)
                                     arm.parent = spine
 
                                     leg = eb.new(f"leg.{side}")
-                                    leg.head = (sign * 0.2, 0.0, 0.5)
-                                    leg.tail = (sign * 0.2, 0.0, 0.0)
+                                    leg.head = (mid_x + sign * 0.15 * span_x, mid_y, min_z + 0.50 * h)
+                                    leg.tail = (mid_x + sign * 0.15 * span_x, mid_y, min_z + 0.05 * h)
                                     leg.parent = root
 
                             bpy.ops.object.mode_set(mode='OBJECT')
                         except Exception as e_eb:
                             logger.warning(f"Armature edit bone creation skipped: {e_eb}")
 
-                    if mesh_obj and hasattr(mesh_obj, "modifiers"):
+                    if mesh_obj:
                         try:
-                            mesh_obj.parent = arm_obj
-                            mod = mesh_obj.modifiers.new(name="Armature", type='ARMATURE')
-                            mod.object = arm_obj
-                        except Exception:
-                            pass
+                            if hasattr(bpy, "ops") and hasattr(bpy.ops, "object") and hasattr(bpy.ops.object, "select_all"):
+                                bpy.ops.object.select_all(action='DESELECT')
+                                mesh_obj.select_set(True)
+                                arm_obj.select_set(True)
+                                if hasattr(bpy.context, "view_layer"):
+                                    bpy.context.view_layer.objects.active = arm_obj
+                                try:
+                                    bpy.ops.object.parent_set(type='ARMATURE_AUTO')
+                                except Exception:
+                                    mesh_obj.parent = arm_obj
+                                    mod = mesh_obj.modifiers.new(name="Armature", type='ARMATURE')
+                                    mod.object = arm_obj
+                                    for b in bones_list:
+                                        if b not in mesh_obj.vertex_groups:
+                                            mesh_obj.vertex_groups.new(name=b)
+                        except Exception as e_bind:
+                            logger.warning(f"Binding mesh to armature failed: {e_bind}")
+
+                    # Insert genuine idle keyframes
+                    if arm_obj and params.get("generate_test_animation", True):
+                        try:
+                            act = bpy.data.actions.new(name=f"Action_{creature_type.title()}_IdlePose")
+                            arm_obj.animation_data_create()
+                            arm_obj.animation_data.action = act
+                            if hasattr(bpy.context, "view_layer"):
+                                bpy.context.view_layer.objects.active = arm_obj
+                            bpy.ops.object.mode_set(mode='POSE')
+                            pb = arm_obj.pose.bones.get("spine_01")
+                            if pb:
+                                pb.rotation_mode = 'XYZ'
+                                pb.rotation_euler = (0.0, 0.0, 0.0)
+                                pb.keyframe_insert(data_path='rotation_euler', frame=1)
+                                pb.rotation_euler = (0.04, 0.0, 0.0)
+                                pb.keyframe_insert(data_path='rotation_euler', frame=12)
+                                pb.rotation_euler = (0.0, 0.0, 0.0)
+                                pb.keyframe_insert(data_path='rotation_euler', frame=24)
+                            bpy.ops.object.mode_set(mode='OBJECT')
+                        except Exception as e_act:
+                            logger.debug(f"Action creation skipped: {e_act}")
+
                 except Exception as e_arm:
                     logger.warning(f"Armature object creation skipped: {e_arm}")
 
             tmp_dir = tempfile.gettempdir().replace('\\', '/')
             out_fbx = (mesh_path.rsplit(".", 1)[0] + f"_rig.{export_fmt}") if mesh_path else f"{tmp_dir}/{arm_name}_rig.{export_fmt}"
+
+            if hasattr(bpy, "ops") and hasattr(bpy.ops, "export_scene"):
+                try:
+                    if export_fmt == "fbx" and hasattr(bpy.ops.export_scene, "fbx"):
+                        bpy.ops.export_scene.fbx(filepath=out_fbx, use_selection=False, bake_anim=True)
+                    elif export_fmt in ("glb", "gltf") and hasattr(bpy.ops.export_scene, "gltf"):
+                        bpy.ops.export_scene.gltf(filepath=out_fbx, export_format='GLB')
+                except Exception as e_exp:
+                    logger.debug(f"FBX export skipped/failed: {e_exp}")
 
             return {
                 "status": "success",

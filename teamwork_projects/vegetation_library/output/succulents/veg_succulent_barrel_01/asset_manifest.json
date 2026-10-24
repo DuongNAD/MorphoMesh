@@ -1,0 +1,113 @@
+{
+  "schema_version": "1.0.0",
+  "species_id": "veg_succulent_barrel_01",
+  "taxonomy": {
+    "common_name": "Golden Barrel Cactus",
+    "scientific_name": "Echinocactus grusonii",
+    "family": "Cactaceae",
+    "category": "succulents_cacti",
+    "category_id": "succulents_cacti",
+    "category_name": "Succulents & Cacti",
+    "short_category": "succulents",
+    "biome": "Warm Arid Rocky Desert",
+    "growth_habit": "Solitary globular to cylindrical ribbed barrel cactus",
+    "branching_pattern": "Single spherical fleshy stem crowned with apical wool",
+    "foliage_density": "compact"
+  },
+  "geometry": {
+    "vertex_count": 3336,
+    "face_count": 3932,
+    "triangle_count": 3932,
+    "has_armature": false,
+    "has_skins": false,
+    "pivot_grounded": true,
+    "ground_contact_z": 0.0,
+    "ground_z_min_m": 0.0,
+    "base_centroid_xy": [
+      -0.0,
+      0.0
+    ],
+    "bounding_box": {
+      "min_point": [
+        -1.0833,
+        -0.4258,
+        0.0
+      ],
+      "max_point": [
+        1.0848,
+        0.4258,
+        0.6
+      ],
+      "dimensions": [
+        2.168,
+        0.8516,
+        0.6
+      ]
+    },
+    "dimensions_m": {
+      "height_m": 0.6,
+      "canopy_spread_m": 2.168,
+      "width_m": 2.168,
+      "depth_m": 0.8516,
+      "target_height_m": 0.6,
+      "target_canopy_spread_m": 0.65
+    }
+  },
+  "normalization": {
+    "target_height_m": 0.6,
+    "target_canopy_spread_m": 0.65,
+    "scale_factor": 1.052632,
+    "normalized_height_m": 0.6,
+    "normalized_canopy_spread_m": 2.168,
+    "strategy": "uniform_height"
+  },
+  "materials": {
+    "workflow": "Metallic-Roughness PBR",
+    "double_sided": true,
+    "channels": [
+      "albedo",
+      "normal",
+      "roughness",
+      "metallic"
+    ],
+    "texture_format": "PNG"
+  },
+  "files": {
+    "glb": "veg_succulent_barrel_01.glb",
+    "obj": "veg_succulent_barrel_01.obj",
+    "mtl": "veg_succulent_barrel_01.mtl",
+    "textures": {
+      "albedo": "textures/albedo.png",
+      "normal": "textures/normal.png",
+      "roughness": "textures/roughness.png",
+      "metallic": "textures/metallic.png"
+    }
+  },
+  "provenance": {
+    "source": "procedural",
+    "export_timestamp": "2026-09-10T07:29:06.691169+00:00",
+    "generator_metadata": {
+      "species_id": "veg_succulent_barrel_01",
+      "category_id": "succulents_cacti",
+      "source": "procedural",
+      "seed": 1355517191,
+      "vertex_count": 3336,
+      "face_count": 3932,
+      "quad_count": 1966,
+      "tri_count": 0,
+      "quad_ratio": 1.0
+    }
+  },
+  "metadata": {
+    "scale_factor": 1.0526315789473684,
+    "species_id": "veg_succulent_barrel_01",
+    "category_id": "succulents_cacti",
+    "source": "procedural",
+    "seed": 1355517191,
+    "vertex_count": 3336,
+    "face_count": 3932,
+    "quad_count": 1966,
+    "tri_count": 0,
+    "quad_ratio": 1.0
+  }
+}

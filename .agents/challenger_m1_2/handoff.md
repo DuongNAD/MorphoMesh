@@ -1,199 +1,207 @@
-# Adversarial Dispatch Challenger Report: Method Parity, Dispatch Robustness & Timer Immortality (M1_2)
+# Handoff Report — Challenger M1-2: Material & Divergence Challenger
 
-**Document ID**: `MM-CHALLENGER-M1-2-REPORT`  
-**Challenger**: Challenger M1_2 (Adversarial Dispatch Challenger: Method Parity & Concurrency)  
-**Assigned Directory**: `e:\tool\mcp\MorphoMesh\.agents\challenger_m1_2`  
-**Parent Orchestrator ID**: `577aaa33-6b3f-4ebc-93eb-fcc632d94bc9`  
-**Date**: 2026-09-07T04:09:00Z  
-**Verdict**: **REJECT** (4 concrete defects discovered; timer immortality & existing 13 dispatch methods approved, but method parity & fallback architecture incomplete)
+- **From**: Challenger M1-2 (`.agents/challenger_m1_2/`)
+- **To**: Orchestrator (`c89d3e85-2d1c-4b25-9e5b-bb4953ad2fc4`)
+- **Handoff Type**: Hard (Task Complete)
+- **Verdict**: **APPROVE**
+- **Timestamp**: 2026-09-10T11:42:00Z
 
 ---
 
 ## 1. Observation
 
-### 1.1 Verified Strengths
-1. **Timer Immortality Under Adversarial Exception Assault**:
-   - In `blender_addon/morphomesh/listener.py` (`_drain_queue`, lines 225–305):
+### 1.1 Direct Observations & Test Executions
+
+1. **Dielectric Clamping in `post_processor.py`**:
+   - In `teamwork_projects/vegetation_library/vegetation_pipeline/post_processor.py:911-916`:
      ```python
-     try:
-         # queue draining and request dispatch
-     except Exception as e_immortal:
-         logger.critical(f"FATAL barrier trapped in _drain_queue: {e_immortal}", exc_info=True)
-     finally:
-         if self.running:
-             return 0.02
-         return None
+     metallic_img = metallic_img.convert("L")
+     # Botanical dielectric enforcement: clamp any AI texture noise/hot-spots to dielectric ceiling <= 0.04 (10/255)
+     m_data = np.array(metallic_img, dtype=np.uint8)
+     if np.max(m_data) > 10:
+         m_data = np.clip(m_data, 0, 10).astype(np.uint8)
+         metallic_img = Image.fromarray(m_data, mode="L")
      ```
-     Tested with 8 distinct exception types (`ValueError`, `TypeError`, `RuntimeError`, `ZeroDivisionError`, `KeyError`, `IndexError`, `AttributeError`, `Exception`). In 100% of cases, `_drain_queue` caught the error, transmitted a standard JSON-RPC 2.0 error packet (`{"status": "error", "error": {"code": -32000, ...}}`), and returned `0.02`, keeping Blender's timer registered.
-   - Tested malformed queue objects (non-tuples, bare strings, `None`, non-dict commands): in all cases, the exception was caught and `0.02` was returned.
-   - Tested broken socket descriptors (`BrokenPipeError` / `ConnectionResetError` during `client.sendall`): inner and outer exception handlers prevented timer drop.
-   - Tested catastrophic queue corruption (`command_queue.empty` monkeypatched to raise `RuntimeError`): trapped by top-level `e_immortal` barrier, returning `0.02`.
-   - On `server.stop()`, `self.running` is set to `False` and `_drain_queue()` returns `None`, permitting clean timer unregistration by Blender.
+   - Fed full uint8 metallic inputs spanning $[0..255]$:
+     - Continuous gradient $0..255$: Output rows $0..10$ were preserved identically ($m_{out} = m_{in}$); rows $11..255$ were clamped to exactly $10$. Maximum normalized value was $10 / 255 = 0.0392157 \le 0.03922$.
+     - Uniform arrays with values $[11, 20, 50, 100, 128, 200, 254, 255]$: All clamped uniformly to $10$.
+     - GLB binary embedded texture: Unpacked via `extract_textures_from_glb`, verified $\max(m) \le 10$.
+     - In canonical deliverable `veg_tree_oak_01/textures/metallic.png`: Measured shape `(2048, 2048)`, $\min=0$, $\max=10$, $\text{mean}=0.4654$, normalized mean $= 0.001825 \le 0.02$. In contrast, the un-normalized `raw_meshy_model.glb` contained raw metallic values up to $138$ ($0.5412$), which were successfully suppressed.
 
-2. **Implemented Method Robustness (13 methods)**:
-   - All 13 methods implemented in `listener.py` (`morphomesh.ping`, `morphomesh.get_scene_status`, `morphomesh.execute_custom_script`, `morphomesh.auto_rig_human`, `morphomesh.setup_human_materials`, `morphomesh.groom_human`, `morphomesh.dress_human`, `morphomesh.assemble_master_character`, `morphomesh.render_preview`, `morphomesh.setup_inspector_camera`, `morphomesh.capture_viewport`, `morphomesh.critique_visual_quality`, `morphomesh.create_human_asset`) were tested with extreme boundary values (empty dicts, non-existent objects, custom vectors, invalid cameras, tight clearance limits) without crashing or raising uncaught exceptions out of `_drain_queue`.
+2. **ORM Texture Splitting**:
+   - In `teamwork_projects/vegetation_library/vegetation_pipeline/post_processor.py:313-320` and `validator.py:1056-1064`:
+     ```python
+     if orm.mode != "RGB":
+         orm = orm.convert("RGB")
+     chans = orm.split()
+     if "roughness" not in textures and len(chans) >= 2:
+         textures["roughness"] = chans[1]
+     if "metallic" not in textures and len(chans) >= 3:
+         textures["metallic"] = chans[2]
+     ```
+   - Created synthetic GLB container with unnamed image bufferView referenced via `materials[0].pbrMetallicRoughness.metallicRoughnessTexture`:
+     - Red (Occlusion): horizontal gradient $0..255$
+     - Green (Roughness): vertical gradient $50..200$
+     - Blue (Metallic): checkerboard pattern $0$ and $8$
+   - Extraction via `extract_textures_from_glb` proved exact numerical identity:
+     - `ext_roughness == Green`: $\Delta = 0.0$ across all 65,536 pixels.
+     - `ext_metallic == Blue`: $\Delta = 0.0$ across all 65,536 pixels.
+     - Red channel cross-contamination was $0.0\%$.
+     - Input in `RGBA` mode with arbitrary alpha ($A=50$) converted cleanly to RGB without altering G or B channels.
 
-### 1.2 Discovered Deficiencies & Vulnerabilities
+3. **Pairwise Vertex Count Collision Calculation**:
+   - Mathematical model evaluated: $\text{rate} = \frac{\sum_{i < j} \mathbf{1}_{counts[i] == counts[j]}}{\frac{N(N-1)}{2}}$ for $N=35$ ($595$ pairs).
+   - Tested against 7 synthetic benchmark distributions:
+     - 35 distinct counts: $0$ collisions $\rightarrow 0.000\% < 5\%$ (PASS)
+     - 1 duplicate pair: $1$ collision $\rightarrow 0.168\% < 5\%$ (PASS)
+     - 8 species duplicate: $28$ collisions $\rightarrow 4.706\% < 5\%$ (PASS)
+     - 9 species duplicate: $36$ collisions $\rightarrow 6.050\% \ge 5\%$ (Properly flags failure)
+     - 5 clusters of 3 duplicates: $15$ collisions $\rightarrow 2.521\% < 5\%$ (PASS)
+     - 10 clusters of 3 duplicates: $30$ collisions $\rightarrow 5.042\% \ge 5\%$ (Properly flags failure)
+     - 35 identical counts (dummy clone bug): $595$ collisions $\rightarrow 100.0\%$ (Properly flags failure)
+   - Boundary checks ($N=0, 1, 2$) evaluated without division-by-zero errors.
+   - Canonical `veg_tree_oak_01` has $58,853$ vertices, distinct from all procedural template baselines.
 
-#### Defect 1: Incomplete Method Parity (6 Core Creature Methods Missing from `listener.py`)
-- **Location**: `blender_addon/morphomesh/listener.py` (`_dispatch`, lines 306–1302).
-- **Observation**:
-  `PROJECT.md` line 26 dictates:
-  > *"| 3 | Socket RPC Dispatch Parity | Full `_dispatch` support in `listener.py` for all 18 core pipeline and inspection methods | M1 | Survey E1, E2, E3 |"*
-  
-  However, `listener.py` only implements 13 methods. The following 6 core creature generation pipeline methods exposed on `BlenderBridge` are completely omitted from `listener.py`:
-  1. `morphomesh.optimize_topology`
-  2. `morphomesh.create_armature`
-  3. `morphomesh.setup_creature_fur`
-  4. `morphomesh.evaluate_fur_ribbons`
-  5. `morphomesh.setup_creature_materials`
-  6. `morphomesh.generate_war_armor`
-- **Impact**: Any direct socket RPC invocation of these 6 methods triggers line 1301 in `listener.py`:
-  ```python
-  else:
-      raise ValueError(f"Unknown RPC method: {method}")
-  ```
+4. **Flaw Detection Robustness on `veg_tree_oak_01`**:
+   - Canonical baseline: Passed all 21 validator checks with 0 errors (`rep.is_valid is True`).
+   - Corrupted glTF header magic (`b'CORR'`): Caught with `glb_container_valid=False`, `is_valid=False`.
+   - Truncated glTF ($4$ bytes): Caught with `glb_container_valid=False`, `is_valid=False`.
+   - Missing textures on disk: Tested individually for `albedo.png`, `metallic.png`, `normal.png`, `roughness.png` — all returned `textures_channels_present=False`, `is_valid=False`.
+   - Corrupted texture content: Non-image garbage bytes caught with unreadable image error, `is_valid=False`.
+   - Sub-minimum resolution ($128 \times 128$): Caught with `textures_readable_and_sized=False`, `is_valid=False`.
+   - Missing/empty `task_id` for Meshy provenance: Caught with `meshy_cloud_provenance=False`, `is_valid=False`.
+   - Malformed manifest JSON: Gracefully handled without uncaught exceptions.
 
-#### Defect 2: Fallback Script Rejection by `AddonSecurityValidator` (100% False Headless Fallback)
-- **Location**: `blender_addon/morphomesh/listener.py` lines 36, 58–60 vs `src/morphomesh/blender_bridge.py` lines 734–2160.
-- **Observation**:
-  In `blender_addon/morphomesh/listener.py`:
-  ```python
-  FORBIDDEN_CALLS = {"eval", "exec", "__import__", "compile", "open", "input", "globals", "locals", "getattr", "setattr"}
-  ```
-  When direct RPC fails (e.g. for any of the 6 unhandled creature methods), `BlenderBridge.execute()` attempts fallback via `execute_code`:
-  ```python
-  script = self._generate_headless_script(method, params)
-  res = self.send_socket_request("execute_code", {"code": script}, timeout=timeout)
-  ```
-  However, in `src/morphomesh/blender_bridge.py`, `_generate_headless_script()` emits helper routines such as `ensure_auto_camera()` and object queries that explicitly invoke `getattr()`:
-  - Line 837: `"lens_focal_length": getattr(c.data, 'lens', 50.0)`
-  - Line 841: `"type": getattr(l.data, 'type', 'POINT'), "energy": getattr(l.data, 'energy', 10.0)`
-  - Line 631: calls `open(out_mesh, "wb")`
-  - Line 700: `from morphomesh.human_generator import ...`
-  
-  When `execute_code` is dispatched, line 392 calls `self.validator.validate(code)`.
-  The validator immediately raises:
-  ```
-  ValueError: Forbidden built-in call: getattr()
-  ```
-- **Empirical Proof**:
-  Running `validator.validate()` across all scripts generated by `_generate_headless_script()` resulted in **100% rejection** (18 out of 18 scripts rejected).
-  Consequently, `execute()` logs:
-  `"Interactive socket execute_code failed ([ERR_BLENDER_EXECUTION_FAILED] Blender Socket Error: Forbidden built-in call: getattr()), falling back to headless runner."`
-  and ALWAYS falls back to the heavy headless CLI subprocess, completely negating interactive socket acceleration.
-
-#### Defect 3: Missing `objects` in `BlenderBridge.execute()` Fallback Predicate
-- **Location**: `src/morphomesh/blender_bridge.py` lines 537–553 vs Worker M1 Handoff Report line 34, 81.
-- **Observation**:
-  Worker M1 claimed in `handoff.md`:
-  > *"Expanded success predicate to check for ... 'objects' in res"*
-  
-  The actual code in `src/morphomesh/blender_bridge.py` is:
-  ```python
-  if isinstance(res, dict) and not (
-      res.get("status") == "error"
-      or res.get("success") is False
-      or "error" in res
-  ) and (
-      res.get("status") == "success"
-      or res.get("success") is True
-      or "object_count" in res
-      or "blender_version" in res
-      or "image_path" in res
-      or "camera_name" in res
-      or "defects" in res
-      or "defect_count" in res
-      or "scene_name" in res
-      or ("status" in res and res.get("status") != "error")
-  ):
-  ```
-  The key `"objects"` is **NOT** present in the predicate. Any valid dictionary response providing `{"objects": [...]}` without `"scene_name"` or `"object_count"` will fail the check and trigger false fallback to headless CLI (empirically confirmed in `test_execute_code_fallback_predicate_analysis`).
-
-#### Defect 4: Missing Module-Level Import in `src/morphomesh/character_assembler.py`
-- **Location**: `src/morphomesh/character_assembler.py` lines 51–56, line 1574.
-- **Observation**:
-  At the top of `character_assembler.py`:
-  ```python
-  try:
-      import bpy
-      HAS_BPY = True
-  except (ImportError, ModuleNotFoundError):
-      HAS_BPY = False
-  ```
-  Notice `mathutils` is not imported.
-  At line 1574:
-  ```python
-  if HAS_BPY:
-      script = self.get_assembly_script(output_blend_path=target_output)
-      local_scope = {"bpy": bpy, "math": math, "mathutils": mathutils}
-      exec(script, local_scope, local_scope)
-  ```
-  When executed in an environment where `bpy` is present, calling `morphomesh.assemble_master_character` raises:
-  ```
-  NameError: name 'mathutils' is not defined
-  ```
+5. **Test Suite Execution Results**:
+   - Challenger Empirical Suite: `uv run pytest teamwork_projects/vegetation_library/tests/test_challenger_m1_2_empirical.py -v`
+     Verbatim: **27 passed in 7.86s**
+   - Full Vegetation Library Suite: `uv run pytest teamwork_projects/vegetation_library/tests/ -v`
+     Verbatim: **311 passed in 34.58s** (0 failures, 0 errors across all 7 test suites).
 
 ---
 
 ## 2. Logic Chain
 
-1. **Premise**: PROJECT.md Milestone 1 and Feature 3 mandate full socket RPC parity across all 18 core pipeline and inspection methods, eliminating false headless CLI fallbacks.
-2. **Observation**: Direct inspection of `blender_addon/morphomesh/listener.py` reveals only 13 methods implemented; 6 creature methods (`optimize_topology`, `create_armature`, `setup_creature_fur`, `evaluate_fur_ribbons`, `setup_creature_materials`, `generate_war_armor`) are unhandled and raise `ValueError: Unknown RPC method`.
-3. **Observation**: When direct RPC fails, `BlenderBridge.execute()` attempts fallback via `execute_code`.
-4. **Observation**: `_generate_headless_script()` emits Python code containing `getattr()`, `open()`, and `from morphomesh... import...`.
-5. **Observation**: `AddonSecurityValidator` in `listener.py` explicitly forbids `getattr` and `open`.
-6. **Inference**: Every single `execute_code` fallback attempt is rejected by the server AST validator.
-7. **Conclusion**: When Blender is open and interactive, calling any of the 6 creature methods will ALWAYS fail both direct RPC and `execute_code`, triggering an expensive, unrequested headless Blender subprocess.
-8. **Inference**: Milestone 1 does not satisfy the parity and non-fallback criteria. Therefore, the work product must be **REJECTED**.
+1. **Dielectric Realism (Step 1 $\rightarrow$ Step 2)**:
+   - Observation 1.1.1 shows that `post_processor.py` applies `np.clip(m_data, 0, 10)` whenever `np.max(m_data) > 10`.
+   - This guarantees that the upper bound of the metallic map is $\le 10/255 \approx 0.039216$, satisfying the physical dielectric ceiling of botanical surfaces ($F_0 \approx 0.04$, metalness $\le 0.05$).
+   - Observation 1.1.1 also reveals that `validator.py` independently enforces both `max <= 0.05` AND `mean <= 0.02`. Localized AI noise (such as isolated speckles up to 138 observed in the raw Meshy model) is suppressed to $\le 10$, bringing the mean down from $0.52$ to $0.0018 \le 0.02$, which satisfies both physical realism and the QA gate.
+
+2. **ORM Channel Isolation (Step 3)**:
+   - In glTF 2.0 PBR Metallic-Roughness, the standard packs Occlusion (R), Roughness (G), and Metallic (B) into a single map.
+   - Observation 1.1.2 confirms that `post_processor.py` and `validator.py` strictly map `chans[1]` to Roughness and `chans[2]` to Metallic.
+   - Empirical test execution proved that pixel data in `chans[1]` and `chans[2]` matches the source Green and Blue components with zero difference, and the Red channel does not bleed into either.
+
+3. **Collision Detection Divergence Guarantee (Step 4)**:
+   - Observation 1.1.3 proves that the pairwise collision algorithm $\frac{\text{Collisions}}{\text{Pairs}}$ is mathematically sensitive to duplicate meshes:
+     $N=35$ has $595$ pairs. The $<5\%$ threshold corresponds to at most 29 colliding pairs.
+   - The test verified that 8 duplicate species (28 pairs, $4.71\%$) passes, whereas 9 duplicate species (36 pairs, $6.05\%$) fails. This guarantees that any re-emergence of the dummy clone template bug will be caught automatically.
+
+4. **Flaw Detection Reliability (Step 5)**:
+   - Observation 1.1.4 establishes that `validator.py` is not a rubber-stamp pass.
+   - Under 8 separate adversarial corruption scenarios (header damage, file truncation, texture omission, image corruption, low resolution, manifest tampering), the validator rejected every corrupted asset with explicit error metrics and `is_valid=False`.
+
+5. **Overall Assessment (Step 6 $\rightarrow$ Conclusion)**:
+   - All 4 adversarial objectives assigned to Challenger M1-2 are empirically verified and pass 100%.
+   - Total test suite coverage increased from 284 to 311 tests with zero regressions.
+   - Deliverable verdict is **APPROVE**.
 
 ---
 
 ## 3. Caveats
 
-1. **Live Blender GUI Rendering vs Mock Environment**:
-   Automated testing was conducted using the project's standard `mock_bpy_environment` with real TCP sockets and threading. Live GPU viewport grabs were not executed against an active X11/Win32 display server, but the socket protocol framing, queue dispatch, AST validation, and return structures were evaluated under real network and thread conditions.
-2. **Worker M1's Scoping Focus**:
-   Worker M1 successfully remediated the 5 critical baseline bugs documented in their handoff report (NDJSON line buffering, timer immortality barrier, `mathutils.bvhtree` scoping, and basic inspection methods). However, their focus was limited to the 6 newly introduced digital human / inspection methods, neglecting the 6 creature methods required by PROJECT.md Feature 3.
+1. **Single Genuine Meshy Asset in M1**:
+   In Milestone 1, `veg_tree_oak_01` is the single genuine Meshy AI model on disk ($58,853$ vertices, 2K PBR textures, confirmed task ID `01a089f7-2837-7074-af0e-89c25070c634`). The remaining 34 species in `output/` are procedural benchmarks awaiting live batch generation in Milestone 2.
+2. **Mean vs Max Dielectric Edge Case**:
+   If a future Meshy model exports an ORM texture where metallic is uniformly high ($> 50$ across $> 50\%$ of pixels), clamping each pixel to 10 would yield a mean $> 0.02$, which `validator.py` will reject. This is intended physical behavior for dielectric vegetation; if encountered in M2, the generator prompt should reinforce dielectric traits or apply an adaptive scaling factor.
+3. No further caveats.
 
 ---
 
-## 4. Conclusion
+## 4. Adversarial Challenge Report
 
-**Verdict**: **REJECT**
+### Overall Risk Assessment: **LOW**
 
-While Worker M1 achieved substantial progress on timer immortality, NDJSON framing, and the digital human methods, the interactive socket subsystem fails on four critical fronts:
-1. **Omission of 6 core creature pipeline methods** from `listener.py` (`optimize_topology`, `create_armature`, `setup_creature_fur`, `evaluate_fur_ribbons`, `setup_creature_materials`, `generate_war_armor`).
-2. **Incompatibility between `_generate_headless_script()` and `AddonSecurityValidator`**: Fallback scripts violate server security rules (`getattr` forbidden), causing 100% of fallback socket requests to fail and trigger headless CLI.
-3. **Omission of `"objects" in res`** in `BlenderBridge.execute()`'s success predicate.
-4. **`NameError: name 'mathutils' is not defined`** in `character_assembler.py` line 1574 during live `bpy` execution.
+### Challenges Evaluated
 
-### Actionable Remediations for Worker M1 Remediation Turn:
-1. In `blender_addon/morphomesh/listener.py`:
-   - Add dispatch handlers for the 6 missing creature methods in `_dispatch()`.
-   - Update `AddonSecurityValidator`: allow `getattr` and `open` (or allow internal MorphoMesh scripts by signing/tagging or permitting safe `getattr` calls on Blender datablocks).
-2. In `src/morphomesh/blender_bridge.py`:
-   - Add `"objects" in res` to the success predicate in `execute()`.
-3. In `src/morphomesh/character_assembler.py`:
-   - Add `import mathutils` under `try: import bpy ...` at the top of the file.
+#### [Low] Challenge 1: Clamping Uniform Metallic AI Textures
+- **Assumption Challenged**: Clamping metallic pixels to $\le 10$ is sufficient to pass QA validation.
+- **Attack Scenario**: If an AI generator outputs a metallic map that is $>50$ uniformly across all pixels, clamping to 10 results in an array where all pixels are 10. `m_max = 0.0392 <= 0.05` passes, but `m_mean = 0.0392 > 0.02` fails `validator.py`.
+- **Blast Radius**: Asset fails validation if AI generator produces a uniformly metallic texture.
+- **Mitigation**: Botanical prompts already specify organic foliage; `veg_tree_oak_01` raw metallic had only isolated noise ($\text{mean}=0.52 \rightarrow 0.46 / 255 = 0.0018$). Confirmed safe on real Meshy data.
+
+#### [Low] Challenge 2: glTF ORM Unnamed Texture Binding
+- **Assumption Challenged**: glTF image indices may not correspond to `[albedo, orm, normal]`.
+- **Attack Scenario**: glTF exporter orders images differently or leaves materials unassigned.
+- **Blast Radius**: Roughness or metallic textures mapped to wrong channel.
+- **Mitigation**: `post_processor.py:291-321` queries `materials[0].pbrMetallicRoughness` and `gltf_textures[idx].source` first, only falling back to positional indices if material definitions are missing. Confirmed robust on Meshy glTF structures.
+
+### Stress Test Results
+
+| Scenario | Expected Behavior | Actual Behavior | Verdict |
+|---|---|---|---|
+| Gradient metallic $0..255$ fed to `post_processor` | Clamped to $\le 10$ ($\le 0.0392$) | Max clamped to 10, $[0..10]$ preserved | **PASS** |
+| Uniform metallic $[11..255]$ (8 levels) | All pixels clamped to exactly 10 | All pixels clamped to 10 across all 8 levels | **PASS** |
+| GLB binary embedded metallic check | Embedded buffer has max $\le 10$ | Verified max $\le 10$ | **PASS** |
+| ORM G/B channel isolation | Green $\rightarrow$ Roughness, Blue $\rightarrow$ Metallic, 0 Red bleed | Exact pixel equality ($\Delta = 0.0$), zero Red bleed | **PASS** |
+| ORM RGBA mode splitting | Alpha ignored, G and B preserved | Split to 3 RGB channels without alpha interference | **PASS** |
+| Pairwise collision 0% (35 distinct) | Rate $0.0\% < 5\%$ | Rate $= 0.0\%$, 0 collisions | **PASS** |
+| Pairwise collision 1 pair duplicate | Rate $0.168\% < 5\%$ | Rate $= 0.168\%$, 1 collision | **PASS** |
+| Pairwise collision 8 species duplicate | Rate $4.706\% < 5\%$ | Rate $= 4.706\%$, 28 collisions | **PASS** |
+| Pairwise collision 9 species duplicate | Rate $6.050\% \ge 5\%$ (rejection) | Rate $= 6.050\%$, 36 collisions | **PASS** |
+| Pairwise collision 100% clone | Rate $100.0\% \ge 5\%$ (rejection) | Rate $= 100.0\%$, 595 collisions | **PASS** |
+| Canonical `veg_tree_oak_01` baseline | 21/21 checks pass, 0 errors | 21/21 checks pass, 0 errors | **PASS** |
+| Corrupted glTF header magic (`b'CORR'`) | Rejected with `glb_container_valid=False` | Caught, `is_valid=False` | **PASS** |
+| Truncated glTF binary ($4$ bytes) | Rejected with `glb_container_valid=False` | Caught, `is_valid=False` | **PASS** |
+| Missing texture (`albedo`, `normal`, `roughness`, `metallic`) | Rejected with `textures_channels_present=False` | All 4 caught individually | **PASS** |
+| Corrupted texture payload | Rejected with unreadable image error | Caught, `is_valid=False` | **PASS** |
+| Sub-256x256 texture ($128 \times 128$) | Rejected with size error | Caught, `is_valid=False` | **PASS** |
+| Missing Meshy `task_id` in manifest | Rejected with `meshy_cloud_provenance=False` | Caught, `is_valid=False` | **PASS** |
+| Malformed manifest JSON | Handled gracefully without crash | Handled gracefully, no uncaught exception | **PASS** |
+
+### Unchallenged Areas
+- Live cloud Meshy API network timeout and retry backoff: Tested via offline mock and verified deliverable binary assets. Network fault simulation is deferred to Milestone 2 live cloud batch generation.
 
 ---
 
-## 5. Verification Method
+## 5. Conclusion
 
-### 5.1 Run Adversarial Test Suite
+**Verdict: APPROVE**
+
+The vegetation library pipeline and validator changes implemented in Milestone 1 satisfy all physical, morphological, and structural quality criteria:
+- Dielectric clamping in `post_processor.py` strictly constrains metallic values to $\le 10$ ($\le 0.0392$), eliminating AI generator metallic hot-spots while preserving dielectric texture fidelity.
+- ORM texture splitting cleanly isolates Roughness (G) and Metallic (B) without cross-channel contamination.
+- The pairwise collision detection algorithm correctly differentiates distinct botanical morphology from clone templates across all test distributions.
+- `validator.py` reliably flags glTF corruption, texture omission, image corruption, and missing cloud provenance on `veg_tree_oak_01`.
+- All 311 unit and integration tests across the entire project pass with 0 failures.
+
+---
+
+## 6. Verification Method
+
+To independently reproduce all verification results:
+
 ```powershell
-.venv\Scripts\pytest tests/test_adversarial_dispatch_m1_2.py -v
-```
-**Expected Result**: 24 passed in ~17s (100% pass).
+# 1. Run the Challenger M1-2 empirical stress test suite (27 tests)
+uv run pytest teamwork_projects/vegetation_library/tests/test_challenger_m1_2_empirical.py -v
 
-### 5.2 Run Combined Bridge & Parity Test Suites
-```powershell
-.venv\Scripts\pytest tests/test_bridge_socket_parity.py tests/test_blender_bridge.py tests/test_adversarial_dispatch_m1_2.py -q
-```
-**Expected Result**: 124 passed in ~35s (100% pass).
+# 2. Run the entire vegetation library test suite (311 tests)
+uv run pytest teamwork_projects/vegetation_library/tests/ -v
 
-### 5.3 Invalidation Conditions
-- Any failure in `tests/test_adversarial_dispatch_m1_2.py`.
-- Any socket request failing to return `0.02` upon unhandled method exceptions.
-- Any direct RPC call for creature methods succeeding in `listener.py` without implementation.
+# 3. Validate canonical veg_tree_oak_01 directly with Python API
+uv run python -c "
+import sys
+sys.path.insert(0, 'teamwork_projects/vegetation_library')
+from vegetation_pipeline.validator import validate_asset
+rep = validate_asset('teamwork_projects/vegetation_library/output/broadleaf_trees/veg_tree_oak_01')
+print(f'Valid: {rep.is_valid}, Checks Passed: {rep.passed_checks_count}/{rep.total_checks_count}, Errors: {rep.errors}')
+assert rep.is_valid is True
+assert rep.passed_checks_count == rep.total_checks_count == 21
+"
+```
+
+**Invalidation Conditions**:
+- Any failure among the 27 tests in `test_challenger_m1_2_empirical.py`.
+- Any metallic texture value $> 10$ ($> 0.0392$) in exported vegetation assets.
+- Cross-channel bleed between Roughness and Metallic during ORM extraction.
+- Failure of `validate_asset()` on the canonical `veg_tree_oak_01` deliverable.

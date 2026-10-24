@@ -1,0 +1,14 @@
+{
+  "species_id": "veg_tree_birch_01",
+  "preview_task_id": "01a08b27-e39a-7795-a2f3-3183392a9afb",
+  "refine_task_id": "01a08b29-b59d-7582-9e66-6d3c88b0cee0",
+  "vertex_count": 63572,
+  "face_count": 61857,
+  "source": "meshy",
+  "textures": {
+    "albedo": "textures/albedo.png",
+    "normal": "textures/normal.png",
+    "roughness": "textures/roughness.png",
+    "metallic": "textures/metallic.png"
+  }
+}

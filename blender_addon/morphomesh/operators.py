@@ -78,6 +78,22 @@ class MORPHOMESH_OT_create_creature_rig(Operator):
             self.report({'WARNING'}, "No active mesh selected; generating standalone armature.")
             mesh_obj = None
 
+        if mesh_obj and hasattr(mesh_obj, "data") and len(getattr(mesh_obj.data, "vertices", [])) > 0:
+            verts_co = [v.co for v in mesh_obj.data.vertices]
+            min_x, max_x = min(v.x for v in verts_co), max(v.x for v in verts_co)
+            min_y, max_y = min(v.y for v in verts_co), max(v.y for v in verts_co)
+            min_z, max_z = min(v.z for v in verts_co), max(v.z for v in verts_co)
+        else:
+            min_x, max_x = -0.4, 0.4
+            min_y, max_y = -0.6, 0.6
+            min_z, max_z = 0.0, 1.2
+
+        h = max(max_z - min_z, 0.1)
+        mid_x = 0.5 * (min_x + max_x)
+        mid_y = 0.5 * (min_y + max_y)
+        span_x = max(max_x - min_x, 0.1)
+        span_y = max(max_y - min_y, 0.1)
+
         arm_data = bpy.data.armatures.new(name=f"Armature_{self.creature_type.title()}")
         arm_obj = bpy.data.objects.new(name=f"Armature_{self.creature_type.title()}", object_data=arm_data)
         context.scene.collection.objects.link(arm_obj)
@@ -87,47 +103,95 @@ class MORPHOMESH_OT_create_creature_rig(Operator):
         eb = arm_data.edit_bones
 
         root = eb.new("root")
-        root.head = (0.0, 0.0, 0.0)
-        root.tail = (0.0, 0.0, 0.5)
+        root.head = (mid_x, mid_y - 0.15 * span_y, min_z + 0.50 * h)
+        root.tail = (mid_x, mid_y, min_z + 0.62 * h)
 
         spine = eb.new("spine_01")
-        spine.head = (0.0, 0.0, 0.5)
-        spine.tail = (0.0, 0.0, 1.0)
+        spine.head = root.tail
+        spine.tail = (mid_x, mid_y + 0.20 * span_y, min_z + 0.78 * h)
         spine.parent = root
 
         neck = eb.new("neck")
-        neck.head = (0.0, 0.0, 1.0)
-        neck.tail = (0.0, 0.2, 1.3)
+        neck.head = spine.tail
+        neck.tail = (mid_x, mid_y + 0.35 * span_y, min_z + 0.90 * h)
         neck.parent = spine
 
         head = eb.new("head")
-        head.head = (0.0, 0.2, 1.3)
-        head.tail = (0.0, 0.5, 1.4)
+        head.head = neck.tail
+        head.tail = (mid_x, max_y, min_z + 0.96 * h)
         head.parent = neck
+
+        bones_list = ["root", "spine_01", "neck", "head"]
 
         if self.creature_type in ("quadruped", "winged_quadruped", "hybrid"):
             for side, sign in [("L", 1.0), ("R", -1.0)]:
                 fl = eb.new(f"front_leg.{side}")
-                fl.head = (sign * 0.3, 0.4, 0.8)
-                fl.tail = (sign * 0.3, 0.4, 0.0)
+                fl.head = (mid_x + sign * 0.32 * span_x, mid_y + 0.25 * span_y, min_z + 0.68 * h)
+                fl.tail = (mid_x + sign * 0.32 * span_x, mid_y + 0.20 * span_y, min_z + 0.05 * h)
                 fl.parent = spine
+                bones_list.append(f"front_leg.{side}")
 
                 bl = eb.new(f"back_leg.{side}")
-                bl.head = (sign * 0.3, -0.4, 0.8)
-                bl.tail = (sign * 0.3, -0.4, 0.0)
+                bl.head = (mid_x + sign * 0.28 * span_x, mid_y - 0.25 * span_y, min_z + 0.66 * h)
+                bl.tail = (mid_x + sign * 0.28 * span_x, mid_y - 0.20 * span_y, min_z + 0.05 * h)
                 bl.parent = root
+                bones_list.append(f"back_leg.{side}")
 
             tail = eb.new("tail_01")
-            tail.head = (0.0, -0.5, 0.7)
-            tail.tail = (0.0, -0.9, 0.5)
+            tail.head = (mid_x, mid_y - 0.25 * span_y, min_z + 0.60 * h)
+            tail.tail = (mid_x, min_y - 0.10 * span_y, min_z + 0.45 * h)
             tail.parent = root
+            bones_list.append("tail_01")
+        else:
+            for side, sign in [("L", 1.0), ("R", -1.0)]:
+                arm = eb.new(f"arm.{side}")
+                arm.head = (mid_x + sign * 0.20 * span_x, mid_y, min_z + 0.78 * h)
+                arm.tail = (mid_x + sign * 0.45 * span_x, mid_y, min_z + 0.50 * h)
+                arm.parent = spine
+                bones_list.append(f"arm.{side}")
+
+                leg = eb.new(f"leg.{side}")
+                leg.head = (mid_x + sign * 0.15 * span_x, mid_y, min_z + 0.50 * h)
+                leg.tail = (mid_x + sign * 0.15 * span_x, mid_y, min_z + 0.05 * h)
+                leg.parent = root
+                bones_list.append(f"leg.{side}")
 
         bpy.ops.object.mode_set(mode='OBJECT')
 
         if mesh_obj:
-            mesh_obj.parent = arm_obj
-            mod = mesh_obj.modifiers.new(name="Armature", type='ARMATURE')
-            mod.object = arm_obj
+            bpy.ops.object.select_all(action='DESELECT')
+            mesh_obj.select_set(True)
+            arm_obj.select_set(True)
+            context.view_layer.objects.active = arm_obj
+            try:
+                bpy.ops.object.parent_set(type='ARMATURE_AUTO')
+            except Exception:
+                mesh_obj.parent = arm_obj
+                mod = mesh_obj.modifiers.new(name="Armature", type='ARMATURE')
+                mod.object = arm_obj
+                for b in bones_list:
+                    if b not in mesh_obj.vertex_groups:
+                        mesh_obj.vertex_groups.new(name=b)
+
+            # Insert genuine idle keyframes
+            try:
+                act = bpy.data.actions.new(name=f"Action_{self.creature_type.title()}_IdlePose")
+                arm_obj.animation_data_create()
+                arm_obj.animation_data.action = act
+                context.view_layer.objects.active = arm_obj
+                bpy.ops.object.mode_set(mode='POSE')
+                pb = arm_obj.pose.bones.get("spine_01")
+                if pb:
+                    pb.rotation_mode = 'XYZ'
+                    pb.rotation_euler = (0.0, 0.0, 0.0)
+                    pb.keyframe_insert(data_path='rotation_euler', frame=1)
+                    pb.rotation_euler = (0.04, 0.0, 0.0)
+                    pb.keyframe_insert(data_path='rotation_euler', frame=12)
+                    pb.rotation_euler = (0.0, 0.0, 0.0)
+                    pb.keyframe_insert(data_path='rotation_euler', frame=24)
+                bpy.ops.object.mode_set(mode='OBJECT')
+            except Exception:
+                pass
 
         self.report({'INFO'}, f"Armature created: {arm_obj.name}")
         return {'FINISHED'}

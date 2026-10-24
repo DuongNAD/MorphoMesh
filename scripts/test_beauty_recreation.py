@@ -118,67 +118,83 @@ def run_test():
             if max_ax < 0.35:
                 del_f.extend(isl)
 
-        # In slot 0, delete interior pelvis/waist faces deep under skirt (0.60 to 0.90) to prevent clipping
+        # In slot 0, delete ALL interior torso/pelvis faces under dress between 0.56 and 1.125
         for f in bm_b.faces:
             if f.material_index == 0:
                 avg_z = sum(v.co.z for v in f.verts) / len(f.verts)
-                max_ax = max(abs(v.co.x) for v in f.verts)
-                if 0.60 < avg_z < 0.90 and max_ax < 0.080:
+                if 0.56 < avg_z < 1.125:
                     del_f.append(f)
 
         bmesh.ops.delete(bm_b, geom=list(set(del_f)), context='FACES_ONLY')
         bmesh.ops.delete(bm_b, geom=[v for v in bm_b.verts if not v.link_faces], context='VERTS')
-        
-        # Merge duplicate sleeve seam vertices first (closes unmerged arm seams)
         bmesh.ops.remove_doubles(bm_b, verts=bm_b.verts, dist=0.001)
 
-        # Clean 1-to-1 angular snapping of sleeve inner rim to torso armhole
-        yc_arm, zc_arm = 0.01, 1.12
-        for side_sign in [1.0, -1.0]:
-            s_open = [v for v in bm_b.verts if any(f.material_index == 6 for f in v.link_faces)
-                      and any(e.is_boundary for e in v.link_edges)
-                      and 0.04 < (v.co.x * side_sign) < 0.22]
-            t_open = [v for v in bm_b.verts if any(f.material_index == 0 for f in v.link_faces)
-                      and any(e.is_boundary for e in v.link_edges)
-                      and 0.04 < (v.co.x * side_sign) < 0.12 and 1.0 < v.co.z < 1.185]
-            
-            s_sorted = sorted(s_open, key=lambda v: math.atan2(v.co.z - zc_arm, v.co.y - yc_arm))
-            t_sorted = sorted(t_open, key=lambda v: math.atan2(v.co.z - zc_arm, v.co.y - yc_arm))
-            used_tv = set()
-            for sv in s_sorted:
-                sa = math.atan2(sv.co.z - zc_arm, sv.co.y - yc_arm)
-                avail_tv = [tv for tv in t_sorted if tv not in used_tv]
-                if not avail_tv: avail_tv = t_sorted
-                best_tv = min(avail_tv, key=lambda tv: abs(math.atan2(tv.co.z - zc_arm, tv.co.y - yc_arm) - sa))
-                used_tv.add(best_tv)
-                sv.co = best_tv.co
-
-        bmesh.ops.remove_doubles(bm_b, verts=bm_b.verts, dist=0.006)
-        bm_b.edges.ensure_lookup_table()
-
-        # Seal any remaining small boundary slits between sleeve and torso
-        shoulder_edges = [e for e in bm_b.edges if e.is_boundary and 0.04 < abs(e.verts[0].co.x) < 0.15 and 1.05 < e.verts[0].co.z < 1.20]
-        if shoulder_edges:
-            res_fill = bmesh.ops.holes_fill(bm_b, edges=shoulder_edges, sides=6)
-            if res_fill.get('faces'):
-                bmesh.ops.triangulate(bm_b, faces=res_fill['faces'])
-
-        # Reshape sleeve into slender bare anime arms
-        y_c, z_c = 0.022, 1.145
+        # Reshape sleeve (Slot 6) into clean, smooth, natural bare arms
+        y_c, z_c = 0.015, 1.140
         for v in bm_b.verts:
-            is_sleeve = any(f.material_index == 6 for f in v.link_faces)
-            ax = abs(v.co.x)
-            if is_sleeve and ax >= 0.14:
-                t = max(0.0, min(1.0, (ax - 0.14) / (0.50 - 0.14)))
-                target_r = 0.026 * (1.0 - t) + 0.017 * t
+            if any(f.material_index == 6 for f in v.link_faces):
+                ax = abs(v.co.x)
+                t = max(0.0, min(1.0, (ax - 0.10) / (0.50 - 0.10)))
+                target_r = 0.026 * (1.0 - t) + 0.016 * t
                 dy = v.co.y - y_c
                 dz = v.co.z - z_c
                 curr_r = math.sqrt(dy * dy + dz * dz)
                 if curr_r > target_r and curr_r > 1e-4:
-                    blend = min(1.0, (ax - 0.14) / 0.08)
-                    scale_r = 1.0 - blend * (1.0 - target_r / curr_r)
-                    v.co.y = y_c + dy * scale_r
-                    v.co.z = z_c + dz * scale_r
+                    v.co.y = y_c + dy * (target_r / curr_r)
+                    v.co.z = z_c + dz * (target_r / curr_r)
+
+        # Cap the inner sleeve boundary at shoulder cleanly
+        for side_sign in [1.0, -1.0]:
+            s_open = [v for v in bm_b.verts if any(f.material_index == 6 for f in v.link_faces)
+                      and any(e.is_boundary for e in v.link_edges)
+                      and 0.08 < (v.co.x * side_sign) < 0.20 and 1.0 < v.co.z < 1.25]
+            if s_open:
+                s_edges = list(set(e for v in s_open for e in v.link_edges if e.is_boundary))
+                bmesh.ops.holes_fill(bm_b, edges=s_edges, sides=len(s_edges))
+
+        # ANATOMICAL SCULPTING: Clavicles, Knees, Elbows, and Ankles
+        for v in bm_b.verts:
+            ax = abs(v.co.x)
+
+            # 1. Clavicle S-Curve & Suprasternal Notch (hõm ức)
+            if 1.135 < v.co.z < 1.190 and v.co.y < -0.015 and 0.005 < ax < 0.085:
+                z_clav = 1.152 + 0.016 * (ax / 0.085) - 0.004 * (ax / 0.085) ** 2
+                dz = abs(v.co.z - z_clav)
+                if dz < 0.012:
+                    blend = 1.0 - dz / 0.012
+                    v.co.y -= 0.0045 * blend
+            elif 1.145 < v.co.z < 1.168 and v.co.y < -0.020 and ax <= 0.010:
+                blend = 1.0 - ax / 0.010
+                v.co.y += 0.0030 * blend
+
+            # 2. Patella Knee Joint (Xương bánh chè & Hõm gối)
+            if 0.370 < v.co.z < 0.440 and v.co.y < -0.010:
+                dz = (v.co.z - 0.405) / 0.022
+                dx = (ax - 0.078) / 0.020
+                r2 = dx * dx + dz * dz
+                if r2 < 1.0:
+                    v.co.y -= 0.0040 * (1.0 - r2)
+
+            # 3. Elbow Olecranon (Mỏm khuỷu tay)
+            if 0.28 < ax < 0.35 and v.co.y > 0.015:
+                dx = (ax - 0.315) / 0.020
+                dy = (v.co.y - 0.022) / 0.012
+                r2 = dx * dx + dy * dy
+                if r2 < 1.0:
+                    v.co.y += 0.0035 * (1.0 - r2)
+
+            # 4. Asymmetrical Ankle Malleoli (Mắt cá chân)
+            if 0.075 < v.co.z < 0.125:
+                # Medial malleolus (mắt cá trong: higher, slightly anterior)
+                if ax < 0.075:
+                    dz = abs(v.co.z - 0.105) / 0.015
+                    if dz < 1.0:
+                        v.co.x -= 0.0030 * (1.0 - dz) * (1.0 if v.co.x > 0 else -1.0)
+                # Lateral malleolus (mắt cá ngoài: lower, slightly posterior)
+                elif ax > 0.080:
+                    dz = abs(v.co.z - 0.095) / 0.015
+                    if dz < 1.0:
+                        v.co.x += 0.0035 * (1.0 - dz) * (1.0 if v.co.x > 0 else -1.0)
 
         for f in bm_b.faces: f.smooth = True
         bm_b.to_mesh(body.data)
@@ -192,10 +208,35 @@ def run_test():
             else:
                 body.data.materials[i] = mat_skin
 
-    # 3. FACE: Anime features & sorrow expression
+    # 3. FACE: Detailed anime facial features & sorrow expression
     if face:
         face.name = "Beauty_Face"
         for p in face.data.polygons: p.use_smooth = True
+
+        # Sculpt sharp, delicate Mandible Jawline & V-line Chin
+        bm_f = bmesh.new()
+        bm_f.from_mesh(face.data)
+        for v in bm_f.verts:
+            ax = abs(v.co.x)
+            # Chin apex definition
+            if 1.205 < v.co.z < 1.240 and ax < 0.035 and v.co.y < -0.050:
+                t_chin = max(0.0, 1.0 - (ax / 0.025) ** 2 - ((v.co.z - 1.222) / 0.018) ** 2)
+                if t_chin > 0:
+                    v.co.y -= 0.0020 * t_chin
+                    v.co.z -= 0.0010 * t_chin
+            # Mandible jawline contour
+            elif 1.215 < v.co.z < 1.265 and 0.025 < ax < 0.065 and -0.055 < v.co.y < -0.010:
+                target_y = -0.060 + 0.045 * ((ax - 0.025) / 0.040)
+                dy = abs(v.co.y - target_y)
+                if dy < 0.010:
+                    blend = 1.0 - dy / 0.010
+                    v.co.y += (target_y - v.co.y) * 0.35 * blend
+
+        for f in bm_f.faces: f.smooth = True
+        bm_f.to_mesh(face.data)
+        bm_f.free()
+        face.data.update()
+
         if face.data.shape_keys:
             for kb in face.data.shape_keys.key_blocks: kb.value = 0.0
             kb_sorrow = face.data.shape_keys.key_blocks.get("Fcl_ALL_Sorrow")
@@ -207,21 +248,33 @@ def run_test():
             kb_mth_s = face.data.shape_keys.key_blocks.get("Fcl_MTH_Small")
             if kb_mth_s: kb_mth_s.value = 0.20
 
-        # Iris
+        # Iris: vivid ocean teal with subtle glow
         m_iris = bpy.data.materials.get("N00_000_00_EyeIris_00_EYE (Instance)")
         if m_iris and m_iris.node_tree:
             em_n = next((n for n in m_iris.node_tree.nodes if n.type == 'EMISSION'), None)
             tex_n = next((n for n in m_iris.node_tree.nodes if n.type == 'TEX_IMAGE'), None)
             if em_n and tex_n:
-                mix_n = m_iris.node_tree.nodes.new('ShaderNodeMix')
-                mix_n.data_type = 'RGBA'
-                mix_n.blend_type = 'MULTIPLY'
-                mix_n.inputs['Factor'].default_value = 0.85
-                mix_n.inputs['B'].default_value = (0.18, 0.26, 0.25, 1.0)
-                m_iris.node_tree.links.new(tex_n.outputs['Color'], mix_n.inputs['A'])
-                m_iris.node_tree.links.new(mix_n.outputs['Result'], em_n.inputs['Color'])
+                m_iris.node_tree.links.new(tex_n.outputs['Color'], em_n.inputs['Color'])
+                em_n.inputs['Strength'].default_value = 0.85
 
-        # Face skin with texture
+        # Crisp dark eyelashes and eyeliner
+        for mat_name in ["N00_000_00_FaceEyelash_00_FACE (Instance)", "N00_000_00_FaceEyeline_00_FACE (Instance)"]:
+            m_eye = bpy.data.materials.get(mat_name)
+            if m_eye and m_eye.node_tree:
+                bs = next((n for n in m_eye.node_tree.nodes if n.type == 'BSDF_PRINCIPLED'), None)
+                if bs:
+                    bs.inputs['Base Color'].default_value = (0.015, 0.015, 0.020, 1.0)
+                    bs.inputs['Roughness'].default_value = 0.30
+
+        # Soft cherry-tinted lips
+        m_mth = bpy.data.materials.get("N00_000_00_FaceMouth_00_FACE (Instance)")
+        if m_mth and m_mth.node_tree:
+            bs_m = next((n for n in m_mth.node_tree.nodes if n.type == 'BSDF_PRINCIPLED'), None)
+            if bs_m:
+                bs_m.inputs['Base Color'].default_value = (0.92, 0.42, 0.46, 1.0)
+                bs_m.inputs['Roughness'].default_value = 0.25
+
+        # Face skin: preserve all painted blush, lip shading, and contour details
         m_fskin = bpy.data.materials.get("N00_000_00_Face_00_SKIN (Instance)")
         if m_fskin and m_fskin.node_tree:
             tex_f = next((n for n in m_fskin.node_tree.nodes if n.type == 'TEX_IMAGE' and n.image), None)
@@ -232,37 +285,55 @@ def run_test():
             if tex_img_f:
                 tn_f = m_fskin.node_tree.nodes.new('ShaderNodeTexImage')
                 tn_f.image = tex_img_f
-                mix_fc = m_fskin.node_tree.nodes.new('ShaderNodeMix')
-                mix_fc.data_type = 'RGBA'
-                mix_fc.blend_type = 'MULTIPLY'
-                mix_fc.inputs['Factor'].default_value = 0.25
-                mix_fc.inputs['B'].default_value = (0.98, 0.90, 0.86, 1.0)
-                m_fskin.node_tree.links.new(tn_f.outputs['Color'], mix_fc.inputs['A'])
-                m_fskin.node_tree.links.new(mix_fc.outputs['Result'], bsdf_f.inputs['Base Color'])
+                m_fskin.node_tree.links.new(tn_f.outputs['Color'], bsdf_f.inputs['Base Color'])
             else:
                 bsdf_f.inputs['Base Color'].default_value = (0.958, 0.885, 0.850, 1.0)
-            bsdf_f.inputs['Roughness'].default_value = 0.36
+            bsdf_f.inputs['Roughness'].default_value = 0.32
             if 'Subsurface Method' in bsdf_f.inputs: bsdf_f.subsurface_method = 'RANDOM_WALK'
             if 'Subsurface Weight' in bsdf_f.inputs:
-                bsdf_f.inputs['Subsurface Weight'].default_value = 0.28
-                bsdf_f.inputs['Subsurface Radius'].default_value = (0.012, 0.005, 0.003)
-                bsdf_f.inputs['Subsurface Scale'].default_value = 0.035
+                bsdf_f.inputs['Subsurface Weight'].default_value = 0.14
+                bsdf_f.inputs['Subsurface Radius'].default_value = (0.010, 0.005, 0.003)
+                bsdf_f.inputs['Subsurface Scale'].default_value = 0.012
             m_fskin.node_tree.links.new(bsdf_f.outputs['BSDF'], out_f.inputs['Surface'])
 
-    # 4. FORM-FITTED DRESS BODICE WITH SMOOTH SCOOP NECKLINE & THIN SPAGHETTI STRAPS
-    bm_bod = bmesh.new()
-    n_sec = 40
+    # 4. UNIFIED ONE-PIECE SUNDRESS (VÁY LIỀN THÂN: CONTINUOUS STRAPS, BODICE, WAIST, AND PLEATED SKIRT)
+    bm_dress = bmesh.new()
+    n_pleats = 28
+    n_sec = n_pleats * 2 # 56 sections for perfectly smooth silhouette and aligned pleats
 
-    b_slices = [
-        (0.910, 0.093, 0.074, 0.070, -0.033), # Empire waistline
-        (0.950, 0.088, 0.072, 0.067, -0.037), # Lower ribcage
-        (0.995, 0.096, 0.082, 0.072, -0.034), # Underbust
-        (1.050, 0.103, 0.098, 0.080, -0.028), # Bust peak
-        (1.100, 0.099, 0.094, 0.078, -0.020), # Upper bust
-        (1.138, 0.092, 0.084, 0.074, -0.014), # Neckline rim
+    # Skirt slices (bottom hem to waist)
+    sk_slices = [
+        (0.500, 0.235, 0.265,  0.008), # 0: Hem below knees
+        (0.605, 0.190, 0.210,  0.000), # 1: Mid lower skirt
+        (0.710, 0.150, 0.165, -0.012), # 2: Mid upper skirt
+        (0.810, 0.108, 0.118, -0.024), # 3: Skirt flare start
+        (0.865, 0.082, 0.088, -0.030), # 4: Gathers under sash
     ]
 
-    rings = []
+    # Bodice slices (waist to neckline rim) with sculpted feminine curves
+    b_slices = [
+        (0.895, 0.078, 0.062, 0.058, -0.033), # 0: Empire waist seam (slender hourglass waist)
+        (0.940, 0.077, 0.062, 0.058, -0.035), # 1: Cinched lower ribcage
+        (0.980, 0.082, 0.068, 0.062, -0.033), # 2: Defined underbust fold
+        (1.045, 0.096, 0.098, 0.072, -0.025), # 3: Full feminine bust apex
+        (1.095, 0.094, 0.086, 0.070, -0.018), # 4: Upper bust slope
+        (1.138, 0.090, 0.078, 0.068, -0.012), # 5: Sweetheart scoop neckline rim
+    ]
+
+    all_rings = []
+
+    # 1. Build skirt rings (from hem upward)
+    for sz, r_in, r_out, yo in sk_slices:
+        rv = []
+        for s_i in range(n_sec):
+            th = 2.0 * math.pi * s_i / n_sec
+            r = r_out if (s_i % 2 == 1) else r_in
+            rx = r * 1.03
+            ry = r * 0.97
+            rv.append(bm_dress.verts.new((math.cos(th) * rx, math.sin(th) * ry + yo, sz)))
+        all_rings.append(rv)
+
+    # 2. Build bodice rings (from waist up to neckline)
     for r_i, (bz, rx, ry_f, ry_b, cy) in enumerate(b_slices):
         rv = []
         for s_i in range(n_sec):
@@ -271,102 +342,105 @@ def run_test():
             ry = ry_f if st < 0 else ry_b
 
             bust_cup = 0.0
-            if r_i in (2, 3, 4) and st < -0.2:
+            cleavage_valley = 0.0
+            if r_i in (2, 3, 4) and st < -0.12:
                 x_val = ct * rx
-                cup_l = math.exp(-((x_val - 0.046) / 0.025) ** 2)
-                cup_r = math.exp(-((x_val + 0.046) / 0.025) ** 2)
-                bust_cup = -0.016 * (cup_l + cup_r) * (-st)
+                dz = (bz - 1.040) / 0.052
+                cup_l = math.exp(-(((x_val - 0.045) / 0.032) ** 2 + dz ** 2))
+                cup_r = math.exp(-(((x_val + 0.045) / 0.032) ** 2 + dz ** 2))
+                # 4.2cm natural teardrop projection
+                bust_cup = -0.042 * (cup_l + cup_r) * (-st)
+                # Defined cleavage valley between breasts
+                if abs(x_val) < 0.022:
+                    cleavage_valley = 0.012 * (1.0 - (x_val / 0.022) ** 2) * (-st)
 
             z_dip = 0.0
-            if r_i == len(b_slices) - 1:
+            if r_i == len(b_slices) - 1: # Neckline rim
                 x_val = ct * rx
                 if st < 0:
-                    if abs(x_val) < 0.038:
-                        u_neck = max(0.0, 1.0 - (x_val / 0.038) ** 2)
+                    if abs(x_val) < 0.042:
+                        u_neck = max(0.0, 1.0 - (x_val / 0.042) ** 2)
                         z_dip = -0.026 * u_neck
                     elif abs(x_val) > 0.075:
                         u_arm = min(1.0, (abs(x_val) - 0.075) / (rx - 0.075 + 1e-5))
-                        z_dip = -0.024 * u_arm
+                        z_dip = -0.008 * u_arm
                 elif st > 0.25:
-                    z_dip = -0.014 * ((st - 0.25) / 0.75)
+                    z_dip = -0.016 * ((st - 0.25) / 0.75)
 
-            px = ct * rx
-            py = cy + st * ry + bust_cup
+            pleat_subtle = 0.0012 * (1.0 if s_i % 2 == 1 else -1.0) if r_i == 0 else 0.0
+
+            px = ct * (rx + pleat_subtle)
+            py = cy + st * (ry + pleat_subtle) + bust_cup + cleavage_valley
             pz = bz + z_dip
-            rv.append(bm_bod.verts.new((px, py, pz)))
-        rings.append(rv)
+            rv.append(bm_dress.verts.new((px, py, pz)))
+        all_rings.append(rv)
 
-    for r_i in range(len(b_slices) - 1):
+    # 3. Connect all consecutive rings into a single continuous watertight quad mesh
+    for r_i in range(len(all_rings) - 1):
         for s_i in range(n_sec):
             ni = (s_i + 1) % n_sec
-            bm_bod.faces.new([rings[r_i][s_i], rings[r_i][ni], rings[r_i + 1][ni], rings[r_i + 1][s_i]])
+            bm_dress.faces.new([all_rings[r_i][s_i], all_rings[r_i][ni], all_rings[r_i + 1][ni], all_rings[r_i + 1][s_i]])
 
-    # Thin delicate spaghetti straps (3.2mm wide) arching gently over bare shoulders
+    # 4. Thin delicate spaghetti straps (3.2mm wide) over bare shoulders
     w_half = 0.0016
-    # Strap profile points from front rim to back rim following shoulder surface
     strap_arch = [
-        (-0.074, 1.126),  # Front rim of bodice
-        (-0.048, 1.144),  # Over clavicle
-        (-0.020, 1.162),  # Front curve of shoulder
+        (-0.072, 1.130),  # Front rim of bodice
+        (-0.046, 1.146),  # Over clavicle
+        (-0.018, 1.162),  # Front curve of shoulder
         ( 0.008, 1.174),  # Peak of shoulder
         ( 0.035, 1.166),  # Rear slope of shoulder
         ( 0.055, 1.142),  # Descending towards back
         ( 0.068, 1.122),  # Back rim of bodice
     ]
 
-    for s0, s1 in [(26, 27), (33, 34)]:
-        vf0 = rings[-1][s0]; vf1 = rings[-1][s1]
+    for s0, s1 in [(37, 38), (46, 47)]:
+        vf0 = all_rings[-1][s0]; vf1 = all_rings[-1][s1]
         b0 = (n_sec - s0) % n_sec; b1 = (n_sec - s1) % n_sec
-        vb0 = rings[-1][b0]; vb1 = rings[-1][b1]
+        vb0 = all_rings[-1][b0]; vb1 = all_rings[-1][b1]
 
         mx = (vf0.co.x + vf1.co.x) * 0.5
-        
-        # Build multi-segment smooth strap arch
         strap_rings = []
         for py_arch, pz_arch in strap_arch:
-            v_l = bm_bod.verts.new((mx - w_half, py_arch, pz_arch))
-            v_r = bm_bod.verts.new((mx + w_half, py_arch, pz_arch))
+            v_l = bm_dress.verts.new((mx - w_half, py_arch, pz_arch))
+            v_r = bm_dress.verts.new((mx + w_half, py_arch, pz_arch))
             strap_rings.append((v_l, v_r))
 
-        # Connect front rim to first strap segment
-        bm_bod.faces.new([vf0, vf1, strap_rings[0][1], strap_rings[0][0]])
-        # Connect consecutive strap segments
+        bm_dress.faces.new([vf0, vf1, strap_rings[0][1], strap_rings[0][0]])
         for k in range(len(strap_rings) - 1):
-            bm_bod.faces.new([strap_rings[k][0], strap_rings[k][1], strap_rings[k + 1][1], strap_rings[k + 1][0]])
-        # Connect last strap segment to back rim
-        bm_bod.faces.new([strap_rings[-1][0], strap_rings[-1][1], vb1, vb0])
+            bm_dress.faces.new([strap_rings[k][0], strap_rings[k][1], strap_rings[k + 1][1], strap_rings[k + 1][0]])
+        bm_dress.faces.new([strap_rings[-1][0], strap_rings[-1][1], vb1, vb0])
 
-    for f in bm_bod.faces: f.smooth = True
-    bod_m = bpy.data.meshes.new("Beauty_Dress_Bodice_Mesh")
-    bm_bod.to_mesh(bod_m)
-    bm_bod.free()
-    bodice_obj = bpy.data.objects.new("Beauty_Dress_Bodice", bod_m)
-    bodice_obj.parent = arm
-    scene.collection.objects.link(bodice_obj)
-    bodice_obj.data.materials.append(mat_silk)
+    for f in bm_dress.faces: f.smooth = True
+    dress_m = bpy.data.meshes.new("Beauty_Dress_Mesh")
+    bm_dress.to_mesh(dress_m)
+    bm_dress.free()
+    dress_obj = bpy.data.objects.new("Beauty_Dress", dress_m)
+    dress_obj.parent = arm
+    scene.collection.objects.link(dress_obj)
+    dress_obj.data.materials.append(mat_silk)
 
-    dt_b = bodice_obj.modifiers.new("DataTransfer", 'DATA_TRANSFER')
-    dt_b.object = body
-    dt_b.use_vert_data = True
-    dt_b.data_types_verts = {'VGROUP_WEIGHTS'}
-    dt_b.vert_mapping = 'NEAREST'
-    bpy.context.view_layer.objects.active = bodice_obj
-    bpy.ops.object.datalayout_transfer(modifier=dt_b.name)
-    bpy.ops.object.modifier_apply(modifier=dt_b.name)
+    dt_d = dress_obj.modifiers.new("DataTransfer", 'DATA_TRANSFER')
+    dt_d.object = body
+    dt_d.use_vert_data = True
+    dt_d.data_types_verts = {'VGROUP_WEIGHTS'}
+    dt_d.vert_mapping = 'NEAREST'
+    bpy.context.view_layer.objects.active = dress_obj
+    bpy.ops.object.datalayout_transfer(modifier=dt_d.name)
+    bpy.ops.object.modifier_apply(modifier=dt_d.name)
 
-    arm_b = bodice_obj.modifiers.new("Armature", 'ARMATURE')
-    arm_b.object = arm
-    sol_b = bodice_obj.modifiers.new("Solidify", 'SOLIDIFY')
-    sol_b.thickness = 0.0016
-    sub_b = bodice_obj.modifiers.new("Subsurf", 'SUBSURF')
-    sub_b.levels = 1
+    arm_d = dress_obj.modifiers.new("Armature", 'ARMATURE')
+    arm_d.object = arm
+    sol_d = dress_obj.modifiers.new("Solidify", 'SOLIDIFY')
+    sol_d.thickness = 0.0016
+    sub_d = dress_obj.modifiers.new("Subsurf", 'SUBSURF')
+    sub_d.levels = 1
 
-    # 5. WAIST SASH (Vibrant Ice-blue Satin Ribbon with Front Knot & Cascading Tails)
+    # 5. WAIST SASH (Vibrant Ice-blue Satin Ribbon Conforming Snugly to Dress Waist)
     bm_sa = bmesh.new()
     sash_slices = [
-        (0.898, 0.096, 0.076, 0.072, -0.033),
-        (0.918, 0.095, 0.075, 0.071, -0.033),
-        (0.938, 0.091, 0.073, 0.069, -0.035),
+        (0.880, 0.086, 0.072, 0.068, -0.033),
+        (0.902, 0.084, 0.070, 0.066, -0.033),
+        (0.925, 0.083, 0.069, 0.065, -0.034),
     ]
     sa_rings = []
     for sz, rx, ry_f, ry_b, cy in sash_slices:
@@ -383,12 +457,11 @@ def run_test():
             ni = (s_i + 1) % n_sec
             bm_sa.faces.new([sa_rings[r_i][s_i], sa_rings[r_i][ni], sa_rings[r_i + 1][ni], sa_rings[r_i + 1][s_i]])
 
-    # Front ribbon bow knot and cascading tails resting in front of pleated skirt
-    # Center knot block
-    k_v0 = bm_sa.verts.new((-0.014, -0.118, 0.934))
-    k_v1 = bm_sa.verts.new(( 0.014, -0.118, 0.934))
-    k_v2 = bm_sa.verts.new(( 0.014, -0.118, 0.902))
-    k_v3 = bm_sa.verts.new((-0.014, -0.118, 0.902))
+    # Front ribbon bow knot and cascading tails
+    k_v0 = bm_sa.verts.new((-0.014, -0.106, 0.924))
+    k_v1 = bm_sa.verts.new(( 0.014, -0.106, 0.924))
+    k_v2 = bm_sa.verts.new(( 0.014, -0.106, 0.892))
+    k_v3 = bm_sa.verts.new((-0.014, -0.106, 0.892))
     bm_sa.faces.new([k_v0, k_v1, k_v2, k_v3])
 
     # Left and right cascading tails
@@ -396,10 +469,10 @@ def run_test():
     for side_sign, ang in [(-1.0, 0.08), (1.0, -0.08)]:
         st_x = side_sign * 0.008
         tail_profile = [
-            (st_x, -0.120, 0.912),                                # Knot anchor
-            (st_x + side_sign * 0.012, -0.165, 0.830),            # Upper skirt drape
-            (st_x + side_sign * 0.024, -0.198, 0.730),            # Mid skirt drape
-            (st_x + side_sign * 0.034, -0.232, 0.640),            # Fluttering tip
+            (st_x, -0.108, 0.902),                                # Knot anchor
+            (st_x + side_sign * 0.012, -0.145, 0.820),            # Upper skirt drape
+            (st_x + side_sign * 0.024, -0.180, 0.720),            # Mid skirt drape
+            (st_x + side_sign * 0.034, -0.215, 0.630),            # Fluttering tip
         ]
         t_rings = []
         for px, py, pz in tail_profile:
@@ -418,8 +491,8 @@ def run_test():
     scene.collection.objects.link(sash_obj)
     
     # Vibrant rich ice-blue satin shader
-    bs_sa.inputs['Base Color'].default_value = (0.28, 0.70, 0.94, 1.0)
-    bs_sa.inputs['Roughness'].default_value = 0.22
+    bs_sa.inputs['Base Color'].default_value = (0.28, 0.72, 0.96, 1.0)
+    bs_sa.inputs['Roughness'].default_value = 0.18
     if 'Sheen Weight' in bs_sa.inputs: bs_sa.inputs['Sheen Weight'].default_value = 1.0
     sash_obj.data.materials.append(mat_sash)
 
@@ -435,65 +508,9 @@ def run_test():
     arm_sa = sash_obj.modifiers.new("Armature", 'ARMATURE')
     arm_sa.object = arm
     sol_sa = sash_obj.modifiers.new("Solidify", 'SOLIDIFY')
-    sol_sa.thickness = 0.0016
+    sol_sa.thickness = 0.0012
     sub_sa = sash_obj.modifiers.new("Subsurf", 'SUBSURF')
     sub_sa.levels = 1
-
-    # 6. FLARED PLEATED SKIRT (28 Pleats down to knee)
-    bm_sk = bmesh.new()
-    n_pleats = 28
-    sk_pts = n_pleats * 2
-    sk_slices = [
-        (0.915, 0.095, 0.099, -0.033), # Starting under sash
-        (0.820, 0.127, 0.137, -0.024),
-        (0.710, 0.163, 0.178, -0.012),
-        (0.605, 0.203, 0.223, 0.000),
-        (0.500, 0.239, 0.269, 0.008),  # Hem below knees
-    ]
-    sk_rings = []
-    for sz, r_in, r_out, yo in sk_slices:
-        rv = []
-        for i_p in range(sk_pts):
-            th = 2.0 * math.pi * i_p / sk_pts
-            r = r_out if (i_p % 2 == 1) else r_in
-            rx = r * 1.03; ry = r * 0.97
-            rv.append(bm_sk.verts.new((math.cos(th) * rx, math.sin(th) * ry + yo, sz)))
-        sk_rings.append(rv)
-
-    for r_i in range(len(sk_slices) - 1):
-        for s_i in range(sk_pts):
-            ni = (s_i + 1) % sk_pts
-            bm_sk.faces.new([sk_rings[r_i][s_i], sk_rings[r_i][ni], sk_rings[r_i + 1][ni], sk_rings[r_i + 1][s_i]])
-
-    for f in bm_sk.faces: f.smooth = True
-    skirt_m = bpy.data.meshes.new("Beauty_Pleated_Skirt_Mesh")
-    bm_sk.to_mesh(skirt_m)
-    bm_sk.free()
-    skirt_obj = bpy.data.objects.new("Beauty_Pleated_Skirt", skirt_m)
-    skirt_obj.parent = arm
-    scene.collection.objects.link(skirt_obj)
-    
-    # White Silk Dress shader: soft warm white (88% diffuse reflectance)
-    bs_s.inputs['Base Color'].default_value = (0.89, 0.89, 0.90, 1.0)
-    bs_s.inputs['Roughness'].default_value = 0.38
-    if 'Sheen Weight' in bs_s.inputs: bs_s.inputs['Sheen Weight'].default_value = 0.80
-    skirt_obj.data.materials.append(mat_silk)
-
-    dt_sk = skirt_obj.modifiers.new("DataTransfer", 'DATA_TRANSFER')
-    dt_sk.object = body
-    dt_sk.use_vert_data = True
-    dt_sk.data_types_verts = {'VGROUP_WEIGHTS'}
-    dt_sk.vert_mapping = 'NEAREST'
-    bpy.context.view_layer.objects.active = skirt_obj
-    bpy.ops.object.datalayout_transfer(modifier=dt_sk.name)
-    bpy.ops.object.modifier_apply(modifier=dt_sk.name)
-
-    arm_sk = skirt_obj.modifiers.new("Armature", 'ARMATURE')
-    arm_sk.object = arm
-    sol_sk = skirt_obj.modifiers.new("Solidify", 'SOLIDIFY')
-    sol_sk.thickness = 0.0016
-    sub_sk = skirt_obj.modifiers.new("Subsurf", 'SUBSURF')
-    sub_sk.levels = 1
 
     # 7. FLAT WHITE STRAP SANDALS
     for side, sign in [("L", 1.0), ("R", -1.0)]:
@@ -865,9 +882,14 @@ def run_test():
         scene.collection.objects.link(lo)
         return lo
 
-    add_light("Key_Light", (1.4, -1.6, 1.9), (1.0, 0.96, 0.92), 140.0, 1.6)
-    add_light("Fill_Light", (-1.4, -1.4, 1.3), (0.88, 0.94, 1.0), 50.0, 1.8)
-    add_light("Rim_Light", (-0.6, 1.5, 1.9), (1.0, 0.96, 0.92), 140.0, 1.2)
+    add_light("Key_Light", (1.4, -1.6, 1.9), (1.0, 0.96, 0.92), 160.0, 1.5)
+    add_light("Fill_Light", (-1.4, -1.4, 1.3), (0.88, 0.94, 1.0), 45.0, 1.8)
+    add_light("Rim_Light", (-0.6, 1.5, 1.9), (1.0, 0.96, 0.92), 160.0, 1.2)
+
+    # Target for cameras to focus on chest / portrait center
+    target_cam = bpy.data.objects.new("Target_Cam", None)
+    target_cam.location = (0.0, -0.02, 1.08)
+    scene.collection.objects.link(target_cam)
 
     # Cameras: Perfectly framed
     # Portrait Camera: 58mm lens at (0, -2.05, 1.26) framing from head to waist sash & ribbons
@@ -877,6 +899,17 @@ def run_test():
     cam_p_obj.location = (0.0, -2.05, 1.26)
     cam_p_obj.rotation_euler = (math.radians(90.0), 0.0, 0.0)
     scene.collection.objects.link(cam_p_obj)
+
+    # 3/4 Beauty Camera: 62mm lens at (0.95, -1.85, 1.20) tracking bust and silhouette
+    cam_tq = bpy.data.cameras.new("Cam_ThreeQuarter")
+    cam_tq.lens = 62.0
+    cam_tq_obj = bpy.data.objects.new("Cam_ThreeQuarter", cam_tq)
+    cam_tq_obj.location = (0.95, -1.85, 1.20)
+    tt_tq = cam_tq_obj.constraints.new('TRACK_TO')
+    tt_tq.target = target_cam
+    tt_tq.track_axis = 'TRACK_NEGATIVE_Z'
+    tt_tq.up_axis = 'UP_Y'
+    scene.collection.objects.link(cam_tq_obj)
 
     # FullBody Camera: 50mm lens at (0, -4.2, 0.82) framing entire character head-to-toe
     cam_fb = bpy.data.cameras.new("Cam_FullBody")
@@ -891,27 +924,40 @@ def run_test():
     scene.view_settings.view_transform = 'AgX'
     scene.cycles.use_denoising = True
 
+    # Redirect test prototype renders and exports to scratch directory (never overwrite master production files)
+    test_out_dir = r"E:\tool\mcp\MorphoMesh\output\beauty_test"
+    os.makedirs(test_out_dir, exist_ok=True)
+
     # Render Portrait
     scene.camera = cam_p_obj
     scene.render.resolution_x = 720
     scene.render.resolution_y = 960
-    out_p = r"E:\tool\mcp\MorphoMesh\output\yu_nian_an\test_prototype_portrait.png"
+    out_p = os.path.join(test_out_dir, "test_prototype_portrait.png")
     scene.render.filepath = out_p
     bpy.ops.render.render(write_still=True)
     print(f"Rendered test prototype portrait: {out_p}")
+
+    # Render 3/4 Beauty Angle (clearly showing bust profile, cleavage, and waist silhouette)
+    scene.camera = cam_tq_obj
+    scene.render.resolution_x = 720
+    scene.render.resolution_y = 960
+    out_tq = os.path.join(test_out_dir, "test_prototype_threequarter.png")
+    scene.render.filepath = out_tq
+    bpy.ops.render.render(write_still=True)
+    print(f"Rendered test prototype 3/4: {out_tq}")
 
     # Render FullBody
     scene.camera = cam_fb_obj
     scene.render.resolution_x = 720
     scene.render.resolution_y = 1280
-    out_fb = r"E:\tool\mcp\MorphoMesh\output\yu_nian_an\test_prototype_fullbody.png"
+    out_fb = os.path.join(test_out_dir, "test_prototype_fullbody.png")
     scene.render.filepath = out_fb
     bpy.ops.render.render(write_still=True)
     print(f"Rendered test prototype fullbody: {out_fb}")
 
-    # Save clean master and beauty scenes
-    beauty_blend = r"E:\tool\mcp\MorphoMesh\output\yu_nian_an\Yu_Nian_An_Beauty.blend"
-    master_blend = r"E:\tool\mcp\MorphoMesh\output\yu_nian_an\Yu_Nian_An_Master.blend"
+    # Save experimental prototype scenes in test_out_dir
+    beauty_blend = os.path.join(test_out_dir, "test_prototype_beauty.blend")
+    master_blend = os.path.join(test_out_dir, "test_prototype_master.blend")
 
     for screen in bpy.data.screens:
         for area in screen.areas:
@@ -922,19 +968,20 @@ def run_test():
                         space.overlay.show_bones = False
 
     bpy.ops.wm.save_as_mainfile(filepath=beauty_blend)
-    print(f"Saved: {beauty_blend}")
+    print(f"Saved prototype beauty: {beauty_blend}")
     bpy.ops.wm.save_as_mainfile(filepath=master_blend)
-    print(f"Saved: {master_blend}")
+    print(f"Saved prototype master: {master_blend}")
 
-    # Export production GLB and FBX
-    out_glb = r"E:\tool\mcp\MorphoMesh\output\yu_nian_an\Yu_Nian_An.glb"
+    # Export prototype GLB and FBX to scratch dir
+    out_glb = os.path.join(test_out_dir, "test_prototype.glb")
     bpy.ops.export_scene.gltf(filepath=out_glb, export_format='GLB')
-    print(f"Exported GLB: {out_glb}")
+    print(f"Exported prototype GLB: {out_glb}")
 
-    out_fbx = r"E:\tool\mcp\MorphoMesh\output\yu_nian_an\Yu_Nian_An.fbx"
+    out_fbx = os.path.join(test_out_dir, "test_prototype.fbx")
     bpy.ops.export_scene.fbx(filepath=out_fbx)
-    print(f"Exported FBX: {out_fbx}")
+    print(f"Exported prototype FBX: {out_fbx}")
 
 if __name__ == "__main__":
     run_test()
+
 

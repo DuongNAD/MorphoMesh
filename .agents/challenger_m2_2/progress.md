@@ -1,25 +1,18 @@
-# Progress — Challenger M2_2
+# Progress Tracker - Challenger M2.2
 
-Last visited: 2026-09-07T04:55:00Z
+- Last visited: 2026-09-07T15:15:00Z
+- Status: Task Complete — Verdict: REQUEST_CHANGES
 
-## Status: COMPLETED (Hard Handoff — Verdict: REJECT)
-
-### Completed Tasks:
-- [x] 1. Read authoritative request (`ORIGINAL_REQUEST.md`), scope (`PROJECT.md`), and Worker M2 handoff (`.agents/worker_m2/handoff.md`).
-- [x] 2. Investigate codebase implementation for Milestone 2 (`camera_rig.py`, `blender_bridge.py`, `listener.py`, `models.py`).
-- [x] 3. Discovered 5 critical bugs & vulnerabilities:
-  - Bug 1: Live Blender session on port 9876 returns `Unknown RPC method` for `setup_inspector_camera` and `capture_viewport` because the running session was never updated with modified addon code.
-  - Bug 2: Bridge fallback to `execute_code` fails with `Blender Socket Error: Forbidden import: sys` because `_generate_headless_script` in `blender_bridge.py` injects `import sys` which violates in-Blender security validation.
-  - Bug 3: `listener.py` calculates `repo_src` relative to `__file__`, resolving to `scripts/src` (nonexistent) when installed in Blender's standard AppData addons directory.
-  - Bug 4: `morphomesh/__init__.py` unconditionally imports `models.py` which requires `pydantic`. Blender bundled Python lacks `pydantic`, causing any package-level import `from morphomesh.camera_rig import ...` in Blender to raise `ModuleNotFoundError: No module named 'pydantic'`. In `capture_multi_angle_inspection`, this unhandled exception crashes the RPC call.
-  - Bug 5: `camera_rig.py` fallback PNG writer in lines 703-704 and 838-839 writes a truncated 29-byte file that is unidentifiable and fails PIL verification.
-- [x] 4. Created comprehensive adversarial test harness in `tests/test_adversarial_viewport_capture.py` (42 test cases across 4 test suites):
-  - Suite 1: Multi-Angle Batch Fuzzing (empty list, invalid viewpoints, duplicate viewpoints, 16-angle sweep, resolution fuzzing, type fuzzing).
-  - Suite 2: Diagnostic Shading Fuzzing (3x3 shading x color combinations, invalid fallbacks, non-string type vulnerabilities, execution benchmarking).
-  - Suite 3: Fault Injection & Recovery (missing scene, missing camera, deleted target mesh, corrupted fallback PNG audit, file descriptor leak audit, camera reuse).
-  - Suite 4: Live Socket Verification & Architectural Audit (live socket probing, RPC method responses, addon path resolution audit, pydantic dependency block audit).
-- [x] 5. Executed adversarial test suite: 42 passed in 0.64s. Combined M2 suites: 103 passed in 0.86s.
-- [x] 6. Evaluated full regression suite across repository (1088 passed, 4 failed).
-- [x] 7. Updated BRIEFING.md with findings, attack surface, and key decisions.
-- [x] 8. Wrote comprehensive handoff report (`handoff.md`) with empirical REJECT verdict.
-- [x] 9. Sent coordination message to parent orchestrator via `send_message`.
+## Steps
+1. [x] Initialize BRIEFING, DISPATCH, and progress tracking
+2. [x] Read authoritative specification files (ORIGINAL_REQUEST.md, PROJECT.md, worker_m2/handoff.md, worker_m2/changes.md)
+3. [x] Inspect `src/morphomesh/wardrobe.py` and existing test suites
+4. [x] Run master test suite (`pytest tests/test_wardrobe.py tests/test_wardrobe_m2.py -v`) -> 30/30 PASSED
+5. [x] Design and implement comprehensive empirical stress tests in `tests/test_challenger_m2_sash.py` (15 test cases)
+6. [x] Execute empirical stress test harness and analyze results:
+   - 81 parameter sweeps verified for bodice-sash clearance
+   - 4 empirical defects uncovered (inverted skirt normals, non-manifold barrel knot caps, posterior sash penetration, streamer tip dead code)
+   - Rigify DEF skinning 100% verified (352 bodice, 784 skirt, 350 sash vertices normalized, 0 orphans, 0 negative)
+   - Bow loops 100% verified (closed 2-manifold, volume > 10 cm^3)
+7. [x] Compile `analysis.md` and `handoff.md` with explicit verdict `REQUEST_CHANGES`
+8. [ ] Send completion message to parent

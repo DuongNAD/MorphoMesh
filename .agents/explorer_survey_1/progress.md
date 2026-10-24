@@ -1,18 +1,17 @@
-# Progress — Codebase & Architecture Explorer (Explorer 1)
+# Progress — Explorer Survey 1
 
-Last visited: 2026-09-07T03:42:30Z
+Last visited: 2026-09-10T11:19:30Z
 
-## Current Milestone
-Architectural Survey for Auto-Inspector Camera Rig (R1), Visual Quality Critique (R2), Socket Bridge Parity (R3), and Automated Verification Suite (R4).
+## Status: COMPLETED
+Survey completed. Comprehensive handoff report and catalog dump generated.
 
-## Status
-- [x] Initialized DISPATCH.md and updated BRIEFING.md for 2026-09-07 survey
-- [x] Survey repository structure: pyproject.toml, package dependencies, existing tests, src/morphomesh/, blender_addon/
-- [x] Inspect server tool definitions: src/morphomesh/server.py (14 MCP tools, schemas, filtering mechanism)
-- [x] Inspect bridge client: src/morphomesh/blender_bridge.py (dual-mode IPC, AST validation, headless generation, auto-camera limitations)
-- [x] Inspect blender addon: blender_addon/morphomesh/ (listener.py, operators, parity gaps in _dispatch)
-- [x] Investigate camera rig, viewport capture (OpenGL in socket mode vs Workbench in headless mode), and scene inspection methods
-- [x] Map integration points, file boundaries, and dependencies for R1-R4
-- [x] Document findings in comprehensive handoff report (handoff.md)
-- [x] Transmit final report to parent orchestrator via send_message
-
+## Completed Tasks
+- [x] Read ORIGINAL_REQUEST.md (## 2026-09-10T11:11:31Z) and DISPATCH.md.
+- [x] Initialized BRIEFING.md and progress.md.
+- [x] Survey 1: Check .env files in root and vegetation_library for MESHY_API_KEY. (Verified valid active key msy_3EH0wmTqFmJQm3RJcpbXxc26b96yVcXK37x6).
+- [x] Survey 2: Inspect Meshy AI client and generation scripts in vegetation_library. (Meshy v2 OpenAPI, preview+refine, quad topology, backoff).
+- [x] Survey 3: Locate dummy/procedural fallback meshes and mechanisms. (Identified ProceduralBotanicalGenerator with 7 category builders; 100% collision in output).
+- [x] Survey 4: Enumerate botanical catalog definitions, species, categories, prompts. (All 35 species across 7 biomes extracted).
+- [x] Survey 5: Gap analysis against user requirements. (Validator cap at 45k vs 30k-60k poly requirement, normalization of raw GLBs, subprocess encoding).
+- [x] Produced comprehensive 5-component handoff report at `E:\tool\mcp\MorphoMesh\.agents\explorer_survey_1\handoff.md`.
+- [x] Reported findings to parent orchestrator.

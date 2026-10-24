@@ -1,59 +1,47 @@
-# BRIEFING — 2026-09-07T05:43:00Z
+# BRIEFING — 2026-09-07T15:52:00Z
 
 ## Mission
-Detail the exact implementation blueprint for body proportion analysis and skinning deformation critique in `src/morphomesh/visual_critic.py` (Milestone 3).
+Investigate signature accessories in wardrobe.py and character_assembler.py, and design procedural generators for the 10 crimson magic strings and 10 glowing white butterflies for Yu Nian An (Milestone M3).
 
 ## 🔒 My Identity
-- Archetype: explorer
-- Roles: Proportions & Rig Skinning Deformation Explorer
-- Working directory: e:\tool\mcp\MorphoMesh\.agents\explorer_m3_2
-- Original parent: 577aaa33-6b3f-4ebc-93eb-fcc632d94bc9
-- Milestone: Milestone 3 (M3)
+- Archetype: Explorer
+- Roles: Signature Props Specialist — Crimson Strings & Glowing Butterflies Investigator
+- Working directory: E:\tool\mcp\MorphoMesh\.agents\explorer_m3_2
+- Original parent: c2422918-70a3-47d9-a8f9-883422a33af0
+- Milestone: M3 (Milestone M3: Character Assembler & Signature Props)
 
 ## 🔒 Key Constraints
-- Read-only investigation — do NOT implement or modify source code files
-- Anthropometric Body Proportion Analysis: Total height, head height, arm span, shoulder breadth, hip breadth; Head ratio (7.0-8.0, 6.0-6.5, 3.5-5.0); Arm span to height (~1.00 +/- 0.05); Shoulder-to-hip ratio.
-- Rig Skinning Deformation & Volume Conservation: Joint volume conservation rho_V = V_posed / V_rest; Pinching (<0.80) / bulging (>1.25); Dihedral creasing cos(theta) < -0.85 (fold angle < 30°).
-- Pure-Python Mathematical Algorithms: clean algorithms for bounding-slice volume estimation, dihedral angles, anthropometric ratios runnable offline.
-- Update progress.md as heartbeat.
-- Write self-contained handoff.md with 5 components.
-- Send message to parent orchestrator upon completion.
+- Read-only investigation — do NOT implement / do NOT edit source code files
+- Design 10 Crimson Magic Strings bound to 10 distal finger DEF bones with catenary/Bezier 3D curves, tension drape, Mat_Red_Thread
+- Design 10 Glowing White Butterflies in upward vortex spiral with quad mesh, dihedral flutter, Mat_Butterfly_Glow
+- Formulate precise code-level function signatures and drop-in Python code for Worker M3
 
 ## Current Parent
-- Conversation ID: 577aaa33-6b3f-4ebc-93eb-fcc632d94bc9
-- Updated: 2026-09-07T05:43:00Z
+- Conversation ID: c2422918-70a3-47d9-a8f9-883422a33af0
+- Updated: 2026-09-07T15:52:00Z
 
 ## Investigation State
 - **Explored paths**:
-  * `ORIGINAL_REQUEST.md` (§ 2026-09-07T03:34:32Z)
-  * `PROJECT.md` (Milestone 3 scope & interface contracts)
-  * `src/morphomesh/human_generator.py` (landmarks, vertex groups, cross-sectional slices)
-  * `src/morphomesh/human_rigging.py` (163 DEF bones, anti-pinch weights, pre-bends)
-  * `tests/test_human_rigging.py` & `tests/test_adversarial_rigging.py` (LBS deformation physics)
-  * Peer explorer scopes in `.agents/explorer_m3_1` and `.agents/explorer_m3_3`
+  - `ORIGINAL_REQUEST.md`, `PROJECT.md`
+  - `src/morphomesh/human_rigging.py`, `src/morphomesh/wardrobe.py`, `src/morphomesh/character_assembler.py`, `src/morphomesh/human_materials.py`
+  - `tests/test_wardrobe.py`, `tests/test_wardrobe_m2.py`, `tests/test_adversarial_character_assembler.py`, `tests/test_character_assembler.py`, `tests/test_challenger_m4_deep_audit.py`, `tests/test_challenger_m4_iter7_empirical.py`, `tests/test_adversarial_human_m3.py`
 - **Key findings**:
-  * Complete mathematical formulation for Anthropometric Body Proportion Analysis:
-    - 3-tier resolution strategy (Landmarks -> Vertex Groups -> Morphological Slicing).
-    - Presets: `realistic_human` (7.0-8.0), `stylized_heroine` (6.0-6.5), `chibi_petite` (3.5-5.0).
-    - Arm span ratio ($1.00 \pm 0.05$) with pose-invariant bone chain summation.
-    - Shoulder-to-hip sexual dimorphism ($0.90-1.05$ feminine, $1.20-1.45$ masculine).
-  * Complete mathematical formulation for Rig Skinning Deformation Critique:
-    - Volume conservation ratio $\rho_V = V_{\text{posed}} / V_{\text{rest}}$ detecting candy-wrapper collapse ($\rho_V < 0.80$) and abnormal bulging ($\rho_V > 1.25$) on active bending joints (elbows, knees, shoulders).
-    - Acute dihedral angle creasing detection ($\cos(\theta) < -0.85 \iff \text{fold} < 30^\circ$) across adjacent face normals on manifold edges.
-  * Pure-Python offline algorithms:
-    - `compute_bounding_slice_volume` (planar slice Shoelace area + trapezoidal integration).
-    - `compute_mesh_signed_volume` (divergence theorem on closed meshes).
-    - `compute_mesh_dihedral_creases` (edge-face adjacency normal dot products).
-    - `evaluate_body_proportions_geometry` and `evaluate_rig_skinning_deformation`.
-- **Unexplored areas**: None; exploration complete.
+  - 10 distal finger phalanx DEF bones mapped (`DEF-thumb.03.L/R`, `DEF-f_index.03.L/R`, etc.) with bidirectional alias resolver.
+  - Hard invariant `verts_per_cord = 14` (6 quad segments * 2 vertices = 14 vertices per cord, 140 vertices total across 10 cords) strictly tested by assembler tests.
+  - Formulated 0.8mm catenary Bezier curve generator with dynamic binormal cross-section orientation and 0.0mm bone tail snapping error.
+  - Formulated bilateral upward vortex spiral flocking distribution (min pairwise distance 153.3mm >= 50mm, Z in [0.88m, 1.32m] > 0.80m, zero torso penetration).
+  - Formulated procedural 24-quad 3D butterfly with segmented body, dual antennae, forewings, hindwings (swallowtail tails), zero degenerate faces, and dihedral flutter angles in [-14.7 deg, +54.6 deg].
+  - Formulated dual material palette compatibility (`Mat_Red_Thread` & `Mat_Butterfly_Glow` with aliases).
+- **Unexplored areas**: None for M3.2 scope.
 
 ## Key Decisions Made
-- All algorithms designed for 100% offline pure-Python execution with zero external C-dependencies.
-- Preserved exact compatibility with `PROJECT.md` interface contracts and Explorer M3_3 Pydantic feedback schema.
-- Self-contained 5-component handoff report written to `e:\tool\mcp\MorphoMesh\.agents\explorer_m3_2\handoff.md`.
+- Maintained exact 6-segment chord topology (`verts_per_cord = 14`) to prevent regression on existing unit & adversarial tests.
+- Adopted bilateral vortex spiral flocking so cords radiating from left and right hands never intersect each other or pierce Yu Nian An's body.
+- Established material alias bridge supporting both `Mat_Red_Thread` and `Mat_Marionette_RedString`, and `Mat_Butterfly_Glow` and `Mat_Magic_Butterfly`.
 
 ## Artifact Index
-- e:\tool\mcp\MorphoMesh\.agents\explorer_m3_2\DISPATCH.md — Initial dispatch log
-- e:\tool\mcp\MorphoMesh\.agents\explorer_m3_2\BRIEFING.md — Persistent working memory
-- e:\tool\mcp\MorphoMesh\.agents\explorer_m3_2\progress.md — Liveness heartbeat
-- e:\tool\mcp\MorphoMesh\.agents\explorer_m3_2\handoff.md — 5-component handoff report
+- DISPATCH.md — Dispatch log
+- BRIEFING.md — Persistent working memory
+- progress.md — Liveness heartbeat
+- analysis.md — Full investigation report and drop-in code
+- handoff.md — 5-component handoff report

@@ -1,0 +1,16 @@
+# MorphoMesh Botanical Material Library
+# Species: veg_vine_bougainvillea_01
+
+newmtl M_veg_vine_bougainvillea_01
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.200000 0.200000 0.200000
+Ns 128.000000
+d 1.000000
+illum 2
+
+map_Kd textures/albedo.png
+map_Bump -bm 1.0 textures/normal.png
+norm textures/normal.png
+map_Pr textures/roughness.png
+map_Pm textures/metallic.png

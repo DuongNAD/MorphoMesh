@@ -1,0 +1,296 @@
+--- a/src/morphomesh/human_generator.py
++++ b/src/morphomesh/human_generator.py
+@@ -580,6 +580,164 @@
+     return vgroups
+ 
+ 
++# ==============================================================================
++# ANTHROPOMETRIC PROPORTION PRESETS & CONFIGURATION RESOLUTION
++# ==============================================================================
++
++PROPORTION_PRESETS: Dict[str, Dict[str, Any]] = {
++    "stylized_heroine": {
++        "height": 1.65,
++        "head_ratio": 7.41,
++        "chest_girth": 0.82,
++        "waist_girth": 0.58,
++        "hip_girth": 0.86,
++        "shoulder_width": 0.36,
++        "arm_span": 1.62,
++        "leg_length": 0.88,
++        "gender": "female",
++        "style": "stylized_photorealism",
++    },
++    "realistic_female": {
++        "height": 1.68,
++        "head_ratio": 7.50,
++        "chest_girth": 0.88,
++        "waist_girth": 0.66,
++        "hip_girth": 0.94,
++        "shoulder_width": 0.38,
++        "arm_span": 1.65,
++        "leg_length": 0.88,
++        "gender": "female",
++        "style": "realistic",
++    },
++    "realistic_human": {
++        "height": 1.70,
++        "head_ratio": 7.50,
++        "chest_girth": 0.88,
++        "waist_girth": 0.68,
++        "hip_girth": 0.94,
++        "shoulder_width": 0.38,
++        "arm_span": 1.68,
++        "leg_length": 0.90,
++        "gender": "female",
++        "style": "realistic",
++    },
++    "petite": {
++        "height": 1.40,
++        "head_ratio": 6.50,
++        "chest_girth": 0.76,
++        "waist_girth": 0.54,
++        "hip_girth": 0.80,
++        "shoulder_width": 0.32,
++        "arm_span": 1.38,
++        "leg_length": 0.75,
++        "gender": "female",
++        "style": "stylized_photorealism",
++    },
++    "chibi_petite": {
++        "height": 1.30,
++        "head_ratio": 5.00,
++        "chest_girth": 0.72,
++        "waist_girth": 0.52,
++        "hip_girth": 0.76,
++        "shoulder_width": 0.28,
++        "arm_span": 1.25,
++        "leg_length": 0.68,
++        "gender": "female",
++        "style": "stylized_photorealism",
++    },
++    "heroic_male": {
++        "height": 1.85,
++        "head_ratio": 8.00,
++        "chest_girth": 1.02,
++        "waist_girth": 0.80,
++        "hip_girth": 0.96,
++        "shoulder_width": 0.44,
++        "arm_span": 1.85,
++        "leg_length": 0.98,
++        "gender": "male",
++        "style": "realistic",
++    },
++}
++
++PRESET_ALIASES: Dict[str, str] = {
++    "heroine": "stylized_heroine",
++    "yu_nian_an": "stylized_heroine",
++    "default": "stylized_heroine",
++    "semi_realistic": "stylized_heroine",
++    "realistic": "realistic_female",
++    "realistic_woman": "realistic_female",
++    "female_realistic": "realistic_female",
++    "chibi": "chibi_petite",
++    "asian_petite": "petite",
++    "slender_petite": "petite",
++    "male": "heroic_male",
++    "realistic_male": "heroic_male",
++}
++
++
++def resolve_human_anatomy_config(
++    config: Optional[Union[HumanAnatomyConfig, float, int]] = None,
++    height: Optional[Union[float, HumanAnatomyConfig]] = None,
++    gender: Optional[Union[str, HumanAnatomyConfig]] = None,
++    proportion_preset: Optional[str] = None,
++    **kwargs: Any,
++) -> HumanAnatomyConfig:
++    """
++    Robustly resolves HumanAnatomyConfig from combinations of preset names,
++    explicit parameters, existing config objects, and keyword overrides.
++    Guarantees 100% backward compatibility for positional and keyword callers.
++    """
++    # Defensive handling of shifted positional arguments (e.g. (1.70, config_obj))
++    if isinstance(config, (int, float)):
++        actual_height = float(config)
++        actual_config = height if isinstance(height, HumanAnatomyConfig) else None
++        config = actual_config
++        height = actual_height
++
++    if isinstance(height, HumanAnatomyConfig):
++        if config is None:
++            config = height
++        height = config.height
++
++    if isinstance(gender, HumanAnatomyConfig):
++        if config is None:
++            config = gender
++        gender = config.gender
++
++    # Extract preset from kwargs if passed under alternative keys
++    if proportion_preset is None:
++        if "proportion_preset" in kwargs:
++            proportion_preset = kwargs.pop("proportion_preset")
++        elif "preset" in kwargs:
++            proportion_preset = kwargs.pop("preset")
++
++    # Canonicalize preset name
++    raw_preset = (proportion_preset or "stylized_heroine").strip().lower().replace("-", "_")
++    canonical_preset = PRESET_ALIASES.get(raw_preset, raw_preset)
++    base_params = dict(PROPORTION_PRESETS.get(canonical_preset, PROPORTION_PRESETS["stylized_heroine"]))
++
++    # Layer existing config object if provided
++    if config is not None and isinstance(config, HumanAnatomyConfig):
++        cfg_dict = config.model_dump() if hasattr(config, "model_dump") else dict(config)
++        base_params.update({k: v for k, v in cfg_dict.items() if v is not None})
++
++    # Apply explicit height if provided
++    if height is not None and isinstance(height, (int, float)):
++        base_params["height"] = float(height)
++
++    # Apply explicit gender if provided
++    if gender is not None and isinstance(gender, str):
++        base_params["gender"] = gender
++
++    # Apply any remaining kwargs that match HumanAnatomyConfig fields
++    valid_fields = set(HumanAnatomyConfig.model_fields.keys())
++    for k, v in list(kwargs.items()):
++        if k in valid_fields and v is not None:
++            base_params[k] = v
++
++    return HumanAnatomyConfig(**base_params)
++
++
+ class HumanAnatomyGenerator:
+     """
+     Parametric anatomical female human base mold synthesizer.
+@@ -587,10 +745,48 @@
+     Rigify metarig standards with zero shoulder spiky pauldrons and zero axilla gaps.
+     """
+ 
+-    def __init__(self, config: Optional[HumanAnatomyConfig] = None):
+-        self.cfg = config or HumanAnatomyConfig()
++    def __init__(
++        self,
++        config: Optional[HumanAnatomyConfig] = None,
++        height: Optional[float] = None,
++        gender: Optional[str] = None,
++        proportion_preset: Optional[str] = None,
++        **kwargs: Any,
++    ):
++        self.cfg = resolve_human_anatomy_config(
++            config=config,
++            height=height,
++            gender=gender,
++            proportion_preset=proportion_preset,
++            **kwargs,
++        )
+         self.height = self.cfg.height
+         self.scale = self.height / 1.65
++
++    @classmethod
++    def generate_human_body(
++        cls,
++        height: float = 1.65,
++        gender: str = "female",
++        proportion_preset: str = "stylized_heroine",
++        config: Optional[HumanAnatomyConfig] = None,
++        character_name: str = "Yu_Nian_An",
++        **kwargs: Any,
++    ) -> Tuple[MeshGeometry, Dict[str, Tuple[float, float, float]]]:
++        """
++        Synthesizes digital human mesh and landmarks matching PROJECT.md interface contract.
++        Callable as HumanAnatomyGenerator.generate_human_body(...) or on an instance.
++        """
++        cfg = resolve_human_anatomy_config(
++            config=config,
++            height=height,
++            gender=gender,
++            proportion_preset=proportion_preset,
++            **kwargs,
++        )
++        engine = cls(config=cfg)
++        res = engine.generate(character_name=character_name)
++        return res.mesh, res.landmarks
+ 
+     def generate(
+         self,
+@@ -893,26 +1089,44 @@
+ def generate_human_base_mesh(
+     config: Optional[HumanAnatomyConfig] = None,
+     character_name: str = "Yu_Nian_An",
++    height: Optional[float] = None,
++    gender: Optional[str] = None,
++    proportion_preset: Optional[str] = None,
++    **kwargs: Any,
+ ) -> HumanMeshResult:
+     """Entrypoint synthesizing digital human female base mesh."""
+-    engine = HumanAnatomyGenerator(config=config)
++    cfg = resolve_human_anatomy_config(
++        config=config,
++        height=height,
++        gender=gender,
++        proportion_preset=proportion_preset,
++        **kwargs,
++    )
++    engine = HumanAnatomyGenerator(config=cfg)
+     return engine.generate(character_name=character_name)
+ 
+ 
+ def generate_human_body(
+     height: float = 1.65,
++    gender: str = "female",
++    proportion_preset: str = "stylized_heroine",
+     config: Optional[HumanAnatomyConfig] = None,
+     character_name: str = "Yu_Nian_An",
++    **kwargs: Any,
+ ) -> Tuple[MeshGeometry, Dict[str, Tuple[float, float, float]]]:
+     """
+     Convenience function synthesizing digital human mesh and returning (mesh, landmarks).
+-    Provides 100% backward compatibility for anatomical test harnesses.
+-    """
+-    cfg = config or HumanAnatomyConfig(height=height)
+-    if height != 1.65 and config is None:
+-        cfg.height = height
+-    res = generate_human_base_mesh(config=cfg, character_name=character_name)
+-    return res.mesh, res.landmarks
++    Provides 100% backward compatibility for anatomical test harnesses and complies with
++    PROJECT.md line 69 interface contract.
++    """
++    return HumanAnatomyGenerator.generate_human_body(
++        height=height,
++        gender=gender,
++        proportion_preset=proportion_preset,
++        config=config,
++        character_name=character_name,
++        **kwargs,
++    )
+ 
+ 
+ # ==============================================================================
+@@ -922,13 +1136,23 @@
+ def get_human_generation_script(
+     mesh_obj_name: str = "Human_Base_Mesh",
+     config: Optional[HumanAnatomyConfig] = None,
++    height: Optional[float] = None,
++    gender: Optional[str] = None,
++    proportion_preset: Optional[str] = None,
++    **kwargs: Any,
+ ) -> str:
+     """
+     Generates an authoritative Python script for Blender 4.5+ LTS to synthesize
+     the complete digital human mesh, assign 24 standardized vertex groups,
+     configure 52 ARKit FACS shape keys, and attach anatomical landmark coordinates.
+     """
+-    cfg = config or HumanAnatomyConfig()
++    cfg = resolve_human_anatomy_config(
++        config=config,
++        height=height,
++        gender=gender,
++        proportion_preset=proportion_preset,
++        **kwargs,
++    )
+     height = cfg.height
+     head_ratio = cfg.head_ratio
+     chest_girth = cfg.chest_girth

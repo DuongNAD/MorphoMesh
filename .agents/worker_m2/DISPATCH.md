@@ -1,71 +1,58 @@
-## 2026-09-05T16:26:56Z
+# Dispatch for Worker M2 — Meshy Cloud Batch Generation & Divergence
 
-# Dispatch Assignment: Worker M2 (Volumetric Fur & Grooming Engine)
+## Identity
+- Role: Meshy Cloud Batch Generation Engineer
+- Working Directory: E:\tool\mcp\MorphoMesh\.agents\worker_m2
+- Parent Conversation ID: c89d3e85-2d1c-4b25-9e5b-bb4953ad2fc4
 
-**Identity**: teamwork_preview_worker
-**Assigned Task**: Milestone M2 Implementation — Volumetric Fur & Hair Grooming Engine & Pipeline
-**Working Directory**: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/worker_m2`
-**Authoritative Request**: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/ORIGINAL_REQUEST.md` (read sections `## 2026-09-05T15:44:52Z` and `## 2026-09-05T15:47:35Z`)
-**Project Plan**: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/orchestrator_bear_1/PROJECT.md`
-**Technical References**:
-- Explorer 3 Survey Report: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_survey_3/survey_report.md` (Section 2: Volumetric Fur Architecture & Blender 5.2.1 Hair APIs)
-- Milestone M1 Handoff: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/worker_m1_2/handoff.md`
+## Mission & Instructions
+You are assigned Milestone 2: Meshy Cloud Batch Generation & Divergence for the Vegetation Library Rebuild.
 
-## Mandatory Integrity Warning
+### Authoritative Files
+- Original Request: `E:\tool\mcp\MorphoMesh\.agents\ORIGINAL_REQUEST.md` (under `## 2026-09-10T11:11:31Z`)
+- Project Scope: `E:\tool\mcp\MorphoMesh\.agents\orchestrator_vegetation_rebuild_1\PROJECT.md`
+- Working Directory of subproject: `E:\tool\mcp\MorphoMesh\teamwork_projects\vegetation_library`
+
+### Mandatory Integrity Warning
 DO NOT CHEAT. All implementations must be genuine. DO NOT hardcode test results, create dummy/facade implementations, or circumvent the intended task. A teamwork_preview_auditor will independently verify your work. Integrity violations WILL be detected and your work WILL be rejected.
 
-## File Ownership
-You exclusively own and may edit/create:
-- `src/morphomesh/grooming.py`
-- `src/morphomesh/blender_bridge.py` (add grooming dispatch helpers)
-- `tests/test_grooming.py`
+### Key Requirements
+1. 100% Genuine Meshy AI Cloud Generation:
+   - Use `MESHY_API_KEY` from `.env`.
+   - Call live Meshy AI Text-to-3D OpenAPI v2 (`/openapi/v2/text-to-3d`).
+   - Query existing completed tasks on the account first (`GET /openapi/v2/text-to-3d`) to reuse any previously generated tasks matching species in the catalog.
+   - For remaining species, submit Stage 1 Preview and Stage 2 Refine tasks with robust exponential backoff and rate-limit handling (concurrency 2-3 simultaneous tasks).
+   - Strictly PROHIBIT procedural fallback geometry or identical clone templates across different species.
+2. Botanical Prompt Tuning:
+   - Ensure every species prompt specifies distinct, anatomically accurate morphological traits (Fan Palm, Monstera, Banana Plant, Tree Fern, Bird of Paradise, Saguaro, Scots Pine, etc.).
+3. High-Fidelity Geometry & Materials:
+   - Download the refined GLBs (`raw_meshy_model.glb`) and remote 2K PBR texture maps (`albedo`, `normal`, `roughness`, `metallic`).
+   - Ensure mesh detail is within 20,000 to 65,000 polygons.
+   - Verify pairwise vertex count collision rate across distinct species is < 5%.
+4. Provenance Tracking:
+   - Save genuine cloud task provenance (`task_id`, `model_type`, `refine_status`, remote URLs) in each asset's `asset_manifest.json`.
 
-## Objectives & Deliverables
-1. **Implement `src/morphomesh/grooming.py`**:
-   - `CreatureGroomingEngine` class providing:
-     - `setup_volumetric_fur(mesh_obj_name, undercoat_strands=8000, guard_hair_strands=4000, flow_vertex_group='dorsal_spine', clump_factor=0.4, taper_shape=-0.7)`:
-       - Multi-layer fur system: Dense undercoat (8,000 parent strands, length 0.04m, clump 0.3) + coarse guard hairs (4,000 parent strands, length 0.09m, clump 0.5) with interpolated children yielding > 100,000 render strands. Total parent guide strands >= 12,000 (exceeds the >= 10,000 requirement).
-       - Biological growth flow radiating from dorsal spine downwards across torso, shoulders, and limbs.
-       - Realistic tapering (`shape = -0.7`, `root_radius = 0.0012m`, `tip_radius = 0.0001m`) using Blender 5.2.1 LTS API (`roughness_endpoint`, `clump_shape`, `child_type='INTERPOLATED'`).
-       - Vertex group density masking: full density on torso, shoulders, mane; zero fur on nose, mouth cavity, eyes, claws, and paw pads.
-     - `evaluate_fur_ribbons_for_gltf(mesh_obj_name, fur_system_names, max_export_strands=5000)`:
-       - Generates evaluated polygonal ribbon mesh from hair curves/strands for standard glTF 2.0 export compatibility.
-2. **Integrate with `src/morphomesh/blender_bridge.py`**:
-   - Add bridge methods `setup_creature_fur()` and script generation helpers for headless and interactive socket execution.
-3. **Automated Unit & Integration Tests (`tests/test_grooming.py`)**:
-   - Test strand count assertion (>= 10,000 parent guide strands).
-   - Test multi-layer configuration (undercoat + guard hairs).
-   - Test biological flow direction and vertex group masking.
-   - Test glTF ribbon evaluator output.
-   - Run `pytest -v tests/` and verify all tests pass with 0 failures.
-4. **Blender 5.2.1 LTS Verification**:
-   - Execute grooming setup on `Bear_Base_Mesh` in headless Blender and over live socket.
-   - Verify that fur curves are active, visible, non-intersecting, and exceed 10,000 strands.
-5. **Handoff Report**:
-   - Deliver comprehensive 5-component report at `/Users/duongnad/Documents/tool/MorphoMesh/.agents/worker_m2/handoff.md` and notify orchestrator.
 
-## 2026-09-07T04:37:39Z
 
-# Dispatch Assignment: Worker M2 (Multi-Angle Inspector Camera & Fast Viewport Capture)
+## 2026-09-10T11:42:09Z
+You are Worker M2 (Meshy Cloud Batch Generation Engineer).
+Your working directory is: E:\tool\mcp\MorphoMesh\.agents\worker_m2
+Your detailed dispatch assignment is in: E:\tool\mcp\MorphoMesh\.agents\worker_m2\DISPATCH.md
+Read DISPATCH.md, ORIGINAL_REQUEST.md (under ## 2026-09-10T11:11:31Z), and PROJECT.md (E:\tool\mcp\MorphoMesh\.agents\orchestrator_vegetation_rebuild_1\PROJECT.md).
 
-**Identity**: Worker M2 (Multi-Angle Inspector Camera & Fast Viewport Capture Implementer)
-**Working Directory**: `e:\tool\mcp\MorphoMesh\.agents\worker_m2`
-**Parent Orchestrator Conversation ID**: `577aaa33-6b3f-4ebc-93eb-fcc632d94bc9`
-**Authoritative User Request**: `e:\tool\mcp\MorphoMesh\ORIGINAL_REQUEST.md` (§ 2026-09-07T03:34:32Z)
-**Project Scope**: `e:\tool\mcp\MorphoMesh\PROJECT.md` (Milestone 2)
+MANDATORY INTEGRITY WARNING:
+DO NOT CHEAT. All implementations must be genuine. DO NOT hardcode test results, create dummy/facade implementations, or circumvent the intended task. A teamwork_preview_auditor will independently verify your work. Integrity violations WILL be detected and your work WILL be rejected.
 
-## File Ownership
-- `src/morphomesh/camera_rig.py` (New module)
-- `src/morphomesh/models.py`
-- `src/morphomesh/blender_bridge.py`
-- `blender_addon/morphomesh/listener.py`
-- `tests/test_inspector_camera.py` (New test suite)
-- `tests/test_multiview_rendering.py` (New test suite)
+Your Mission:
+Execute Milestone 2: Meshy Cloud Batch Generation & Divergence for the Vegetation Library Rebuild.
+1. Inspect the Meshy account for all completed tasks via GET /openapi/v2/text-to-3d using MESHY_API_KEY from .env, matching prompt titles/keywords to the 35 species catalog.
+2. For any species not yet generated, submit live Stage 1 Preview and Stage 2 Refine tasks to Meshy API using tuned botanical prompts for distinct morphological traits (Fan Palm fronds, Monstera split leaves, Banana paddle leaves, Tree Fern crown, Bird of Paradise floral spikes, Saguaro ribs, Scots Pine needle pom-poms, etc.).
+3. Wait for real cloud completion with robust queue polling and exponential backoff. Strictly 0% procedural dummy fallback meshes.
+4. Download the genuine Meshy refined GLBs (raw_meshy_model.glb) and 2K PBR texture maps into each species directory.
+5. Record genuine Meshy cloud task provenance (task_id, model_type, refine_status, remote URLs) in each asset manifest.
+6. Verify visual and topological divergence: calculate pairwise vertex count collision rate across distinct species and confirm it is < 5%.
 
-## Objectives
-1. Implement `src/morphomesh/camera_rig.py`
-2. Hook into `blender_addon/morphomesh/listener.py` and `src/morphomesh/blender_bridge.py`
-3. Add Pydantic models in `src/morphomesh/models.py`
-4. Create test suites `tests/test_inspector_camera.py` and `tests/test_multiview_rendering.py`
-5. Verify 100% pass rate
-6. Write handoff report and notify parent orchestrator
+Write your completion report to:
+E:\tool\mcp\MorphoMesh\.agents\worker_m2\handoff.md
+When finished, send a message to parent (conversation ID c89d3e85-2d1c-4b25-9e5b-bb4953ad2fc4).
+

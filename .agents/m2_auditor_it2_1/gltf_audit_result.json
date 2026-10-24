@@ -1,0 +1,31 @@
+{
+  "valid_gltf": true,
+  "version": 2,
+  "length": 959764,
+  "root_nodes": [
+    {
+      "index": 85,
+      "name": "Anime_Armature",
+      "translation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    }
+  ],
+  "total_nodes": 86,
+  "total_meshes": 7,
+  "total_skins": 1,
+  "skin_joints_count": 78
+}

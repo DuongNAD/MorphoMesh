@@ -1,0 +1,37 @@
+| Species ID | Category | Target H (m) | Measured H (m) | Dev (%) | Z_min (m) | Base Offset (m) | Verts | Rigging Invariants | 20/20 Checks |
+|---|---|---|---|---|---|---|---|---|---|
+| `veg_tree_beech_01` | broadleaf_trees | 11.50 | 11.50 | 0.00% | 0.0000 | 0.0000 | 4,320 | PASS (0) | PASS (20/20) |
+| `veg_tree_birch_01` | broadleaf_trees | 9.00 | 9.00 | 0.00% | 0.0000 | 0.0000 | 4,320 | PASS (0) | PASS (20/20) |
+| `veg_tree_maple_01` | broadleaf_trees | 10.50 | 10.50 | 0.00% | 0.0000 | 0.0000 | 4,320 | PASS (0) | PASS (20/20) |
+| `veg_tree_oak_01` | broadleaf_trees | 12.00 | 12.00 | 0.00% | 0.0000 | 0.0000 | 4,320 | PASS (0) | PASS (20/20) |
+| `veg_tree_willow_01` | broadleaf_trees | 8.50 | 8.50 | 0.00% | 0.0000 | 0.0000 | 4,320 | PASS (0) | PASS (20/20) |
+| `veg_conifer_cedar_01` | conifers | 10.00 | 10.00 | 0.00% | 0.0000 | 0.0000 | 5,024 | PASS (0) | PASS (20/20) |
+| `veg_conifer_cypress_01` | conifers | 8.00 | 8.00 | 0.00% | 0.0000 | 0.0000 | 5,024 | PASS (0) | PASS (20/20) |
+| `veg_conifer_pine_01` | conifers | 9.50 | 9.50 | 0.00% | 0.0000 | 0.0000 | 5,024 | PASS (0) | PASS (20/20) |
+| `veg_conifer_redcedar_01` | conifers | 12.00 | 12.00 | 0.00% | 0.0000 | 0.0000 | 5,024 | PASS (0) | PASS (20/20) |
+| `veg_conifer_spruce_01` | conifers | 11.00 | 11.00 | 0.00% | 0.0000 | 0.0000 | 5,024 | PASS (0) | PASS (20/20) |
+| `veg_ground_fern_01` | groundcover | 0.65 | 0.65 | 0.00% | 0.0000 | 0.0000 | 3,656 | PASS (0) | PASS (20/20) |
+| `veg_ground_grass_01` | groundcover | 0.45 | 0.45 | 0.00% | 0.0000 | 0.0000 | 3,656 | PASS (0) | PASS (20/20) |
+| `veg_ground_moss_01` | groundcover | 0.15 | 0.15 | 0.00% | 0.0000 | 0.0000 | 3,656 | PASS (0) | PASS (20/20) |
+| `veg_ground_ostrich_01` | groundcover | 1.40 | 1.40 | 0.00% | 0.0000 | 0.0000 | 3,656 | PASS (0) | PASS (20/20) |
+| `veg_ground_pampas_01` | groundcover | 2.50 | 2.50 | 0.00% | 0.0000 | 0.0000 | 3,656 | PASS (0) | PASS (20/20) |
+| `veg_shrub_azalea_01` | shrubs | 1.80 | 1.80 | 0.00% | 0.0000 | 0.0000 | 4,552 | PASS (0) | PASS (20/20) |
+| `veg_shrub_hydrangea_01` | shrubs | 1.40 | 1.40 | 0.00% | 0.0000 | 0.0000 | 4,552 | PASS (0) | PASS (20/20) |
+| `veg_shrub_lavender_01` | shrubs | 0.70 | 0.70 | 0.00% | 0.0000 | 0.0000 | 4,552 | PASS (0) | PASS (20/20) |
+| `veg_shrub_lilac_01` | shrubs | 2.80 | 2.80 | 0.00% | 0.0000 | 0.0000 | 4,552 | PASS (0) | PASS (20/20) |
+| `veg_shrub_rose_01` | shrubs | 1.20 | 1.20 | 0.00% | 0.0000 | 0.0000 | 4,552 | PASS (0) | PASS (20/20) |
+| `veg_succulent_agave_01` | succulents | 2.20 | 2.20 | 0.00% | 0.0000 | 0.0000 | 3,336 | PASS (0) | PASS (20/20) |
+| `veg_succulent_aloe_01` | succulents | 0.80 | 0.80 | 0.00% | 0.0000 | 0.0000 | 3,336 | PASS (0) | PASS (20/20) |
+| `veg_succulent_barrel_01` | succulents | 0.60 | 0.60 | 0.00% | 0.0000 | 0.0000 | 3,336 | PASS (0) | PASS (20/20) |
+| `veg_succulent_echeveria_01` | succulents | 0.25 | 0.25 | 0.00% | 0.0000 | 0.0000 | 3,336 | PASS (0) | PASS (20/20) |
+| `veg_succulent_saguaro_01` | succulents | 6.00 | 6.00 | 0.00% | 0.0000 | 0.0000 | 3,336 | PASS (0) | PASS (20/20) |
+| `veg_tropical_banana_01` | tropical | 3.50 | 3.50 | 0.00% | 0.0000 | 0.0000 | 3,960 | PASS (0) | PASS (20/20) |
+| `veg_tropical_birdofparadise_01` | tropical | 1.60 | 1.60 | 0.00% | 0.0000 | 0.0000 | 3,960 | PASS (0) | PASS (20/20) |
+| `veg_tropical_monstera_01` | tropical | 1.80 | 1.80 | 0.00% | 0.0000 | 0.0000 | 3,960 | PASS (0) | PASS (20/20) |
+| `veg_tropical_palm_01` | tropical | 5.50 | 5.50 | 0.00% | 0.0000 | 0.0000 | 3,960 | PASS (0) | PASS (20/20) |
+| `veg_tropical_treefern_01` | tropical | 4.50 | 4.50 | 0.00% | 0.0000 | 0.0000 | 3,960 | PASS (0) | PASS (20/20) |
+| `veg_epiphyte_spanishmoss_01` | vines | 1.60 | 1.60 | 0.00% | 0.0000 | 0.0000 | 4,064 | PASS (0) | PASS (20/20) |
+| `veg_vine_bougainvillea_01` | vines | 2.40 | 2.40 | 0.00% | 0.0000 | 0.0000 | 4,064 | PASS (0) | PASS (20/20) |
+| `veg_vine_ivy_01` | vines | 1.80 | 1.80 | 0.00% | 0.0000 | 0.0000 | 4,064 | PASS (0) | PASS (20/20) |
+| `veg_vine_pothos_01` | vines | 1.20 | 1.20 | 0.00% | 0.0000 | 0.0000 | 4,064 | PASS (0) | PASS (20/20) |
+| `veg_vine_wisteria_01` | vines | 3.20 | 3.20 | 0.00% | 0.0000 | 0.0000 | 4,064 | PASS (0) | PASS (20/20) |

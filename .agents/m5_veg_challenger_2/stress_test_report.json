@@ -1,0 +1,48 @@
+{
+  "verdict": "APPROVE",
+  "tests": [
+    {
+      "name": "Camera Frustum Framing & Crown Invariant",
+      "passed": true,
+      "violations": [],
+      "max_top_alpha": 0.0
+    },
+    {
+      "name": "Angular Differentiation",
+      "passed": true,
+      "min_differing_pixels": 92472,
+      "violations": []
+    },
+    {
+      "name": "Bit-Exact Thumbnail Montage Integrity",
+      "passed": true,
+      "max_mean_diff": 0.17053459119496855,
+      "violations": []
+    },
+    {
+      "name": "Header Typography Uniqueness",
+      "passed": true,
+      "violations": []
+    },
+    {
+      "name": "Tangent-Space Normal Vector Sanity",
+      "passed": true,
+      "inverted_normal_pixels": 0,
+      "min_nz_library": 0.9764705896377563,
+      "max_mag_deviation": 0.008696019649505615
+    },
+    {
+      "name": "Absolute Dielectric Material Enforcement",
+      "passed": true,
+      "max_metallic_library": 0.0,
+      "violations": 0
+    },
+    {
+      "name": "Roughness Surface Microfacet Entropy",
+      "passed": true,
+      "mean_roughness": 0.6482230424880981,
+      "min_roughness_std": 0.17264324426651,
+      "violations": []
+    }
+  ]
+}

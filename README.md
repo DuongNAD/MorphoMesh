@@ -117,12 +117,32 @@ MorphoMesh provides dedicated, production-tested connectors in [`src/morphomesh/
 
 | Connector | Model Name | Role | Primary Strengths |
 |---|---|---|---|
+| `MeshyConnector` | **Meshy AI (v4 / boost)** | Cloud Image/Text-to-3D Synthesis | Ultra low-latency cloud generation with smart quad topology and full PBR material baking |
+| `GeminiImageConnector` | **Google Gemini / Imagen** | 2D Concept Art Synthesis | Photorealistic 2D character/creature concept turnaround generation conditioned on anatomical priors |
 | `TrellisConnector` | **TRELLIS** | 3D Asset Synthesis | High-fidelity Gaussian & mesh generation with full PBR maps |
 | `TripoConnector` | **Tripo3D (v3.1 / P1)** | Text/Image-to-3D Synthesis | High-fidelity text-to-3D, image-to-3D, and draft-to-refine with PBR |
 | `Animals3DConnector` | **3DAnimals / SMAL** | Morphological Priors | Parametric quadruped shapes (canines, equines, felines, ursids) |
 | `AnyCreatureConnector` | **anyCreature** | Kinematics & Rigging | Handles multi-limbed fantasy chimeras, dragons, and wing joints |
 | `MeshAnythingConnector` | **MeshAnything** | Artist-Grade Retopology | Generates quad-dominant production topology from raw meshes |
 | `HunyuanConnector` | **Hunyuan3D-2.1** | Multiview 3D Diffusion | High geometric detail and crisp structural boundaries |
+
+### Resource-Optimized Hybrid Workflow (Zero-VRAM Pipeline)
+To maximize throughput and eliminate the requirement for massive local GPU VRAM (16GB–24GB required by local diffusion models), MorphoMesh supports an optimized **API-Driven Hybrid Pipeline**:
+
+```mermaid
+flowchart TD
+    A["Text Prompt / Character Spec"] -->|"Google Gemini API (Zero local VRAM)"| B["2D Anatomical Concept Art (A-Pose / Turnaround)"]
+    B -->|"Meshy AI Image-to-3D API (Cloud GPU)"| C["Dense 3D Mesh + 4-Channel PBR Textures (GLB)"]
+    C -->|"Blender 4.5+ LTS Bridge"| D["Quad-Dominant Retopology & Landmark Snapping"]
+    D -->|"MorphoMesh Auto-Rig"| E["Humanoid / Rigify Armature & Anti-Pinch Skin Weights"]
+    E -->|"NLA Animation Engine"| F["4-Track Animation Suite (Idle, Walk, Gesture, Bow)"]
+    F -->|"Production Export"| G["Final Master (.blend, .glb, .fbx, Cycles Render)"]
+```
+
+**Key Advantages**:
+- **0 GB Local Neural VRAM**: Heavy image diffusion and 3D reconstruction occur via Gemini and Meshy AI cloud APIs.
+- **Fast Production Cycle**: Complete character creation, rigging, and animation generation in under 3 minutes.
+- **Comprehensive Deliverables**: Produces production-ready `.blend` scenes, real-time WebGL/game `.glb` (with embedded animation clips and morph targets), and game-engine `.fbx`.
 
 ### Resilient Fallback DAG
 When cloud endpoints or GPUs are unavailable, the execution orchestrator falls back automatically to local procedural generation, ensuring offline independence and uninterrupted agent workflows.
@@ -159,60 +179,161 @@ MorphoMesh provides specialized modules for high-end creature craftsmanship:
 ## Installation & Quickstart
 
 ### Prerequisites
-- **macOS Apple Silicon** (M1/M2/M3/M4) or **Linux x86_64**
-- **Python 3.11+**
-- **Blender 5.2.1 LTS** (Installed at `/Applications/Blender.app` or accessible on `PATH`)
+- **Python**: 3.10+ (Recommended 3.11+)
+- **Package Manager**: [`uv`](https://github.com/astral-sh/uv) (strongly recommended) or `pip`
+- **Blender**: Blender 4.2 LTS, 4.3+, or 5.2.1 LTS (accessible via `PATH` or `BLENDER_EXECUTABLE`)
+- **OS**: macOS Apple Silicon (Metal acceleration), Linux x86_64 (CUDA 12.x), or Windows 10/11
 
-### 1. Clone & Setup Virtual Environment
+### Quickstart with `uv`
 ```bash
+# 1. Clone repository
 git clone https://github.com/DuongNAD/MorphoMesh.git
 cd MorphoMesh
 
-python3 -m venv .venv
+# 2. Create isolated virtual environment & install in editable mode
+uv venv .venv --python 3.11
+# macOS / Linux:
 source .venv/bin/activate
-```
+# Windows (PowerShell):
+.venv\Scripts\Activate.ps1
 
-### 2. Install Package Dependencies
-```bash
-pip install -e .
-```
+uv pip install -e ".[dev]"
 
-### 3. Verify CLI Installation
-```bash
-morphomesh --version
+# 3. Verify installation and tool discovery
+uv run morphomesh --version
 # Output: MorphoMesh v0.1.0
 
-morphomesh ping
-# Verifies connectivity to Blender interactive socket and local binary
+# 4. Launch FastMCP server
+uv run morphomesh server --transport stdio
+
+# 5. Execute automated test suite
+uv run pytest tests/ -m "not live_blender"
 ```
 
 ---
 
-## FastMCP Tool Reference (Core & Inspection Tools)
+## Project Architecture & Directory Layout
 
-MorphoMesh provides modular tool suites conforming to the official Model Context Protocol (MCP 1.28.1):
+MorphoMesh is engineered into 11 cohesive sub-packages under `src/morphomesh/`, with backward-compatible facade re-exports at the package root:
 
-### Canonical Creature Generation Tools (Core)
-*Active by default.*
+```text
+MorphoMesh/
+├── src/morphomesh/
+│   ├── models/                 # Domain Pydantic v2 schemas, errors, and enums
+│   │   ├── creature.py         # Creature generation, rigging, topology models
+│   │   ├── human.py            # Digital human base mold & wardrobe models
+│   │   ├── inspection.py       # Camera rig & viewport capture models
+│   │   ├── critique.py         # Closed-loop defect classification models
+│   │   ├── animation.py        # Skeletal motion & retargeting models
+│   │   ├── enums.py            # Taxonomy enums (CreatureType, Pose, ViewMode)
+│   │   └── errors.py           # Standardized error codes (32 constants)
+│   ├── geometry/               # Core in-memory geometry & format exporters
+│   │   ├── mesh.py             # MeshGeometry class (vertices, faces, UVs, normals)
+│   │   ├── exporters.py        # Pure-Python binary glTF 2.0 (.glb) & OBJ exporters
+│   │   ├── primitives.py       # Procedural geometric cylinders, cubes, spheres
+│   │   └── quad_utils.py       # Quad topology checks and polygon triangulation
+│   ├── inference/              # Generative backends & external connectors
+│   │   ├── base.py             # BaseInferenceAdapter & CircuitBreaker contracts
+│   │   ├── mock.py             # Zero-VRAM deterministic procedural generator
+│   │   ├── replicate.py        # Replicate FLUX & 3D endpoint client
+│   │   ├── huggingface.py      # Hugging Face Inference Endpoints client
+│   │   └── factory.py          # Pluggable adapter instantiation factory
+│   ├── bridge/                 # Blender communication & security sandboxing
+│   │   ├── client.py           # Localhost TCP client with NDJSON streaming
+│   │   ├── headless.py         # Headless CLI subprocess runner with sentinels
+│   │   ├── validator.py        # AST BpyCodeValidator static security analyzer
+│   │   ├── constants.py        # Protocol port 9876, timeouts, RPC command enums
+│   │   └── scripts/            # Modular domain Python scripts for Blender
+│   ├── tools/                  # 19 FastMCP tool declarations & environment gating
+│   │   ├── creature.py         # 7 creature generation & scene tools
+│   │   ├── human.py            # 7 digital human generation & assembly tools
+│   │   ├── inspection.py       # 3 inspection camera & visual critic tools
+│   │   ├── animation.py        # 2 skeletal animation dispatch tools
+│   │   ├── gating.py           # Dual-layer environment gating matrix
+│   │   ├── registry.py         # Central tool registration orchestrator
+│   │   └── server_instance.py  # FastMCP server factory & singleton
+│   ├── human/                  # Anatomical human body generation & molds
+│   │   ├── mold_loader.py      # MakeHuman CC0 female base mold loader
+│   │   ├── morphology.py       # Morphological adjustments (teardrop bust, hips)
+│   │   └── anatomy.py          # Anthropometric landmarks & 24 vertex groups
+│   ├── rigging/                # Armatures, skin weights & blendshapes
+│   │   ├── metarig.py          # 163 DEF bone Rigify Human Metarig generator
+│   │   ├── anti_pinch.py       # Volume-preserving anti-pinch joint weights
+│   │   └── blendshapes.py      # 52 ARKit FACS morph targets delta calculation
+│   ├── wardrobe/               # Dynamic clothing, footwear & props
+│   │   ├── garments.py         # Sundress bodice, sash, skirt, strappy sandals
+│   │   ├── props.py            # Marionette red threads & glowing butterflies
+│   │   └── skinning.py         # Geodesic pin weights & cloth collision setup
+│   ├── grooming/               # Volumetric hair curves & fur systems
+│   │   ├── hime_cut.py         # Straight bangs and sidelock spline generation
+│   │   ├── curves_pipeline.py  # Geometry Nodes hair curves modifier tree
+│   │   └── creature.py         # Multi-layer quadruped fur grooming
+│   ├── assembler/              # Master character assembly & packaging
+│   │   ├── assembler.py        # Yu Nian An master scene integrator
+│   │   ├── pbr_baker.py        # 4K procedural PBR texture baker (Random Walk SSS)
+│   │   ├── scene_builder.py    # 3-point studio lighting & camera presets
+│   │   └── packager.py         # Production packaging (.blend, .glb, .fbx)
+│   ├── critic/                 # Closed-loop automated visual quality critique
+│   │   ├── bvh.py              # PurePythonBVHTree spatial bounding hierarchy
+│   │   ├── geometry_math.py    # Möller–Trumbore ray-triangle & distance math
+│   │   ├── penetration.py      # Cloth-body penetration & hair collision checks
+│   │   ├── proportions.py      # Anthropometric proportions evaluation
+│   │   ├── deformation.py      # Joint pinch volume loss & acute crease detection
+│   │   └── reporter.py         # Defect classification & benchmark harness
+│   ├── anatomy/                # Biomechanical locomotion & skeleton estimation
+│   │   ├── locomotor.py        # Stance classification (Humanoid, Plantigrade, etc.)
+│   │   ├── landmarks.py        # Bony landmark identification & joint centers
+│   │   ├── bone_roll.py        # Hinge normal vector & biomechanical roll solver
+│   │   └── biharmonic.py       # Geodesic voxel skin weight diffusion solver
+│   └── connectors/             # Open-source connectors (TRELLIS, SMAL, anyCreature)
+├── blender_addon/              # Blender 4.x / 5.x companion addon & TCP socket listener
+├── docs/                       # Authoritative specifications and documentation
+│   ├── DEVELOPER_GUIDE.md      # Setup, architecture map, 5 extension recipes, testing
+│   ├── MCP_SPECIFICATION.md    # Complete 19-tool FastMCP specification & schemas
+│   ├── ARCHITECTURE.md         # System architecture, Mermaid diagrams, protocol specs
+│   ├── RESEARCH_BENCHMARK.md   # 20+ SOTA model comparisons & benchmark matrix
+│   ├── OPEN_SOURCE_INTEGRATION_PLAYBOOK.md # SOTA open-source engineering playbook
+│   └── ROADMAP.md              # Multi-phase project development roadmap
+└── tests/                      # 98 comprehensive test suites & adversarial benchmarks
+```
 
-| # | Tool Name | Role | Primary Inputs | Output Artifacts |
+---
+
+## FastMCP 19-Tool Reference & Environment Gating
+
+MorphoMesh exposes **19 atomic FastMCP tools** across 4 specialized domains. All tools strictly validate inputs via Pydantic v2 schemas.
+
+### The 19-Tool Master Matrix
+
+| # | Tool Name | Category | Description | Gating Requirement |
 |---|---|---|---|---|
-| 1 | `morphomesh_generate_concept` | Stage 1 Concept | `prompt`, `creature_type`, `view_mode`, `pose`, `style` | Concept UUID, image path, alpha mask, enhanced prompt |
-| 2 | `morphomesh_create_3d_asset` | Stage 2 3D Gen | `image_path` / `concept_id`, `export_format`, `generate_pbr` | Asset UUID, GLB/OBJ path, polycount, PBR texture paths |
-| 3 | `morphomesh_optimize_topology` | Stage 3 Retopo | `input_mesh_path`, `target_poly_count`, `method` | Optimized mesh path, face counts, quad percentage |
-| 4 | `morphomesh_auto_rig` | Stage 4 Rigging | `input_mesh_path`, `creature_type`, `rig_type` | Armature name, bone count, hierarchy list, bind status |
-| 5 | `morphomesh_blender_execute` | Custom Script | `script`, `timeout_seconds`, `return_variables` | Execution status, stdout/stderr, returned variables |
-| 6 | `morphomesh_get_scene_status` | Scene Inspection | `scene_name`, `include_mesh_stats`, `include_armatures` | Object tree, vertex/face stats, materials, cameras, lights |
-| 7 | `morphomesh_render_preview` | Stage 5 Render | `resolution_width`, `resolution_height`, `render_engine` | Rendered PNG path, base64 image data, render time |
+| 1 | `morphomesh_generate_concept` | Creature (1/7) | Generates standardized 2D concept images with anatomical view conditioning | Active by default |
+| 2 | `morphomesh_create_3d_asset` | Creature (2/7) | Reconstructs 3D mesh with PBR textures from 2D concept image | Active by default |
+| 3 | `morphomesh_optimize_topology` | Creature (3/7) | Retopologizes dense meshes to animation-ready quad topology | Active by default |
+| 4 | `morphomesh_auto_rig` | Creature (4/7) | Generates biological creature armature and binds skin weights | Active by default |
+| 5 | `morphomesh_blender_execute` | Creature (5/7) | Executes secure Python script in Blender with AST security validation | Active by default |
+| 6 | `morphomesh_get_scene_status` | Creature (6/7) | Queries Blender scene objects, materials, cameras, and polycounts | Active by default |
+| 7 | `morphomesh_render_preview` | Creature (7/7) | Renders camera viewport preview to image file with base64 preview | Active by default |
+| 8 | `morphomesh_create_human_asset` | Human (1/7) | Synthesizes female base mold (Yu Nian An proportions, 24 vertex groups) | `HUMAN_TOOLS=1` or `ALL_TOOLS=1` |
+| 9 | `morphomesh_auto_rig_human` | Human (2/7) | Binds 163 DEF Rigify Metarig with anti-pinch weights and 52 FACS keys | `HUMAN_TOOLS=1` or `ALL_TOOLS=1` |
+| 10 | `morphomesh_setup_human_materials`| Human (3/7) | Configures Random Walk SSS skin, 2-chamber eye refraction, tear wetness | `HUMAN_TOOLS=1` or `ALL_TOOLS=1` |
+| 11 | `morphomesh_groom_human` | Human (4/7) | Synthesizes Geometry Nodes hair curves (hime cut bangs, sidelocks) | `HUMAN_TOOLS=1` or `ALL_TOOLS=1` |
+| 12 | `morphomesh_dress_human` | Human (5/7) | Creates draped sundress, satin sash, flat sandals, cloth pin weights | `HUMAN_TOOLS=1` or `ALL_TOOLS=1` |
+| 13 | `morphomesh_assemble_master_character`| Human (6/7) | Master assembly: body, hair, dress, sandals, marionette strings, butterflies | `HUMAN_TOOLS=1` or `ALL_TOOLS=1` |
+| 14 | `morphomesh_export_production_character`| Human (7/7) | Packages production deliverables: `.blend`, `.glb` (52 FACS), `.fbx` (163 DEF) | `HUMAN_TOOLS=1` or `ALL_TOOLS=1` |
+| 15 | `morphomesh_setup_inspector_camera_rig`| Inspection (1/3) | Computes character AABB and configures multi-angle camera rig | `INSPECTION_TOOLS=1` or `ALL_TOOLS=1` |
+| 16 | `morphomesh_capture_viewport` | Inspection (2/3) | Fast OpenGL/Workbench viewport capture with base64 preview | `INSPECTION_TOOLS=1` or `ALL_TOOLS=1` |
+| 17 | `morphomesh_critique_visual_quality` | Inspection (3/3) | Closed-loop QA: evaluates penetration, proportions, pinch, hair collision | `INSPECTION_TOOLS=1` or `ALL_TOOLS=1` |
+| 18 | `morphomesh_animate_asset` | Animation (1/2) | Retargets skeletal motion clips from 340+ action library onto rigged mesh | `ANIMATION_TOOLS=1` |
+| 19 | `morphomesh_list_animations` | Animation (2/2) | Searches and lists available animation clips and action presets | `ANIMATION_TOOLS=1` |
 
-### Inspection & Visual Critique Tools (Milestones M2–M4)
-*Enabled by setting `MORPHOMESH_INCLUDE_INSPECTION_TOOLS=1` or `MORPHOMESH_INCLUDE_ALL_TOOLS=1`.*
-
-| # | Tool Name | Role | Primary Inputs | Output Artifacts |
-|---|---|---|---|---|
-| 8 | `morphomesh_setup_inspector_camera_rig` | Camera Placement | `viewpoint`, `target_object`, `sub_region`, `focal_length`, `margin` | Camera metadata, location, Euler rotation, framing distance, AABB |
-| 9 | `morphomesh_capture_viewport` | Viewport Grab | `output_path`, `camera_name`, `resolution`, `shading_mode`, `color_type` | Saved PNG path, image dimensions, base64 preview string, capture time |
-| 10 | `morphomesh_critique_visual_quality` | Auto-Critic QA | `character_name`, `camera_angles`, `clearance_tolerance`, `target_preset` | Structured defect report, quality score, actionable modifier recommendations |
+### Environment Gating Variables Summary
+- Default (no flags): Exposes **7 Creature Tools** (tools 1–7).
+- `MORPHOMESH_INCLUDE_HUMAN_TOOLS=1`: Adds **7 Human Tools** (tools 8–14).
+- `MORPHOMESH_INCLUDE_INSPECTION_TOOLS=1`: Adds **3 Inspection Tools** (tools 15–17).
+- `MORPHOMESH_INCLUDE_ALL_TOOLS=1`: Exposes all **17 Core Tools** (tools 1–17).
+- `MORPHOMESH_INCLUDE_ANIMATION_TOOLS=1`: Adds **2 Animation Tools** (tools 18–19).
+- `MORPHOMESH_INCLUDE_ALL_TOOLS=1` + `MORPHOMESH_INCLUDE_ANIMATION_TOOLS=1`: Exposes all **19 Tools**.
 
 ---
 
@@ -588,44 +709,72 @@ Violations immediately trigger `[ERR_SCRIPT_SECURITY_VIOLATION]` with offending 
 
 ---
 
-## Google Antigravity 2.0 Configuration
+## MCP Client Configuration (Antigravity 2.0 & Claude Desktop)
 
-To connect MorphoMesh to Google Antigravity 2.0, add the following configuration to your `mcp_config.json`:
+### 1. Google Antigravity 2.0 (`mcp_config.json`)
+Add MorphoMesh to your Antigravity configuration (e.g. `~/.gemini/antigravity/mcp_config.json`):
 
 ```json
 {
   "mcpServers": {
     "morphomesh": {
-      "command": "morphomesh",
-      "args": ["server", "--transport", "stdio"],
+      "command": "uv",
+      "args": ["run", "--directory", "E:/tool/mcp/MorphoMesh", "morphomesh", "server", "--transport", "stdio"],
       "env": {
         "MORPHOMESH_BACKEND": "mock",
-        "BLENDER_PATH": "/Applications/Blender.app/Contents/MacOS/Blender"
+        "MORPHOMESH_INCLUDE_ALL_TOOLS": "1",
+        "MORPHOMESH_INCLUDE_ANIMATION_TOOLS": "1",
+        "BLENDER_EXECUTABLE": "C:/Program Files/Blender Foundation/Blender 4.2/blender.exe"
       }
     }
   }
 }
 ```
 
+### 2. Claude Desktop (`claude_desktop_config.json`)
+On macOS (`~/Library/Application Support/Claude/claude_desktop_config.json`) or Windows (`%APPDATA%\Claude\claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "morphomesh": {
+      "command": "uv",
+      "args": ["run", "--directory", "E:/tool/mcp/MorphoMesh", "morphomesh", "server", "--transport", "stdio"],
+      "env": {
+        "MORPHOMESH_BACKEND": "mock",
+        "MORPHOMESH_INCLUDE_ALL_TOOLS": "1",
+        "MORPHOMESH_INCLUDE_ANIMATION_TOOLS": "1"
+      }
+    }
+  }
+}
+```
+
+### Gating Options for Client Profiles:
+- **Creature Only (Default)**: Set no environment variables (exposes 7 tools, minimal context usage).
+- **Creature + Human Pipeline**: Set `MORPHOMESH_INCLUDE_HUMAN_TOOLS=1` (14 tools).
+- **Creature + Inspection QA**: Set `MORPHOMESH_INCLUDE_INSPECTION_TOOLS=1` (10 tools).
+- **Full Production Suite (All 19 Tools)**: Set `MORPHOMESH_INCLUDE_ALL_TOOLS=1` and `MORPHOMESH_INCLUDE_ANIMATION_TOOLS=1`.
+
 ---
 
 ## CLI Usage Guide
 
 ```bash
-# 1. Run MCP server over Standard I/O (Default for Antigravity)
-morphomesh server --transport stdio
+# 1. Run MCP server over Standard I/O (Default for Antigravity & Claude Desktop)
+uv run morphomesh server --transport stdio
 
 # 2. Run MCP server over Server-Sent Events (SSE HTTP on port 8765)
-morphomesh server --transport sse --port 8765
+uv run morphomesh server --transport sse --port 8765
 
 # 3. Probe Blender connection status
-morphomesh ping
+uv run morphomesh ping
 
 # 4. Query active Blender scene statistics
-morphomesh status
+uv run morphomesh status
 
 # 5. Build and package the Blender addon zip
-morphomesh package-addon
+uv run morphomesh package-addon
 ```
 
 ---
@@ -635,44 +784,23 @@ morphomesh package-addon
 Run the comprehensive offline test harness covering all modules, stress tests, and adversarial verification:
 
 ```bash
-# Run complete test suite with pytest
-pytest tests/ -v
+# Run complete test suite with pytest via uv
+uv run pytest tests/ -m "not live_blender" -v
 
 # Run anatomy generator verification specifically
-python3 verify_bear_anatomy.py
-
-# Run standalone end-to-end pipeline test
-python3 -c "
-import asyncio
-from morphomesh.server import (
-    morphomesh_generate_concept,
-    morphomesh_create_3d_asset,
-    morphomesh_optimize_topology,
-    morphomesh_auto_rig,
-    morphomesh_render_preview
-)
-
-async def run_pipeline():
-    c = await morphomesh_generate_concept('Armored direwolf', creature_type='quadruped')
-    a = await morphomesh_create_3d_asset(concept_id=c['concept_id'])
-    o = await morphomesh_optimize_topology(input_mesh_path=a['mesh_path'], target_poly_count=5000)
-    r = await morphomesh_auto_rig(input_mesh_path=o['output_mesh_path'], creature_type='quadruped')
-    p = await morphomesh_render_preview(resolution_width=512, resolution_height=512)
-    print('Pipeline verified successfully! Render saved to:', p['image_path'])
-
-asyncio.run(run_pipeline())
-"
+uv run python verify_bear_anatomy.py
 ```
 
 ---
 
 ## Documentation Index
 
-- [Architecture & Deep Design](docs/ARCHITECTURE.md)
-- [MCP Protocol Specification](docs/MCP_SPECIFICATION.md)
-- [Open-Source Integration Playbook](docs/OPEN_SOURCE_INTEGRATION_PLAYBOOK.md)
-- [Research Benchmark & SOTA Analysis](docs/RESEARCH_BENCHMARK.md)
-- [Project Roadmap](docs/ROADMAP.md)
+- [Developer & Extension Guide](docs/DEVELOPER_GUIDE.md) — Toolchain setup, architecture map, 5 extension recipes, testing guide, and AST security.
+- [MCP Protocol Specification](docs/MCP_SPECIFICATION.md) — Exhaustive specification for all 19 FastMCP tools, Pydantic v2 schemas, gating, and JSON-RPC examples.
+- [Architecture & Deep Design](docs/ARCHITECTURE.md) — Complete architecture specification with 4 Mermaid diagrams, hybrid computing, and protocol contracts.
+- [Open-Source Integration Playbook](docs/OPEN_SOURCE_INTEGRATION_PLAYBOOK.md) — SOTA open-source adapters (TRELLIS.2, SMAL, anyCreature, MeshAnything, Hunyuan3D).
+- [Research Benchmark & SOTA Analysis](docs/RESEARCH_BENCHMARK.md) — 20+ SOTA model comparative analysis and benchmark matrix.
+- [Project Roadmap](docs/ROADMAP.md) — Milestone roadmap from PoC to enterprise production.
 
 ---
 
@@ -680,4 +808,4 @@ asyncio.run(run_pipeline())
 
 MorphoMesh is licensed under the **Apache License, Version 2.0**. See [LICENSE](LICENSE) for details.
 
-Developed for autonomous agent workflows with **Google Antigravity 2.0** and **Blender 5.2.1 LTS**.
+Developed for autonomous agent workflows with **Google Antigravity 2.0**, **Claude Desktop**, and **Blender 4.x / 5.x LTS**.

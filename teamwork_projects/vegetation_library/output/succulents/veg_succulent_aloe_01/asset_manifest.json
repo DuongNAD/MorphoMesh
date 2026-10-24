@@ -1,0 +1,113 @@
+{
+  "schema_version": "1.0.0",
+  "species_id": "veg_succulent_aloe_01",
+  "taxonomy": {
+    "common_name": "Aloe Vera",
+    "scientific_name": "Aloe barbadensis",
+    "family": "Asphodelaceae",
+    "category": "succulents_cacti",
+    "category_id": "succulents_cacti",
+    "category_name": "Succulents & Cacti",
+    "short_category": "succulents",
+    "biome": "Arid / Semiarid Tropical Scrub",
+    "growth_habit": "Stemless basal succulent rosette of turgid dagger-like leaves",
+    "branching_pattern": "Acaulescent radial whorl of upright and outward-spreading fleshy leaves",
+    "foliage_density": "dense"
+  },
+  "geometry": {
+    "vertex_count": 3336,
+    "face_count": 3932,
+    "triangle_count": 3932,
+    "has_armature": false,
+    "has_skins": false,
+    "pivot_grounded": true,
+    "ground_contact_z": 0.0,
+    "ground_z_min_m": 0.0,
+    "base_centroid_xy": [
+      -0.0,
+      -0.0
+    ],
+    "bounding_box": {
+      "min_point": [
+        -0.1576,
+        -0.1339,
+        0.0
+      ],
+      "max_point": [
+        0.1577,
+        0.1339,
+        0.8
+      ],
+      "dimensions": [
+        0.3154,
+        0.2678,
+        0.8
+      ]
+    },
+    "dimensions_m": {
+      "height_m": 0.8,
+      "canopy_spread_m": 0.3154,
+      "width_m": 0.3154,
+      "depth_m": 0.2678,
+      "target_height_m": 0.8,
+      "target_canopy_spread_m": 0.9
+    }
+  },
+  "normalization": {
+    "target_height_m": 0.8,
+    "target_canopy_spread_m": 0.9,
+    "scale_factor": 1.052632,
+    "normalized_height_m": 0.8,
+    "normalized_canopy_spread_m": 0.3154,
+    "strategy": "uniform_height"
+  },
+  "materials": {
+    "workflow": "Metallic-Roughness PBR",
+    "double_sided": true,
+    "channels": [
+      "albedo",
+      "normal",
+      "roughness",
+      "metallic"
+    ],
+    "texture_format": "PNG"
+  },
+  "files": {
+    "glb": "veg_succulent_aloe_01.glb",
+    "obj": "veg_succulent_aloe_01.obj",
+    "mtl": "veg_succulent_aloe_01.mtl",
+    "textures": {
+      "albedo": "textures/albedo.png",
+      "normal": "textures/normal.png",
+      "roughness": "textures/roughness.png",
+      "metallic": "textures/metallic.png"
+    }
+  },
+  "provenance": {
+    "source": "procedural",
+    "export_timestamp": "2026-09-10T07:29:01.457013+00:00",
+    "generator_metadata": {
+      "species_id": "veg_succulent_aloe_01",
+      "category_id": "succulents_cacti",
+      "source": "procedural",
+      "seed": 98896152,
+      "vertex_count": 3336,
+      "face_count": 3932,
+      "quad_count": 1966,
+      "tri_count": 0,
+      "quad_ratio": 1.0
+    }
+  },
+  "metadata": {
+    "scale_factor": 1.0526315789473684,
+    "species_id": "veg_succulent_aloe_01",
+    "category_id": "succulents_cacti",
+    "source": "procedural",
+    "seed": 98896152,
+    "vertex_count": 3336,
+    "face_count": 3932,
+    "quad_count": 1966,
+    "tri_count": 0,
+    "quad_ratio": 1.0
+  }
+}

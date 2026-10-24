@@ -99,103 +99,106 @@ MorphoMesh resolves these challenges through an end-to-end orchestrated pipeline
 
 ### 1.2 Global System Architecture Diagram (Mermaid)
 
-The following architecture diagram illustrates the end-to-end component layout, communication protocols, boundaries, and hardware allocations across MorphoMesh:
+The following architecture diagram illustrates the re-architected, modular subsystem layout, communication protocols, boundaries, and hardware allocations across MorphoMesh:
 
 ```mermaid
 graph TB
-    subgraph ClientHost["macOS Apple Silicon Workstation (Darwin ARM64)"]
-        subgraph AgentHost["AI Agent Environment"]
-            AG["Google Antigravity 2.0<br/>(Autonomous Agent Host)"]
+    subgraph ClientHost["Host Environment (macOS Apple Silicon / Linux / Windows)"]
+        subgraph AgentHost["Autonomous AI Agent Host"]
+            AG["Google Antigravity 2.0 / Claude Desktop<br/>(Autonomous Multi-Agent Orchestrator)"]
         end
 
-        subgraph MCPLayer["Layer 1: Client & Coordination Layer"]
-            STDIO["Standard I/O Streams<br/>(stdin / stdout)"]
-            FAST_MCP["MorphoMesh FastMCP Server<br/>(Python 3.11+ / mcp 1.28.1)"]
-            ORCH["Pipeline Orchestrator &<br/>State Machine Engine"]
-            VAL["Pydantic v2 Schema<br/>Validation Engine"]
+        subgraph MCPLayer["Subsystem: Tools (src/morphomesh/tools/)"]
+            STDIO["Standard I/O Streams (stdio) / SSE Transport<br/>(JSON-RPC 2.0 Protocol Envelope)"]
+            FAST_MCP["FastMCP Server Instance (server_instance.py)<br/>(Python 3.10+ / mcp 1.28.1+)"]
+            REGISTRY["Central Tool Registry (registry.py)<br/>(19 FastMCP Tool Callables)"]
+            GATING["Dual-Layer Gating Matrix (gating.py)<br/>(MORPHOMESH_INCLUDE_* Filter)"]
+            MODELS["Subsystem: Models (src/morphomesh/models/)<br/>(Pydantic v2 Schemas, Errors & Enums)"]
         end
 
-        subgraph BridgeLayer["Layer 2: Blender Communication Layer"]
-            BRIDGE["BlenderBridge Client<br/>(blender_bridge.py)"]
-            AST_SEC["Two-Tier AST Security<br/>Validator (ast.NodeVisitor)"]
-            TCP_CLIENT["Localhost TCP Client<br/>(127.0.0.1:9876)"]
-            CLI_RUNNER["Headless CLI Runner<br/>(blender --background --python)"]
+        subgraph PipelineSubsystems["Character & Generative Subsystems"]
+            HUMAN["Subsystem: Human (human/)<br/>(Base Mold Loader & Morphology)"]
+            RIGGING["Subsystem: Rigging (rigging/)<br/>(163 DEF Metarig & 52 FACS Blendshapes)"]
+            WARDROBE["Subsystem: Wardrobe (wardrobe/)<br/>(Sundress, Sash, Sandals & Props)"]
+            GROOMING["Subsystem: Grooming (grooming/)<br/>(Geometry Nodes Curves & Hime Cut)"]
+            ASSEMBLER["Subsystem: Assembler (assembler/)<br/>(Master Scene Assembly & 4K PBR Baker)"]
+            CRITIC["Subsystem: Critic (critic/)<br/>(PurePythonBVHTree QA & Collision Evaluator)"]
+            ANATOMY["Subsystem: Anatomy (anatomy/)<br/>(Biomechanical Landmarks & Bone Roll)"]
         end
 
-        subgraph BlenderHost["Blender 5.2.1 LTS Execution Environment"]
-            TCP_SRV["Socket Listener Thread<br/>(server_listener.py)"]
+        subgraph BridgeLayer["Subsystem: Bridge (src/morphomesh/bridge/)"]
+            BRIDGE["BlenderBridge Client Facade<br/>(client.py / bridge.py)"]
+            AST_SEC["AST BpyCodeValidator Sandbox<br/>(validator.py: ast.NodeVisitor)"]
+            TCP_CLIENT["Localhost TCP Transport Client<br/>(127.0.0.1:9876 NDJSON Streaming)"]
+            CLI_RUNNER["Headless CLI Subprocess Runner<br/>(headless.py: blender -b -P + Sentinel)"]
+        end
+
+        subgraph BlenderHost["Blender 4.x / 5.x LTS DCC Environment"]
+            TCP_SRV["Socket Listener Thread (listener.py)<br/>(127.0.0.1:9876 TCP Server)"]
             TIMER_Q["bpy.app.timers Event Loop<br/>(Non-Blocking Main Thread Queue)"]
-            BMESH["Bmesh & Mesh Engine<br/>(QuadriFlow Remesher)"]
-            RIGIFY["Rigify Creature Armature<br/>& Auto-Weight Solver"]
-            SHADER["Principled BSDF 2.0<br/>PBR Shader Tree"]
-            METAL_EEVEE["EEVEE Next Viewport Render<br/>(Apple Metal Hardware RT)"]
+            BMESH["Bmesh & Rigify Engine<br/>(163 DEF Armature & Skin Solver)"]
+            GEO_NODES["Geometry Nodes Curves Hair<br/>(Volumetric Grooming & Fur)"]
+            SHADER["Principled BSDF 2.0 / SSS Engine<br/>(Random Walk SSS & AgX Color)"]
+            EEVEE_CYCLES["EEVEE Next / Cycles Renderers<br/>(Metal / CUDA Hardware RT)"]
         end
 
-        subgraph LocalInf["Layer 3A: Local Inference & Fallback Engine"]
-            MOCK_ADAPT["MockInferenceAdapter<br/>(Procedural 3D Geometry)"]
-            REMBG_LOCAL["Rembg / BiRefNet<br/>(ONNX Runtime / CoreML)"]
-            QUAD_LOCAL["Local Blender QuadriFlow<br/>(Zero-CUDA Fallback)"]
+        subgraph LocalInf["Subsystems: Geometry & Inference (Local Fallback)"]
+            GEOM["Subsystem: Geometry (geometry/)<br/>(MeshGeometry, Binary GLB & OBJ Exporters)"]
+            MOCK_ADAPT["MockInferenceAdapter (inference/mock.py)<br/>(Deterministic Procedural 3D Engine)"]
+            REMBG_LOCAL["Rembg / BiRefNet Segmentation<br/>(ONNX Runtime CoreML / CPU)"]
         end
     end
 
-    subgraph CloudInf["Layer 3B: Remote Cloud GPU Infrastructure (Linux x86_64 / CUDA 12.x)"]
-        subgraph CloudAdapters["Remote GPU Adapters"]
+    subgraph CloudInf["Remote Cloud GPU Tier (Linux x86_64 / CUDA 12.x)"]
+        subgraph CloudAdapters["Inference Adapters (inference/)"]
             REP_ADAPT["ReplicateInferenceAdapter<br/>(REST API Client)"]
-            HF_ADAPT["HuggingFaceInferenceAdapter<br/>(Inference Endpoints)"]
-            CUSTOM_ADAPT["CustomServerAdapter<br/>(gRPC / FastMCP Proxy)"]
+            HF_ADAPT["HuggingFaceInferenceAdapter<br/>(Dedicated Endpoints)"]
+            CONNECTORS["Connectors Hub (connectors/)<br/>(TRELLIS.2, SMAL, anyCreature, MeshAnything)"]
         end
 
-        subgraph CloudModels["Dedicated Compute Nodes (NVIDIA RTX 4090 / A10G / A100)"]
-            FLUX_NODE["Stage 1: 2D Concept Synthesis<br/>(FLUX.1-schnell / SD-XL)"]
-            TRELLIS_NODE["Stage 2: 3D Diffusion Engine<br/>(TRELLIS.2 4B / Hunyuan3D-2.1)"]
-            SPCONV["Submanifold Sparse 3D Conv<br/>(spconv / CUTLASS Kernels)"]
-            RETOP_NODE["Stage 3: Autoregressive Retopo<br/>(MeshAnything V2 / nvdiffrast)"]
+        subgraph CloudModels["Dedicated Compute Nodes (RTX 4090 / A100)"]
+            STAGE1_GEN["Stage 1: 2D Concept Synthesis<br/>(FLUX.1-schnell / SD-XL)"]
+            STAGE2_GEN["Stage 2: 3D Latent Diffusion<br/>(TRELLIS.2 4B / Hunyuan3D-2.1)"]
+            STAGE3_GEN["Stage 3: Autoregressive Retopology<br/>(MeshAnything V2 / nvdiffrast)"]
         end
     end
 
     %% Communications and Dataflows
-    AG <-->|JSON-RPC 2.0 Protocol| STDIO
+    AG <-->|JSON-RPC 2.0 over stdio / SSE| STDIO
     STDIO <--> FAST_MCP
-    FAST_MCP --> VAL
-    VAL --> ORCH
+    FAST_MCP --> GATING
+    GATING --> REGISTRY
+    REGISTRY --> MODELS
+    REGISTRY --> PipelineSubsystems
+    PipelineSubsystems --> GEOM
+    PipelineSubsystems --> BRIDGE
 
-    ORCH -->|1. Coordinate Inference| MOCK_ADAPT
-    ORCH -->|1. Coordinate Inference| REP_ADAPT
-    ORCH -->|1. Coordinate Inference| HF_ADAPT
-    ORCH -->|1. Coordinate Inference| CUSTOM_ADAPT
-    ORCH -->|2. Coordinate Blender Scene| BRIDGE
-
-    REP_ADAPT -->|HTTPS REST| FLUX_NODE
-    REP_ADAPT -->|HTTPS REST| TRELLIS_NODE
-    HF_ADAPT -->|HTTPS REST| TRELLIS_NODE
-    CUSTOM_ADAPT -->|gRPC / HTTP2| CloudModels
-    TRELLIS_NODE --- SPCONV
-    CloudModels --- RETOP_NODE
+    REGISTRY -->|Inference Commands| MOCK_ADAPT
+    REGISTRY -->|Remote Inference| CloudAdapters
+    CloudAdapters --> CloudModels
 
     BRIDGE --> AST_SEC
     AST_SEC -->|Validated AST| TCP_CLIENT
-    AST_SEC -->|Fallback / Offline CI| CLI_RUNNER
+    AST_SEC -->|Fallback / Headless CI| CLI_RUNNER
 
-    TCP_CLIENT <-->|Localhost TCP Socket| TCP_SRV
+    TCP_CLIENT <-->|Localhost TCP Socket 9876| TCP_SRV
     TCP_SRV <-->|Thread-Safe Queue| TIMER_Q
     TIMER_Q --> BMESH
-    TIMER_Q --> RIGIFY
+    TIMER_Q --> GEO_NODES
     TIMER_Q --> SHADER
-    TIMER_Q --> METAL_EEVEE
+    TIMER_Q --> EEVEE_CYCLES
 
     CLI_RUNNER <-->|Subprocess stdio / Sentinel Tokens| BlenderHost
-
-    MOCK_ADAPT -.->|Local 3D Proxies| BRIDGE
-    REMBG_LOCAL -.->|Clean Alpha Masks| ORCH
-    QUAD_LOCAL -.->|Local Topology| BMESH
 
     classDef client fill:#e1f5fe,stroke:#0288d1,stroke-width:2px;
     classDef bridge fill:#fff3e0,stroke:#f57c00,stroke-width:2px;
     classDef blender fill:#e8f5e9,stroke:#388e3c,stroke-width:2px;
     classDef cloud fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px;
     classDef local fill:#ede7f6,stroke:#512da8,stroke-width:2px;
+    classDef pipeline fill:#e0f2f1,stroke:#00796b,stroke-width:2px;
 
     class ClientHost,AgentHost,MCPLayer client;
+    class PipelineSubsystems pipeline;
     class BridgeLayer bridge;
     class BlenderHost blender;
     class CloudInf,CloudAdapters,CloudModels cloud;
@@ -470,6 +473,76 @@ All internal Python exceptions, socket connection failures, AST security rejecti
     }
   }
 }
+```
+
+---
+
+### 3.6 Dual-Layer Gating Matrix & Tool Registration Flow (Mermaid)
+
+The diagram below illustrates the server lifecycle, tool registration of all 19 tools, environment flag resolution, and the dual-layer request interception architecture:
+
+```mermaid
+flowchart TD
+    subgraph Startup["Server Initialization (src/morphomesh/tools/)"]
+        INIT["FastMCP Server Instantiation<br/>(server_instance.py: mcp)"]
+        REG["register_all_tools(mcp)<br/>(registry.py)"]
+        REG_C["Register 7 Creature Tools"]
+        REG_H["Register 7 Human Tools"]
+        REG_I["Register 3 Inspection Tools"]
+        REG_A["Register 2 Animation Tools"]
+        APPLY["apply_tool_gating(mcp)<br/>(gating.py)"]
+    end
+
+    subgraph EnvFlags["Environment Variable Evaluation (_get_active_allowed_tool_names)"]
+        CHECK_ALL{"MORPHOMESH_INCLUDE_ALL_TOOLS<br/>== '1' / 'true' / 'all'?"}
+        ALLOW_17["Allowed Set = 17 Tools<br/>(Creature + Human + Inspection)"]
+        ALLOW_CREAT["Allowed Set = 7 Creature Tools<br/>(Default Base Stance)"]
+        CHECK_HUMAN{"MORPHOMESH_INCLUDE_HUMAN_TOOLS<br/>== '1'?"}
+        ADD_HUMAN["Add 7 Human Tools"]
+        CHECK_INSP{"MORPHOMESH_INCLUDE_INSPECTION_TOOLS<br/>== '1'?"}
+        ADD_INSP["Add 3 Inspection Tools"]
+        CHECK_ANIM{"MORPHOMESH_INCLUDE_ANIMATION_TOOLS<br/>== '1'?"}
+        ADD_ANIM["Add 2 Animation Tools"]
+    end
+
+    subgraph DualLayerInterception["Dual-Layer Request Interception"]
+        REQ_LIST["Agent Tool Discovery Request<br/>(tools/list)"]
+        HL_WRAPPER["Layer 1: High-Level Wrapper<br/>(mcp.list_tools)"]
+        LL_WRAPPER["Layer 2: Low-Level Handler<br/>(ListToolsRequest Handler)"]
+        FILTER_TOOLS["Filter Tools by Allowed Set"]
+        RETURN_LIST["Return Gated Tools List to Agent"]
+    end
+
+    subgraph DirectExecution["Execution Invariance"]
+        REQ_CALL["Agent Tool Execution Request<br/>(tools/call)"]
+        DIRECT_EXEC["mcp.call_tool()<br/>(Direct Execution)"]
+        EXEC_ANY["Execute Any of 19 Tools<br/>(100% Invariant / Unblocked)"]
+    end
+
+    INIT --> REG
+    REG --> REG_C & REG_H & REG_I & REG_A
+    REG_C & REG_H & REG_I & REG_A --> APPLY
+    APPLY --> HL_WRAPPER & LL_WRAPPER
+
+    REQ_LIST --> HL_WRAPPER & LL_WRAPPER
+    HL_WRAPPER & LL_WRAPPER --> CHECK_ALL
+    CHECK_ALL -- Yes --> ALLOW_17
+    CHECK_ALL -- No --> ALLOW_CREAT
+    ALLOW_CREAT --> CHECK_HUMAN
+    CHECK_HUMAN -- Yes --> ADD_HUMAN
+    CHECK_HUMAN -- No --> CHECK_INSP
+    ADD_HUMAN --> CHECK_INSP
+    CHECK_INSP -- Yes --> ADD_INSP
+    CHECK_INSP -- No --> CHECK_ANIM
+    ADD_INSP --> CHECK_ANIM
+    ALLOW_17 --> CHECK_ANIM
+    CHECK_ANIM -- Yes --> ADD_ANIM
+    CHECK_ANIM -- No --> FILTER_TOOLS
+    ADD_ANIM --> FILTER_TOOLS
+    FILTER_TOOLS --> RETURN_LIST
+
+    REQ_CALL --> DIRECT_EXEC
+    DIRECT_EXEC --> EXEC_ANY
 ```
 
 ---
@@ -856,19 +929,26 @@ To allow instant local development, zero API costs, and completely deterministic
 
 ---
 
-### 5.3 Remote Cloud GPU Adapters (Replicate, Hugging Face, Custom Linux Server)
+### 5.3 Remote Cloud Adapters (Gemini, Meshy AI, Replicate, Hugging Face, Custom Linux Server)
 
-For high-fidelity production creature generation, MorphoMesh provides three production cloud adapters:
+For high-fidelity production generation with zero local VRAM overhead, MorphoMesh provides dedicated cloud adapters:
 
-1. **`ReplicateInferenceAdapter`**:
+1. **`GeminiImageConnector` (Stage 1 Concept Art)**:
+   - Integrates Google Gemini & Imagen for instant 2D concept art generation conditioned on anatomical priors.
+   - Generates clean, photorealistic character/creature reference turnarounds in A-pose / T-pose with zero local GPU VRAM required.
+2. **`MeshyConnector` (Stage 2 Cloud 3D Reconstruction)**:
+   - Direct integration with Meshy AI OpenAPI v2 / v1 (`/openapi/v1/image-to-3d` and `/openapi/v2/text-to-3d`).
+   - Supports `/boost` workflow and smart quad topology generation (`topology="quad"`, `target_polycount=30000`).
+   - Generates watertight 3D meshes with complete 4-channel baked PBR texture suites (Albedo, Tangent Normal, Roughness, Metallic) in under 3 minutes.
+3. **`ReplicateInferenceAdapter`**:
    - Integrates with Replicate's REST API (`predictions.create`).
    - Stage 1: FLUX.1-schnell or SDXL with injected anatomical creature prompt templates.
    - Stage 2: TripoSR / Hunyuan3D-2 / InstantMesh.
    - Handles asynchronous polling with jittered exponential backoff and downloads binary artifacts to local cache.
-2. **`HuggingFaceInferenceAdapter`**:
+4. **`HuggingFaceInferenceAdapter`**:
    - Targets Hugging Face Serverless Inference or Dedicated Endpoints.
    - Deploys Tencent Hunyuan3D-2.1 with full PBR texture synthesis.
-3. **`CustomServerInferenceAdapter`**:
+5. **`CustomServerInferenceAdapter`**:
    - Communicates with a dedicated Linux GPU server (equipped with 1x or 2x NVIDIA RTX 4090 24GB or A100 80GB).
    - Hosts Microsoft **TRELLIS.2 (4B O-Voxel)** for unmatched geometric fidelity and **MeshAnything V2** for deep-learning autoregressive quad retopology.
 
@@ -1150,6 +1230,76 @@ The final stage organizes the asset hierarchy, configures shaders, sets up light
 5. **Metal-Accelerated EEVEE Next Viewport Render**:
    - Executes `bpy.ops.render.render(write_still=True)` using the EEVEE Next engine.
    - Encodes the resulting 1024x1024 PNG image as base64 and returns it to Google Antigravity as an MCP `ImageContent` object for visual verification.
+
+---
+
+### 6.8 Digital Human & Character Assembly Pipeline (Mermaid)
+
+The following flowchart diagrams the specialized digital human synthesis lifecycle (`human` -> `rigging` -> `wardrobe` -> `grooming` -> `assembler` -> `critic`) and closed-loop quality verification:
+
+```mermaid
+flowchart TD
+    subgraph S1_Human["Stage 1: Human Anatomy (human/)"]
+        MOLD["CC0 Base Mold Loader (mold_loader.py)<br/>(Watertight Female Base Mesh)"]
+        MORPH["Morphological Sculpting (morphology.py)<br/>(Teardrop Bust, 0.70 WHR, 5-Toed Feet)"]
+        VGROUPS["Vertex Groups & Landmarks (anatomy.py)<br/>(24 Standard Deformation Groups)"]
+        MOLD --> MORPH --> VGROUPS
+    end
+
+    subgraph S2_Rigging["Stage 2: Biomechanical Rigging (rigging/)"]
+        METARIG["Rigify Metarig Alignment (metarig.py)<br/>(163 DEF Bones & Articulated Digits)"]
+        ANTIPINCH["Anti-Pinch Weights (anti_pinch.py)<br/>(Volume-Preserving Joint Weights)"]
+        BLENDSHAPES["FACS Shape Keys (blendshapes.py)<br/>(52 ARKit Facial Morph Targets)"]
+        METARIG --> ANTIPINCH --> BLENDSHAPES
+    end
+
+    subgraph S3_Wardrobe["Stage 3: Dynamic Wardrobe (wardrobe/)"]
+        DRESS["Sundress Synthesis (garments.py)<br/>(Bodice, Waist Sash & Pleated Skirt)"]
+        SANDALS["Footwear (garments.py)<br/>(Flat Strappy Leather Sandals)"]
+        PROPS["Character Props (props.py)<br/>(10 Marionette Red Threads & Butterflies)"]
+        SKINNING["Cloth Simulation Weights (skinning.py)<br/>(Collision Margin + Zero Z-Fighting)"]
+        DRESS & SANDALS & PROPS --> SKINNING
+    end
+
+    subgraph S4_Grooming["Stage 4: Hair Grooming (grooming/)"]
+        HIME_SPLINES["Hime Cut Splines (hime_cut.py)<br/>(Straight Bangs, Sidelocks, Back Cascade)"]
+        HAIR_TREE["Geometry Nodes Curves (curves_pipeline.py)<br/>(Volumetric Strand Density & Tapering)"]
+        HIME_SPLINES --> HAIR_TREE
+    end
+
+    subgraph S5_Assembler["Stage 5: Master Assembler (assembler/)"]
+        SCENE_BUILD["Scene Hierarchy (scene_builder.py)<br/>(Body, Dress, Hair, Props, Studio Lights)"]
+        PBR_BAKE["4K PBR Texture Baker (pbr_baker.py)<br/>(Random Walk SSS, Albedo, Normal, Roughness)"]
+        PKG_EXPORT["Binary Packager (packager.py)<br/>(Master .blend, .glb with FACS, .fbx with DEF)"]
+        SCENE_BUILD --> PBR_BAKE --> PKG_EXPORT
+    end
+
+    subgraph S6_Critic["Stage 6: Closed-Loop QA (critic/)"]
+        BVH_TREE["PurePythonBVHTree Build (bvh.py)<br/>(Spatial Raycasting & Distance Queries)"]
+        PENETRATION["Penetration Check (penetration.py)<br/>(Cloth-Body & Hair-Scalp Collisions)"]
+        PROPORTIONS["Proportion Analysis (proportions.py)<br/>(Head Ratio & Golden Ratios)"]
+        DEFORMATION["Joint Pinch Analysis (deformation.py)<br/>(Volume Conservation Check)"]
+        QA_REPORT["Diagnostic Defect Report (reporter.py)<br/>(Pass/Fail Score & Remediation Suggestions)"]
+        BVH_TREE --> PENETRATION & PROPORTIONS & DEFORMATION --> QA_REPORT
+    end
+
+    VGROUPS --> METARIG
+    BLENDSHAPES --> DRESS
+    SKINNING --> HIME_SPLINES
+    HAIR_TREE --> SCENE_BUILD
+    PKG_EXPORT --> BVH_TREE
+
+    QA_REPORT -.->|Defects Found / Remediation Feedback| MORPH
+    QA_REPORT -.->|Passed / Clean Asset| PRODUCTION_READY["Production-Ready Verified Character Deliverable"]
+
+    classDef stage fill:#e0f2f1,stroke:#00796b,stroke-width:2px;
+    classDef critic fill:#fff3e0,stroke:#e65100,stroke-width:2px;
+    classDef done fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+
+    class S1_Human,S2_Rigging,S3_Wardrobe,S4_Grooming,S5_Assembler stage;
+    class S6_Critic critic;
+    class PRODUCTION_READY done;
+```
 
 ---
 

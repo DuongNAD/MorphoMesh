@@ -1,0 +1,14 @@
+{
+  "species_id": "veg_ground_pampas_01",
+  "preview_task_id": "01a08b3c-6e11-708e-9937-c2288a930ce1",
+  "refine_task_id": "01a08b3f-f95e-7210-8fac-fc5b491ef82e",
+  "vertex_count": 113545,
+  "face_count": 92151,
+  "source": "meshy",
+  "textures": {
+    "albedo": "textures/albedo.png",
+    "normal": "textures/normal.png",
+    "roughness": "textures/roughness.png",
+    "metallic": "textures/metallic.png"
+  }
+}

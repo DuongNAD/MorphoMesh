@@ -1,0 +1,113 @@
+{
+  "schema_version": "1.0.0",
+  "species_id": "veg_vine_ivy_01",
+  "taxonomy": {
+    "common_name": "English Ivy",
+    "scientific_name": "Hedera helix",
+    "family": "Araliaceae",
+    "category": "climbing_vines_epiphytes",
+    "category_id": "climbing_vines_epiphytes",
+    "category_name": "Climbing Vines & Epiphytes",
+    "short_category": "vines",
+    "biome": "Temperate Woodlands & Shaded Cliffs",
+    "growth_habit": "Woody evergreen creeping and climbing liana thicket",
+    "branching_pattern": "Intertwined twisting vine runners with climbing aerial rootlet pads forming a natural clump",
+    "foliage_density": "dense"
+  },
+  "geometry": {
+    "vertex_count": 4064,
+    "face_count": 3280,
+    "triangle_count": 3280,
+    "has_armature": false,
+    "has_skins": false,
+    "pivot_grounded": true,
+    "ground_contact_z": 0.0,
+    "ground_z_min_m": 0.0,
+    "base_centroid_xy": [
+      0.0,
+      0.0
+    ],
+    "bounding_box": {
+      "min_point": [
+        -0.3676,
+        -0.3828,
+        0.0
+      ],
+      "max_point": [
+        0.3878,
+        0.394,
+        1.8
+      ],
+      "dimensions": [
+        0.7555,
+        0.7768,
+        1.8
+      ]
+    },
+    "dimensions_m": {
+      "height_m": 1.8,
+      "canopy_spread_m": 0.7768,
+      "width_m": 0.7555,
+      "depth_m": 0.7768,
+      "target_height_m": 1.8,
+      "target_canopy_spread_m": 1.4
+    }
+  },
+  "normalization": {
+    "target_height_m": 1.8,
+    "target_canopy_spread_m": 1.4,
+    "scale_factor": 0.925542,
+    "normalized_height_m": 1.8,
+    "normalized_canopy_spread_m": 0.7768,
+    "strategy": "uniform_height"
+  },
+  "materials": {
+    "workflow": "Metallic-Roughness PBR",
+    "double_sided": true,
+    "channels": [
+      "albedo",
+      "normal",
+      "roughness",
+      "metallic"
+    ],
+    "texture_format": "PNG"
+  },
+  "files": {
+    "glb": "veg_vine_ivy_01.glb",
+    "obj": "veg_vine_ivy_01.obj",
+    "mtl": "veg_vine_ivy_01.mtl",
+    "textures": {
+      "albedo": "textures/albedo.png",
+      "normal": "textures/normal.png",
+      "roughness": "textures/roughness.png",
+      "metallic": "textures/metallic.png"
+    }
+  },
+  "provenance": {
+    "source": "procedural",
+    "export_timestamp": "2026-09-10T07:29:11.026037+00:00",
+    "generator_metadata": {
+      "species_id": "veg_vine_ivy_01",
+      "category_id": "climbing_vines_epiphytes",
+      "source": "procedural",
+      "seed": 583066862,
+      "vertex_count": 4064,
+      "face_count": 3280,
+      "quad_count": 1640,
+      "tri_count": 0,
+      "quad_ratio": 1.0
+    }
+  },
+  "metadata": {
+    "scale_factor": 0.9255420775844597,
+    "species_id": "veg_vine_ivy_01",
+    "category_id": "climbing_vines_epiphytes",
+    "source": "procedural",
+    "seed": 583066862,
+    "vertex_count": 4064,
+    "face_count": 3280,
+    "quad_count": 1640,
+    "tri_count": 0,
+    "quad_ratio": 1.0
+  }
+}

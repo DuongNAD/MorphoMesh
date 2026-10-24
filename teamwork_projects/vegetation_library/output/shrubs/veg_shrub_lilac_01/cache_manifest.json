@@ -1,0 +1,14 @@
+{
+  "species_id": "veg_shrub_lilac_01",
+  "preview_task_id": "01a08b38-3082-7319-af18-7544950e5f76",
+  "refine_task_id": "01a08b3a-aa8a-73b0-9034-513f4f569ab2",
+  "vertex_count": 58958,
+  "face_count": 63266,
+  "source": "meshy",
+  "textures": {
+    "albedo": "textures/albedo.png",
+    "normal": "textures/normal.png",
+    "roughness": "textures/roughness.png",
+    "metallic": "textures/metallic.png"
+  }
+}

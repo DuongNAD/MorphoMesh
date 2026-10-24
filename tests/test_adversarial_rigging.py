@@ -193,8 +193,8 @@ class TestJointDeformationSimulation:
         mesh_res, _, weights = rigging_data
         verts = mesh_res.mesh.vertices
         lm = mesh_res.landmarks
-        p_el = lm["elbow_L"]
-        p_sh = lm["shoulder_L"]
+        p_el = lm.get("joint-l-elbow", lm["elbow_L"])
+        p_sh = lm.get("joint-l-shoulder", lm["shoulder_L"])
 
         # Hinge axis u perpendicular to arm direction and Y
         v_arm = (p_el[0] - p_sh[0], p_el[1] - p_sh[1], p_el[2] - p_sh[2])

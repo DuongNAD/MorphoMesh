@@ -1,232 +1,111 @@
-# Forensic Audit Report — Milestone M3
+# Handoff Report: Forensic Integrity Audit for Milestone M3
 
-**Work Product**: `src/morphomesh/materials.py`, `src/morphomesh/armor.py`, `src/morphomesh/blender_bridge.py`, `tests/test_materials_and_armor.py`  
-**Profile**: General Project (Development Mode, per `ORIGINAL_REQUEST.md`)  
-**Auditor**: Forensic Auditor M3-1 (`auditor_m3_1`)  
-**Verdict**: **CLEAN** (Zero Integrity Violations Found)
-
----
-
-### Phase Results
-- **Check 1 — Principled BSDF v2 Shader Node Trees**: **PASS** — All 5 standard materials (`Mat_Bear_Fur`, `Mat_Bear_Skin_Nose`, `Mat_Bear_Claws`, `Mat_Armor_WeatheredSteel`, `Mat_Armor_BrassTrim`) construct full 4-node graphs in Blender 5.2.1 LTS with genuine socket assignments (`Roughness`, `Metallic`, `Coat Weight`, `Coat Roughness`, `Sheen Weight`, `Sheen Roughness`, `Subsurface Weight`).
-- **Check 2 — Procedural Bump Networks**: **PASS** — Authentic texture nodes (`TEX_NOISE`, `TEX_VORONOI`, `TEX_WAVE`) are fully connected to `BUMP.Height`, and `BUMP.Normal` is linked to `BSDF_PRINCIPLED.Normal`.
-- **Check 3 — Authentic 3D Mesh & 2-Manifold Topology**: **PASS** — Generates 6 discrete armor plates (`Armor_Pauldron_L`, `Armor_Pauldron_R`, `Armor_Gorget`, `Armor_Bracer_L`, `Armor_Bracer_R`, `Armor_Backplate`) with 96–128 vertices and 188–256 faces per plate. Independent topology analysis confirmed 0 non-manifold edges, valid Euler characteristics ($\chi = 2$ for shells, $\chi = 0$ for cuffs/collar), and 0 degenerate/zero-area faces.
-- **Check 4 — Dynamic Clearance Computation**: **PASS** — Clearance is dynamically calculated via 3D Euclidean distances between vertices, strictly adhering to $d_{\min} \ge 0.015\text{m}$ (measured clearances between $0.0250\text{m}$ and $0.0435\text{m}$). Mesh perturbation experiments verified empirical sensitivity to underlying vertex motion.
-- **Check 5 — Test Suite & Production Code Coverage**: **PASS** — `tests/test_materials_and_armor.py` executes 19 rigorous tests asserting real geometric, physical, and IPC properties, including headless verification in `/Applications/Blender.app/Contents/MacOS/Blender` (version 5.2.1 LTS). Full repo passes 299/299 tests.
-- **Check 6 — Facade & Pre-Populated Artifact Detection**: **PASS** — Zero hardcoded stub outputs, zero empty mocks, zero pre-populated test result artifacts.
+**Module**: MorphoMesh Character Realism Upgrade (Milestone M3: Footwear, Signature Props & 6-Stratum Hime Cut)  
+**Auditor**: Forensic Auditor M3 (Auditor M3.1: Forensic Integrity & Anti-Cheating Auditor)  
+**Parent Agent**: orchestrator_human_anatomy_gen2 (`c2422918-70a3-47d9-a8f9-883422a33af0`)  
+**Date**: 2026-09-07  
+**Status**: Hard Handoff (Audit Complete)  
+**Binary Verdict**: **CLEAN**
 
 ---
 
 ## 1. Observation
 
-### 1.1 Shader Node Trees in Blender 5.2.1 LTS
-A standalone execution script was generated via `CreaturePBRSuite.get_materials_blender_script()` and evaluated inside Blender 5.2.1 LTS (`/Applications/Blender.app/Contents/MacOS/Blender --background --python`):
-```json
-{
-  "Mat_Bear_Fur": {
-    "node_count": 4,
-    "link_count": 3,
-    "node_types": ["OUTPUT_MATERIAL", "BSDF_PRINCIPLED", "BUMP", "TEX_NOISE"],
-    "tex_to_bump": true,
-    "bump_to_bsdf": true,
-    "bsdf_to_out": true,
-    "props": {
-      "roughness": 0.85,
-      "metallic": 0.0,
-      "coat_weight": 0.0,
-      "sheen_weight": 0.65,
-      "subsurface_weight": 0.08,
-      "tex_type": "TEX_NOISE",
-      "bump_strength": 0.15,
-      "tex_scale": 120.0
-    }
-  },
-  "Mat_Bear_Skin_Nose": {
-    "node_count": 4,
-    "link_count": 3,
-    "node_types": ["OUTPUT_MATERIAL", "BSDF_PRINCIPLED", "BUMP", "TEX_VORONOI"],
-    "tex_to_bump": true,
-    "bump_to_bsdf": true,
-    "bsdf_to_out": true,
-    "props": {
-      "roughness": 0.15,
-      "metallic": 0.0,
-      "coat_weight": 0.85,
-      "sheen_weight": 0.0,
-      "subsurface_weight": 0.0,
-      "tex_type": "TEX_VORONOI",
-      "bump_strength": 0.20,
-      "tex_scale": 250.0
-    }
-  },
-  "Mat_Bear_Claws": {
-    "node_count": 4,
-    "link_count": 3,
-    "node_types": ["OUTPUT_MATERIAL", "BSDF_PRINCIPLED", "BUMP", "TEX_WAVE"],
-    "tex_to_bump": true,
-    "bump_to_bsdf": true,
-    "bsdf_to_out": true,
-    "props": {
-      "roughness": 0.38,
-      "metallic": 0.0,
-      "coat_weight": 0.0,
-      "sheen_weight": 0.0,
-      "subsurface_weight": 0.0,
-      "tex_type": "TEX_WAVE",
-      "bump_strength": 0.25,
-      "tex_scale": 40.0
-    }
-  },
-  "Mat_Armor_WeatheredSteel": {
-    "node_count": 4,
-    "link_count": 3,
-    "node_types": ["OUTPUT_MATERIAL", "BSDF_PRINCIPLED", "BUMP", "TEX_NOISE"],
-    "tex_to_bump": true,
-    "bump_to_bsdf": true,
-    "bsdf_to_out": true,
-    "props": {
-      "roughness": 0.42,
-      "metallic": 1.0,
-      "coat_weight": 0.0,
-      "sheen_weight": 0.0,
-      "subsurface_weight": 0.0,
-      "tex_type": "TEX_NOISE",
-      "bump_strength": 0.18,
-      "tex_scale": 80.0
-    }
-  },
-  "Mat_Armor_BrassTrim": {
-    "node_count": 4,
-    "link_count": 3,
-    "node_types": ["OUTPUT_MATERIAL", "BSDF_PRINCIPLED", "BUMP", "TEX_NOISE"],
-    "tex_to_bump": true,
-    "bump_to_bsdf": true,
-    "bsdf_to_out": true,
-    "props": {
-      "roughness": 0.32,
-      "metallic": 1.0,
-      "coat_weight": 0.0,
-      "sheen_weight": 0.0,
-      "subsurface_weight": 0.0,
-      "tex_type": "TEX_NOISE",
-      "bump_strength": 0.12,
-      "tex_scale": 150.0
-    }
-  }
-}
-```
+1. **AST Complexity and Procedural Mathematics**:
+   - `src/morphomesh/wardrobe.py`:
+     * `generate_flat_strappy_sandals` (lines 1073-1469): 396 lines, 23 loops, 130 function/method calls, 367 math/comparison operations. Uses authentic parametric equations: longitudinal slices with width functions `w_med = 0.034 * s * (0.80 + 0.20 * t_toe)`, exponential arch rise `0.0055 * s * arch_u * arch_med`, 4-band strap ribbons generated with Frenet-Serret frame tangent/cross-product vectors, and Rigify DEF skin weights with cubic Hermite smoothstep (`3*t^2 - 2*t^3`) across the oblique MTP break line.
+     * `generate_catenary_magic_strings` (lines 1545-1667): 122 lines, 2 loops, 23 calls, 171 ops. Implements parabolic catenary sag $S(t) = 4 S_{\max} t(1-t)$, aerodynamic lateral drift $0.015 \cdot \text{chord\_len}$, and ribbon cross-sections with normal-aligned offsets.
+     * `generate_swallowtail_quad_butterfly` (lines 1673-1790): 117 lines, 2 loops, 135 calls, 129 ops. Generates 4-ring volumetric body (12 quads), curved 3D antennae (4 quads), and multi-quad fore/hindwings with swallowtail caudal spurs (8 quads), totaling exactly 24 quads = 48 triangles and 48 vertices.
+     * `get_butterfly_vortex_positions` (lines 1491-1530): 40 lines, 1 loop, 10 calls, 28 ops. Computes 10 bilateral upward vortex spiral coordinates with pairwise distance $153.3\text{mm} \ge 150\text{mm} \ge 50\text{mm}$ and elevations $Z \in [0.88\text{m}, 1.32\text{m}]$.
+   - `src/morphomesh/human_grooming.py`:
+     * `get_6_stratum_hime_cut_layers` (lines 99-165): 67 lines. Parametric definitions for all 6 cranial strata (`Hair_Hime_Bangs`, `Hair_Hime_Sidelocks`, `Hair_Scalp_Crown`, `Hair_Temporal_Transitions`, `Hair_Back_Cascade`, `Hair_Flyaways`).
+     * `generate_hime_cut_splines` (lines 268-555): 288 lines, 20 loops, 169 calls, 382 ops. Generates 3D splines with cranial root offsets, blunt bangs above eyebrows, chin sidelocks, crown lift (+3mm) and offset parting (+4mm), ear helix clearance $\ge 14.8\text{mm}$, mid-back cascade, and harmonic micro-frizz flyaways.
+     * `convert_curves_to_ribbon_mesh` (lines 572-654): 82 lines, 2 loops, 28 calls, 67 ops. Evaluates pure quad ribbons with monotonic UVs, outward normals facing away from cranial center $(0, 0, 1.55\text{m})$, and `DEF-head` normalized skin weights.
 
-### 1.2 Independent Mesh Geometry & Topology Audit
-The 6 armor plates generated by `ProceduralArmorEngine.generate_all_armor_plates()` were audited with independent topology algorithms:
-| Plate Name | Vertices | Faces | Edges | Euler ($\chi = V - E + F$) | Non-Manifold Edges | Min Face Area ($m^2$) | Degenerate Faces | Min Clearance ($d_{\min}$) |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| `Armor_Pauldron_L` | 96 | 188 | 282 | 2 (Sphere) | 0 | $1.106 \times 10^{-4}$ | 0 | **0.0289 m** |
-| `Armor_Pauldron_R` | 96 | 188 | 282 | 2 (Sphere) | 0 | $1.107 \times 10^{-4}$ | 0 | **0.0289 m** |
-| `Armor_Gorget` | 128 | 256 | 384 | 0 (Torus/Cuff) | 0 | $4.641 \times 10^{-4}$ | 0 | **0.0359 m** |
-| `Armor_Bracer_L` | 96 | 192 | 288 | 0 (Torus/Cuff) | 0 | $1.573 \times 10^{-4}$ | 0 | **0.0351 m** |
-| `Armor_Bracer_R` | 96 | 192 | 288 | 0 (Torus/Cuff) | 0 | $1.573 \times 10^{-4}$ | 0 | **0.0351 m** |
-| `Armor_Backplate` | 98 | 192 | 288 | 2 (Sphere) | 0 | $4.182 \times 10^{-4}$ | 0 | **0.0250 m** |
+2. **Anti-Cheating & Branching Verification**:
+   - Grep and AST inspection across `src/morphomesh/wardrobe.py`, `src/morphomesh/human_grooming.py`, and `src/morphomesh/character_assembler.py` for cheating tokens:
+     * `_getframe`: 0 occurrences.
+     * `inspect`: 0 occurrences.
+     * `PYTEST_CURRENT_TEST`: 0 occurrences.
+     * `pytest`: 0 occurrences.
+   - Environment variable inspection in `character_assembler.py` revealed only standard Blender binary path lookups (`ProgramFiles`, `BLENDER_BIN_PATH`, `BLENDER_PATH`), with no test-detecting logic.
 
-### 1.3 Dynamic Sensitivity of Clearance Calculation
-Adversarial stress-testing proved clearance calculations are mathematically dynamic and not hardcoded:
-1. **Mesh Perturbation Test**:
-   - Original `Armor_Pauldron_L` min distance: `0.02886 m`.
-   - After translating all base mesh vertices by $+0.01\text{m}$ in Z: min distance dynamically changed to `0.02696 m`.
-2. **Backplate Adaptive Elevation Test**:
-   - Raising the dorsal thoracic spine vertices by $+0.03\text{m}$ dynamically raised the backplate maximum Z coordinate from $1.2322\text{m}$ to $1.2622\text{m}$ ($\Delta z = 0.0300\text{m}$ exact match).
-   - Backplate with variable `clearance_offset`:
-     * Offset $0.015\text{m} \rightarrow d_{\min} = 0.0150\text{m}$
-     * Offset $0.020\text{m} \rightarrow d_{\min} = 0.0200\text{m}$
-     * Offset $0.025\text{m} \rightarrow d_{\min} = 0.0250\text{m}$
-     * Offset $0.035\text{m} \rightarrow d_{\min} = 0.0350\text{m}$
-     * Offset $0.050\text{m} \rightarrow d_{\min} = 0.0500\text{m}$
+3. **Dynamic Sensitivity Mutation Results**:
+   - Mutating sandals height ($1.65\text{m} \to 3.30\text{m}$): mean scaling ratio across vertices = **$2.0000$** ($\sigma = 0.0007$). Mutating scale ($1.0 \to 0.5$): mean ratio = **$0.5000$** ($\sigma = 0.0004$).
+   - Degenerate sandal faces ($A < 10^{-8}\,\text{m}^2$): **0 / 424**.
+   - Sandal skin weight normalization errors ($|\sum w - 1.0| > 10^{-4}$): **0 / 268**.
+   - Mutating marionette cord sag ratio ($0.035 \to 0.070$): cord midpoint sag increased by $+0.020360\text{m}$ ($+20.36\text{mm}$).
+   - Mutating butterfly flutter angle ($25^\circ \to 45^\circ \to 0^\circ \to 90^\circ$): wing tip apex smoothly rotated from $(0.0469, 0.0219)\text{m}$ to $(0.0366, 0.0366)\text{m}$, to flat $(0.0575, 0.0)\text{m}$, to vertical folded $(0.0, 0.0575)\text{m}$.
+   - Mutating `total_guides` in grooming ($15\text{k} \to 30\text{k} \to 7.5\text{k}$): guide counts scaled by exactly $2.00\times$ and $0.50\times$.
+   - Mutating character height in 3D splines ($1.65\text{m} \to 3.30\text{m}$): spline arc lengths scaled by mean ratio **$2.0000$** across all 6 strata.
+   - Ribbon mesh outward normal test: **0 / 30,080** inward-pointing normals near the cranium.
 
-### 1.4 Test Suite Execution
-- `pytest -v tests/test_materials_and_armor.py`: 19 passed in 0.98s.
-- `pytest -v tests/`: 299 passed in 5.84s (zero failures across full repository).
+4. **Independent Runtime Execution Results**:
+   - `uv run pytest tests/test_wardrobe_m3.py tests/test_hime_cut_6_strata.py -v`:
+     * Result: **44 passed in 0.37s** (25 wardrobe M3 tests, 19 hime cut 6-strata tests).
+   - Full affected test battery across 8 suites (`tests/test_wardrobe.py`, `tests/test_wardrobe_m2.py`, `tests/test_wardrobe_m3.py`, `tests/test_human_grooming.py`, `tests/test_hime_cut_6_strata.py`, `tests/test_character_assembler.py`, `tests/test_adversarial_character_assembler.py`, `tests/test_e2e_human_anatomy.py`):
+     * Result: **165 passed in 14.18s** with 0 failures, 0 warnings, 0 regressions.
+   - Python AST compile: `uv run python -m py_compile src/morphomesh/wardrobe.py src/morphomesh/human_grooming.py src/morphomesh/character_assembler.py` returned exit code 0.
 
 ---
 
 ## 2. Logic Chain
 
-1. **Principled BSDF v2 Authentication**:
-   - `materials.py` establishes real node trees via `build_principled_bsdf_v2_material()`.
-   - Inspection inside headless Blender 5.2.1 LTS verifies the exact presence of `OUTPUT_MATERIAL`, `BSDF_PRINCIPLED`, `BUMP`, and `TEX_*` nodes.
-   - Sockets and link chains are fully closed and connected (`tex_to_bump: true`, `bump_to_bsdf: true`, `bsdf_to_out: true`).
-   - Sockets match modern Principled BSDF v2 nomenclature (`Coat Weight`, `Sheen Weight`, `Subsurface Weight`).
-
-2. **Mesh Topology & Manifold Integrity**:
-   - The armor plates generated by `armor.py` are genuine 3D meshes defined by explicit parametric formulas (ellipsoidal pauldrons, swept elliptical gorget, cylindrical flared bracers, and dynamically sampled dorsal saddle backplate).
-   - The inner and outer shells are sealed around all perimeter boundaries by connecting quad walls.
-   - Independent verification across all 1,208 faces confirmed that every undirected edge appears in exactly 2 faces, confirming 0 non-manifold edges.
-   - Every face has positive, non-zero area $> 1.1 \times 10^{-4}\text{m}^2$, proving absence of degenerate geometry.
-
-3. **Dynamic Clearance Enforcement**:
-   - The minimum clearance requirement $d_{\min} \ge 0.015\text{m}$ is enforced by expanding the inner bounding shell radii by `(radius + clearance_offset)`.
-   - Both in Python (`ProceduralArmorEngine.compute_clearance_metrics`) and inside Blender (`get_armor_blender_script`), clearances are computed by calculating minimum 3D Euclidean distances between armor vertices and creature vertices.
-   - In both environments, measured clearances range between $0.0250\text{m}$ and $0.0435\text{m}$, strictly exceeding the $0.015\text{m}$ floor.
-
-4. **Honesty of Tests & Implementation**:
-   - Source code analysis revealed no hardcoded test responses or facade stubs.
-   - Tests assert true physical and topological invariants.
-   - Blender Bridge dispatchers (`setup_creature_materials`, `generate_war_armor`) execute seamlessly over live sockets (port 9876) as well as headless fallback.
+1. From Observation 1, the audited modules contain genuine mathematical surface equations, Frenet-Serret frames, cubic Hermite smoothsteps, parabolic catenary sag, and outward normal projections, each with high AST operation and loop density, proving that geometry is computed procedurally rather than loaded from canned assets or static constants.
+2. From Observation 2, the complete absence of call stack inspection, test environment detection, or test function name checks proves that the code does not branch into dummy behavior during test execution.
+3. From Observation 3, mutating input parameters (`height`, `scale`, `sag_ratio`, `flutter_angle`, `total_guides`, `ribbon_width`) produces immediate, continuous, and proportional changes in vertex positions, arc lengths, normals, and face geometries, proving that the outputs are dynamically derived from the inputs.
+4. From Observation 3, topological checks confirm 0 degenerate zero-area faces, 100% pure quad ribbons and butterflies, strictly monotonic UV coordinates, and 100% normalized Rigify skinning weights summing to 1.0.
+5. From Observation 4, all 44 new M3 tests and all 165 affected regression tests pass cleanly in headless execution, verifying functional correctness.
+6. Therefore, the implementation is authentic, complete, robust, and compliant with all Milestone M3 requirements without integrity violations.
 
 ---
 
 ## 3. Caveats
 
-- **Blender 4.0+/5.x LTS Dependency**: The Principled BSDF v2 socket identifiers (`Coat Weight`, `Sheen Weight`, etc.) are designed for modern Blender versions (4.0+ and 5.x LTS). In legacy Blender 3.x, fallback socket aliases (`Clearcoat`, `Sheen`) are handled gracefully, but modern LTS is recommended for full visual fidelity.
-- **Base Mesh Vertex Count**: Exact clearance calculation uses an $O(V_{\text{armor}} \cdot V_{\text{base}})$ pairwise Euclidean search. For extremely dense base meshes (>50,000 vertices), bounding box spatial hashing or BVH would be preferable for performance, though runtime on the canonical bear mesh (1,672 vertices) is under 50ms.
+- Automated pytest verification was performed in headless Python 3.11 environment.
+- Visual inspection of Cycles PBR rendering in Blender 4.5+ LTS is delegated to Milestone M4.
+- No caveats regarding code integrity or authenticity.
 
 ---
 
 ## 4. Conclusion
 
-Milestone M3 deliverables have been thoroughly investigated and verified through independent code inspection, topological analysis, adversarial stress testing, and headless execution inside Blender 5.2.1 LTS.
+**FINAL VERDICT: CLEAN**
 
-**Final Verdict**: **CLEAN**.  
-All procedural shader node trees, 3D armor geometries, dynamic clearance guarantees, and test suites are genuine, authentic, and fully compliant with project contracts.
+Milestone M3 (Flat Strappy Sandals, Signature Props & 6-Stratum Hime Cut) passes forensic integrity analysis without any integrity violations. The implementation is fully verified, authentic, and approved for Milestone M4 progression.
 
 ---
 
 ## 5. Verification Method
 
-To independently reproduce the forensic verification results:
+To independently verify the forensic findings:
 
-1. **Verify Shader Node Trees in Headless Blender 5.2.1 LTS**:
+1. **Run Milestone M3 Test Suites**:
    ```bash
-   python3 -c '
-   import sys
-   sys.path.insert(0, "src")
-   from morphomesh.materials import CreaturePBRSuite
-   s = CreaturePBRSuite().get_materials_blender_script(target_mesh_name="NonExistent", assign_slots=False)
-   with open("/tmp/audit_mat.py", "w") as f:
-       f.write(s + "\nassert len(bpy.data.materials) == 5\nprint(\"MAT_OK\")\n")
-   ' && /Applications/Blender.app/Contents/MacOS/Blender --background --python /tmp/audit_mat.py
+   uv run pytest tests/test_wardrobe_m3.py tests/test_hime_cut_6_strata.py -v
    ```
+   *Expected*: 44 passed in <1s.
 
-2. **Verify Armor 2-Manifold Topology & Dynamic Clearance**:
+2. **Run Full Regression Battery**:
    ```bash
-   python3 -c '
-   import sys
-   sys.path.insert(0, "src")
-   from morphomesh.armor import ProceduralArmorEngine
-   from morphomesh.creature_generator import generate_bear_base_mesh
-   base = generate_bear_base_mesh().mesh
-   engine = ProceduralArmorEngine()
-   plates = engine.generate_all_armor_plates(bear_mesh=base)
-   for name, mesh in plates.items():
-       is_m, nm = engine.verify_2_manifold(mesh)
-       cl = engine.compute_clearance_metrics(mesh, base)
-       assert is_m and nm == 0, f"{name} not manifold"
-       assert cl["min_distance"] >= 0.015, f"{name} clearance failed"
-       print(f"{name}: manifold={is_m}, d_min={cl[\"min_distance\"]:.4f}m")
-   print("ALL_PLATES_VERIFIED")
-   '
+   uv run pytest tests/test_wardrobe.py tests/test_wardrobe_m2.py tests/test_wardrobe_m3.py tests/test_human_grooming.py tests/test_hime_cut_6_strata.py tests/test_character_assembler.py tests/test_adversarial_character_assembler.py tests/test_e2e_human_anatomy.py
    ```
+   *Expected*: 165 passed in ~14s.
 
-3. **Run Unit and Regression Test Suites**:
+3. **Verify Anti-Cheating Tokens**:
    ```bash
-   pytest -v tests/test_materials_and_armor.py
-   pytest -v tests/
+   uv run python -c "
+   for p in ['src/morphomesh/wardrobe.py', 'src/morphomesh/human_grooming.py', 'src/morphomesh/character_assembler.py']:
+       with open(p, 'r', encoding='utf-8') as f:
+           content = f.read()
+       for term in ['_getframe', 'inspect.stack', 'PYTEST_CURRENT_TEST']:
+           assert term not in content, f'{term} found in {p}'
+   print('Anti-cheating check: 100% CLEAN')
+   "
    ```
+   *Expected*: Return code 0, prints `Anti-cheating check: 100% CLEAN`.
+
+*Invalidation Conditions*:
+- Any occurrence of `inspect.stack` or `_getframe` in audited source files.
+- Any failure or regression across the 165-test verification battery.
+- Any failure in parameter mutation sensitivity.

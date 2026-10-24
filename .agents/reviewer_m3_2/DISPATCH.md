@@ -42,3 +42,35 @@ Independently review Worker M3-2's fixes:
 Run `pytest -v tests/test_m3_adversarial_materials_and_armor.py` and `pytest -v tests/`.
 Verify that Pauldron_R in Blender 5.2.1 LTS is watertight (0 non-manifold edges), Backplate has positive signed volume, and clearances across all scales are >= 0.015m.
 Deliver your verdict (APPROVE or REQUEST_CHANGES) in `handoff.md` and message orchestrator.
+
+## 2026-09-07T16:17:35Z
+You are Reviewer 2 (Reviewer M3.2: 6-Stratum Hime Cut & Character Assembly Reviewer) for MorphoMesh Milestone M3.
+Your working directory is: E:\tool\mcp\MorphoMesh\.agents\reviewer_m3_2
+
+MANDATORY FIRST STEP:
+You MUST read the following authoritative specification files:
+1. ORIGINAL_REQUEST.md at: E:\tool\mcp\MorphoMesh\ORIGINAL_REQUEST.md
+2. PROJECT.md at: E:\tool\mcp\MorphoMesh\.agents\orchestrator_human_anatomy_gen2\PROJECT.md
+3. Worker M3 Handoff & Changes:
+   - E:\tool\mcp\MorphoMesh\.agents\worker_m3\handoff.md
+   - E:\tool\mcp\MorphoMesh\.agents\worker_m3\changes.md
+
+YOUR OBJECTIVE:
+Review `src/morphomesh/human_grooming.py`, `src/morphomesh/character_assembler.py`, and `tests/test_hime_cut_6_strata.py` for correctness, completeness, robustness, and architectural fidelity.
+
+SPECIFIC REVIEW TASKS:
+1. Inspect `src/morphomesh/human_grooming.py`:
+   - Verify 6 authentic cranial strata in `get_6_stratum_hime_cut_layers`:
+     * Stratum 1: Blunt straight bangs cleanly cut above eyebrows ($Z_{\text{tip}} \in [1.545\text{m}, 1.555\text{m}]$).
+     * Stratum 2: Symmetrical cheek-length sidelocks (*bins/binzas*) framing jawline and chin down to $Z_{\text{tip}} \approx 1.418\text{m} \approx 1.42\text{m}$.
+     * Stratum 3: Scalp crown cap providing root volume ($+3\text{mm}$ lift) and offset parting ($+4\text{mm}$).
+     * Stratum 4: Temporal transitions wrapping naturally around ears ($d \ge 0.015\text{m}$ clearance).
+     * Stratum 5: Flowing dorsal cascade falling past shoulders to mid-back ($Z_{\text{tip}} \approx 0.950\text{m}$, $+15\text{mm}$ scapular clearance).
+     * Stratum 6: Flyaway strands (500 micro-frizz guide strands) for airy photorealism.
+   - Verify backward compatibility: `get_default_hime_cut_layers(pure_strata=False)` preserves legacy keys for existing test suites.
+   - Verify pure-quad ribbon mesh evaluator (`convert_curves_to_ribbon_mesh`): monotonic UVs, outward normals facing away from cranial center, and normalized `DEF-head` Rigify bone binding.
+2. Inspect `src/morphomesh/character_assembler.py`:
+   - Verify Armature modifier and fallback bone parenting to `DEF-head` for Curves objects lacking mesh vertices.
+3. Run tests: `uv run pytest tests/test_hime_cut_6_strata.py tests/test_human_grooming.py tests/test_character_assembler.py tests/test_e2e_human_anatomy.py -v`.
+4. Provide an explicit verdict in your handoff report: `APPROVE` or `REQUEST_CHANGES`.
+

@@ -1,26 +1,33 @@
-## 2026-09-07T04:31:50Z
+## 2026-09-07T14:21:35Z
 
 <USER_REQUEST>
-You are Explorer M2_3: Camera & Viewport Test Suite Explorer.
-Your working directory is: e:\tool\mcp\MorphoMesh\.agents\explorer_m2_3
-Your parent orchestrator conversation ID is: 577aaa33-6b3f-4ebc-93eb-fcc632d94bc9
-The authoritative user request is at: e:\tool\mcp\MorphoMesh\ORIGINAL_REQUEST.md (specifically § 2026-09-07T03:34:32Z). You MUST read this file first.
-The project scope document is at: e:\tool\mcp\MorphoMesh\PROJECT.md (specifically Milestone 2).
+You are an Explorer subagent (Explorer M2.3: Sash, Bow Knot & Rigify Skinning Investigator) for MorphoMesh Milestone M2.
+Your working directory is: E:\tool\mcp\MorphoMesh\.agents\explorer_m2_3
 
-Objective:
-Design comprehensive automated test suites `tests/test_inspector_camera.py` and `tests/test_multiview_rendering.py`:
-1. Mathematical unit tests:
-   - Bounding box and bounding sphere calculations across diverse mesh topologies.
-   - Framing distance solver validation against ground-truth trigonometry.
-   - Viewpoint orientation alignment and look-at quaternion verification.
-   - Sub-region anatomical center derivation for head, torso, hands, feet.
-2. Viewport rendering tests:
-   - Test single viewport capture and multi-angle batch capture.
-   - Test shading mode parameters (`SOLID`, `RANDOM`, `MATERIAL`).
-   - Test dual-mode execution (socket interactive mode and headless workbench mode).
-   - Test base64 image generation, file output, and dimension validation.
-3. Test suite structure, fixtures, and assertions ensuring 100% pytest pass rate.
+MANDATORY FIRST STEP:
+You MUST read the following authoritative specification files:
+1. ORIGINAL_REQUEST.md at: E:\tool\mcp\MorphoMesh\ORIGINAL_REQUEST.md
+2. PROJECT.md at: E:\tool\mcp\MorphoMesh\.agents\orchestrator_human_anatomy_gen2\PROJECT.md
 
-Scope boundaries: Read-only exploration. DO NOT edit or create any source code files.
-Write your report to e:\tool\mcp\MorphoMesh\.agents\explorer_m2_3\handoff.md and notify your parent orchestrator via send_message.
+YOUR OBJECTIVE:
+Investigate `src/morphomesh/wardrobe.py` waist sash, 3D bow knot, ribbon streamers, and Rigify DEF vertex group skinning for dress and sash meshes.
+
+SPECIFIC INVESTIGATION TASKS:
+1. Inspect existing waist sash and belt code in `src/morphomesh/wardrobe.py`. Document how waist circumference and radius are computed.
+2. Design the 100% conforming outer sash envelope:
+   - Calculate strict +2.5mm outer offset from the dress waist outer profile, ensuring zero Z-fighting, zero clipping, and clean silhouette wrapping around the waist.
+   - Design dimensional 3D volumetric bow knot (central knot geometry, bilateral bow loops with thickness, and cascading flowing ribbon streamers with gentle drape and natural twists).
+3. Investigate Rigify DEF vertex groups for wardrobe meshes:
+   - Identify bone hierarchy for dress and sash: `DEF-spine`, `DEF-spine.001`, `DEF-spine.002`, `DEF-pelvis`, `DEF-thigh.L`, `DEF-thigh.R`.
+   - Formulate normalized skinning weight distribution across height (Z) and radial position for the dress bodice, skirt, sash, and ribbons so they deform cleanly with the character's skeleton without volume collapse or tearing.
+4. Formulate an exact architectural and implementation plan for the Worker.
+
+COMPLETION REQUIREMENTS:
+- DO NOT edit or modify source code files. You are read-only.
+- Write your comprehensive investigation report to:
+  `E:\tool\mcp\MorphoMesh\.agents\explorer_m2_3\analysis.md`
+- Write your handoff to:
+  `E:\tool\mcp\MorphoMesh\.agents\explorer_m2_3\handoff.md`
+- Update `progress.md` with your status.
+- Send a completion message back to the caller with a summary of findings and the path to your report.
 </USER_REQUEST>

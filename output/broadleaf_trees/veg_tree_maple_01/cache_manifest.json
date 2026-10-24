@@ -1,0 +1,13 @@
+{
+  "species_id": "veg_tree_maple_01",
+  "source": "procedural",
+  "seed": 42,
+  "vertex_count": 4320,
+  "face_count": 4238,
+  "textures": {
+    "albedo": "textures/albedo.png",
+    "normal": "textures/normal.png",
+    "roughness": "textures/roughness.png",
+    "metallic": "textures/metallic.png"
+  }
+}

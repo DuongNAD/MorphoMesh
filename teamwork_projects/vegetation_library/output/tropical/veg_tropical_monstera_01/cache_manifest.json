@@ -1,0 +1,14 @@
+{
+  "species_id": "veg_tropical_monstera_01",
+  "preview_task_id": "01a08b24-bafb-7565-b47b-43738eed32f1",
+  "refine_task_id": "01a08b26-1505-7455-89a3-42ec3c80a2ca",
+  "vertex_count": 43186,
+  "face_count": 50708,
+  "source": "meshy",
+  "textures": {
+    "albedo": "textures/albedo.png",
+    "normal": "textures/normal.png",
+    "roughness": "textures/roughness.png",
+    "metallic": "textures/metallic.png"
+  }
+}

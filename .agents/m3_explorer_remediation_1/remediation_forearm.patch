@@ -1,0 +1,123 @@
+--- a/anime_pipeline/animation/action_library.py
++++ b/anime_pipeline/animation/action_library.py
+@@ -214,7 +214,7 @@
+     # Left Arm: hand resting on skirt/thigh
+     for f in [1, 45, 90]:
+         pb['UpperArm.L'].rotation_euler = Euler((math.radians(8.0), 0.0, math.radians(12.0)), 'XYZ')
+-        pb['ForeArm.L'].rotation_euler = Euler((math.radians(-38.0), 0.0, 0.0), 'XYZ')
++        pb['ForeArm.L'].rotation_euler = Euler((math.radians(38.0), 0.0, 0.0), 'XYZ')
+         pb['Hand.L'].rotation_euler = Euler((math.radians(10.0), math.radians(5.0), 0.0), 'XYZ')
+ 
+         for finger in ['Index', 'Middle', 'Ring', 'Pinky']:
+@@ -231,7 +231,7 @@
+     # Right Arm: bent gracefully near collarbone
+     for f in [1, 45, 90]:
+         pb['UpperArm.R'].rotation_euler = Euler((math.radians(-15.0), 0.0, math.radians(18.0)), 'XYZ')
+-        pb['ForeArm.R'].rotation_euler = Euler((math.radians(-65.0), 0.0, 0.0), 'XYZ')
++        pb['ForeArm.R'].rotation_euler = Euler((math.radians(65.0), 0.0, 0.0), 'XYZ')
+         pb['Hand.R'].rotation_euler = Euler((math.radians(-12.0), math.radians(-10.0), math.radians(8.0)), 'XYZ')
+ 
+         for finger in ['Index', 'Middle', 'Ring', 'Pinky']:
+@@ -323,7 +323,7 @@
+ 
+     pb['ForeArm.R'].rotation_euler = Euler((0.0, 0.0, 0.0), 'XYZ')
+     pb['ForeArm.R'].keyframe_insert(data_path='rotation_euler', frame=1)
+-    pb['ForeArm.R'].rotation_euler = Euler((math.radians(-95.0), 0.0, 0.0), 'XYZ')
++    pb['ForeArm.R'].rotation_euler = Euler((math.radians(95.0), 0.0, 0.0), 'XYZ')
+     pb['ForeArm.R'].keyframe_insert(data_path='rotation_euler', frame=45)
+ 
+     # Open hand pose at frame 45
+@@ -347,7 +347,7 @@
+         head_bob_z = 0.008 * math.cos(phi)
+         head_tilt_sway = math.radians(5.0 + 2.0 * math.sin(phi))
+ 
+-        pb['ForeArm.R'].rotation_euler = Euler((math.radians(-95.0), forearm_twist, 0.0), 'XYZ')
++        pb['ForeArm.R'].rotation_euler = Euler((math.radians(95.0), forearm_twist, 0.0), 'XYZ')
+         pb['ForeArm.R'].keyframe_insert(data_path='rotation_euler', frame=f)
+ 
+         pb['Hand.R'].rotation_euler = Euler((math.radians(-10.0), 0.0, wrist_yaw), 'XYZ')
+@@ -361,7 +361,7 @@
+         # Lower arm
+         up_rot = (1.0 - fac) * math.radians(-75.0)
+         up_abd = (1.0 - fac) * math.radians(-35.0)
+-        fore_flex = (1.0 - fac) * math.radians(-95.0)
++        fore_flex = (1.0 - fac) * math.radians(95.0)
+         pb['UpperArm.R'].rotation_euler = Euler((up_rot, 0.0, up_abd), 'XYZ')
+         pb['UpperArm.R'].keyframe_insert(data_path='rotation_euler', frame=f)
+ 
+@@ -473,7 +473,7 @@
+         # Natural tucked arm swing: Forearms kept bent at 35°-45°!
+         arm_swing_r = math.radians(18.0 * math.cos(phase))
+         arm_swing_l = -arm_swing_r
+-        forearm_bent = math.radians(-40.0) # tucked forearm bend (35-45°)
++        forearm_bent = math.radians(40.0) # tucked forearm bend (35-45°)
+ 
+         pb['UpperArm.R'].rotation_euler = Euler((arm_swing_r, 0.0, math.radians(12.0)), 'XYZ')
+         pb['ForeArm.R'].rotation_euler = Euler((forearm_bent, 0.0, 0.0), 'XYZ')
+@@ -520,17 +520,17 @@
+ 
+     jump_timeline = [
+         # Frame, Hips_Z, Torso_Pitch, Knee_Flex, Arms_Pitch, Arms_Abd, Forearm_Flex
+-        (1,   0.0,    0.0,   0.0,   0.0,    15.0,  -20.0),
+-        (8,  -0.08,   10.0,  35.0,  20.0,   12.0,  -25.0),
+-        (16, -0.14,   18.0,  65.0,  35.0,   10.0,  -35.0), # Anticipation squash
+-        (22,  0.05,    5.0,  15.0, -45.0,   25.0,  -20.0), # Launch thrust
+-        (28,  0.30,  -10.0,  60.0, -120.0,  35.0,  -30.0), # Ascending
+-        (35,  0.35,  -12.0,  85.0, -145.0,  40.0,  -35.0), # Joyful apex "anime hop"
+-        (42,  0.25,   -5.0,  70.0, -130.0,  35.0,  -30.0), # Descending
+-        (44,  0.02,    0.0,  20.0,  -80.0,  25.0,  -30.0), # Touchdown
+-        (50, -0.10,   10.0,  55.0,  -30.0,  20.0,  -40.0), # Landing cushion
+-        (62, -0.02,    3.0,  10.0,  -10.0,  18.0,  -25.0), # Recovery
+-        (75,  0.0,     0.0,   0.0,    0.0,  15.0,  -20.0), # Upright settle
++        (1,   0.0,    0.0,   0.0,   0.0,    15.0,  20.0),
++        (8,  -0.08,   10.0,  35.0,  20.0,   12.0,  25.0),
++        (16, -0.14,   18.0,  65.0,  35.0,   10.0,  35.0), # Anticipation squash
++        (22,  0.05,    5.0,  15.0, -45.0,   25.0,  20.0), # Launch thrust
++        (28,  0.30,  -10.0,  60.0, -120.0,  35.0,  30.0), # Ascending
++        (35,  0.35,  -12.0,  85.0, -145.0,  40.0,  35.0), # Joyful apex "anime hop"
++        (42,  0.25,   -5.0,  70.0, -130.0,  35.0,  30.0), # Descending
++        (44,  0.02,    0.0,  20.0,  -80.0,  25.0,  30.0), # Touchdown
++        (50, -0.10,   10.0,  55.0,  -30.0,  20.0,  40.0), # Landing cushion
++        (62, -0.02,    3.0,  10.0,  -10.0,  18.0,  25.0), # Recovery
++        (75,  0.0,     0.0,   0.0,    0.0,  15.0,  20.0), # Upright settle
+     ]
+ 
+     for f, hz, t_pitch, knee, arm_p, arm_abd, fore_f in jump_timeline:
+@@ -644,6 +644,8 @@
+             "Hips.loc_z": [(1, 0.0), (23, 0.006), (45, 0.0), (68, -0.006), (90, 0.0)],
+             "Spine1.rot_x": [(1, 0.0), (23, 1.5), (45, 0.0), (68, -1.5), (90, 0.0)],
+             "Head.rot_z": [(1, 4.0), (34, 5.2), (56, 4.0), (78, 2.8), (90, 4.0)],
++            "ForeArm.L.rot_x": [(1, 38.0), (45, 38.0), (90, 38.0)],
++            "ForeArm.R.rot_x": [(1, 65.0), (45, 65.0), (90, 65.0)],
+         }
+     )
+ 
+@@ -655,7 +657,7 @@
+         curves={
+             "Hips.loc_x": [(1, 0.0), (25, -0.025), (95, -0.025), (120, 0.0)],
+             "UpperArm.R.rot_x": [(1, 0.0), (45, -75.0), (95, -75.0), (120, 0.0)],
+-            "ForeArm.R.rot_x": [(1, 0.0), (45, -95.0), (95, -95.0), (120, 0.0)],
++            "ForeArm.R.rot_x": [(1, 0.0), (45, 95.0), (95, 95.0), (120, 0.0)],
+             "ForeArm.R.rot_y": [(46, 0.0), (50, 18.0), (58, -18.0), (66, 18.0), (74, -18.0), (82, 18.0), (90, -18.0), (95, 0.0)],
+             "Hand.R.rot_z": [(46, 0.0), (48, 15.0), (56, -15.0), (64, 15.0), (72, -15.0), (80, 15.0), (88, -15.0), (95, 0.0)],
+         }
+@@ -671,8 +673,8 @@
+             "Thigh.R.rot_x": [(1, -28.0), (8, 5.0), (17, 28.0), (24, -10.0), (32, -28.0)],
+             "Thigh.L.rot_x": [(1, 28.0), (8, -10.0), (17, -28.0), (24, 5.0), (32, 28.0)],
+             "Hips.rot_z": [(1, -4.0), (8, 2.0), (17, 4.0), (24, -2.0), (32, -4.0)],
+-            "ForeArm.R.rot_x": [(1, -40.0), (16, -40.0), (32, -40.0)],
+-            "ForeArm.L.rot_x": [(1, -40.0), (16, -40.0), (32, -40.0)],
++            "ForeArm.R.rot_x": [(1, 40.0), (16, 40.0), (32, 40.0)],
++            "ForeArm.L.rot_x": [(1, 40.0), (16, 40.0), (32, 40.0)],
+         }
+     )
+ 
+@@ -687,6 +689,8 @@
+             "UpperArm.R.rot_x": [(1, 0.0), (16, 35.0), (35, -145.0), (50, -30.0), (75, 0.0)],
+             "Spine1.rot_x": [(1, 0.0), (16, 18.0), (35, -12.0), (50, 10.0), (75, 0.0)],
+             "Head.rot_x": [(1, 0.0), (35, -15.0), (75, 0.0)],
++            "ForeArm.R.rot_x": [(1, 20.0), (16, 35.0), (35, 35.0), (50, 40.0), (75, 20.0)],
++            "ForeArm.L.rot_x": [(1, 20.0), (16, 35.0), (35, 35.0), (50, 40.0), (75, 20.0)],
+         }
+     )
+ 

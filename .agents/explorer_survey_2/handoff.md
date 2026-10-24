@@ -1,351 +1,219 @@
-# Technical Survey Report: Interactive Socket Bridge & Viewport Capture
+# Handoff Report: Vegetation Library Asset Pipeline, Normalization, Rendering & Viewer Survey
 
-**Explorer**: Explorer 2 (Interactive Socket Bridge & Viewport Capture Explorer)  
-**Date**: 2026-09-07T03:42:00Z  
-**Working Directory**: `e:\tool\mcp\MorphoMesh\.agents\explorer_survey_2`  
-**Parent Orchestrator ID**: `577aaa33-6b3f-4ebc-93eb-fcc632d94bc9`  
-**Target Requirements**: R1 (Multi-Angle Inspector Camera & Fast Viewport Capture) & R3 (Interactive Blender Socket Bridge Parity & Reliability)
+**Author**: Explorer Survey 2 (Asset Pipeline & Viewer Explorer)  
+**Date**: 2026-09-10T11:18:00Z  
+**Target Repository**: `teamwork_projects/vegetation_library`  
+**Parent Agent**: `c89d3e85-2d1c-4b25-9e5b-bb4953ad2fc4`
 
 ---
 
 ## 1. Observation
 
-### 1.1 Existing Camera and Render Implementations
+### 1.1 Architecture & File Layout
+The vegetation library asset pipeline is situated in `teamwork_projects/vegetation_library/` and comprises:
+- `vegetation_pipeline/catalog.py` (16.9 KB, 438 lines): Defines 35 botanical species across 7 categories (`PlantSpecies`, `VegetationCatalog`).
+- `vegetation_pipeline/generator.py` (68.3 KB, 1,523 lines): Implements `MeshyGenerator` (two-stage preview + refine API client), `ProceduralBotanicalGenerator` (offline procedural fallback), and `generate_plant()`.
+- `vegetation_pipeline/post_processor.py` (43.8 KB, 1,049 lines): Implements `AssetPostProcessor`, metric scale normalization, ground contact pivot snapping, base contact centroid centering, production GLB binary export, companion OBJ/MTL export, and `asset_manifest.json` generation.
+- `vegetation_pipeline/renderer.py` (36.0 KB, 912 lines): Implements headless Blender 4.5.4 LTS automation, 4-angle turntable renders (`turntable_01.png` - `04.png`), 1024x1024 2x2 contact sheet montage (`thumbnail.png`), and pure-Python software rasterizer fallback.
+- `vegetation_pipeline/validator.py` (42.7 KB, 1,043 lines): Automated structural, geometric, static mesh, and 4-channel PBR texture validation suite (`validate_asset`, `validate_directory`).
+- `pipeline.py` (30.8 KB, 795 lines): Master CLI orchestrator with `--species`, `--category`, `--all`, `--mode [auto|meshy|procedural]`, `--summary`, and manifest aggregator (`aggregate_manifest`).
+- `output/manifest.json` (143.3 KB, 4,249 lines): Global catalog manifest indexing all 35 species deliverables.
+- `viewer.html` (48.5 KB, 1,088 lines): Interactive browser dashboard displaying plant cards, search/filter, and modal previews.
+- Test suites in `tests/`: `test_catalog.py`, `test_generator.py`, `test_normalization.py`, `test_renderer.py`, `test_validator.py`, `test_vegetation_pipeline.py`.
 
-1. **Procedural Auto-Camera in Headless Script Generator (`src/morphomesh/blender_bridge.py:718-756`)**:
-   - `ensure_auto_camera(scene=None)` calculates a simple bounding box across all `MESH` objects in `scene.objects` using local `bound_box` transformed by `matrix_world`.
-   - Computes geometric center $C = ((x_{\min} + x_{\max})/2, (y_{\min} + y_{\max})/2, (z_{\min} + z_{\max})/2)$ and radius $R = \max(\Delta x, \Delta y, \Delta z)/2$.
-   - Positions camera at fixed static offset: `dist = radius * 3.5`, `location = center + Vector((dist * 0.7, -dist * 0.7, dist * 0.5))`.
-   - Uses `rot_quat = direction.to_track_quat('-Z', 'Y')` for look-at rotation.
-   - **Limitation**: Hardcodes a single diagonal 3/4 perspective viewpoint. Ignores focal length, sensor dimensions, vertical vs horizontal field of view, standard orthographic/turntable views (Front, Side, Back), and anatomical close-ups.
+### 1.2 GLB Post-Processing & Normalization Implementation
+Direct inspection of `vegetation_pipeline/post_processor.py` reveals the exact mathematical and algorithmic implementation:
 
-2. **Render Preview Implementation in `blender_bridge.py:1023-1071`**:
-   - Implemented exclusively within `_generate_headless_script()`:
-     ```python
-     scene.render.resolution_x = width
-     scene.render.resolution_y = height
-     scene.render.engine = engine  # EEVEE or Cycles
-     scene.render.filepath = render_path
-     bpy.ops.render.render(write_still=True)
-     ```
-   - Uses full path tracing/rasterization (`bpy.ops.render.render`), taking **1.0 to 8.0 seconds** per frame.
-   - Although `params.get("view_angle", "three_quarter")` is accepted, the camera position is never adjusted for different `view_angle` values; it always renders from the static diagonal auto-camera position.
+1. **Ground Pivot Snapping (`snap_ground_pivot_and_center()`, lines 291-338)**:
+   ```python
+   # Line 316-317: Ground contact shift
+   min_z = min(zs)
+   mesh.vertices = [(v[0], v[1], v[2] - min_z) for v in mesh.vertices]
+   ...
+   # Line 333-335: Numerical precision clamp to guarantee Z_min = 0.000m
+   final_min_z = min(v[2] for v in mesh.vertices)
+   if abs(final_min_z) > 1e-7:
+       mesh.vertices = [(v[0], v[1], v[2] - final_min_z) for v in mesh.vertices]
+   ```
+   *Behavior*: Calculates $z_{\min} = \min_{v \in V} v_z$, translates all vertices by $-z_{\min}$, then applies a second precision clamp ($|z_{\min}| > 10^{-7}$). This strictly enforces $Z_{\min} = 0.000\text{m} \pm 0.005\text{m}$ (in practice $\le 10^{-7}\text{m}$).
 
-3. **FastMCP Server Preview Tool (`src/morphomesh/server.py:510-566`)**:
-   - Defines tool `morphomesh_render_preview(camera_name, resolution_width, resolution_height, render_engine, samples, view_angle, transparent_background, lighting_preset, save_to_disk, output_dir)`.
-   - Calls `blender_bridge.render_preview(...)`, reads output image from disk, encodes as base64 in `data["base64_image"]`.
+2. **Base Contact Centroid Centering (`snap_ground_pivot_and_center()`, lines 319-330)**:
+   ```python
+   # Line 320-328: Base slice centroid calculation
+   current_h = max(v[2] for v in mesh.vertices)
+   slice_h = max(1e-4, base_slice_ratio * current_h)  # base_slice_ratio = 0.05
+   base_verts = [v for v in mesh.vertices if v[2] <= slice_h]
+   cx = float(np.mean([v[0] for v in base_verts]))
+   cy = float(np.mean([v[1] for v in base_verts]))
+   # Line 330: Base centering translation
+   mesh.vertices = [(v[0] - cx, v[1] - cy, v[2]) for v in mesh.vertices]
+   ```
+   *Behavior*: Evaluates the bottom 5% height slice ($z \le 0.05 H$), calculates horizontal centroid $(c_x, c_y)$, and translates $v_x \leftarrow v_x - c_x, v_y \leftarrow v_y - c_y$. This aligns the biological trunk base / root collar to $(0.000, 0.000)$, rather than the overall crown center, properly handling leaning trees and asymmetric canopies.
 
-4. **Master Character Assembler Camera Rig (`src/morphomesh/character_assembler.py:1258-1295`)**:
-   - Sets up static cameras: `Camera_Portrait_85mm` ($f=85\text{mm}$, distance 2.0m, $Z=1.55\text{m}$), `Camera_FullBody` ($f=50\text{mm}$, distance 5.5m, $Z=0.825\text{m}$), and 4 fixed turnaround cameras (`Camera_Front`, `Camera_ThreeQuarter`, `Camera_Profile`, `Camera_Back`).
-   - Uses hardcoded distance constants ($s = \text{height} / 1.65$) tailored specifically to a standing 1.65m human. Fails for quadrupeds, crouched poses, winged creatures, or arbitrary character scales.
+3. **Metric Scale Normalization (`normalize_metric_scale()`, lines 340-409)**:
+   ```python
+   # Line 362-365:
+   scale_z = target_h / curr_h
+   if strategy in ("uniform_height", "height_proportional"):
+       scale_x = scale_y = scale_z
+   ```
+   *Behavior*: Uniformly scales mesh by $s = H_{\text{target}} / H_{\text{measured}}$, where $H_{\text{target}}$ comes from `PlantSpecies.dimensions.height_m`. Preserves aspect ratio, trunk circularity, and avoids normal warping. Normal vectors are unit re-normalized (lines 390-405).
 
-### 1.2 Interactive Socket Bridge Architecture & Method Parity
+4. **Production GLB Binary Export (`export_production_glb()`, lines 430-610)**:
+   - Packs positions, normals, UVs, indices, and 5 texture image buffers (`albedo`, `metallicRoughness` ORM, `normal`, `roughness`, `metallic`) into glTF 2.0 binary chunks with 4-byte null padding (`pad_4`, line 159).
+   - Sets `materials[0].doubleSided = True` (line 552) for two-sided foliage rendering.
+   - Strictly omits `skins`, `animations`, and skeletal node hierarchies ($N_{\text{bones}} = 0$).
 
-1. **Blender Addon Listener Server (`blender_addon/morphomesh/listener.py`)**:
-   - Runs a background TCP socket server on `127.0.0.1:9876`.
-   - Implements thread safety using `bpy.app.timers.register(self._drain_queue, persistent=True)`.
-   - Incoming commands are received in background thread `_client_handler` and enqueued into `self.command_queue = queue.Queue()`.
-   - `_drain_queue` runs on Blender's main thread every 20ms (`return 0.02`), executes `self._dispatch(method, params)`, and returns JSON-RPC responses.
-   - **Supported Methods in `listener.py`**:
-     - `morphomesh.ping` / `ping` (line 218)
-     - `morphomesh.get_scene_status` / `get_scene_info` (line 222)
-     - `morphomesh.execute_custom_script` / `execute_code` (line 264)
-     - `morphomesh.auto_rig_human` (line 290)
-     - `morphomesh.setup_human_materials` (line 342)
-     - `morphomesh.groom_human` (line 403)
-     - `morphomesh.dress_human` (line 460)
-     - `morphomesh.assemble_master_character` (line 520)
+5. **Companion Wavefront OBJ & MTL Export (`export_companion_obj_mtl()`, lines 613-682)**:
+   - Saves discrete PNG maps to `<species_dir>/textures/` (`albedo.png`, `normal.png`, `roughness.png`, `metallic.png`).
+   - Writes 1-indexed `.obj` geometry and `.mtl` material file linking to `textures/` via relative paths.
 
-2. **Parity Gap Analysis**:
-   - `morphomesh.render_preview` is **NOT implemented** in `listener.py`. Sending this RPC over socket raises `ValueError("Unknown RPC method: morphomesh.render_preview")`.
-   - `morphomesh.create_human_asset` is **NOT implemented** in `listener.py`.
-   - Creature pipeline methods (`setup_creature_fur`, `setup_creature_materials`, `generate_war_armor`, `optimize_topology`, `create_armature`) are **NOT implemented** in `listener.py`.
-   - When a method is missing in `listener.py`, `blender_bridge.py:503-515` attempts fallback via `send_socket_request("execute_code", {"code": script})`.
-   - **Discovered Failure in Fallback**: As proven in `tests/test_adversarial_fastmcp_bridge_human.py:394-408`, the fallback to `execute_code` **fails 100% of the time** because:
-     a) Generated scripts for complex operations are 60KB-120KB, exceeding `MAX_SCRIPT_LENGTH = 10000` in `BpyCodeValidator`.
-     b) Generated scripts call `open()` or `exec()`, which are strictly blocked by `AddonSecurityValidator` in `listener.py:58-59`.
-   - Therefore, direct socket method implementation (Method Parity) in `listener.py` is the only viable path for interactive execution.
+### 1.3 Blender Headless Rendering Implementation
+Direct inspection of `vegetation_pipeline/renderer.py` confirms:
+1. **Binary Detection (`resolve_blender_binary()`, lines 184-211)**:
+   - Checks explicit override, `BLENDER_BIN_PATH`, `BLENDER_PATH`, `C:\Program Files\Blender Foundation\Blender 4.5\blender.exe`, `PATH`.
+   - On this machine, Blender 4.5.4 LTS is present at `C:\Program Files\Blender Foundation\Blender 4.5\blender.exe` (verified via `blender --version`).
+2. **Subprocess Invocation (`render_blender_headless()`, lines 712-760)**:
+   - Invokes: `subprocess.run([blender_path, "--background", "--factory-startup", "--python", script_path, "--", ...])`.
+   - Executes embedded Python script (`BLENDER_RENDER_SCRIPT_CODE`, lines 218-409).
+3. **Lighting, Cameras & 4 Turntable Angles (`BLENDER_RENDER_SCRIPT_CODE`, lines 349-406)**:
+   - Sets up transparent film (`film_transparent = True`), sRGB display, AgX view transform.
+   - Ground contact shadow catcher plane at $Z = z_{\min} = 0.000\text{m}$.
+   - 3-point botanical studio lighting: Key Sun (5500K, 4.5 energy, 45°/15°/45°), Fill Sun (6500K, 1.8 energy, 45°/-20°/-110°), Rim Sun (3.0 energy, edge translucency).
+   - Auto-framing optical camera distance: $d = \frac{R}{\sin(\alpha)} \cdot (1 + \text{margin})$ with focal length 50mm and 15% margin padding.
+   - 4 standardized angles:
+     * `turntable_01.png`: Hero 3/4 view (elevation 25°, azimuth 45°)
+     * `turntable_02.png`: Front elevation view (elevation 0°, azimuth 0°)
+     * `turntable_03.png`: Side elevation view (elevation 0°, azimuth 90°)
+     * `turntable_04.png`: Top-down crown view (elevation 85°, azimuth 0°)
+4. **Contact Sheet Montage (`render_contact_sheet()`, lines 416-574)**:
+   - Pure-Python PIL compositor creating a 1024x1024 2x2 grid `thumbnail.png`.
+   - Header banner: botanical common name, italic scientific name, category, metric height, polygon count.
+   - Viewpoint badge pills: "1. HERO 3/4", "2. FRONT ELEVATION", "3. SIDE ELEVATION", "4. TOP CROWN".
+   - QC footer bar: "MorphoMesh QC Verified • Zero Armatures (N_bones=0) • Ground Pivot Z_min = 0.000m • Real-Time PBR".
+5. **Software Rasterizer Fallback (`render_software_fallback()`, lines 580-685)**:
+   - Pure-Python / NumPy / PIL orthographic depth-sorted polygon rasterizer ensuring pipeline never crashes if Blender is absent.
 
-3. **Socket Protocol & Framing Flaws**:
-   - In `listener.py:160-169`, `_client_handler` reads up to 65536 bytes into `buffer` and calls `json.loads(buffer.decode("utf-8"))`.
-   - If a client sends multiple JSON requests or trailing whitespace, `json.loads` raises `JSONDecodeError: Extra data`, causing subsequent requests on that connection to fail.
-   - Response framing adds `b"\n"` (`client.sendall(json.dumps(response).encode("utf-8") + b"\n")`), but request parsing does not split on `\n`.
-   - In `listener.py:178-214`, if an unhandled exception escapes `_drain_queue`, Blender unregisters the timer callback permanently, leaving the socket server alive but permanently deaf to queued commands.
+### 1.4 Manifest Structure & Current State
+1. **Global Manifest (`output/manifest.json`)**:
+   - Contains top-level schema metadata (`schema_version: "1.0.0"`, `total_catalog_species: 35`, `indexed_species_count: 35`, `categories_summary` for all 7 biomes).
+   - Asset entries contain: `species_id`, `common_name`, `scientific_name`, `family`, `category`, `category_id`, `biome`, `dimensions`, `geometry` (`vertex_count`, `face_count`), `files`, `validation` (20 check flags + metrics), `source`, `status`, `execution_time_s`.
+2. **Current Provenance Discrepancy Across the 35 Assets**:
+   An automated audit of all 35 GLB files in `output/` reveals:
+   - Exactly **1 asset** (`veg_tree_oak_01`) is genuine Meshy: `src: meshy`, `task_id: 01a089f7-2837-7074-af0e-89c25070c634`, 58,853 vertices, 59,487 faces.
+   - **34 assets** are procedural fallbacks (`src: procedural`), with identical clone vertex counts within categories:
+     * Broadleaf (4 species): identical 4,320 verts, 4,238 faces.
+     * Conifers (5 species): identical 5,024 verts, 4,850 faces.
+     * Groundcover (5 species): identical 3,656 verts, 1,872 faces.
+     * Shrubs (5 species): identical 4,552 verts, 3,580 faces.
+     * Succulents (5 species): identical 3,336 verts, 3,932 faces.
+     * Tropical (5 species): identical 3,960 verts, 2,442 faces.
+     * Vines (5 species): identical 4,064 verts, 3,280 faces.
+   - Furthermore, `output/manifest.json` was generated *before* `veg_tree_oak_01` was updated with Meshy AI, so `output/manifest.json` still records oak as `source: "auto"`, `vertex_count: 4320`!
+
+### 1.5 Viewer Implementation (`viewer.html`)
+1. **Data Loading**:
+   - `viewer.html` does **not** dynamically fetch `output/manifest.json`.
+   - Data is hardcoded in-line inside `<script>`: `const categories = [...]` and `const plants = [...]` (lines 224-961).
+   - Line 1003 contains hardcoded badge: `${p.id === 'veg_tree_oak_01' ? '<span class="... bg-emerald-600 ...">Meshy AI 3D</span>' : ''}`.
+   - Lines 80-138 contains a static hero comparison section highlighting Meshy AI Oak vs Procedural fallback.
+2. **3D Preview Engine**:
+   - `viewer.html` uses **neither** Three.js nor `<model-viewer>`.
+   - Cards display the 2D contact sheet `thumbnail.png`.
+   - Clicking a card opens `plantModal`, displaying `thumbnail.png`, the 4 turntable PNGs (`turntable_01.png` - `04.png`), and download links for GLB and OBJ.
+   - There is no interactive WebGL canvas allowing real-time 3D rotation in the browser.
+
+### 1.6 Pipeline Test Suite & Critical Edge Cases
+Running `uv run pytest teamwork_projects/vegetation_library/tests/ -v` yielded 249 passed, 6 failed:
+1. `test_geometry_standards_all_species`: Fails on `veg_tree_oak_01` because its vertex count is 58,853, exceeding the old test budget assertion `3000 <= V <= 45000` (`test_vegetation_pipeline.py:225`).
+2. `test_pbr_material_standards_all_species`: Fails on `veg_tree_oak_01` because `textures/albedo.png` has spatial standard deviation `0.00032 <= 0.02` (it is a solid flat green `(45, 95, 35)`).
+   *Root Cause*: In `post_processor.py:extract_textures_from_glb()`, image extraction checks `if "albedo" in name:`. However, Meshy AI GLB containers emit image dictionaries without a `name` key (`[{'mimeType': 'image/jpeg', 'bufferView': 4}, ...]`). The texture extractor failed to find images by material binding, so `post_processor.py:840` fell back to synthetic solid green `(45, 95, 35)`.
+3. `test_full_inspection_suite_100_percent_pass`: Fails because `validate_directory()` found `raw_meshy_model.glb` before `veg_tree_oak_01.glb` (alphabetical sort in `target_path.glob("*.glb")`), evaluating un-normalized coordinates ($Y_{\min} = -0.951\text{m}$, height $1.879\text{m}$) instead of the normalized file.
+4. `test_cli_summary_mode_execution`: Fails on Windows due to `UnicodeDecodeError: 'charmap' codec can't decode byte 0x9d` when `subprocess.run(..., text=True)` decodes UTF-8 stdout using default Windows code page `cp1252`.
 
 ---
 
 ## 2. Logic Chain
 
-### 2.1 R1: Camera Rig Positioning Mathematics & Framing Algorithm
+1. **User Objective**:
+   The user request under `## 2026-09-10T11:11:31Z` requires rebuilding the entire 35-species library using 100% genuine Meshy AI cloud API generation, eliminating identical clone geometry and procedural fallbacks, reaching 20,000 to 60,000 polygons per asset, 4-channel PBR materials, ground contact $Z_{\min} = 0.000\text{m} \pm 0.005\text{m}$, re-rendering all 4-angle turntables and contact sheets with headless Blender, updating `manifest.json`, and synchronizing `viewer.html`.
 
-#### Step 1: Multi-Object Hierarchical Bounding Box Calculation
-Let $\mathcal{O}_{\text{char}} = \{ O_1, O_2, \dots, O_m \}$ be the set of visible character mesh objects in the active scene or character collection.
-For each object $O_k$, Blender provides 8 local-space bounding box corner coordinates $\mathbf{c}_{k,i} \in \mathbb{R}^3$ ($i = 1, \dots, 8$).
-Transforming each corner to global world coordinates using the object's world matrix $M_k \in \mathbb{R}^{4 \times 4}$:
-$$\mathbf{w}_{k,i} = M_k \cdot \begin{bmatrix} \mathbf{c}_{k,i} \\ 1 \end{bmatrix}$$
-The global Axis-Aligned Bounding Box (AABB) $[\mathbf{v}_{\min}, \mathbf{v}_{\max}]$ across all character meshes is:
-$$\mathbf{v}_{\min} = \begin{bmatrix} \min_{k, i} (\mathbf{w}_{k,i})_x \\ \min_{k, i} (\mathbf{w}_{k,i})_y \\ \min_{k, i} (\mathbf{w}_{k,i})_z \end{bmatrix}, \quad \mathbf{v}_{\max} = \begin{bmatrix} \max_{k, i} (\mathbf{w}_{k,i})_x \\ \max_{k, i} (\mathbf{w}_{k,i})_y \\ \max_{k, i} (\mathbf{w}_{k,i})_z \end{bmatrix}$$
-The character dimensions and geometric center are:
-$$\Delta x = x_{\max} - x_{\min}, \quad \Delta y = y_{\max} - y_{\min}, \quad \Delta z = z_{\max} - z_{\min} = H$$
-$$\mathbf{C}_{\text{char}} = \frac{\mathbf{v}_{\min} + \mathbf{v}_{\max}}{2} = \begin{bmatrix} (x_{\min} + x_{\max}) / 2 \\ (y_{\min} + y_{\max}) / 2 \\ (z_{\min} + z_{\max}) / 2 \end{bmatrix}$$
-The bounding sphere radius circumscribing the character is:
-$$R_{\text{char}} = \frac{1}{2} \sqrt{(\Delta x)^2 + (\Delta y)^2 + (\Delta z)^2}$$
+2. **Current Pipeline State**:
+   - The normalization logic in `post_processor.py` (`snap_ground_pivot_and_center()` and `normalize_metric_scale()`) is mathematically sound and conforms to all geometric constraints.
+   - The rendering logic in `renderer.py` is fully functional with Blender 4.5.4 LTS.
+   - However, 34 out of 35 assets are still procedural dummy clones because they were generated during offline development.
+   - Exactly one asset (`veg_tree_oak_01`) was generated with Meshy AI, serving as an empirical benchmark.
 
-#### Step 2: Optical Camera Framing Distance Derivation
-For a pinhole camera with focal length $f$ (mm), sensor width $S_w$ (mm), sensor height $S_h$ (mm), and render resolution $W_{\text{px}} \times H_{\text{px}}$:
-The horizontal and vertical fields of view are:
-$$\text{FOV}_h = 2 \arctan\left(\frac{S_w}{2f}\right), \quad \text{FOV}_v = 2 \arctan\left(\frac{S_h}{2f}\right)$$
-For a bounding sphere of radius $R$ to fit completely inside the frustum without clipping in any orientation, the camera must be positioned such that the sphere subtends an angle smaller than both $\text{FOV}_h$ and $\text{FOV}_v$.
-Let the limiting half-angle be:
-$$\alpha_{\min} = \min\left(\frac{\text{FOV}_h}{2}, \frac{\text{FOV}_v}{2}\right)$$
-From the right triangle formed by camera focal point, sphere center, and sphere tangent horizon:
-$$\sin(\alpha_{\min}) = \frac{R}{d} \implies d = \frac{R}{\sin(\alpha_{\min})}$$
-To account for framing aesthetics and prevent touching viewport boundaries, incorporate safety margin $\mu \in [0.10, 0.20]$ (e.g. $\mu = 0.15$ for 15% margin):
-$$d_{\text{frame}} = \frac{R}{\sin(\alpha_{\min})} \cdot (1 + \mu)$$
-*Note on Planar vs Spherical Framing*: If framing a planar height $\Delta z$ (e.g. Front Orthographic inspection), the exact distance to fit height is $d_v = \frac{\Delta z / 2}{\tan(\text{FOV}_v / 2)} \cdot (1 + \mu)$. The spherical formula $d = \frac{R}{\sin(\alpha_{\min})} \cdot (1 + \mu)$ is superior because it guarantees zero clipping across all turntable rotations.
+3. **Required Upgrades for Generation & Normalization**:
+   - **Texture Extraction Bug in `post_processor.py`**: When Meshy AI GLBs omit image names, the extractor must follow glTF material bindings:
+     `material.pbrMetallicRoughness.baseColorTexture.index` $\rightarrow$ `textures[index].source` $\rightarrow$ `images[source]`.
+     This will preserve the authentic high-resolution PBR textures generated by Meshy rather than falling back to solid green.
+   - **Validator GLB Selection**: In `validator.py:835`, `target_path.glob("*.glb")` must prioritize `target_path / f"{species_id}.glb"` over auxiliary files like `raw_meshy_model.glb`.
+   - **Vertex Budget Expansion**: Both `validator.py:382` and `test_vegetation_pipeline.py:225` must update the upper vertex/face budget from 45,000 to 60,000 (or 65,000) to reflect genuine Meshy AI high-detail models.
+   - **Windows CLI Encoding**: In `pipeline.py` and `test_vegetation_pipeline.py:374`, subprocess execution of `--summary` must specify `encoding="utf-8", errors="replace"` to prevent Windows `cp1252` charmap crashes.
 
-#### Step 3: Anatomical Sub-Region Center & Radius Estimation
-For focused quality inspection, the rig must target specific anatomical sub-regions:
-1. **Full Body**:
-   - Center: $\mathbf{C}_{\text{full}} = [C_x, C_y, z_{\min} + 0.50 H]^T$
-   - Target Radius: $R_{\text{full}} = R_{\text{char}}$
-   - Standard Lens: $50\text{mm}$ (distortion-free perspective).
-2. **Head & Portrait (Bust)**:
-   - Primary (Landmarks): If `head_top` and `chin` landmarks exist:
-     $$\mathbf{C}_{\text{head}} = \frac{\mathbf{p}_{\text{head\_top}} + \mathbf{p}_{\text{chin}}}{2}, \quad R_{\text{head}} = 1.3 \times \frac{\|\mathbf{p}_{\text{head\_top}} - \mathbf{p}_{\text{chin}}\|_2}{2}$$
-   - Secondary (Vertex Groups): Centroid of vertex group `head` or `face`:
-     $$\mathbf{C}_{\text{head}} = \frac{1}{\sum w_v} \sum_{v \in \text{head}} w_v \cdot (M_{\text{world}} \cdot \mathbf{v}_{\text{co}})$$
-   - Anthropometric Fallback: For stylized human ($\text{head\_ratio} \approx 7.41$):
-     $$\mathbf{C}_{\text{head}} = [C_x, C_y, z_{\min} + 0.90 H]^T, \quad R_{\text{head}} \approx 0.14 H$$
-   - Standard Lens: $85\text{mm}$ (portrait telephoto, minimizes facial perspective distortion).
-3. **Torso & Bodice (Wardrobe Fit & Armor Penetration)**:
-   - Center: $\mathbf{C}_{\text{torso}} = [C_x, C_y, z_{\min} + 0.60 H]^T, \quad R_{\text{torso}} \approx 0.25 H$
-   - Standard Lens: $70\text{mm}$.
-4. **Hands & Fingers (Marionette Strings & Claws)**:
-   - Primary: Landmarks `wrist_L`, `wrist_R`, or bone `DEF-hand.L` / `DEF-hand.R`.
-   - Fallback (Both Hands): $\mathbf{C}_{\text{hands}} = [C_x, C_y - 0.05 H, z_{\min} + 0.52 H]^T, \quad R_{\text{hands}} \approx 0.28 H$
-   - Left Hand Close-up (Magic strings & butterflies): $\mathbf{C}_{\text{hand\_L}} = [C_x - 0.25 H, C_y, z_{\min} + 0.52 H]^T, \quad R_{\text{hand}} \approx 0.12 H$
-   - Standard Lens: $85\text{mm}$ macro.
-5. **Feet & Footwear (Sandals & Paws)**:
-   - Center: $\mathbf{C}_{\text{feet}} = [C_x, C_y, z_{\min} + 0.08 H]^T, \quad R_{\text{feet}} \approx 0.15 H$
-   - Standard Lens: $65\text{mm}$.
-
-#### Step 4: Spherical Orbit Camera Placement and Quaternion Alignment
-In Blender's global coordinate system ($+X$ = Right, $+Y$ = Back, $+Z$ = Up), characters face towards $-Y$ (towards the front camera).
-Given target center $\mathbf{C}$, framing distance $d$, azimuth $\theta \in [0^\circ, 360^\circ)$, and elevation $\phi \in [-90^\circ, 90^\circ]$:
-The camera world coordinates are:
-$$\mathbf{P}_{\text{cam}}(\theta, \phi, d, \mathbf{C}) = \begin{bmatrix} C_x + d \cos \phi \sin \theta \\ C_y - d \cos \phi \cos \theta \\ C_z + d \sin \phi \end{bmatrix}$$
-
-**Standard Viewpoint Coordinate Table**:
-
-| Viewpoint Name | Azimuth $\theta$ | Elevation $\phi$ | Framing Target | Lens $f$ | Purpose |
-|---|---|---|---|---|---|
-| `Camera_Front` | $0^\circ$ | $0^\circ$ | Full Body | $50\text{mm}$ | Silhouette, bilateral symmetry, limb alignment |
-| `Camera_Side_R` | $90^\circ$ | $0^\circ$ | Full Body | $50\text{mm}$ | Spine curvature, chest/bust depth, posture |
-| `Camera_Back` | $180^\circ$ | $0^\circ$ | Full Body | $50\text{mm}$ | Back cascade hair flow, scapula, dorsal armor |
-| `Camera_Side_L` | $270^\circ$ | $0^\circ$ | Full Body | $50\text{mm}$ | Left lateral symmetry, garment balance |
-| `Camera_ThreeQuarter` | $45^\circ$ | $15^\circ$ | Full Body | $50\text{mm}$ | Canonical beauty inspection, volume depth |
-| `Camera_ThreeQuarter_L` | $315^\circ$ | $15^\circ$ | Full Body | $50\text{mm}$ | Reverse 3/4 perspective |
-| `Camera_CloseUp_Head` | $15^\circ$ | $5^\circ$ | Head / Bust | $85\text{mm}$ | Cornea refraction, iris, facial topology, bangs |
-| `Camera_CloseUp_Hands` | $30^\circ$ | $-10^\circ$ | Hands / Marionette | $85\text{mm}$ | Finger skinning, red strings, butterfly attachment |
-| `Camera_CloseUp_Torso` | $20^\circ$ | $0^\circ$ | Torso / Bodice | $70\text{mm}$ | Fabric drape, waist sash, armor clearance |
-| `Camera_CloseUp_Feet` | $15^\circ$ | $-15^\circ$ | Feet / Sandals | $70\text{mm}$ | Sandal straps, plantigrade contact, claw curve |
-
-**Orientation Alignment**:
-Direction vector: $\mathbf{D} = \mathbf{C} - \mathbf{P}_{\text{cam}}$.
-In Blender camera coordinates (optical forward is $-Z$, sensor up is $+Y$):
-$$\mathbf{q}_{\text{rot}} = \mathbf{D}.\text{to\_track\_quat}('-Z', 'Y')$$
-$$\mathbf{E}_{\text{rot}} = \mathbf{q}_{\text{rot}}.\text{to\_euler}()$$
-This guarantees the optical axis passes exactly through the anatomical center with vertical horizon alignment.
-
----
-
-### 2.2 Fast Viewport Capture Mechanism vs Headless Batch Render
-
-#### Step 1: Comparison of Capture Pipelines
-
-| Dimension | Interactive Viewport OpenGL Grab | Headless Batch Render |
-|---|---|---|
-| **Underlying API** | `bpy.ops.render.opengl(write_still=True)` | `bpy.ops.render.render(write_still=True)` |
-| **Execution Latency** | **15ms – 45ms** (50x faster) | **1,200ms – 8,000ms** (Cycles / EEVEE) |
-| **Execution Context** | Requires `VIEW_3D` area or `temp_override` | Headless CLI background process (`blender -b`) |
-| **Diagnostic Shading Modes** | `SOLID` (Matcap, Flat, Curvature, Random color per object), `MATERIAL`, `RENDERED`, `WIREFRAME`, `XRAY` | Full shader tree evaluation only |
-| **Auto-Critic Utility** | **Exceptional**: `SOLID` with `color_type='RANDOM'` instantly isolates garment penetration from skin without shading glare | Essential for final beauty verification and SSS realism |
-
-#### Step 2: Context Override Pattern for Viewport OpenGL Capture
-When triggered from background socket timers, `bpy.ops.render.opengl.poll()` fails if no 3D Viewport context is provided.
-To guarantee reliable execution across all Blender UI configurations:
-```python
-def execute_viewport_capture(
-    output_path: str,
-    camera_obj: bpy.types.Object,
-    shading_mode: str = "SOLID",
-    color_type: str = "RANDOM",
-    show_xray: bool = False,
-    resolution: Tuple[int, int] = (1024, 1024),
-) -> str:
-    scene = bpy.context.scene
-    scene.camera = camera_obj
-    scene.render.resolution_x = resolution[0]
-    scene.render.resolution_y = resolution[1]
-    scene.render.filepath = output_path
-
-    # Locate View3D space
-    view3d_area = next((a for a in bpy.context.screen.areas if a.type == 'VIEW_3D'), None) if bpy.context.screen else None
-
-    if view3d_area:
-        space = view3d_area.spaces.active
-        # Save original shading state
-        orig_type = space.shading.type
-        orig_color = getattr(space.shading, 'color_type', 'MATERIAL')
-        orig_xray = space.shading.show_xray
-
-        try:
-            space.shading.type = shading_mode
-            if hasattr(space.shading, 'color_type'):
-                space.shading.color_type = color_type
-            space.shading.show_xray = show_xray
-            bpy.context.view_layer.update()
-
-            # Execute with temp_override
-            with bpy.context.temp_override(area=view3d_area):
-                bpy.ops.render.opengl(write_still=True, view_context=True)
-        finally:
-            space.shading.type = orig_type
-            if hasattr(space.shading, 'color_type'):
-                space.shading.color_type = orig_color
-            space.shading.show_xray = orig_xray
-    else:
-        # Fallback to standard opengl render or headless batch render
-        try:
-            bpy.ops.render.opengl(write_still=True)
-        except Exception:
-            bpy.ops.render.render(write_still=True)
-
-    return output_path
-```
-
----
-
-### 2.3 R3: Interactive Blender Socket Bridge Parity & Reliability Architecture
-
-#### Step 1: Thread-Safe Dispatch via `bpy.app.timers`
-Blender's C-data structures are not thread-safe. All scene modifications, operator calls, and data writes must execute synchronously on Blender's main event loop.
-- The background thread (`_client_handler`) must **only** receive network bytes, deserialize JSON, and enqueue requests:
-  `self.command_queue.put((cmd, client))`
-- The main thread callback `_drain_queue` must pop requests, execute `_dispatch(method, params)`, format the JSON-RPC response, and send it back to `client`.
-- **Timer Immortality Guard**: If an unhandled exception escapes `_drain_queue`, Blender silently cancels the timer. To prevent server death:
-  ```python
-  def _drain_queue(self) -> float:
-      if not self.running:
-          return None
-      try:
-          while not self.command_queue.empty():
-              cmd, client = self.command_queue.get_nowait()
-              # process cmd and sendall response...
-      except Exception as fatal_e:
-          logger.critical(f"Fatal unhandled exception in _drain_queue: {fatal_e}", exc_info=True)
-      return 0.02  # GUARANTEES timer persists regardless of dispatch failure!
-  ```
-
-#### Step 2: Message Framing via Newline-Delimited JSON (NDJSON)
-To prevent `JSONDecodeError: Extra data` or chunk truncation:
-- Every request payload must terminate with `\n`.
-- The receiver maintains an accumulation buffer per connection:
-  ```python
-  buffer += client.recv(65536)
-  while b"\n" in buffer:
-      line, buffer = buffer.split(b"\n", 1)
-      if line.strip():
-          cmd = json.loads(line.decode("utf-8"))
-          self.command_queue.put((cmd, client))
-  ```
-- Every response sent by the server must terminate with `\n`.
-- This ensures chunk-agnostic streaming without packet boundary coupling.
-
-#### Step 3: Comprehensive Method Parity Dispatch Table
-To eliminate unhandled method errors, `listener.py` must register the full catalog of MorphoMesh methods:
-
-```
-+------------------------------------------+--------------------+----------------------------------------+
-| RPC Method Identifier                    | Target Module      | Return Payload Structure               |
-+------------------------------------------+--------------------+----------------------------------------+
-| morphomesh.ping                          | listener.py        | status, blender_version, active_object |
-| morphomesh.get_scene_status              | listener.py        | scene_name, objects, cameras, lights   |
-| morphomesh.execute_custom_script         | listener.py        | success, returned_data, stdout         |
-| morphomesh.setup_inspection_cameras      | camera_rig.py (new)| camera_names, count, framing_center    |
-| morphomesh.capture_viewport              | viewport.py (new)  | image_path, base64_image, shading_mode |
-| morphomesh.capture_multi_angle_inspection| viewport.py (new)  | captures: [{viewpoint, image_path...}] |
-| morphomesh.render_preview                | blender_bridge.py  | image_path, base64_image, view_angle   |
-| morphomesh.create_human_asset            | human_generator.py | asset_id, mesh_path, quad_ratio        |
-| morphomesh.auto_rig_human                | human_rigging.py   | armature_name, bone_count: 163         |
-| morphomesh.setup_human_materials         | human_materials.py | materials_created, preset              |
-| morphomesh.groom_human                   | human_grooming.py  | layers, strand_count                   |
-| morphomesh.dress_human                   | wardrobe.py        | garments, accessories, prop_count      |
-| morphomesh.assemble_master_character     | character_assembler| blend_file_path, manifest              |
-| morphomesh.setup_creature_fur            | grooming.py        | fur_systems, strand_count              |
-| morphomesh.setup_creature_materials      | materials.py       | materials_assigned                     |
-| morphomesh.generate_war_armor            | armor.py           | armor_objects, clearance_verified      |
-| morphomesh.optimize_topology             | operators.py       | optimized_asset_id, quad_percentage    |
-| morphomesh.create_armature               | operators.py       | armature_name, bone_count              |
-+------------------------------------------+--------------------+----------------------------------------+
-```
+4. **Required Upgrades for `viewer.html`**:
+   - Currently, `viewer.html` has hardcoded procedural stats and static 2D image previews.
+   - To synchronize with genuine Meshy models, `viewer.html` should either:
+     a. Fetch `output/manifest.json` dynamically via JavaScript `fetch()`, or
+     b. Be updated via an automated synchronization script (`scripts/sync_viewer.py` or a method in `pipeline.py`) that reads `output/manifest.json` and embeds the genuine metadata, polygon counts, and thumbnails.
+   - To provide true 3D interactive viewing, integrate Google `<model-viewer>` (`@google/model-viewer`) in the modal popup, allowing users to spin, zoom, inspect wireframe, and toggle lighting on the genuine `.glb` models directly in the browser.
 
 ---
 
 ## 3. Caveats
 
-1. **Blender Headless Environment Limitations for Viewport Grab**:
-   - `bpy.ops.render.opengl` in true headless mode (`blender -b`) requires an active OpenGL context or offscreen frame buffer (e.g. EGL or Mesa software rasterizer on Linux, or native GPU context on Windows/macOS).
-   - In environments where headless OpenGL context creation fails, the system must automatically fallback to `bpy.ops.render.render` with low sample count (e.g. 1 sample with EEVEE) to ensure uninterrupted capture.
-2. **Dynamic Rigging and Bone Landmarks in Posed Characters**:
-   - If a character has active pose bones or constraints, mesh vertices move away from rest-pose landmarks.
-   - The bounding box calculation must compute the evaluated depsgraph (`bpy.context.evaluated_depsgraph_get()`) to capture true deformed positions rather than rest-pose geometry.
-3. **Socket Port Collisions**:
-   - Default port `9876` may collide if multiple Blender instances run simultaneously. `listener.py` and `blender_bridge.py` must support dynamic port configuration via environment variable `BLENDER_PORT`.
+1. **Meshy AI Rate Limits & Cost**: Generating 34 new species via Meshy AI Text-to-3D requires 34 Stage 1 previews and 34 Stage 2 refines (68 API tasks). The exponential backoff in `generator.py` is essential to handle concurrent task limits (typically 2-4 concurrent tasks per account).
+2. **Offline Testing Fallback**: Unit tests running in CI without a live `MESHY_API_KEY` must continue to support mock or cached assets, so `ProceduralBotanicalGenerator` must remain intact as a fallback when explicitly requested.
+3. **CORS on `file://` for `viewer.html`**: If a user opens `viewer.html` directly from Windows Explorer (`file:///E:/.../viewer.html`), modern browsers block `fetch("output/manifest.json")` due to local file CORS restrictions. Therefore, embedding the synchronized JSON into `viewer.html` (or providing both a local server script `python -m http.server` and an embedded fallback) ensures the viewer works in all environments.
 
 ---
 
 ## 4. Conclusion
 
-1. **R1 Technical Conclusion**:
-   - An automated multi-angle inspection camera rig must be introduced as a dedicated modular subsystem (`src/morphomesh/camera_rig.py` and operator in `operators.py`).
-   - The rig must dynamically calculate global bounding box spans across all character meshes, estimate 5 anatomical centers (Full Body, Head, Torso, Hands, Feet), and position cameras along spherical orbit trajectories $(\theta, \phi, d)$ using the exact optical formula $d = \frac{R}{\sin(\alpha_{\min})} \cdot (1 + \mu)$ with look-at quaternion tracking.
-   - For rapid QA feedback, Viewport OpenGL grab (`bpy.ops.render.opengl` with context temp_override) provides **15–45ms captures** with specialized diagnostic shading modes (`SOLID` + Random color), while headless batch rendering (`bpy.ops.render.render`) provides a reliable offline fallback.
+The botanical asset pipeline architecture in `teamwork_projects/vegetation_library` is robust, modular, and ready for full-scale generation. Scale normalization, ground pivot snapping ($Z_{\min} = 0.000\text{m} \pm 0.005\text{m}$), and base centroid centering ($X=0, Y=0$) are already implemented in `post_processor.py`. Blender 4.5.4 LTS is fully operational for 4-angle turntable renders and contact sheets.
 
-2. **R3 Technical Conclusion**:
-   - Full parity between `listener.py` and `blender_bridge.py` requires expanding `_dispatch()` to handle all 18 core pipeline and inspection methods directly on Blender's main thread.
-   - Network framing must be standardized to Newline-Delimited JSON (NDJSON) to eliminate buffer boundary errors.
-   - Timer robustness must be guaranteed via an unhandled exception catch block in `_drain_queue` that always returns `0.02`, preventing silent timer unregistration.
+To fulfill the user request under `## 2026-09-10T11:11:31Z`, the following sequential actions are recommended:
+1. **Fix GLB Texture Extraction in `post_processor.py`**: Resolve glTF images via material texture indices so Meshy PBR textures are cleanly extracted and embedded without falling back to flat colors.
+2. **Update Vertex Budget in `validator.py` and `tests/`**: Increase max budget from 45,000 to 60,000 faces/vertices.
+3. **Fix Validator File Resolution in `validator.py`**: Explicitly target `{species_id}.glb` to avoid misidentifying `raw_meshy_model.glb`.
+4. **Execute Meshy Generation for All 35 Species**: Run `pipeline.py --all --mode meshy` using the live API key.
+5. **Re-Render Turntables & Contact Sheets**: Run headless Blender to generate authentic multi-angle renders.
+6. **Aggregate Manifest**: Run `pipeline.py --validate-only` to update `output/manifest.json` with genuine Meshy task IDs and face counts.
+7. **Synchronize `viewer.html`**: Update plant records with genuine metrics and embed `<model-viewer>` for real-time 3D viewing.
 
 ---
 
 ## 5. Verification Method
 
-### 5.1 Independent Reproduction Commands
-To verify the existing test baseline and findings:
-```powershell
-# 1. Run core Blender bridge and security validator tests
-pytest tests/test_blender_bridge.py -v
+To independently verify these findings, run the following commands in powershell:
 
-# 2. Run adversarial FastMCP bridge integration tests
-pytest tests/test_adversarial_fastmcp_bridge_human.py -v
-
-# 3. Run FastMCP tool registry and schema tests
-pytest tests/test_fastmcp_human_tools.py -v
-
-# 4. Verify all 147 test cases execute with 0 failures
-pytest tests/test_blender_bridge.py tests/test_adversarial_fastmcp_bridge_human.py -v
-```
-
-### 5.2 Specific Files to Inspect
-- `blender_addon/morphomesh/listener.py`: Inspect lines 151–215 (socket receive loop, buffer handling, `_drain_queue` timer callback) and lines 216–557 (`_dispatch` method catalog).
-- `src/morphomesh/blender_bridge.py`: Inspect lines 316–395 (`send_socket_request`), lines 488–527 (`execute` dual-mode dispatch), lines 718–756 (`ensure_auto_camera`), and lines 1023–1071 (`render_preview`).
-- `src/morphomesh/server.py`: Inspect lines 510–566 (`morphomesh_render_preview` FastMCP tool).
-- `src/morphomesh/character_assembler.py`: Inspect lines 1258–1295 (hardcoded camera creation in `YuNianAnAssembler`).
-
-### 5.3 Invalidation Conditions
-The architectural recommendations herein would be invalidated if:
-1. Blender introduces multi-threaded `bpy` write access, making `bpy.app.timers` obsolete (unlikely in foreseeable Blender 4.x / 5.x architecture).
-2. Blender deprecates `bpy.ops.render.opengl` without a GPU offscreen buffer replacement.
-3. FastMCP mandates binary streaming protocols over JSON-RPC.
+1. **Verify Blender 4.5.4 LTS Installation**:
+   ```powershell
+   & "C:\Program Files\Blender Foundation\Blender 4.5\blender.exe" --version
+   ```
+2. **Verify Current Meshy vs Procedural Counts Across All 35 Species**:
+   ```powershell
+   uv run python -c "
+   import json
+   from pathlib import Path
+   from vegetation_pipeline.generator import parse_glb_vertex_and_face_counts
+   output_dir = Path('teamwork_projects/vegetation_library/output')
+   for m in sorted(output_dir.glob('*/*/asset_manifest.json')):
+       sp_id = m.parent.name
+       glb = m.parent / f'{sp_id}.glb'
+       v, f = parse_glb_vertex_and_face_counts(glb)
+       with open(m, 'r') as fp: data = json.load(fp)
+       src = data.get('provenance', {}).get('source')
+       task = data.get('provenance', {}).get('generator_metadata', {}).get('task_id', 'N/A')
+       print(f'{sp_id:30s} | {src:10s} | task: {task} | v: {v:5d}, f: {f:5d}')
+   "
+   ```
+3. **Run Existing Test Suite to Observe the 6 Edge Cases**:
+   ```powershell
+   uv run pytest teamwork_projects/vegetation_library/tests/ -v
+   ```
+4. **Inspect `post_processor.py` Normalization Functions**:
+   Inspect `vegetation_pipeline/post_processor.py` at lines 291-338 (`snap_ground_pivot_and_center`) and lines 340-409 (`normalize_metric_scale`).
+5. **Inspect `viewer.html` Structure**:
+   Inspect lines 224-250 and lines 995-1020 of `teamwork_projects/vegetation_library/viewer.html` to confirm hardcoded data and lack of WebGL 3D canvas.

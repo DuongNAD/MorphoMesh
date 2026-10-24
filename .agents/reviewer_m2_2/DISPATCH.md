@@ -1,25 +1,32 @@
-## 2026-09-07T04:46:35Z
-You are Reviewer M2_2: Viewport Pipeline & Compatibility Reviewer for Milestone 2.
-Your working directory is: e:\tool\mcp\MorphoMesh\.agents\reviewer_m2_2
-Your parent orchestrator conversation ID is: 577aaa33-6b3f-4ebc-93eb-fcc632d94bc9
-The authoritative user request is at: e:\tool\mcp\MorphoMesh\ORIGINAL_REQUEST.md (specifically § 2026-09-07T03:34:32Z). You MUST read this file first.
-The project scope document is at: e:\tool\mcp\MorphoMesh\PROJECT.md (specifically Milestone 2).
-The Worker M2 handoff report is at: e:\tool\mcp\MorphoMesh\.agents\worker_m2\handoff.md.
+## 2026-09-07T15:02:11Z
+You are Reviewer 2 (Reviewer M2.2: Sash, 3D Bow & Rigify Skinning Reviewer) for MorphoMesh Milestone M2.
+Your working directory is: E:\tool\mcp\MorphoMesh\.agents\reviewer_m2_2
 
-Objective:
-Perform a comprehensive review of viewport capture, rendering fallbacks, and bridge integration:
-- Files modified/created:
-  * `src/morphomesh/camera_rig.py`
-  * `blender_addon/morphomesh/listener.py`
-  * `src/morphomesh/blender_bridge.py`
-  * `tests/test_multiview_rendering.py`
-- Verify:
-  1. Interactive Viewport OpenGL grab: Verify `bpy.ops.render.opengl(write_still=True)` with `temp_override` on `VIEW_3D`. Ensure diagnostic shading modes (`SOLID` with `color_type='RANDOM'`, `WIREFRAME`, `MATERIAL`) are correctly configured and restored.
-  2. Headless Workbench fallback: Verify that when running in headless mode or without a `VIEW_3D` area, it cleanly switches `scene.render.engine = 'BLENDER_WORKBENCH'` and calls `bpy.ops.render.render(write_still=True)` without throwing context errors.
-  3. Dynamic render engine reflection in `blender_addon/morphomesh/listener.py`: Verify that engine detection queries `bpy.types.RenderSettings.bl_rna.properties["engine"].enum_items` and safely falls back so Blender 4.2+/5.x never throws `TypeError: engine BLENDER_EEVEE not found`.
-  4. Multi-angle inspection batch capture: Verify `capture_multi_angle_inspection` across client bridge, listener, and camera rig.
-  5. Clean image file handling: Temporary files, base64 encoding, dimensions, and path cleanup.
-- Execute tests:
-  Run `.venv\Scripts\pytest.exe -v tests/test_multiview_rendering.py tests/test_bridge_socket_parity.py`
-- Document findings and provide a structured verdict: APPROVE or REQUEST_CHANGES.
-- Write your handoff report to `e:\tool\mcp\MorphoMesh\.agents\reviewer_m2_2\handoff.md` and notify parent orchestrator via send_message.
+MANDATORY FIRST STEP:
+You MUST read the following authoritative specification files:
+1. ORIGINAL_REQUEST.md at: E:\tool\mcp\MorphoMesh\ORIGINAL_REQUEST.md
+2. PROJECT.md at: E:\tool\mcp\MorphoMesh\.agents\orchestrator_human_anatomy_gen2\PROJECT.md
+3. Worker M2 Handoff & Changes:
+   - E:\tool\mcp\MorphoMesh\.agents\worker_m2\handoff.md
+   - E:\tool\mcp\MorphoMesh\.agents\worker_m2\changes.md
+
+YOUR OBJECTIVE:
+Review `src/morphomesh/wardrobe.py` and `tests/test_wardrobe_m2.py` for sash clearance, 3D bow knot geometry, and normalized Rigify DEF skinning.
+
+SPECIFIC REVIEW TASKS:
+1. Inspect `generate_dress_waist_sash` and bow/ribbon generation in `src/morphomesh/wardrobe.py`:
+   - Verify strict $+2.5\text{mm}$ outer envelope clearance over dress waist ($r_{\text{sash}} = r_{\text{bodice}} + 0.0045\text{m}$), eliminating Z-fighting.
+   - Verify 3D volumetric barrel cuff knot (manifold quads, no degenerate faces).
+   - Verify bilateral 3D hollow volumetric bow loops and cascading flowing ribbon streamers with $35^\circ$ torsional twist.
+2. Inspect Rigify 163 DEF bone vertex group assignments across all wardrobe components:
+   - Verify normalization $\sum w_i = 1.0 \pm 10^{-4}$.
+   - Verify correct bone naming (`DEF-spine.001`, `DEF-spine.002`, `DEF-shoulder.L/R`, `DEF-thigh.L/R`).
+3. Verify complete backwards compatibility of existing caller interfaces in `src/morphomesh/character_assembler.py`.
+4. Run tests using `uv run pytest tests/test_wardrobe.py tests/test_wardrobe_m2.py -v`.
+5. Provide an explicit verdict in your handoff report: `APPROVE` or `REQUEST_CHANGES`.
+
+COMPLETION REQUIREMENTS:
+- DO NOT modify source code files. You are read-only.
+- Write your review report to: `E:\tool\mcp\MorphoMesh\.agents\reviewer_m2_2\analysis.md`
+- Write your 5-component handoff report to: `E:\tool\mcp\MorphoMesh\.agents\reviewer_m2_2\handoff.md` with your explicit verdict.
+- Update `progress.md` and send a completion message with your verdict and test results.

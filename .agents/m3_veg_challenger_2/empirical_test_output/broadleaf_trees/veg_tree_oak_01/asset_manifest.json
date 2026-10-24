@@ -1,0 +1,113 @@
+{
+  "schema_version": "1.0.0",
+  "species_id": "veg_tree_oak_01",
+  "taxonomy": {
+    "common_name": "English Oak",
+    "scientific_name": "Quercus robur",
+    "family": "Fagaceae",
+    "category": "broadleaf_deciduous_trees",
+    "category_id": "broadleaf_deciduous_trees",
+    "category_name": "Broadleaf & Deciduous Trees",
+    "short_category": "broadleaf_trees",
+    "biome": "Temperate Deciduous Forest",
+    "growth_habit": "Massive spreading broad-crowned deciduous tree",
+    "branching_pattern": "Deliquescent irregular wide-spreading crown with heavy gnarled lateral boughs",
+    "foliage_density": "dense"
+  },
+  "geometry": {
+    "vertex_count": 4320,
+    "face_count": 4238,
+    "triangle_count": 4238,
+    "has_armature": false,
+    "has_skins": false,
+    "pivot_grounded": true,
+    "ground_contact_z": 0.0,
+    "ground_z_min_m": 0.0,
+    "base_centroid_xy": [
+      -0.0,
+      0.0
+    ],
+    "bounding_box": {
+      "min_point": [
+        -6.7902,
+        -6.9505,
+        0.0
+      ],
+      "max_point": [
+        6.4858,
+        7.1842,
+        12.0
+      ],
+      "dimensions": [
+        13.276,
+        14.1347,
+        12.0
+      ]
+    },
+    "dimensions_m": {
+      "height_m": 12.0,
+      "canopy_spread_m": 14.1347,
+      "width_m": 13.276,
+      "depth_m": 14.1347,
+      "target_height_m": 12.0,
+      "target_canopy_spread_m": 14.0
+    }
+  },
+  "normalization": {
+    "target_height_m": 12.0,
+    "target_canopy_spread_m": 14.0,
+    "scale_factor": 0.953198,
+    "normalized_height_m": 12.0,
+    "normalized_canopy_spread_m": 14.1347,
+    "strategy": "uniform_height"
+  },
+  "materials": {
+    "workflow": "Metallic-Roughness PBR",
+    "double_sided": true,
+    "channels": [
+      "albedo",
+      "normal",
+      "roughness",
+      "metallic"
+    ],
+    "texture_format": "PNG"
+  },
+  "files": {
+    "glb": "veg_tree_oak_01.glb",
+    "obj": "veg_tree_oak_01.obj",
+    "mtl": "veg_tree_oak_01.mtl",
+    "textures": {
+      "albedo": "textures/albedo.png",
+      "normal": "textures/normal.png",
+      "roughness": "textures/roughness.png",
+      "metallic": "textures/metallic.png"
+    }
+  },
+  "provenance": {
+    "source": "procedural",
+    "export_timestamp": "2026-09-10T06:39:17.761265+00:00",
+    "generator_metadata": {
+      "species_id": "veg_tree_oak_01",
+      "category_id": "broadleaf_deciduous_trees",
+      "source": "procedural",
+      "seed": 1289714828,
+      "vertex_count": 4320,
+      "face_count": 4238,
+      "quad_count": 2119,
+      "tri_count": 0,
+      "quad_ratio": 1.0
+    }
+  },
+  "metadata": {
+    "scale_factor": 0.9531975561178435,
+    "species_id": "veg_tree_oak_01",
+    "category_id": "broadleaf_deciduous_trees",
+    "source": "procedural",
+    "seed": 1289714828,
+    "vertex_count": 4320,
+    "face_count": 4238,
+    "quad_count": 2119,
+    "tri_count": 0,
+    "quad_ratio": 1.0
+  }
+}

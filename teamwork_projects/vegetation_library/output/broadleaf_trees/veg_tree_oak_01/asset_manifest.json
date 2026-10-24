@@ -1,0 +1,100 @@
+{
+  "schema_version": "1.0.0",
+  "species_id": "veg_tree_oak_01",
+  "taxonomy": {
+    "common_name": "English Oak",
+    "scientific_name": "Quercus robur",
+    "family": "Fagaceae",
+    "category": "broadleaf_deciduous_trees",
+    "category_id": "broadleaf_deciduous_trees",
+    "category_name": "Broadleaf & Deciduous Trees",
+    "short_category": "broadleaf_trees",
+    "biome": "Temperate Deciduous Forest",
+    "growth_habit": "Massive spreading broad-crowned deciduous tree",
+    "branching_pattern": "Deliquescent irregular wide-spreading crown with heavy gnarled lateral boughs",
+    "foliage_density": "dense"
+  },
+  "geometry": {
+    "vertex_count": 58853,
+    "face_count": 59487,
+    "triangle_count": 59487,
+    "has_armature": false,
+    "has_skins": false,
+    "pivot_grounded": true,
+    "ground_contact_z": 0.0,
+    "ground_z_min_m": 0.0,
+    "base_centroid_xy": [
+      0.0,
+      0.0
+    ],
+    "bounding_box": {
+      "min_point": [
+        -6.5028,
+        -9.4024,
+        0.0
+      ],
+      "max_point": [
+        5.7605,
+        4.8775,
+        12.0
+      ],
+      "dimensions": [
+        12.2634,
+        14.2799,
+        12.0
+      ]
+    },
+    "dimensions_m": {
+      "height_m": 12.0,
+      "canopy_spread_m": 14.2799,
+      "width_m": 12.2634,
+      "depth_m": 14.2799,
+      "target_height_m": 12.0,
+      "target_canopy_spread_m": 14.0
+    }
+  },
+  "normalization": {
+    "target_height_m": 12.0,
+    "target_canopy_spread_m": 14.0,
+    "scale_factor": 7.598674,
+    "normalized_height_m": 12.0,
+    "normalized_canopy_spread_m": 14.2799,
+    "strategy": "uniform_height"
+  },
+  "materials": {
+    "workflow": "Metallic-Roughness PBR",
+    "double_sided": true,
+    "channels": [
+      "albedo",
+      "normal",
+      "roughness",
+      "metallic"
+    ],
+    "texture_format": "PNG"
+  },
+  "files": {
+    "glb": "veg_tree_oak_01.glb",
+    "obj": "veg_tree_oak_01.obj",
+    "mtl": "veg_tree_oak_01.mtl",
+    "textures": {
+      "albedo": "textures/albedo.png",
+      "normal": "textures/normal.png",
+      "roughness": "textures/roughness.png",
+      "metallic": "textures/metallic.png"
+    }
+  },
+  "provenance": {
+    "source": "meshy",
+    "export_timestamp": "2026-09-10T11:28:40.108559+00:00",
+    "task_id": "01a089f7-2837-7074-af0e-89c25070c634",
+    "generator_metadata": {
+      "task_id": "01a089f7-2837-7074-af0e-89c25070c634",
+      "mode": "refine"
+    }
+  },
+  "metadata": {
+    "scale_factor": 7.5986736347830615,
+    "task_id": "01a089f7-2837-7074-af0e-89c25070c634",
+    "mode": "refine"
+  }
+}

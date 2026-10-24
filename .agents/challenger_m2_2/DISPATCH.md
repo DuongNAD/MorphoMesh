@@ -1,25 +1,28 @@
-## 2026-09-07T04:46:35Z
-You are Challenger M2_2: Multi-Angle Capture & Viewport Robustness Challenger for Milestone 2.
-Your working directory is: e:\tool\mcp\MorphoMesh\.agents\challenger_m2_2
-Your parent orchestrator conversation ID is: 577aaa33-6b3f-4ebc-93eb-fcc632d94bc9
-The authoritative user request is at: e:\tool\mcp\MorphoMesh\ORIGINAL_REQUEST.md (specifically § 2026-09-07T03:34:32Z). You MUST read this file first.
-The project scope document is at: e:\tool\mcp\MorphoMesh\PROJECT.md (specifically Milestone 2).
-The Worker M2 handoff report is at: e:\tool\mcp\MorphoMesh\.agents\worker_m2\handoff.md.
+## 2026-09-07T15:02:12Z
 
-Objective:
-Empirically stress-test multi-angle viewport capture, diagnostic shading modes, and socket bridge integration:
-- Write and execute an adversarial test harness in your working directory (`tests/test_adversarial_viewport_capture.py` or local runner) testing:
-  1. Multi-Angle Batch Fuzzing:
-     - Empty list of viewpoints, invalid viewpoint strings (e.g. "diagonal_underneath"), duplicate viewpoints.
-     - Large batches (e.g. 16-angle turntable sweep).
-     - Viewports with varying resolutions (64x64 up to 3840x2160).
-  2. Diagnostic Shading Fuzzing:
-     - All combinations of `shading_mode` (`SOLID`, `WIREFRAME`, `MATERIAL`) and `color_type` (`RANDOM`, `SINGLE`, `OBJECT`).
-     - Viewport grab performance benchmarking (verify <200ms in interactive mode or reasonable execution in headless mode).
-  3. Fault Injection & Recovery:
-     - Simulate missing scene, missing camera, or deleted target object mid-capture.
-     - Verify clean error reporting without leaking open file handles or leaving the camera stuck in scene.
-  4. Live socket verification:
-     - Test socket communication against live Blender on port 9876 (if reachable) for `setup_inspector_camera` and `capture_viewport`.
-- Run your tests, inspect results, and issue an empirical verdict: APPROVE or REJECT.
-- Write your handoff report to `e:\tool\mcp\MorphoMesh\.agents\challenger_m2_2\handoff.md` and notify parent orchestrator via send_message.
+You are Challenger 2 (Challenger M2.2: Sash Clearance, Z-Fighting & Rigify Skinning Empirical Challenger) for MorphoMesh Milestone M2.
+Your working directory is: E:\tool\mcp\MorphoMesh\.agents\challenger_m2_2
+
+MANDATORY FIRST STEP:
+You MUST read the following authoritative specification files:
+1. ORIGINAL_REQUEST.md at: E:\tool\mcp\MorphoMesh\ORIGINAL_REQUEST.md
+2. PROJECT.md at: E:\tool\mcp\MorphoMesh\.agents\orchestrator_human_anatomy_gen2\PROJECT.md
+3. Worker M2 Handoff & Changes:
+   - E:\tool\mcp\MorphoMesh\.agents\worker_m2\handoff.md
+   - E:\tool\mcp\MorphoMesh\.agents\worker_m2\changes.md
+
+YOUR OBJECTIVE:
+Empirically stress-test the waist sash, 3D bow knot, and Rigify DEF skinning implementation in `src/morphomesh/wardrobe.py`.
+
+SPECIFIC CHALLENGE TASKS:
+1. Write and run empirical stress tests (in `tests/test_challenger_m2_sash.py` or temporary test script):
+   - Test sash clearance: verify that every sash vertex has strictly $>+2.0\text{mm}$ clearance from the dress bodice outer surface across all angles $\theta \in [0, 2\pi)$ and parameter combinations, guaranteeing 0% Z-fighting and 0% mesh penetration.
+   - Test 3D bow knot and ribbon geometry: verify non-zero volume of bow loops, manifold closed caps on barrel knot, and ribbon streamer cascade trajectory.
+   - Test Rigify DEF skinning: verify that 100% of vertices in bodice, skirt, sash, and ribbons have normalized vertex weights ($\sum w_i = 1.0 \pm 10^{-4}$), no orphaned vertices, and no negative weights.
+   - Test existing master test suite: `uv run pytest tests/test_wardrobe.py tests/test_wardrobe_m2.py -v`.
+2. Provide an explicit verdict in your handoff report: `APPROVE` or `REQUEST_CHANGES`.
+
+COMPLETION REQUIREMENTS:
+- Write your empirical challenge report to: `E:\tool\mcp\MorphoMesh\.agents\challenger_m2_2\analysis.md`
+- Write your 5-component handoff report to: `E:\tool\mcp\MorphoMesh\.agents\challenger_m2_2\handoff.md` with your explicit verdict.
+- Update `progress.md` and send a completion message with your verdict and test results.

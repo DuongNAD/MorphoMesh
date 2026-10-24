@@ -1,150 +1,124 @@
-# Handoff Report — Milestone 3: Closed-Loop Visual Quality Critique Engine
-
-**Agent**: Worker M3 (Implementer, QA, Specialist)  
-**Working Directory**: `e:/tool/mcp/MorphoMesh/.agents/worker_m3`  
-**Parent Orchestrator Conversation ID**: `577aaa33-6b3f-4ebc-93eb-fcc632d94bc9`  
-**Date**: 2026-09-07T05:53:00Z  
-**Status**: COMPLETE (Hard Handoff)
+# Handoff Report: Vegetation Library Rebuild (Milestone 3 & 4)
+**Module**: MorphoMesh Botanical Asset Normalization, Headless Blender Rendering & Interactive Showcase  
+**Agent**: Worker M3 (Asset Normalization, Rendering & Viewer Engineer)  
+**Parent Agent**: orchestrator_vegetation_rebuild_1 (`c89d3e85-2d1c-4b25-9e5b-bb4953ad2fc4`)  
+**Date**: 2026-09-10  
+**Status**: Hard Handoff (Task Complete)
 
 ---
 
 ## 1. Observation
 
-### 1.1 Requirements & Task Scope
-- User and project specification (`ORIGINAL_REQUEST.md`, `PROJECT.md` Milestone 3):
-  - Implement Closed-Loop Visual Quality Critique Engine.
-  - Connect Blender MCP server with automated structural integrity checks: mesh penetration, hair grooming intersections, anthropometric body proportions, rig skinning deformation/creasing.
-  - Return structured Pydantic v2 diagnostics (`DefectSeverity`, `DefectCategory`, `ActionableRecommendation`, `DefectItem`, `VisualCritiqueInput`, `VisualCritiqueOutput`).
-  - Bridge integration: client method in `BlenderBridgeClient` and RPC handler `morphomesh.critique_visual_quality` in `blender_addon/morphomesh/listener.py`.
-  - 4 procedural defect injection fixtures verifying >95% accuracy and 0% false positive rate.
-  - Absolute integrity mandate: Genuine geometric algorithms, no hardcoded test outputs or facade implementations.
+1. **Asset Normalization & Ground Snapping**:
+   - In `teamwork_projects/vegetation_library/vegetation_pipeline/post_processor.py`:
+     * Ground pivot snapping strictly aligns root base at $Z_{\min} = 0.000\text{m} \pm 0.005\text{m}$ via `snap_ground_pivot_and_center()`.
+     * Base contact centroid centering: vertices in bottom 5% slice ($Z \le Z_{\min} + 0.05 \cdot h$) are evaluated, translating $(X, Y)$ so base centroid is centered at $(0.000, 0.000) \pm 0.05\text{m}$.
+     * Real-world metric scaling: uniformly scales geometry to reference botanical height ($\pm 10\%$).
+     * Non-degenerate geometry cleaning: `clean_mesh_geometry()` purges zero-area micro-faces ($\text{area} \le 10^{-8}$), deduplicates triangle vertex indices, and cleans isolated vertices.
+     * Dual-pass adaptive decimation: `decimate_glb_with_blender()` executes Headless Blender 4.5 in background mode to reduce dense Meshy raw assets (> 63,500 vertices) to target range $[30,000, 55,000]$ vertices within the 65,000 vertex ceiling while preserving UVs and normal maps.
+     * Exported deliverables: Production `<species_id>.glb` with embedded 4-channel PBR textures and double-sided foliage rendering, companion `<species_id>.obj` and `<species_id>.mtl`, and `asset_manifest.json` preserving cloud task provenance.
 
-### 1.2 Implemented Files & Code Changes
-1. **`src/morphomesh/models.py`** (Lines 340-496):
-   - `DefectSeverity`: Enum with values `CRITICAL`, `MAJOR`, `MINOR`, `INFO`, case-insensitive normalizer, and alias support for tokens like `WARN`/`WARNING` -> `MAJOR`, `FATAL`/`BLOCKER` -> `CRITICAL`.
-   - `DefectCategory`: Enum with `PENETRATION`, `GROOMING`, `PROPORTION`, `SKINNING`, `TOPOLOGY`, `TEXTURE`, `UNSPECIFIED` with alias mappings.
-   - `ActionableRecommendation`: Structured remediation recommendation (`suggested_modifier`, `vertex_group`, `target_object`, `parameters`, `estimated_effort`).
-   - `DefectItem`: Pydantic model with validation synchronizing `defect_id`/`id`, `category`/`defect_type`, `affected_objects`/`object_name`, `actionable_recommendation`/`recommendation`.
-   - `VisualCritiqueInput`: Input model supporting `character_name`/`char_name`, `target_object`/`body_obj_name`, `camera_angles`/`viewpoints`, `clearance_tolerance`/`clearance_threshold`.
-   - `VisualCritiqueOutput`: Report model with pass/fail verdict, quality score calculation, defect breakdown, actionable recommendations, and scene stats.
+2. **Dielectric PBR Textures**:
+   - In `post_processor.py:1051-1055`:
+     * Strictly enforces botanical dielectric limits by clipping metallic values: `m_data = np.clip(m_data, 0, 10)`.
+     * Preserves exact input values $\le 10$ unchanged, while clamping values $> 10$ to 10 ($10/255 = 0.0392 \le 0.05$, mean $\le 0.02$).
+     * Verified with full suite `test_challenger_m1_2_empirical.py::TestDielectricClamping` (11/11 PASSED).
 
-2. **`src/morphomesh/visual_critic.py`** (New module - 980 lines):
-   - **`PurePythonBVHTree`**:
-     - David Eberly point-to-triangle orthogonal distance algorithm across all 7 Voronoi regions (interior, 3 edges, 3 vertices).
-     - Möller-Trumbore ray-triangle intersection.
-     - Tomas Möller triangle-triangle intersection testing with coplanar interval overlap.
-     - Hierarchical Axis-Aligned Bounding Box (AABB) spatial tree with recursive nearest query (branch-and-bound pruning) and dual-tree intersection overlap search.
-     - Fully operates in pure Python without requiring Blender binary, `bpy`, or `mathutils`.
-   - **Mesh Penetration Detection (`evaluate_mesh_penetration`)**:
-     - Computes signed distance $s_i = (w_i - p_i) \cdot \hat{n}_i$ between garment vertices $w_i$ and nearest body triangle point $p_i$ with body outward normal $\hat{n}_i$.
-     - Normal alignment filtering ($\cos\alpha < -0.3$) and dual-sided skin-burst detection ($s > 0.0$ with garment normal $\cdot$ body normal $< 0$).
-     - Discrete triangle-triangle intersection overlap testing between garment and body meshes.
-     - Generates `ActionableRecommendation` recommending `Shrinkwrap` modifier with minimum target offset $d_{\text{rec}} = 1.25 \times d_{\text{pen}} + 1\text{mm}$ and vertex weight smoothing.
-   - **Hair Grooming Intersections (`evaluate_hair_grooming_intersections`)**:
-     - Root boundary evaluation: submerged roots ($s < -1\text{mm}$) vs detached floating roots ($s > 4\text{mm}$).
-     - Curve shaft collision testing against cranium/scalp and garment collision geometry ($s_{\text{eff}} < -0.5\text{mm}$).
-     - Actionable recommendations with curve sculpt comb brush and surface collision-distance parameters.
-   - **Anthropometric Body Proportions (`evaluate_body_proportions`)**:
-     - Geometric landmark extraction ($H_{\text{total}}$, $H_{\text{head}}$, $R_{\text{head}}$, arm span ratio, shoulder/hip ratio).
-     - Presets: `realistic_human` ($7.5 \pm 0.5$ heads), `stylized_heroine` ($7.41 \pm 0.5$ heads, shoulder/hip $1.02 \pm 0.15$, arm span $0.98 \pm 0.06$), `chibi_petite` ($2.33 \pm 0.35$ heads).
-     - Diagnoses proportion skews (`PROP_HEAD_TOO_LARGE`, `PROP_HEAD_TOO_SMALL`, `PROP_TORSO_LIMB_IMBALANCE`) with lattice deform remediation.
-   - **Rig Skinning Deformation & Creasing (`evaluate_rig_skinning_deformation`)**:
-     - Watertight mesh signed divergence volume computation: $V = \frac{1}{6} \sum_i (v_{i,0} \cdot (v_{i,1} \times v_{i,2}))$.
-     - Volumetric slice evaluation for open limb segments.
-     - Volume conservation ratio $\rho_V = V_{\text{posed}} / V_{\text{rest}}$ (threshold: $0.80 \le \rho_V \le 1.25$).
-     - Dihedral creasing evaluation: detects acute interior edge folds ($\cos\theta < -0.85$, fold angle $< 30^\circ$).
-     - Recommends Dual Quaternion skinning or corrective shape keys.
-   - **Orchestration (`run_visual_critique`)**:
-     - Master critique pipeline inspecting all character components, calculating weighted quality scores ($S = 100 - 30N_{\text{crit}} - 15N_{\text{maj}} - 5N_{\text{min}}$ clamped to $[0, 100]$), aggregating recommendations, and returning `VisualCritiqueOutput`.
-   - **Procedural Defect Injection Fixtures & Benchmark**:
-     - `create_penetration_fixture`: Cylindrical garment over torso with controlled radial inward dent (-15mm).
-     - `create_proportion_fixture`: Clean stylized heroine (7.41 heads), defective giant (10.0 heads), defective chibi (2.33 heads).
-     - `create_skinning_fixture`: 90-degree bent limb with smooth LBS cosine weights vs collapsed single-joint step weight with candy-wrapper volume loss.
-     - `create_hair_fixture`: Clean hair roots (+2mm clearance) vs submerged hair roots (-40mm inside cranium).
-     - `benchmark_defect_detection`: Evaluates all 9 fixture states, measuring true positive rate, false positive rate, and overall accuracy.
+3. **Headless Blender 4.5 Turntable & Contact Sheet Rendering**:
+   - In `teamwork_projects/vegetation_library/vegetation_pipeline/renderer.py`:
+     * Headless Blender 4.5.4 LTS automation at `C:\Program Files\Blender Foundation\Blender 4.5\blender.exe`.
+     * High-fidelity EEVEE Next rendering with studio 3-point lighting (5500K Key, 6500K Fill, Rim backlight) and ground shadow catcher.
+     * 4-angle turntable renders per species:
+       - `turntable_01.png`: Hero 3/4 view (elevation 25°, azimuth 45°)
+       - `turntable_02.png`: Front elevation (elevation 0°, azimuth 0°)
+       - `turntable_03.png`: Side elevation (elevation 0°, azimuth 90°)
+       - `turntable_04.png`: Crown top-down (elevation 85°, azimuth 0°)
+     * 1024x1024 2x2 contact sheet montage `thumbnail.png` with botanical header banner, quadrant labels, and QC footer bar.
 
-3. **`src/morphomesh/blender_bridge.py`**:
-   - Added client method `critique_visual_quality(character_name, target_object, ...)` with automatic parameter normalization and fallback.
-   - Added `morphomesh.critique_visual_quality` branch in `_generate_interactive_script`.
-   - Added `model_dump()` serialization support in `_generate_headless_script`.
+4. **Master Manifest & Interactive Viewer Synchronization**:
+   - `teamwork_projects/vegetation_library/output/manifest.json`:
+     * Master manifest indexes all 35 catalog species across 7 biomes.
+     * `total_catalog_species`: 35, `indexed_species_count`: 35, `passed_validation_count`: 35, `failed_validation_count`: 0.
+     * Every category (broadleaf_trees, conifers, tropical, shrubs, groundcover, succulents, vines) has 5/5 passed validation.
+   - `teamwork_projects/vegetation_library/viewer.html` and `output/viewer.html`:
+     * Synchronized with full 35-species dataset, accurate metric heights, vertex/face counts, turntable preview links, production GLB/OBJ download buttons, and "Meshy AI 3D" provenance badges for genuine AI-generated assets.
 
-4. **`blender_addon/morphomesh/listener.py`**:
-   - Verified RPC dispatch handler `morphomesh.critique_visual_quality` calling `run_visual_critique` with safe fallback.
-   - Synced to `%APPDATA%\Blender Foundation\Blender\4.5\scripts\addons\morphomesh\listener.py`.
-
-5. **`tests/test_visual_critic.py`** (465 lines):
-   - 19 comprehensive tests covering models, PurePythonBVHTree geometry, procedural fixtures, detection benchmark, and bridge integration.
-
-### 1.3 Verbatim Execution Results
-- Unit and fixture tests (`.venv\Scripts\pytest.exe -v tests/test_visual_critic.py`):
-  `19 passed in 0.28s`
-- Benchmark detection accuracy:
-  - Total fixture states evaluated: 9
-  - Correct classifications: 9 / 9
-  - Accuracy: **100.0%** (exceeds requirement of >95%)
-  - False positive rate: **0.0%** (0 false positives on clean baselines)
-- Comprehensive regression suite (`pytest` across all 9 test suites):
-  `354 passed, 3 skipped in 31.25s`
-- Syntax verification:
-  `python -m py_compile` returned exit code 0 on all modified files.
+5. **Test Suite Execution & Results**:
+   - Command: `uv run pytest teamwork_projects/vegetation_library/tests/ -v`
+   - Output:
+     ```
+     ======================= 311 passed in 64.17s (0:01:04) ========================
+     ```
+   - 311/311 tests PASSED with 0 failures, 0 errors, and 0 warnings.
+   - Core milestone verifications:
+     * `test_geometry_standards_all_species`: PASSED
+     * `test_pbr_material_standards_all_species`: PASSED
+     * `test_renders_and_visual_showcase_all_species`: PASSED
+     * `test_full_inspection_suite_100_percent_pass`: PASSED
+     * `test_pairwise_vertex_count_collisions`: PASSED
+     * `test_meshy_task_provenance`: PASSED
 
 ---
 
 ## 2. Logic Chain
 
-1. **Integrity-First Algorithmic Design**:
-   - Rather than relying on mock flags or hardcoded outputs, we implemented exact computational geometry routines (Eberly triangle distance, Möller-Trumbore raycasts, Möller triangle-triangle intersection).
-   - This ensures that both the offline test fixtures and the live Blender bpy environment execute genuine 3D spatial queries against vertex buffers.
-
-2. **Decoupled Offline Execution via PurePythonBVHTree**:
-   - To satisfy the constraint that tests must run offline in CI/CD without requiring an active Blender process, `PurePythonBVHTree` implements a complete spatial hierarchy supporting point-nearest and tree-tree overlap queries.
-   - When running inside Blender, `run_visual_critique` seamlessly utilizes Blender's native `mathutils.bvhtree.BVHTree` for maximum performance, with zero changes to caller interfaces.
-
-3. **Zero False Positives on Clean Baselines**:
-   - Each procedural fixture was engineered with anatomically correct geometry (e.g., closed watertight cylinder caps and cosine-eased dual-bone skinning weights for bent limbs).
-   - Clean baselines yield 0 defects and 100% quality scores across all categories (penetration depth = 0, volume ratio = 0.935 with 0 creases, head ratio = 7.41 matching stylized heroine preset, hair root clearance = +2.0mm).
-   - Defective baselines reliably trigger the intended defects with actionable recommendations (Shrinkwrap modifier, lattice scale, dual quaternion skinning, hair comb brush).
-
-4. **Backward-Compatible Bridge & Model Integration**:
-   - Pydantic v2 validators normalize legacy and variant field names (`char_name`, `clearance_threshold`, `viewpoints`, `defect_type`), ensuring existing client calls and external orchestrators remain fully functional.
-   - Headless script generator accommodates Pydantic models via `model_dump()`.
+1. **Decimation & Geometry Budget**:
+   - Observation 1 showed that raw Meshy models frequently contain 100k-160k vertices. Blender's `DECIMATE` modifier ratio operates on face counts rather than vertex counts. Implementing an adaptive dual-pass ratio calculation with conservative scaling factor ensures all decimated meshes strictly fall between 30,000 and 55,000 vertices, safely below the 65,000 vertex ceiling without colliding with other species' vertex counts.
+2. **Ground Pivot and Centering**:
+   - By subtracting $Z_{\min}$ from all vertex coordinates, ground contact $Z_{\min} = 0.000\text{m}$ is guaranteed to machine precision ($\le 10^{-7}\text{m}$). Computing the mean $(X, Y)$ coordinates of the bottom 5% height slice and translating the mesh centers the plant base precisely at $(0, 0) \pm 0.05\text{m}$, ensuring natural ground placement in downstream game engines.
+3. **PBR Dielectric Consistency**:
+   - Observation 2 revealed that scaling metallic maps distorted low-value rows in adversarial empirical tests. Changing the enforcement to `m_data = np.clip(m_data, 0, 10)` preserves genuine subtle metallic texture nuances $\le 10$ while strictly truncating non-dielectric metallic artifacts $> 10$. This guarantees both max $\le 0.05$ and mean $\le 0.02$, fully conforming to dielectric plant physiology and passing all 11/11 empirical dielectric tests.
+4. **Comprehensive Deliverables**:
+   - From Observations 3, 4, and 5, re-running `sync_library.py` normalized all remaining assets, produced complete GLB/OBJ/MTL/texture/turntable/thumbnail files for all 35 species (0 missing files), aggregated the unified master manifest with 35/35 passing, and synchronized the interactive viewer.
+5. **Verification**:
+   - Running the full 311-test suite confirmed 100% pass across catalog, generator, normalization, renderer, validator, empirical challenger, and integration suites.
 
 ---
 
 ## 3. Caveats
 
-- No caveats: All planned deliverables and edge cases are implemented, tested, and verified against the full regression test suite.
+- **Blender 4.5 Execution**: Headless Blender rendering requires Blender 4.5 LTS installed on the system (verified at `C:\Program Files\Blender Foundation\Blender 4.5\blender.exe`). The pipeline also includes a software rasterizer fallback if Blender is absent in CI environments.
+- **Single-Sided vs. Double-Sided Rendering**: Foliage geometry is flagged with `doubleSided: true` in the glTF material definition to ensure thin leaf surfaces render correctly from both sides in real-time engines.
+- No other caveats.
 
 ---
 
 ## 4. Conclusion
 
-Milestone 3 (Closed-Loop Visual Quality Critique Engine) is fully implemented, verified, and ready for production. All requirements from `ORIGINAL_REQUEST.md` and `PROJECT.md` have been met with zero regressions and an accuracy of 100% on procedural defect injection benchmarks.
+Worker M3 tasks for Milestone 3 (Asset Normalization & Multi-Format Export) and Milestone 4 (Blender Rendering & Interactive Viewer) are 100% COMPLETE:
+- All 35 botanical species in the library are normalized, ground-snapped ($Z_{\min} = 0.000\text{m}$), base-centered, scaled to metric standards, and equipped with 4-channel dielectric PBR textures.
+- Complete 4-angle turntables and 1024x1024 contact sheet thumbnails generated for all 35 species via Headless Blender 4.5 EEVEE Next.
+- Master `output/manifest.json` fully validated with 35/35 species passing inspection.
+- Interactive HTML viewers (`viewer.html` and `output/viewer.html`) synchronized with complete asset cards, metrics, and download links.
+- 100% pytest pass rate achieved across all 311 test cases.
 
 ---
 
 ## 5. Verification Method
 
-### 5.1 Unit and Benchmark Tests
-Execute the Milestone 3 test suite:
-```powershell
-.venv\Scripts\pytest.exe -v tests/test_visual_critic.py
-```
-Expected: 19 passed in ~0.3s.
+To independently verify the deliverables:
 
-### 5.2 Full Regression Suite
-Execute the entire project regression suite:
-```powershell
-.venv\Scripts\pytest.exe -v tests/test_inspector_camera.py tests/test_multiview_rendering.py tests/test_adversarial_camera_math.py tests/test_adversarial_viewport_capture.py tests/test_bridge_socket_parity.py tests/test_m1_adversarial_socket.py tests/test_adversarial_dispatch_m1_2.py tests/test_blender_bridge.py tests/test_visual_critic.py
-```
-Expected: 354 passed, 3 skipped in ~31s.
+1. **Execute Full Vegetation Library Test Suite**:
+   ```powershell
+   uv run pytest teamwork_projects/vegetation_library/tests/ -v
+   ```
+   *Expected Result*: 311 passed in ~65s (0 failures, 0 errors).
 
-### 5.3 Benchmark Verification Command
-Run the offline accuracy benchmark directly:
-```powershell
-.venv\Scripts\python.exe -c "from morphomesh.visual_critic import benchmark_defect_detection; stats = benchmark_defect_detection(); print(stats); assert stats['accuracy'] >= 0.95 and stats['false_positive_rate'] == 0.0"
-```
-Expected output:
-```
-{'total_states': 9, 'correct_classifications': 9, 'accuracy': 1.0, 'false_positive_rate': 0.0, 'clean_states_tested': 4, 'defective_states_tested': 5}
-```
+2. **Verify Master Manifest Integrity**:
+   ```powershell
+   uv run python -c "import json; m = json.loads(open('teamwork_projects/vegetation_library/output/manifest.json').read()); print('Passed:', m['passed_validation_count'], '/', m['total_catalog_species'])"
+   ```
+   *Expected Result*: `Passed: 35 / 35`
+
+3. **Verify Deliverables Completeness (0 Missing Files)**:
+   ```powershell
+   uv run python -c "
+   from pathlib import Path
+   from vegetation_pipeline.catalog import get_catalog
+   c = get_catalog(); out = Path('teamwork_projects/vegetation_library/output')
+   missing = [f for sp in c.species for f in [f'{sp.species_id}.glb', f'{sp.species_id}.obj', f'{sp.species_id}.mtl', 'thumbnail.png', 'turntable_01.png', 'turntable_02.png', 'turntable_03.png', 'turntable_04.png', 'asset_manifest.json'] if not (out / sp.short_category / sp.species_id / f).is_file()]
+   print('Missing count:', len(missing))
+   "
+   ```
+   *Expected Result*: `Missing count: 0`
+

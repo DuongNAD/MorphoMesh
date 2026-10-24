@@ -54,6 +54,7 @@ from morphomesh.models import (
     ERR_IMAGE_NOT_FOUND,
     ERR_INFERENCE_FAILED,
     ERR_INVALID_ARGUMENT,
+    AnimationItem,
     MorphoMeshException,
 )
 
@@ -200,6 +201,107 @@ class MeshyOutput(BaseModel):
     raw_task_output: Optional[Dict[str, Any]] = Field(default=None, description="Raw Meshy output dictionary")
 
 
+class MeshyRiggingInput(BaseModel):
+    """Workload parameters for Meshy AI 3D humanoid auto-rigging."""
+    model_config = ConfigDict(extra="ignore")
+
+    input_task_id: Optional[str] = Field(default=None, description="Input generation task ID to rig.")
+    model_url: Optional[str] = Field(default=None, description="Public URL or Data URI of 3D GLB model.")
+    model_path: Optional[str] = Field(default=None, description="Local path to GLB mesh to upload as Data URI.")
+    height_meters: float = Field(default=1.7, ge=0.1, le=50.0, description="Approximate height in meters.")
+    texture_image_url: Optional[str] = Field(default=None, description="Optional UV texture image URL.")
+    output_dir: Optional[str] = Field(default=None, description="Destination directory for rigged assets.")
+
+
+class MeshyRiggingOutput(BaseModel):
+    """Output payload from Meshy AI 3D auto-rigging."""
+    model_config = ConfigDict(extra="ignore")
+
+    rig_task_id: str = Field(..., description="Meshy rigging task ID.")
+    status: str = Field(default="SUCCEEDED", description="Task status.")
+    rigged_character_glb_path: Optional[str] = Field(default=None, description="Local path to rigged GLB.")
+    rigged_character_fbx_path: Optional[str] = Field(default=None, description="Local path to rigged FBX.")
+    rigged_character_glb_url: Optional[str] = Field(default=None, description="Remote URL of rigged GLB.")
+    rigged_character_fbx_url: Optional[str] = Field(default=None, description="Remote URL of rigged FBX.")
+    basic_animations: Dict[str, str] = Field(default_factory=dict, description="Downloaded basic animations (e.g. walking, running).")
+    basic_animation_urls: Dict[str, str] = Field(default_factory=dict, description="Remote URLs of basic animations.")
+    duration_seconds: float = Field(default=0.0, description="Execution duration in seconds.")
+    execution_mode: str = Field(default="api", description="'api' or 'mock'.")
+
+
+class MeshyAnimationInput(BaseModel):
+    """Workload parameters for Meshy AI 3D animation retargeting."""
+    model_config = ConfigDict(extra="ignore")
+
+    rig_task_id: str = Field(..., description="Source Meshy rigging task ID to animate.")
+    action_id: Optional[int] = Field(default=None, description="Animation action ID from library.")
+    motion_task_id: Optional[str] = Field(default=None, description="Optional Text-to-Motion task ID.")
+    fps: int = Field(default=30, description="Target animation FPS (24, 25, 30, 60).")
+    post_process_operation: Optional[str] = Field(default="change_fps", description="Operation: change_fps, fbx2usdz, extract_armature.")
+    output_dir: Optional[str] = Field(default=None, description="Destination directory.")
+
+
+class MeshyAnimationOutput(BaseModel):
+    """Output payload from Meshy AI 3D animation task."""
+    model_config = ConfigDict(extra="ignore")
+
+    animation_task_id: str = Field(..., description="Meshy animation task ID.")
+    rig_task_id: str = Field(..., description="Source rigging task ID.")
+    action_id: Optional[int] = Field(default=None, description="Applied action ID.")
+    action_name: Optional[str] = Field(default=None, description="Applied action name.")
+    status: str = Field(default="SUCCEEDED", description="Task status.")
+    animation_glb_path: Optional[str] = Field(default=None, description="Local path to animated GLB.")
+    animation_fbx_path: Optional[str] = Field(default=None, description="Local path to animated FBX.")
+    animation_glb_url: Optional[str] = Field(default=None, description="Remote URL of animated GLB.")
+    animation_fbx_url: Optional[str] = Field(default=None, description="Remote URL of animated FBX.")
+    preview_url: Optional[str] = Field(default=None, description="Preview GIF URL.")
+    duration_seconds: float = Field(default=0.0, description="Execution duration in seconds.")
+    execution_mode: str = Field(default="api", description="'api' or 'mock'.")
+
+
+CURATED_ANIMATIONS: List[Dict[str, Any]] = [
+    # DailyActions
+    {"action_id": 0, "name": "Idle", "key": "Idle", "category": "DailyActions", "sub_category": "Idle", "preview_url": "https://cdn.meshy.ai/webapp-assets/feature-demo/animation/preview/biped/Idle.gif"},
+    {"action_id": 2, "name": "Alert", "key": "Alert", "category": "DailyActions", "sub_category": "LookingAround", "preview_url": "https://cdn.meshy.ai/webapp-assets/feature-demo/animation/preview/biped/Alert.gif"},
+    {"action_id": 11, "name": "Idle 02", "key": "Idle_02", "category": "DailyActions", "sub_category": "Idle", "preview_url": "https://cdn.meshy.ai/webapp-assets/feature-demo/animation/preview/biped/Idle_02.gif"},
+    {"action_id": 25, "name": "Agree Gesture", "key": "Agree_Gesture", "category": "DailyActions", "sub_category": "Interacting", "preview_url": "https://cdn.meshy.ai/webapp-assets/feature-demo/animation/preview/biped/Agree_Gesture.gif"},
+    {"action_id": 28, "name": "Big Wave Hello", "key": "Big_Wave_Hello", "category": "DailyActions", "sub_category": "Interacting", "preview_url": "https://cdn.meshy.ai/webapp-assets/feature-demo/animation/preview/biped/Big_Wave_Hello.gif"},
+    {"action_id": 32, "name": "Chair Sit Idle", "key": "Chair_Sit_Idle_F", "category": "DailyActions", "sub_category": "Idle", "preview_url": "https://cdn.meshy.ai/webapp-assets/feature-demo/animation/preview/biped/Chair_Sit_Idle_F.gif"},
+    {"action_id": 48, "name": "Stand to Sit Transition", "key": "Stand_to_Sit_Transition_M", "category": "DailyActions", "sub_category": "Transitioning", "preview_url": "https://cdn.meshy.ai/webapp-assets/feature-demo/animation/preview/biped/Stand_to_Sit_Transition_M.gif"},
+    {"action_id": 50, "name": "Victory Cheer", "key": "Victory_Cheer", "category": "DailyActions", "sub_category": "Interacting", "preview_url": "https://cdn.meshy.ai/webapp-assets/feature-demo/animation/preview/biped/Victory_Cheer.gif"},
+    # WalkAndRun
+    {"action_id": 1, "name": "Walking Woman", "key": "Walking_Woman", "category": "WalkAndRun", "sub_category": "Walking", "preview_url": "https://cdn.meshy.ai/webapp-assets/feature-demo/animation/preview/biped/Walking_Woman_woman.gif"},
+    {"action_id": 5, "name": "Back Left Run", "key": "BackLeft_run", "category": "WalkAndRun", "sub_category": "Running", "preview_url": "https://cdn.meshy.ai/webapp-assets/feature-demo/animation/preview/biped/BackLeft_run.gif"},
+    {"action_id": 14, "name": "Run 02", "key": "Run_02", "category": "WalkAndRun", "sub_category": "Running", "preview_url": "https://cdn.meshy.ai/webapp-assets/feature-demo/animation/preview/biped/Run_02.gif"},
+    {"action_id": 16, "name": "Run Fast", "key": "RunFast", "category": "WalkAndRun", "sub_category": "Running", "preview_url": "https://cdn.meshy.ai/webapp-assets/feature-demo/animation/preview/biped/RunFast.gif"},
+    {"action_id": 30, "name": "Casual Walk", "key": "Casual_Walk", "category": "WalkAndRun", "sub_category": "Walking", "preview_url": "https://cdn.meshy.ai/webapp-assets/feature-demo/animation/preview/biped/Casual_Walk.gif"},
+    {"action_id": 105, "name": "Confident Walk", "key": "Confident_Walk", "category": "WalkAndRun", "sub_category": "Walking", "preview_url": "https://cdn.meshy.ai/webapp-assets/feature-demo/animation/preview/biped/Confident_Walk.gif"},
+    {"action_id": 117, "name": "Skip Forward", "key": "Skip_Forward", "category": "WalkAndRun", "sub_category": "Walking", "preview_url": "https://cdn.meshy.ai/webapp-assets/feature-demo/animation/preview/biped/Skip_Forward.gif"},
+    # Fighting
+    {"action_id": 4, "name": "Attack", "key": "Attack", "category": "Fighting", "sub_category": "AttackingwithWeapon", "preview_url": "https://cdn.meshy.ai/webapp-assets/feature-demo/animation/preview/biped/Attack.gif"},
+    {"action_id": 7, "name": "Be Hit Fly Up", "key": "BeHit_FlyUp", "category": "Fighting", "sub_category": "GettingHit", "preview_url": "https://cdn.meshy.ai/webapp-assets/feature-demo/animation/preview/biped/BeHit_FlyUp.gif"},
+    {"action_id": 8, "name": "Dead", "key": "Dead", "category": "Fighting", "sub_category": "Dying", "preview_url": "https://cdn.meshy.ai/webapp-assets/feature-demo/animation/preview/biped/Dead.gif"},
+    {"action_id": 78, "name": "Combat Stance", "key": "Combat_Stance", "category": "Fighting", "sub_category": "AttackingwithWeapon", "preview_url": "https://cdn.meshy.ai/webapp-assets/feature-demo/animation/preview/biped/Combat_Stance.gif"},
+    {"action_id": 92, "name": "Double Combo Attack", "key": "Double_Combo_Attack", "category": "Fighting", "sub_category": "AttackingwithWeapon", "preview_url": "https://cdn.meshy.ai/webapp-assets/feature-demo/animation/preview/biped/Double_Combo_Attack.gif"},
+    {"action_id": 93, "name": "Dodge and Counter", "key": "Dodge_and_Counter", "category": "Fighting", "sub_category": "AttackingwithWeapon", "preview_url": "https://cdn.meshy.ai/webapp-assets/feature-demo/animation/preview/biped/Dodge_and_Counter.gif"},
+    {"action_id": 140, "name": "Roll Dodge", "key": "Roll_Dodge", "category": "Fighting", "sub_category": "Defending", "preview_url": "https://cdn.meshy.ai/webapp-assets/feature-demo/animation/preview/biped/Roll_Dodge.gif"},
+    {"action_id": 174, "name": "Spartan Kick", "key": "Spartan_Kick", "category": "Fighting", "sub_category": "AttackingwithoutWeapon", "preview_url": "https://cdn.meshy.ai/webapp-assets/feature-demo/animation/preview/biped/Spartan_Kick.gif"},
+    {"action_id": 191, "name": "Archery Shot", "key": "Archery_Shot", "category": "Fighting", "sub_category": "AttackingwithWeapon", "preview_url": "https://cdn.meshy.ai/webapp-assets/feature-demo/animation/preview/biped/Archery_Shot.gif"},
+    {"action_id": 204, "name": "Charged Slash", "key": "Charged_Slash", "category": "Fighting", "sub_category": "AttackingwithWeapon", "preview_url": "https://cdn.meshy.ai/webapp-assets/feature-demo/animation/preview/biped/Charged_Slash.gif"},
+    # Dancing
+    {"action_id": 22, "name": "Funny Dancing 01", "key": "FunnyDancing_01", "category": "Dancing", "sub_category": "Dancing", "preview_url": "https://cdn.meshy.ai/webapp-assets/feature-demo/animation/preview/biped/FunnyDancing_01.gif"},
+    {"action_id": 23, "name": "Funny Dancing 02", "key": "FunnyDancing_02", "category": "Dancing", "sub_category": "Dancing", "preview_url": "https://cdn.meshy.ai/webapp-assets/feature-demo/animation/preview/biped/FunnyDancing_02.gif"},
+    {"action_id": 55, "name": "All Night Dance", "key": "All_Night_Dance", "category": "Dancing", "sub_category": "Dancing", "preview_url": "https://cdn.meshy.ai/webapp-assets/feature-demo/animation/preview/biped/All_Night_Dance.gif"},
+    {"action_id": 65, "name": "Gangnam Groove", "key": "Gangnam_Groove", "category": "Dancing", "sub_category": "Dancing", "preview_url": "https://cdn.meshy.ai/webapp-assets/feature-demo/animation/preview/biped/Gangnam_Groove.gif"},
+    {"action_id": 73, "name": "Shake It Off Dance", "key": "Shake_It_Off_Dance", "category": "Dancing", "sub_category": "Dancing", "preview_url": "https://cdn.meshy.ai/webapp-assets/feature-demo/animation/preview/biped/Shake_It_Off_Dance.gif"},
+    # BodyMovements
+    {"action_id": 17, "name": "Skill 01", "key": "Skill_01", "category": "BodyMovements", "sub_category": "Acting", "preview_url": "https://cdn.meshy.ai/webapp-assets/feature-demo/animation/preview/biped/Skill_01.gif"},
+    {"action_id": 27, "name": "Big Heart Gesture", "key": "Big_Heart_Gesture", "category": "BodyMovements", "sub_category": "Acting", "preview_url": "https://cdn.meshy.ai/webapp-assets/feature-demo/animation/preview/biped/Big_Heart_Gesture.gif"},
+    {"action_id": 31, "name": "Catching Breath", "key": "Catching_Breath", "category": "BodyMovements", "sub_category": "Acting", "preview_url": "https://cdn.meshy.ai/webapp-assets/feature-demo/animation/preview/biped/Catching_Breath.gif"},
+    {"action_id": 125, "name": "Charged Spell Cast", "key": "Charged_Spell_Cast", "category": "BodyMovements", "sub_category": "Acting", "preview_url": "https://cdn.meshy.ai/webapp-assets/feature-demo/animation/preview/biped/Charged_Spell_Cast.gif"},
+]
+
+
 # ==============================================================================
 # MESHY CONNECTOR CLASS
 # ==============================================================================
@@ -283,9 +385,9 @@ class MeshyConnector(BaseConnector):
                 dependencies_met=True,
             )
 
-        # Probe Meshy API task list or balance endpoint to verify authentication
+        # Probe Meshy API balance endpoint to verify authentication and retrieve credits
         base_url = self.meshy_config.base_url.rstrip("/")
-        probe_url = f"{base_url}/openapi/v2/text-to-3d?pageSize=1"
+        probe_url = f"{base_url}/openapi/v1/balance"
         try:
             req = urllib.request.Request(
                 probe_url,
@@ -1119,6 +1221,358 @@ class MeshyConnector(BaseConnector):
                 "prompt": inp.prompt,
                 "stage": "refined" if boost_active else "preview",
             },
+        )
+
+    # --------------------------------------------------------------------------
+    # MESHY ANIMATION LIBRARY & RIGGING / ANIMATION EXTENSIONS
+    # --------------------------------------------------------------------------
+
+    _anim_lib_cache: Optional[List[AnimationItem]] = None
+
+    def list_animation_library(
+        self,
+        category: Optional[str] = None,
+        search: Optional[str] = None,
+        sub_category: Optional[str] = None,
+        action_ids: Optional[List[int]] = None,
+    ) -> List[AnimationItem]:
+        """
+        Query available animations from Meshy Animation Library (free endpoint).
+
+        Caches full response in memory and supports offline mock fallback.
+        """
+        all_items: List[AnimationItem] = []
+        api_key = self._resolve_api_key()
+
+        if self.meshy_config.mode != "mock" and api_key:
+            if MeshyConnector._anim_lib_cache is not None:
+                all_items = list(MeshyConnector._anim_lib_cache)
+            else:
+                base_url = self.meshy_config.base_url.rstrip("/")
+                lib_url = f"{base_url}/openapi/v1/animations/library"
+                try:
+                    req = urllib.request.Request(
+                        lib_url,
+                        headers={
+                            "Authorization": f"Bearer {api_key}",
+                            "User-Agent": "MorphoMesh-MeshyConnector/2.0",
+                        },
+                    )
+                    with urllib.request.urlopen(req, timeout=15.0) as resp:
+                        raw_list = json.loads(resp.read().decode("utf-8"))
+                        if isinstance(raw_list, list):
+                            all_items = [AnimationItem(**item) for item in raw_list]
+                            MeshyConnector._anim_lib_cache = all_items
+                except Exception as e:
+                    logger.warning("Meshy animation library request failed (%s), falling back to curated library: %s", e, e)
+
+        if not all_items:
+            # Fallback to curated offline catalog
+            all_items = [AnimationItem(**item) for item in CURATED_ANIMATIONS]
+
+        # Apply filtering in memory
+        filtered = all_items
+        if category:
+            c_clean = category.strip().lower()
+            filtered = [x for x in filtered if x.category.lower() == c_clean]
+        if sub_category:
+            sc_clean = sub_category.strip().lower()
+            filtered = [x for x in filtered if x.sub_category and x.sub_category.lower() == sc_clean]
+        if search:
+            s_clean = search.strip().lower()
+            filtered = [x for x in filtered if s_clean in x.name.lower() or s_clean in x.key.lower()]
+        if action_ids:
+            id_set = set(action_ids)
+            filtered = [x for x in filtered if x.action_id in id_set]
+
+        return filtered
+
+    def rig_asset(
+        self,
+        input_data: Union[MeshyRiggingInput, Dict[str, Any]],
+    ) -> MeshyRiggingOutput:
+        """
+        Submit a 3D model for AI humanoid auto-rigging via Meshy API.
+        """
+        start_time = time.time()
+        if isinstance(input_data, dict):
+            inp = MeshyRiggingInput(**input_data)
+        else:
+            inp = input_data
+
+        api_key = self._resolve_api_key()
+        use_mock = (
+            self.meshy_config.mode == "mock"
+            or not api_key
+            or (self.circuit_breaker and not self.circuit_breaker.allow_request())
+        )
+
+        out_dir = inp.output_dir or os.path.expanduser(f"~/.morphomesh/cache/meshy_rigged/{uuid.uuid4().hex[:8]}")
+        os.makedirs(out_dir, exist_ok=True)
+
+        if use_mock:
+            return self._mock_rig_asset(inp, out_dir, start_time)
+
+        base_url = self.meshy_config.base_url.rstrip("/")
+        submit_url = f"{base_url}/openapi/v1/rigging"
+
+        # Prepare model_url or data URI if local path given
+        model_url = inp.model_url
+        if not model_url and not inp.input_task_id and inp.model_path:
+            if os.path.isfile(inp.model_path):
+                with open(inp.model_path, "rb") as f:
+                    b64 = base64.b64encode(f.read()).decode("ascii")
+                model_url = f"data:model/gltf-binary;base64,{b64}"
+
+        payload: Dict[str, Any] = {
+            "height_meters": inp.height_meters,
+        }
+        if inp.input_task_id:
+            payload["input_task_id"] = inp.input_task_id
+        elif model_url:
+            payload["model_url"] = model_url
+        else:
+            raise MorphoMeshException(
+                code=ERR_INVALID_ARGUMENT,
+                message="Either input_task_id, model_url, or model_path must be provided for rigging.",
+            )
+
+        if inp.texture_image_url:
+            payload["texture_image_url"] = inp.texture_image_url
+
+        try:
+            task_id = self._post_json_task(submit_url, payload, api_key)
+            poll_url = f"{submit_url}/{task_id}"
+            task_data = self._poll_task(poll_url, api_key)
+
+            res_obj = task_data.get("result", {})
+            glb_url = res_obj.get("rigged_character_glb_url")
+            fbx_url = res_obj.get("rigged_character_fbx_url")
+
+            glb_path = None
+            fbx_path = None
+            if glb_url:
+                glb_path = os.path.join(out_dir, f"{task_id}_rigged.glb")
+                self._download_file(glb_url, glb_path)
+            if fbx_url:
+                fbx_path = os.path.join(out_dir, f"{task_id}_rigged.fbx")
+                self._download_file(fbx_url, fbx_path)
+
+            basic_anims_out = {}
+            basic_anims_raw = res_obj.get("basic_animations", {})
+            for k, v in basic_anims_raw.items():
+                if isinstance(v, str) and v.startswith("http"):
+                    ext = ".glb" if "glb" in k else ".fbx"
+                    local_anim_path = os.path.join(out_dir, f"{task_id}_{k}{ext}")
+                    try:
+                        self._download_file(v, local_anim_path)
+                        basic_anims_out[k] = local_anim_path
+                    except Exception as e_dl:
+                        logger.debug("Failed downloading basic animation %s: %s", k, e_dl)
+
+            if self.circuit_breaker:
+                self.circuit_breaker.record_success()
+
+            return MeshyRiggingOutput(
+                rig_task_id=task_id,
+                status="SUCCEEDED",
+                rigged_character_glb_path=glb_path,
+                rigged_character_fbx_path=fbx_path,
+                rigged_character_glb_url=glb_url,
+                rigged_character_fbx_url=fbx_url,
+                basic_animations=basic_anims_out,
+                basic_animation_urls=basic_anims_raw,
+                duration_seconds=round(time.time() - start_time, 2),
+                execution_mode="api",
+            )
+        except Exception as e:
+            if self.circuit_breaker:
+                self.circuit_breaker.record_failure()
+            if self.meshy_config.fallback_to_mock:
+                logger.warning("Meshy rigging API failed (%s), using mock: %s", e, e)
+                return self._mock_rig_asset(inp, out_dir, start_time)
+            raise
+
+    def animate_asset(
+        self,
+        input_data: Union[MeshyAnimationInput, Dict[str, Any]],
+    ) -> MeshyAnimationOutput:
+        """
+        Retarget an animation action onto a rigged character via Meshy API.
+        """
+        start_time = time.time()
+        if isinstance(input_data, dict):
+            inp = MeshyAnimationInput(**input_data)
+        else:
+            inp = input_data
+
+        api_key = self._resolve_api_key()
+        use_mock = (
+            self.meshy_config.mode == "mock"
+            or not api_key
+            or (self.circuit_breaker and not self.circuit_breaker.allow_request())
+        )
+
+        out_dir = inp.output_dir or os.path.expanduser(f"~/.morphomesh/cache/meshy_animated/{uuid.uuid4().hex[:8]}")
+        os.makedirs(out_dir, exist_ok=True)
+
+        if use_mock:
+            return self._mock_animate_asset(inp, out_dir, start_time)
+
+        base_url = self.meshy_config.base_url.rstrip("/")
+        submit_url = f"{base_url}/openapi/v1/animations"
+
+        payload: Dict[str, Any] = {
+            "rig_task_id": inp.rig_task_id,
+        }
+        if inp.action_id is not None:
+            payload["action_id"] = inp.action_id
+        elif inp.motion_task_id:
+            payload["motion_task_id"] = inp.motion_task_id
+        else:
+            payload["action_id"] = 0  # Default to Idle
+
+        if inp.post_process_operation:
+            payload["post_process"] = {
+                "operation_type": inp.post_process_operation,
+                "fps": inp.fps,
+            }
+
+        try:
+            task_id = self._post_json_task(submit_url, payload, api_key)
+            poll_url = f"{submit_url}/{task_id}"
+            task_data = self._poll_task(poll_url, api_key)
+
+            res_obj = task_data.get("result", {})
+            glb_url = res_obj.get("animation_glb_url")
+            fbx_url = res_obj.get("animation_fbx_url") or res_obj.get("processed_animation_fps_fbx_url")
+
+            glb_path = None
+            fbx_path = None
+            if glb_url:
+                glb_path = os.path.join(out_dir, f"{task_id}_animated.glb")
+                self._download_file(glb_url, glb_path)
+            if fbx_url:
+                fbx_path = os.path.join(out_dir, f"{task_id}_animated.fbx")
+                self._download_file(fbx_url, fbx_path)
+
+            # Lookup action name and preview
+            action_name = f"Action_{inp.action_id}"
+            preview_url = None
+            for item in CURATED_ANIMATIONS:
+                if item.get("action_id") == inp.action_id:
+                    action_name = item.get("name")
+                    preview_url = item.get("preview_url")
+                    break
+
+            if self.circuit_breaker:
+                self.circuit_breaker.record_success()
+
+            return MeshyAnimationOutput(
+                animation_task_id=task_id,
+                rig_task_id=inp.rig_task_id,
+                action_id=inp.action_id,
+                action_name=action_name,
+                status="SUCCEEDED",
+                animation_glb_path=glb_path,
+                animation_fbx_path=fbx_path,
+                animation_glb_url=glb_url,
+                animation_fbx_url=fbx_url,
+                preview_url=preview_url,
+                duration_seconds=round(time.time() - start_time, 2),
+                execution_mode="api",
+            )
+        except Exception as e:
+            if self.circuit_breaker:
+                self.circuit_breaker.record_failure()
+            if self.meshy_config.fallback_to_mock:
+                logger.warning("Meshy animation API failed (%s), using mock: %s", e, e)
+                return self._mock_animate_asset(inp, out_dir, start_time)
+            raise
+
+    def _mock_rig_asset(
+        self,
+        inp: MeshyRiggingInput,
+        out_dir: str,
+        start_time: float,
+    ) -> MeshyRiggingOutput:
+        """Deterministic procedural mock for Meshy Rigging."""
+        task_id = f"mock-rig-{uuid.uuid4().hex[:8]}"
+        glb_path = os.path.join(out_dir, f"{task_id}.glb")
+        fbx_path = os.path.join(out_dir, f"{task_id}.fbx")
+
+        geom = MeshGeometry()
+        geom.add_cylinder((0.0, 0.0, 0.0), radius=0.35, height=0.6, axis="Z", cap_ends=True)
+        geom.add_cylinder((0.0, 0.0, 0.55), radius=0.28, height=0.45, axis="Z", cap_ends=True)
+        geom.add_sphere((0.0, 0.0, 1.15), radius=0.2)
+        geom.add_cylinder((-0.25, 0.0, 0.7), radius=0.08, height=0.4, axis="Z", cap_ends=True)
+        geom.add_cylinder((0.25, 0.0, 0.7), radius=0.08, height=0.4, axis="Z", cap_ends=True)
+        geom.export_glb(glb_path)
+
+        with open(fbx_path, "wb") as f:
+            f.write(b"Kaydara FBX Binary\x00\x1a\x00" + b"\x00" * 256)
+
+        walk_path = os.path.join(out_dir, f"{task_id}_walking.glb")
+        geom.export_glb(walk_path)
+
+        return MeshyRiggingOutput(
+            rig_task_id=task_id,
+            status="SUCCEEDED",
+            rigged_character_glb_path=glb_path,
+            rigged_character_fbx_path=fbx_path,
+            rigged_character_glb_url=f"https://assets.meshy.ai/mock/{task_id}.glb",
+            rigged_character_fbx_url=f"https://assets.meshy.ai/mock/{task_id}.fbx",
+            basic_animations={
+                "walking_glb": walk_path,
+            },
+            basic_animation_urls={
+                "walking_glb_url": f"https://assets.meshy.ai/mock/{task_id}_walk.glb",
+            },
+            duration_seconds=round(time.time() - start_time, 2),
+            execution_mode="mock",
+        )
+
+    def _mock_animate_asset(
+        self,
+        inp: MeshyAnimationInput,
+        out_dir: str,
+        start_time: float,
+    ) -> MeshyAnimationOutput:
+        """Deterministic procedural mock for Meshy Animation."""
+        task_id = f"mock-anim-{uuid.uuid4().hex[:8]}"
+        glb_path = os.path.join(out_dir, f"{task_id}.glb")
+        fbx_path = os.path.join(out_dir, f"{task_id}.fbx")
+
+        geom = MeshGeometry()
+        geom.add_cylinder((0.0, 0.0, 0.0), radius=0.35, height=0.6, axis="Z", cap_ends=True)
+        geom.add_cylinder((0.0, 0.0, 0.55), radius=0.28, height=0.45, axis="Z", cap_ends=True)
+        geom.add_sphere((0.0, 0.0, 1.15), radius=0.2)
+        geom.export_glb(glb_path)
+
+        with open(fbx_path, "wb") as f:
+            f.write(b"Kaydara FBX Binary\x00\x1a\x00" + b"\x00" * 256)
+
+        action_name = f"Action_{inp.action_id or 0}"
+        preview_url = None
+        for item in CURATED_ANIMATIONS:
+            if item.get("action_id") == inp.action_id:
+                action_name = item.get("name")
+                preview_url = item.get("preview_url")
+                break
+
+        return MeshyAnimationOutput(
+            animation_task_id=task_id,
+            rig_task_id=inp.rig_task_id,
+            action_id=inp.action_id,
+            action_name=action_name,
+            status="SUCCEEDED",
+            animation_glb_path=glb_path,
+            animation_fbx_path=fbx_path,
+            animation_glb_url=f"https://assets.meshy.ai/mock/{task_id}.glb",
+            animation_fbx_url=f"https://assets.meshy.ai/mock/{task_id}.fbx",
+            preview_url=preview_url,
+            duration_seconds=round(time.time() - start_time, 2),
+            execution_mode="mock",
         )
 
     def close(self) -> None:

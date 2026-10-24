@@ -1,359 +1,575 @@
-# MorphoMesh Engine & Blender Infrastructure Technical Survey Report
-**Document ID**: `MM-SURVEY-INFRA-001`  
-**Date**: 2026-09-05T15:53:00Z  
-**Investigator**: Explorer 1 (Codebase & Blender Infrastructure Specialist)  
-**Assigned Directory**: `/Users/duongnad/Documents/tool/MorphoMesh/.agents/explorer_survey_1`  
-**Target Milestone**: MorphoMesh Engine Upgrade & Armored War Bear Canonical Benchmark  
+# MorphoMesh Survey Report: R1 FastMCP Tools Integration & Compatibility
+
+**Investigator**: Explorer Survey (`explorer_survey_1`)  
+**Target Milestone**: R1: FastMCP Tools Integration & Compatibility  
+**Authoritative Reference**: `ORIGINAL_REQUEST.md` (## 2026-09-08T16:06:11Z)  
+**Workspace Root**: `E:\tool\mcp\MorphoMesh`  
+**Date**: 2026-09-08  
 
 ---
 
-## 1. Executive Summary
+## Executive Summary
 
-This investigation surveys the MorphoMesh digital content creation pipeline, Python execution environments, Blender 5.2.1 LTS headless and interactive execution capabilities, AST static security analysis, and open-source connectors. 
+MorphoMesh's Model Context Protocol (MCP) server layer implements **17 production tools** organized into **3 distinct functional suites**:
+1. **Creature Pipeline (7 tools)**: Canonical prompt-to-render procedural/AI creature generation workflow.
+2. **Human & Wardrobe Generation (7 tools)**: Anatomically authentic female human modeling, 163-DEF bone metarigging, PBR SSS shaders, hair curves, and dynamic wardrobe generation.
+3. **Inspection & Visual QA (3 tools)**: Analytical camera positioning rig, sub-200ms multi-shading viewport capture, and closed-loop automated structural defect critique.
 
-In accordance with the authoritative user directive (§ 2026-09-05T15:47:35Z in `ORIGINAL_REQUEST.md`), this survey establishes the architectural blueprint not merely for a static asset, but for **upgrading the MorphoMesh engine itself** (`src/morphomesh/`). Specifically, this report verifies the runtime capabilities required to:
-1. Procedurally generate photorealistic, anatomically authentic creatures across biological archetypes with forward-and-downward curving claws and organic facial structures.
-2. Build and execute a reusable volumetric fur and hair curves grooming pipeline (>= 10,000 strands) inside Blender 5.2.1 LTS.
-3. Apply genuine 4-channel organic PBR shading (Principled BSDF v2 sockets, organic subsurface coat scattering, corneal moisture, claw keratin).
-4. Reliably export production-ready `.glb` and `.blend` containers and verify them via automated programmatic assertion scripts.
+All 17 tools are declared and registered via FastMCP (`@mcp.tool`) in `src/morphomesh/server.py`. An environment variable gating mechanism dynamically filters tool discovery across both high-level Python APIs (`mcp.list_tools()`) and low-level JSON-RPC protocol requests (`ListToolsRequest`), ensuring **100% backward compatibility** (exactly 7 canonical creature tools returned when flags are unset).
 
----
-
-## 2. Codebase Structure & Component Inventory
-
-The MorphoMesh repository is located at `/Users/duongnad/Documents/tool/MorphoMesh`. The repository layout is clean, modular, and fully covered by 195 passing automated unit and integration tests.
-
-### 2.1 Directory Map
-
-```
-/Users/duongnad/Documents/tool/MorphoMesh/
-├── pyproject.toml              # Build & dependency specification (setuptools/wheel)
-├── README.md                   # System overview & installation guide
-├── SETUP_GUIDE.md              # Technical setup, FastMCP configuration, Blender IPC
-├── docs/                       # Architectural & research documentation
-│   ├── ARCHITECTURE.md         # 5-stage pipeline dataflow & hybrid architecture
-│   ├── MCP_SPECIFICATION.md    # FastMCP tool interface specifications & schemas
-│   ├── OPEN_SOURCE_INTEGRATION_PLAYBOOK.md # SOTA framework integration guide
-│   ├── RESEARCH_BENCHMARK.md   # 20+ model comparative benchmark matrix
-│   └── ROADMAP.md              # Project delivery milestones
-├── src/morphomesh/             # Core MorphoMesh engine
-│   ├── __init__.py             # Version 0.1.0
-│   ├── main.py                 # CLI launcher & FastMCP entry point
-│   ├── server.py               # FastMCP server exposing 7 authoritative tools
-│   ├── models.py               # Pydantic v2 data contracts & error codes
-│   ├── blender_bridge.py       # Dual-mode IPC bridge & AST static validator
-│   ├── inference_adapter.py    # 3D reconstruction abstraction & MeshGeometry builder
-│   └── connectors/             # SOTA Open-Source Integration Hub
-│       ├── __init__.py         # Connector package exports
-│       ├── base.py             # BaseConnector & CircuitBreaker fault tolerance
-│       ├── registry.py         # ConnectorRegistry lifecycle manager
-│       ├── trellis_connector.py    # Microsoft TRELLIS.2 (O-Voxel DiT + PBR baking)
-│       ├── animals3d_connector.py  # 3DAnimals / SMAL (35-joint to Rigify wolf mapping)
-│       ├── anycreature_connector.py# anyCreature prompt-to-DAG BodyGraph compilation
-│       ├── meshanything_connector.py # MeshAnything V2 quad retopology (< 1600 faces)
-│       └── hunyuan_connector.py    # Tencent Hunyuan3D-2.1 high-res mesh connector
-├── blender_addon/              # Native Blender client addon
-│   ├── __init__.py             # Addon registration metadata
-│   ├── listener.py             # TCP socket server listening on 127.0.0.1:9876
-│   └── operators.py            # Blender operators for headless / interactive IPC
-├── examples/                   # Demonstration scripts & assets
-│   ├── open_source_pipeline_demo.py # 5-stage offline orchestration script
-│   └── Armored_War_Bear.glb    # Prototype asset (212 KB)
-└── tests/                      # Pytest automated test suite (195 passed in 2.03s)
-    ├── conftest.py             # Shared fixtures
-    ├── test_blender_bridge.py  # Bridge serialization & AST security tests
-    ├── test_connectors.py      # Connector unit & mock resilience tests
-    ├── test_e2e_offline.py     # End-to-end 5-stage offline pipeline tests
-    ├── test_inference_adapter.py # MeshGeometry & procedural generator tests
-    ├── test_tools_schema.py    # FastMCP Pydantic input/output schema tests
-    └── m1_stress_harness/      # Stress tests for edge cases & remeshing
-```
-
-### 2.2 FastMCP Tool Inventory
-
-The FastMCP server (`src/morphomesh/server.py`) defines 7 authoritative tools conforming to the Model Context Protocol:
-
-| Tool Name | Stage | Input Contract | Primary Output | Function |
-|---|---|---|---|---|
-| `morphomesh_generate_concept` | 1 | `GenerateConceptInput` | `GenerateConceptOutput` | Synthesizes 2D concept with alpha mask |
-| `morphomesh_create_3d_asset` | 2 | `Create3DAssetInput` | `Create3DAssetOutput` | Reconstructs 3D mesh & 4-channel PBR textures |
-| `morphomesh_optimize_topology` | 3 | `OptimizeTopologyInput` | `OptimizeTopologyOutput` | Quad retopology via QuadriFlow or MeshAnything |
-| `morphomesh_auto_rig` | 4 | `AutoRigInput` | `AutoRigOutput` | Modular Rigify / SMAL armature generation & skinning |
-| `morphomesh_blender_execute` | 5 | `BlenderExecuteInput` | `BlenderExecuteOutput` | Sandboxed AST-validated `bpy` execution |
-| `morphomesh_get_scene_status` | 5 | `SceneStatusInput` | `SceneStatusOutput` | Scene graph inspection, vertices, materials, cameras |
-| `morphomesh_render_preview` | 5 | `RenderPreviewInput` | `RenderPreviewOutput` | Apple Metal EEVEE preview with auto-framing camera |
+Empirical verification confirms **347/347 tests PASSING** across all tool integration, schema validation, socket parity, and adversarial gating test suites with **0 failures and 0 regressions**.
 
 ---
 
-## 3. Python Environments: Host vs. Blender Embedded
+## 1. Existing Tool Registration Architecture in `server.py` & `morphomesh/`
 
-Two distinct Python execution environments are present on the workstation. Understanding the separation and boundary between these environments is critical for stability.
-
-### 3.1 Workstation Host Python Environment
-- **Binary**: `/Users/duongnad/.pyenv/shims/python3`
-- **Version**: **Python 3.11.8**
-- **Architecture**: `arm64` (Apple Silicon Darwin)
-- **Key Installed Packages**:
-  - `morphomesh 0.1.0` (editable install linked to `/Users/duongnad/Documents/tool/MorphoMesh`)
-  - `torch 2.13.0`, `torchvision 0.28.0`, `mlx 0.32.0`, `diffusers 0.27.2`
-  - `pydantic 2.13.4`, `pydantic-core 2.46.4`, `pydantic-settings 2.14.2`
-  - `mcp 1.28.1`, `fastapi 0.141.1`, `uvicorn 0.51.0`
-  - `pillow 12.3.0`, `numpy 1.26.4`, `scipy 1.17.1`
-  - `pytest 9.1.1`, `pytest-cov 7.1.0`, `pytest-timeout 2.4.0`, `pytest-asyncio 1.4.0`
-- **Role**: Hosts the MorphoMesh FastMCP server, inference adapters, connector registry, client orchestrator, and test runner.
-
-### 3.2 Blender Embedded Python Environment
-- **Binary**: `/Applications/Blender.app/Contents/Resources/5.2/python/bin/python3.13`
-- **Version**: **Python 3.13.13** (Clang 21.0.0, 64-bit)
-- **Bundled Modules**: `bpy`, `bmesh`, `mathutils`, `numpy 2.2.0`, `requests`, `urllib`, `json`.
-- **Role**: Executes all 3D mesh operations, Geometry Nodes evaluation, fur grooming, armature deformation, shader compilation, and viewport/still rendering.
-
----
-
-## 4. Blender Infrastructure & Dual-Mode Bridge Probes
-
-### 4.1 Blender Installation & Execution Capabilities
-- **Executable Path**: `/Applications/Blender.app/Contents/MacOS/Blender`
-- **Release Version**: **Blender 5.2.1 LTS** (Built 2026-08-25 01:35:57, release branch `blender-v5.2-release`, hash `9e2066aef7ef`).
-- **Binary Resolution**:
-  While `blender` is not registered in the system `$PATH`, `BlenderBridge._resolve_blender_binary()` automatically resolves `/Applications/Blender.app/Contents/MacOS/Blender` without requiring manual environment variables.
-- **Headless Execution**: Verified and 100% operational via:
-  ```bash
-  /Applications/Blender.app/Contents/MacOS/Blender --background --factory-startup --python <script_path>
-  ```
-  Both EEVEE and Cycles engines render in background mode on Apple Silicon without requiring a virtual display (`Xvfb`) or display server.
-  - EEVEE headless 512x512 render: **0.717 seconds**.
-  - Cycles headless 512x512 render: **0.654 seconds**.
-
-### 4.2 Active Interactive Session Probe
-- A live interactive GUI Blender session (PID `8791`) is currently running and actively listening on `127.0.0.1:9876`.
-- Direct socket RPC probing via `send_socket_request` confirmed:
-  - Active Scene: `Armored_Bear_Studio`
-  - Total Objects: 50 objects
-  - Hierarchy contains: `Studio_Key_Light`, `Studio_Fill_Light`, `Studio_Rim_Light`, `Studio_Pedestal`, `CAM_3_4_Perspective`, `Armature_ArmoredBear`, `Bear_Torso`, `Bear_Head`, `Bear_Nose`, 4 paws, 20 individual claws, pauldrons, gorget, bracers, and backplate.
-
-### 4.3 Interactive Socket vs. Headless Fallback Bug Diagnosis
-During our live code execution probe, we uncovered a critical dispatch bug in `src/morphomesh/blender_bridge.py`:
-- In `_generate_headless_script` (line 634):
+### 1.1 Architecture & Server Location
+- **Authoritative Server Path**: `src/morphomesh/server.py` (the repository does not maintain a top-level `server.py`; the package layout adheres strictly to standard `src/morphomesh` packaging declared in `pyproject.toml`).
+- **Server Instance**: FastMCP instance instantiated as:
   ```python
-  emit_result({
-      "success": True,
-      "stdout": "",
-      "stderr": "",
-      "returned_data": out_vars,
-      "blend_file_path": blend_saved,
-  })
+  mcp = FastMCP(
+      name="MorphoMeshServer",
+      instructions=(
+          "Authoritative 3D creature generation pipeline and Blender bridge. "
+          "Coordinates prompt engineering, image-to-3D diffusion, quad retopology, "
+          "biomechanical auto-rigging, scene assembly, and EEVEE Next turntable rendering."
+      ),
+      host=os.environ.get("MORPHOMESH_HOST", "127.0.0.1"),
+      port=int(os.environ.get("MORPHOMESH_PORT", "8765")),
+  )
   ```
-- In `execute` (line 472):
-  ```python
-  if isinstance(res, dict) and (res.get("status") == "success" or "object_count" in res or "blender_version" in res):
-      return res
-  ```
-Because line 634 returned `"success": True` rather than `"status": "success"`, the condition in line 472 evaluated to `False`. The bridge concluded that the socket execution had failed and **silently fell back to spawning a fresh headless Blender instance with `--factory-startup`**, which operates on an empty scene instead of the active session!
+- **CLI Dispatcher**: Invoked via `src/morphomesh/main.py` (`morphomesh server` or `morphomesh-server`).
 
-**Remediation Recommendation for Workers**:
-Update line 472 of `src/morphomesh/blender_bridge.py` to:
+### 1.2 Tool Registration Catalog (17 Authoritative Tools)
+
+| # | Tool Name | Suite | Decorator Line in `server.py` | Core Underlying Module | Input Schema Model | Output Schema Model |
+|---|---|---|---|---|---|---|
+| 1 | `morphomesh_generate_concept` | Creature | Line 92 | `inference_adapter.py` | `GenerateConceptInput` | `GenerateConceptOutput` |
+| 2 | `morphomesh_create_3d_asset` | Creature | Line 152 | `inference_adapter.py` + `connectors/` | `Create3DAssetInput` | `Create3DAssetOutput` |
+| 3 | `morphomesh_optimize_topology` | Creature | Line 220 | `blender_bridge.py` + `meshanything_connector.py` | `OptimizeTopologyInput` | `OptimizeTopologyOutput` |
+| 4 | `morphomesh_auto_rig` | Creature | Line 311 | `blender_bridge.py` + `animals3d_connector.py` | `AutoRigInput` | `AutoRigOutput` |
+| 5 | `morphomesh_blender_execute` | Creature | Line 441 | `blender_bridge.py` (AST sandbox) | `BlenderExecuteInput` | `BlenderExecuteOutput` |
+| 6 | `morphomesh_get_scene_status` | Creature | Line 485 | `blender_bridge.py` | `SceneStatusInput` | `SceneStatusOutput` |
+| 7 | `morphomesh_render_preview` | Creature | Line 524 | `blender_bridge.py` | `RenderPreviewInput` | `RenderPreviewOutput` |
+| 8 | `morphomesh_create_human_asset` | Human | Line 607 | `blender_bridge.py` + `human_generator.py` | `CreateHumanAssetInput` | `CreateHumanAssetOutput` |
+| 9 | `morphomesh_auto_rig_human` | Human | Line 715 | `blender_bridge.py` + `human_rigging.py` | `AutoRigHumanInput` | `AutoRigHumanOutput` |
+| 10 | `morphomesh_setup_human_materials` | Human | Line 778 | `blender_bridge.py` + `human_materials.py` | `SetupHumanMaterialsInput` | `SetupHumanMaterialsOutput` |
+| 11 | `morphomesh_groom_human` | Human | Line 841 | `blender_bridge.py` + `human_grooming.py` | `GroomHumanInput` | `GroomHumanOutput` |
+| 12 | `morphomesh_dress_human` | Human | Line 912 | `blender_bridge.py` + `wardrobe.py` | `DressHumanInput` | `DressHumanOutput` |
+| 13 | `morphomesh_assemble_master_character` | Human | Line 983 | `blender_bridge.py` + `character_assembler.py` | Direct kwargs / bridge dict | Direct kwargs / bridge dict |
+| 14 | `morphomesh_export_production_character` | Human | Line 1042 | `character_assembler.py` + `export_manager.py` | Direct kwargs / export dict | Direct kwargs / export dict |
+| 15 | `morphomesh_setup_inspector_camera_rig` | Inspection | Line 1119 | `blender_bridge.py` + `camera_rig.py` | `SetupInspectorCameraInput`* | `SetupInspectorCameraOutput`* |
+| 16 | `morphomesh_capture_viewport` | Inspection | Line 1208 | `blender_bridge.py` + `camera_rig.py` | `CaptureViewportInput`* | `CaptureViewportOutput`* |
+| 17 | `morphomesh_critique_visual_quality` | Inspection | Line 1345 | `blender_bridge.py` + `visual_critic.py` | `VisualCritiqueInput`* | `VisualCritiqueOutput`* |
+
+*\*Note: Marked schemas exist in `morphomesh.models` but are currently validated manually in `server.py` rather than directly imported.*
+
+---
+
+## 2. Detailed Technical Specification of the 3 Tool Suites
+
+### 2.1 Suite A: Creature Pipeline (7 Tools)
+
+1. **`morphomesh_generate_concept`**
+   - **Signature**:
+     ```python
+     async def morphomesh_generate_concept(
+         prompt: str,
+         negative_prompt: str = "",
+         creature_type: str = "custom",
+         view_mode: str = "front",
+         pose: str = "standing_neutral",
+         style: str = "realistic",
+         background: str = "white_neutral",
+         width: int = 1024,
+         height: int = 1024,
+         seed: int = -1,
+         output_format: str = "png",
+         backend: str = "default",
+         ctx: Optional[Context] = None,
+     ) -> Dict[str, Any]
+     ```
+   - **Implementation**: Wraps `inference_adapter.generate_concept(req)`.
+   - **Inputs/Outputs**: Validates via `GenerateConceptInput` (min length 3, width/height in [512, 2048] step 64). Returns `GenerateConceptOutput` (`concept_id`, `image_path`, `alpha_mask_path`, `enhanced_prompt`).
+
+2. **`morphomesh_create_3d_asset`**
+   - **Signature**:
+     ```python
+     async def morphomesh_create_3d_asset(
+         image_path: Optional[str] = None,
+         concept_id: Optional[str] = None,
+         prompt: Optional[str] = None,
+         model_backend: str = "mock",
+         export_format: str = "glb",
+         generate_pbr: bool = True,
+         texture_resolution: int = 2048,
+         remove_background: bool = True,
+         guidance_scale: float = 7.5,
+         seed: int = -1,
+         quality_tier: Optional[str] = "standard",
+         backend: Optional[str] = None,
+         ctx: Optional[Context] = None,
+     ) -> Dict[str, Any]
+     ```
+   - **Implementation**: Dispatches to `inference_adapter.generate_3d_asset(req)` supporting backends: `meshy`, `tripo`, `trellis`, `hunyuan`, `anycreature`, `mock`.
+   - **Inputs/Outputs**: Validates via `Create3DAssetInput`. Returns `Create3DAssetOutput` (`asset_id`, `mesh_path`, `vertex_count`, `face_count`, PBR texture paths).
+
+3. **`morphomesh_optimize_topology`**
+   - **Signature**:
+     ```python
+     async def morphomesh_optimize_topology(
+         asset_id: Optional[str] = None,
+         input_mesh_path: Optional[str] = None,
+         target_poly_count: int = 10000,
+         topology_type: str = "quad_dominant",
+         preserve_uvs: bool = True,
+         preserve_sharp_edges: bool = True,
+         method: str = "quadriflow",
+         output_format: str = "glb",
+         ctx: Optional[Context] = None,
+     ) -> Dict[str, Any]
+     ```
+   - **Implementation**: Routes neural retopology (`method="meshanything_v2"`) via `inference_adapter.optimize_topology_with_connector`, otherwise delegates to `blender_bridge.optimize_topology` (Blender QuadriFlow).
+   - **Inputs/Outputs**: Validates via `OptimizeTopologyInput`. Returns `OptimizeTopologyOutput` (`optimized_face_count`, `quad_percentage`, `reduction_ratio`).
+
+4. **`morphomesh_auto_rig`**
+   - **Signature**:
+     ```python
+     async def morphomesh_auto_rig(
+         asset_id: Optional[str] = None,
+         input_mesh_path: Optional[str] = None,
+         creature_type: str = "quadruped",
+         rig_type: str = "rigify_creature",
+         skinning_method: str = "automatic_weights",
+         symmetry: bool = True,
+         generate_test_animation: bool = True,
+         load_into_scene: bool = True,
+         ctx: Optional[Context] = None,
+     ) -> Dict[str, Any]
+     ```
+   - **Implementation**: Routes SMAL/parametric animal models to `inference_adapter.create_animal_rig_with_connector` or executes `blender_bridge.create_armature`.
+   - **Inputs/Outputs**: Validates via `AutoRigInput`. Returns `AutoRigOutput` (`armature_name`, `bone_count`, `bone_hierarchy`, `smal_landmarks`, `rigify_mapping`).
+
+5. **`morphomesh_blender_execute`**
+   - **Signature**:
+     ```python
+     async def morphomesh_blender_execute(
+         script: str,
+         timeout_seconds: int = 30,
+         target_scene: Optional[str] = None,
+         save_after: bool = False,
+         save_path: Optional[str] = None,
+         return_variables: Optional[List[str]] = None,
+         ctx: Optional[Context] = None,
+     ) -> Dict[str, Any]
+     ```
+   - **Implementation**: Two-tier AST security sandbox inspection via `BpyCodeValidator` before dispatching to Blender main loop.
+   - **Inputs/Outputs**: Validates non-empty code. Returns `BlenderExecuteOutput` (`stdout`, `stderr`, `returned_variables`).
+
+6. **`morphomesh_get_scene_status`**
+   - **Signature**:
+     ```python
+     async def morphomesh_get_scene_status(
+         scene_name: Optional[str] = None,
+         include_mesh_stats: bool = True,
+         include_hierarchy: bool = True,
+         include_materials: bool = True,
+         include_armatures: bool = True,
+         include_cameras_lights: bool = True,
+         ctx: Optional[Context] = None,
+     ) -> Dict[str, Any]
+     ```
+   - **Implementation**: Queries Blender scene graph via `blender_bridge.get_scene_status`.
+   - **Inputs/Outputs**: Validates via `SceneStatusInput`. Returns `SceneStatusOutput` (`objects`, `vertex_count`, `armatures`, `cameras`, `lights`).
+
+7. **`morphomesh_render_preview`**
+   - **Signature**:
+     ```python
+     async def morphomesh_render_preview(
+         camera_name: Optional[str] = None,
+         resolution_width: int = 1024,
+         resolution_height: int = 1024,
+         render_engine: str = "BLENDER_EEVEE",
+         samples: int = 64,
+         view_angle: str = "three_quarter",
+         transparent_background: bool = True,
+         lighting_preset: str = "studio_three_point",
+         save_to_disk: bool = True,
+         output_dir: Optional[str] = None,
+         ctx: Optional[Context] = None,
+     ) -> Dict[str, Any]
+     ```
+   - **Implementation**: Directs EEVEE or Cycles turntable render via `blender_bridge.render_preview` and injects base64 preview payload.
+   - **Inputs/Outputs**: Validates via `RenderPreviewInput`. Returns `RenderPreviewOutput` (`image_path`, `base64_image`, `render_time_seconds`).
+
+---
+
+### 2.2 Suite B: Human & Wardrobe Generation (7 Tools)
+
+8. **`morphomesh_create_human_asset`**
+   - **Signature**:
+     ```python
+     async def morphomesh_create_human_asset(
+         character_name: str = "Yu_Nian_An",
+         prompt: str = "Yu Nian An female semi-realistic character",
+         gender: str = "female",
+         height: float = 1.65,
+         head_ratio: float = 7.41,
+         style: str = "stylized_photorealism",
+         chest_girth: float = 0.82,
+         waist_girth: float = 0.58,
+         hip_girth: float = 0.86,
+         poly_budget: int = 25000,
+         include_blendshapes: bool = True,
+         export_format: str = "glb",
+         load_into_scene: bool = True,
+         assemble_master: bool = False,
+         config: Optional[HumanAnatomyConfig] = None,
+         ctx: Optional[Context] = None,
+     ) -> Dict[str, Any]
+     ```
+   - **Implementation**: Generates anatomically accurate female body mesh with teardrop bust, lumbar curvature, 5-toed feet, and 52 ARKit blendshapes via `human_generator.py` and `blender_bridge.create_human_asset`. Supports `assemble_master=True` full orchestrator passthrough.
+
+9. **`morphomesh_auto_rig_human`**
+   - **Signature**:
+     ```python
+     async def morphomesh_auto_rig_human(
+         human_asset_id: Optional[str] = None,
+         mesh_object_name: str = "Human_Base_Mesh",
+         target_object: Optional[str] = None,
+         rig_type: str = "rigify_human",
+         skinning_method: str = "automatic_weights",
+         include_face_rig: bool = True,
+         include_finger_rig: bool = True,
+         pose: str = "puppeteer_pose",
+         export_format: str = "fbx",
+         ctx: Optional[Context] = None,
+     ) -> Dict[str, Any]
+     ```
+   - **Implementation**: Snaps 163 DEF Rigify metarig bones with anatomical pre-bends (elbows +Y, knees -Y) and anti-pinch geodesic skin weights via `human_rigging.py`.
+
+10. **`morphomesh_setup_human_materials`**
+    - **Signature**:
+      ```python
+      async def morphomesh_setup_human_materials(
+          mesh_object_name: str = "Human_Base_Mesh",
+          target_object: Optional[str] = None,
+          material_preset: str = "yu_nian_an",
+          skin_tone: str = "porcelain_fair",
+          subsurface_scattering: bool = True,
+          refractive_eyes: bool = True,
+          render_engine: str = "CYCLES",
+          save_after: bool = False,
+          save_path: Optional[str] = None,
+          ctx: Optional[Context] = None,
+      ) -> Dict[str, Any]
+      ```
+    - **Implementation**: Configures Principled BSDF v2 shaders with Random Walk SSS (radii [1.0, 0.22, 0.11]) and dual-chamber refractive optics via `human_materials.py`.
+
+11. **`morphomesh_groom_human`**
+    - **Signature**:
+      ```python
+      async def morphomesh_groom_human(
+          mesh_object_name: str = "Human_Base_Mesh",
+          target_object: Optional[str] = None,
+          hair_style: str = "hime_cut_long",
+          hairstyle: Optional[str] = None,
+          hair_color: str = "silky_black",
+          strand_count: int = 15000,
+          include_eyebrows: bool = True,
+          include_eyelashes: bool = True,
+          generate_ribbons: bool = False,
+          save_after: bool = False,
+          save_path: Optional[str] = None,
+          ctx: Optional[Context] = None,
+      ) -> Dict[str, Any]
+      ```
+    - **Implementation**: Builds 6-strata Geometry Nodes hair curves (eyebrows, eyelashes, blunt bangs, sidelocks, parting, back cascades) with Melanin shading via `human_grooming.py`.
+
+12. **`morphomesh_dress_human`**
+    - **Signature**:
+      ```python
+      async def morphomesh_dress_human(
+          human_object_name: str = "Human_Base_Mesh",
+          target_object: Optional[str] = None,
+          outfit: str = "yu_nian_an_dress",
+          outfit_preset: Optional[str] = None,
+          include_sandals: bool = True,
+          include_red_threads: bool = True,
+          include_glowing_butterflies: bool = True,
+          butterfly_count: int = 10,
+          clearance_offset: float = 0.015,
+          save_after: bool = False,
+          save_path: Optional[str] = None,
+          ctx: Optional[Context] = None,
+      ) -> Dict[str, Any]
+      ```
+    - **Implementation**: Fits slip sundress, conforming sash belt, flat 10-toe sandals, 10 crimson marionette cords, and 10 luminous butterflies via `wardrobe.py`.
+
+13. **`morphomesh_assemble_master_character`**
+    - **Signature**:
+      ```python
+      async def morphomesh_assemble_master_character(
+          character_name: str = "Yu_Nian_An",
+          height: float = 1.65,
+          head_ratio: float = 7.41,
+          include_hair: bool = True,
+          include_wardrobe: bool = True,
+          include_props: bool = True,
+          include_armature: bool = True,
+          include_lighting: bool = True,
+          render_engine: str = "CYCLES",
+          samples: int = 128,
+          save_blend: bool = True,
+          output_path: Optional[str] = None,
+          ctx: Optional[Context] = None,
+      ) -> Dict[str, Any]
+      ```
+    - **Implementation**: Orchestrates master character assembly across all 7 collection hierarchies and saves `Yu_Nian_An_Master.blend` via `character_assembler.py`.
+
+14. **`morphomesh_export_production_character`**
+    - **Signature**:
+      ```python
+      async def morphomesh_export_production_character(
+          character_name: str = "Yu_Nian_An",
+          blend_path: Optional[str] = None,
+          output_dir: Optional[str] = None,
+          export_fbx: bool = True,
+          export_glb: bool = True,
+          generate_textures: bool = True,
+          generate_docs: bool = True,
+          texture_resolution: int = 4096,
+          ctx: Optional[Context] = None,
+      ) -> Dict[str, Any]
+      ```
+    - **Implementation**: Packages rigged FBX, glTF 2.0 GLB, and 4K PBR textures (BaseColor, Normal, Roughness, Metallic, SSS, Alpha, Height) via `export_manager.py`.
+
+---
+
+### 2.3 Suite C: Inspection & Visual QA (3 Tools)
+
+15. **`morphomesh_setup_inspector_camera_rig`**
+    - **Exposure in `server.py`**: Declared at line 1119.
+    - **Signature**:
+      ```python
+      async def morphomesh_setup_inspector_camera_rig(
+          viewpoint: str = "three_quarter",
+          target_center: Optional[List[float]] = None,
+          sub_region: Optional[str] = None,
+          focal_length: float = 50.0,
+          camera_name: str = "MorphoMesh_Inspector_Camera",
+          mesh_objects: Optional[List[str]] = None,
+          ctx: Optional[Context] = None,
+      ) -> Dict[str, Any]
+      ```
+    - **Parameters**:
+      * `viewpoint` (str, default `"three_quarter"`): Target canonical viewing perspective (`front`, `side`, `back`, `three_quarter`, `top`, `bottom`, `head`, `hands`, `torso`, `feet`, `turntable_4views`).
+      * `target_center` (Optional[List[float]], default `None`): 3-element `[x, y, z]` focus coordinates.
+      * `sub_region` (Optional[str], default `None`): Anatomical region (`full_body`, `head`, `torso`, `hands`, `feet`).
+      * `focal_length` (float, default `50.0`): Camera focal length in mm ($10.0$ to $300.0\text{ mm}$).
+      * `camera_name` (str, default `"MorphoMesh_Inspector_Camera"`): Camera object identifier.
+      * `mesh_objects` (Optional[List[str]], default `None`): Target character mesh object names.
+    - **Returns**: Dictionary with `status`, `camera_name`, `viewpoint`, `focal_length`, `camera_location`, `camera_rotation`, `target_center`, `framing_distance`, `bounding_radius`, `bounding_box`.
+    - **Offline Fallback**: Seamlessly falls back to `camera_rig.py:setup_inspector_camera` pure-Python mathematical solver when Blender socket is offline.
+
+16. **`morphomesh_capture_viewport`**
+    - **Exposure in `server.py`**: Declared at line 1208.
+    - **Signature**:
+      ```python
+      async def morphomesh_capture_viewport(
+          output_path: Optional[str] = None,
+          camera_name: str = "MorphoMesh_Inspector_Camera",
+          resolution: List[int] = [1024, 1024],
+          shading_mode: str = "SOLID",
+          color_type: str = "RANDOM",
+          ctx: Optional[Context] = None,
+      ) -> Dict[str, Any]
+      ```
+    - **Parameters**:
+      * `output_path` (Optional[str], default `None`): Output destination PNG path.
+      * `camera_name` (str, default `"MorphoMesh_Inspector_Camera"`): Name of camera to capture through.
+      * `resolution` (List[int], default `[1024, 1024]`): Width and height pixel dimensions.
+      * `shading_mode` (str, default `"SOLID"`): Mode from `{"SOLID", "FLAT", "WIREFRAME", "MATERIAL", "RENDERED"}`.
+      * `color_type` (str, default `"RANDOM"`): Color scheme from `{"RANDOM", "MATERIAL", "SINGLE", "OBJECT", "TEXTURE"}`.
+    - **Returns**: Dictionary with `status`, `image_path`, `resolution`, `shading_mode`, `color_type`, `camera_name`, `base64_preview`, `capture_time_seconds`.
+    - **Offline Fallback**: Generates a valid 1x1 transparent PNG (`FALLBACK_PNG_BYTES` in `camera_rig.py`) and encodes to `base64_preview` when Blender is offline.
+
+17. **`morphomesh_critique_visual_quality`**
+    - **Exposure in `server.py`**: Declared at line 1345.
+    - **Signature**:
+      ```python
+      async def morphomesh_critique_visual_quality(
+          character_name: str = "MorphoMesh_Character",
+          target_object: Optional[str] = None,
+          camera_angles: Optional[List[str]] = None,
+          clearance_tolerance: float = 0.0005,
+          target_preset: str = "stylized_heroine",
+          ctx: Optional[Context] = None,
+      ) -> Dict[str, Any]
+      ```
+    - **Parameters**:
+      * `character_name` (str, default `"MorphoMesh_Character"`): Character hierarchy root name.
+      * `target_object` (Optional[str], default `None`): Primary target body mesh name.
+      * `camera_angles` (Optional[List[str]], default `None`): Viewpoints evaluated (defaults to `["front", "side", "three_quarter", "back"]`).
+      * `clearance_tolerance` (float, default `0.0005`): Penetration clearance threshold ($0.5\text{ mm}$).
+      * `target_preset` (str, default `"stylized_heroine"`): Anthropometric preset (`realistic_human`, `stylized_heroine`, `chibi_petite`, `realistic_female`, `heroic_male`, `chibi`).
+    - **Returns**: Diagnostic report containing `status`, `passed`, `quality_score` (0-100), `defect_count`, `defects` (list of `DefectItem`), `recommendations` (list of strings), `actionable_recommendations` (list of `ActionableRecommendation`), `inspected_objects`, `scene_stats`, `evaluated_angles`.
+    - **Underlying Engine**: Operates via `blender_bridge.py:critique_visual_quality` or `visual_critic.py:run_visual_critique` using pure-Python spatial trees (`PurePythonBVHTree`) when Blender is offline.
+
+---
+
+## 3. Environment Variable Gating Mechanism & Backward Compatibility
+
+### 3.1 Gating Implementation Architecture
+In `src/morphomesh/server.py` (lines 1426–1504):
 ```python
-if isinstance(res, dict) and (
-    res.get("status") == "success" 
-    or res.get("success") is True 
-    or "object_count" in res 
-    or "blender_version" in res
-):
-    return res
-```
-And add `"status": "success"` inside `emit_result` at line 634.
+CREATURE_TOOL_NAMES = {
+    "morphomesh_generate_concept",
+    "morphomesh_create_3d_asset",
+    "morphomesh_optimize_topology",
+    "morphomesh_auto_rig",
+    "morphomesh_blender_execute",
+    "morphomesh_get_scene_status",
+    "morphomesh_render_preview",
+}  # 7 tools
 
----
+HUMAN_TOOL_NAMES = {
+    "morphomesh_create_human_asset",
+    "morphomesh_auto_rig_human",
+    "morphomesh_setup_human_materials",
+    "morphomesh_groom_human",
+    "morphomesh_dress_human",
+    "morphomesh_assemble_master_character",
+    "morphomesh_export_production_character",
+}  # 7 tools
 
-## 5. Script Execution Security & AST Validator Constraints
+INSPECTION_TOOL_NAMES = {
+    "morphomesh_setup_inspector_camera_rig",
+    "morphomesh_capture_viewport",
+    "morphomesh_critique_visual_quality",
+}  # 3 tools
 
-`BpyCodeValidator` in `src/morphomesh/blender_bridge.py` inspects all Python code submitted via `morphomesh_blender_execute` using AST analysis.
-
-### 5.1 Security Whitelist & Blacklist Rules
-- **Allowed Modules**: `bpy`, `math`, `mathutils`, `bmesh`, `numpy`, `random`, `json`, `collections`, `itertools`, `time`.
-- **Forbidden Modules**: `os`, `sys`, `subprocess`, `shutil`, `socket`, `http`, `urllib`, `requests`, `ctypes`, `multiprocessing`, `threading`, `signal`, `pty`, `importlib`, `builtins`, `posix`.
-- **Forbidden Calls**: `eval`, `exec`, `open`, `compile`, `__import__`, `globals`, `locals`, `getattr`, `setattr`, `delattr`, `breakpoint`.
-- **Forbidden Dunders & Reflection**: `__subclasses__`, `__globals__`, `__code__`, `__dict__`, `__bases__`, `__mro__`, `__class__`.
-
-### 5.2 Critical Script Length Constraint
-- **`MAX_SCRIPT_LENGTH = 10000` characters**.
-- Any script submitted through `morphomesh_blender_execute` that exceeds 10,000 characters is rejected with `ERR_SCRIPT_SECURITY_VIOLATION`.
-- **Operational Guidance**:
-  - Complex procedural mesh generators, fur hair groomers, and test harnesses should be implemented as modular Python scripts or helper classes inside `src/morphomesh/`, or saved to disk and executed directly via `blender -b -P <script.py>`.
-  - Scripts passed through the MCP `morphomesh_blender_execute` tool should remain lean dispatch wrappers (< 10 KB).
-
----
-
-## 6. Blender 5.2.1 LTS API Capabilities Probes
-
-We executed targeted python probes inside Blender 5.2.1 LTS to evaluate specific sub-systems:
-
-### 6.1 Volumetric Fur & Hair Curves System
-- **API Status**:
-  - `hasattr(bpy.data, "hair_curves")` -> `True`
-  - `hasattr(bpy.data, "curves")` -> `True`
-  - `hasattr(bpy.types, "Curves")` -> `True`
-  - `hasattr(bpy.ops, "curves")` -> `True`
-  - `bpy.ops.object.curves_empty_hair_add()` executes cleanly and creates a native `CURVES` object.
-- **Built-in Asset Libraries**:
-  Blender 5.2.1 LTS loads built-in Geometry Nodes libraries on startup:
-  - `/Applications/Blender.app/Contents/Resources/5.2/datafiles/assets/nodes/geometry_nodes_essentials.blend`
-  - `/Applications/Blender.app/Contents/Resources/5.2/datafiles/assets/nodes/procedural_hair_node_assets.blend`
-- **Legacy Particle Hair**:
-  `obj.modifiers.new(name='FurParticles', type='PARTICLE_SYSTEM')` with `psys.settings.type = 'HAIR'` and `count = 10000` is also 100% operational in 5.2.1.
-- **glTF 2.0 Export Discovery**:
-  *Critical Finding*: When a native `CURVES` hair object is exported via `bpy.ops.export_scene.gltf()`, the glTF exporter ignores raw curve splines and exports the object as an empty node (`EMPTY`), because the glTF 2.0 specification only supports polygonal geometry.
-  *Architecture Solution*:
-  To include volumetric fur in `.glb` exports (e.g. `examples/Armored_War_Bear_HD.glb`):
-  1. Hair curves must be converted to polygonal ribbons/strips using a Geometry Nodes modifier (`Curve to Mesh` with quad ribbon profile or circle profile), OR
-  2. The creature must feature dense polygonal fur ruffs/cards alongside the hair curves.
-  In the native `.blend` file (`Armored_War_Bear_HD.blend`), the full volumetric Hair Curves system remains intact.
-
-### 6.2 Principled BSDF v2 Socket Verification
-In Blender 5.2.1 LTS, the `ShaderNodeBsdfPrincipled` inputs have been overhauled. The exact names and indices are:
-
-```
-Input 0:  "Base Color" (RGBA)
-Input 1:  "Metallic" (VALUE)
-Input 2:  "Roughness" (VALUE)
-Input 3:  "IOR" (VALUE)
-Input 4:  "Alpha" (VALUE)
-Input 6:  "Normal" (VECTOR)
-Input 7:  "Weight" (VALUE)
-Input 8:  "Diffuse Roughness" (VALUE)
-Input 9:  "Subsurface Weight" (VALUE)   <-- NOT "Subsurface"
-Input 10: "Subsurface Radius" (VECTOR)
-Input 11: "Subsurface Scale" (VALUE)
-Input 14: "Specular IOR Level" (VALUE) <-- NOT "Specular"
-Input 15: "Specular Tint" (RGBA)
-Input 16: "Anisotropic" (VALUE)
-Input 20: "Coat Weight" (VALUE)        <-- NOT "Clearcoat"
-Input 21: "Coat Roughness" (VALUE)     <-- NOT "Clearcoat Roughness"
-Input 25: "Sheen Weight" (VALUE)       <-- NOT "Sheen"
-Input 28: "Emission Color" (RGBA)
-Input 29: "Emission Strength" (VALUE)
-```
-*Notice*: Any code accessing `bsdf.inputs["Specular"]`, `bsdf.inputs["Subsurface"]`, or `bsdf.inputs["Clearcoat"]` will crash with a `KeyError` in Blender 5.2.1! Shaders must use `"Specular IOR Level"`, `"Subsurface Weight"`, and `"Coat Weight"`.
-
----
-
-## 7. Anatomical Claw & Feature Analysis in Existing Assets
-
-### 7.1 Existing Prototype (`examples/Armored_War_Bear.glb`)
-We inspected `examples/Armored_War_Bear.glb` (212 KB) and the active `Armored_Bear_Studio` scene.
-1. **Claw Structure & Orientation**:
-   - The bear has 20 claw objects (5 per paw: `Bear_Front_L_Claw_0..4`, `Bear_Front_R_Claw_0..4`, `Bear_Hind_L_Claw_0..4`, `Bear_Hind_R_Claw_0..4`).
-   - The bear's snout is at `Y = -1.295` and tail is at `Y = +0.990`. The character forward axis is `-Y`.
-   - The direction vector of the front claws is `[-0.155, -0.871, -0.465]` (normalized), pointing forward along `-Y` and curving downward toward the ground (`Z = -0.465`).
-   - However, each claw is currently a primitive 10-vertex cone (`faces: 7`) rather than an organic, arched keratin claw with sharp lateral ridges.
-2. **Facial Features**:
-   - The head is a single low-polygon mesh (`Bear_Head`, 60 verts, 52 faces).
-   - The mouth cavity is closed (no internal jaw cavity, no tongue, no teeth).
-   - The nostrils are not geometrically modeled (only a separate box `Bear_Nose`).
-   - The eyes are simple extruded spheres (`Bear_Eye_L`, `Bear_Eye_R`) with no eyelids.
-3. **Fur Representation**:
-   - In `Armored_War_Bear.glb`, fur is only represented by flat polygon cards (`Pauldron_Fur_Ruff_L`, 21 vertices, 7 faces).
-   - There is NO volumetric hair curves grooming system attached.
-4. **Current Mock Procedural Generator (`src/morphomesh/inference_adapter.py`)**:
-   - In lines 906–922 of `inference_adapter.py`, the default quadruped generator constructs 4 simple cylinders for legs (`mesh.add_cylinder`), with NO paw pads, NO toes, and NO claws!
-   - This proves conclusively why the engine upgrade is necessary: the core procedural generator in `inference_adapter.py` must be upgraded to generate genuine plantigrade paws, pads, forward-curving claws, and detailed facial structures.
-
----
-
-## 8. Architectural Engine Upgrade Blueprint
-
-To satisfy the authoritative requirements in `ORIGINAL_REQUEST.md` (§ 2026-09-05T15:47:35Z), the MorphoMesh engine must be enhanced across four core pillars:
-
-```
-┌───────────────────────────────────────────────────────────────────────────┐
-│                     MORPHOMESH ENGINE UPGRADE ARCHITECTURE                │
-└───────────────────────────────────────────────────────────────────────────┘
-                                     │
-         ┌───────────────────────────┼───────────────────────────┐
-         ▼                           ▼                           ▼
-┌──────────────────┐       ┌──────────────────┐       ┌──────────────────┐
-│  M1: ANATOMY     │       │  M2: VOLUMETRIC  │       │  M3: ORGANIC PBR │
-│  GENERATOR       │       │  FUR GROOMING    │       │  SHADER ENGINE   │
-│  src/morphomesh/ │       │  src/morphomesh/ │       │  src/morphomesh/ │
-│  inference_      │       │  blender_bridge  │       │  inference_      │
-│  adapter.py      │       │  .py             │       │  adapter.py      │
-└──────────────────┘       └──────────────────┘       └──────────────────┘
-  • Plantigrade Paws         • Geometry Nodes Hair      • 4-Channel PBR
-  • Forward Curving Claws      Curves Grooming          • Coat Subsurface
-  • Organic Face Sculpt      • Undercoat + Guard        • Wet Nose / Eyes
-  • Mouth Cavity & Teeth     • Flow along spine         • Keratin Claws
-  • Eyelids & Cupped Ears    • Mesh ribbon glTF bake    • Fitted War Armor
-         │                           │                           │
-         └───────────────────────────┼───────────────────────────┘
-                                     ▼
-                   ┌──────────────────────────────────┐
-                   │  M4: PRODUCTION BENCHMARK & DEMO │
-                   │  examples/Armored_War_Bear_HD    │
-                   │  tests/verify_bear_anatomy.py    │
-                   │  Beauty Renders (4 Angles)       │
-                   └──────────────────────────────────┘
+ALL_TOOL_NAMES = CREATURE_TOOL_NAMES | HUMAN_TOOL_NAMES | INSPECTION_TOOL_NAMES  # 17 tools
 ```
 
-### Pillar 1: Reusable Anatomy Generator (`inference_adapter.py` & `anycreature_connector.py`)
-- Enhance `MeshGeometry` with procedural primitives:
-  - `add_claw(base_pos, forward_dir, down_dir, length, curve_rad, segments)`: builds arched keratin claws with forward-pointing tips and downward curvature.
-  - `add_paw(center, creature_type='plantigrade', num_toes=5)`: creates plantigrade heel, central carpal/metatarsal pad, digital pads, and integrates claws.
-  - `add_organic_head(center, snout_len, jaw_open_deg)`: sculpts articulated facial structures:
-    - Distinct nostrils (bilateral concavities).
-    - Modeled mouth cavity with upper and lower jaw, gums, and teeth (canines + molars).
-    - Spherical eyes enclosed by upper and lower eyelids.
-    - Cupped, organic ear pinnae.
+### 3.2 Gating Resolution Logic
+```python
+def _get_active_allowed_tool_names() -> set[str]:
+    """Resolve allowed tool names based on environment flags."""
+    all_flag = os.environ.get("MORPHOMESH_INCLUDE_ALL_TOOLS", "").strip().lower()
+    if all_flag in ("1", "true", "yes", "all"):
+        return ALL_TOOL_NAMES
 
-### Pillar 2: Volumetric Fur & Hair Curves Pipeline (`blender_bridge.py`)
-- Implement `generate_volumetric_fur(mesh_obj, hair_type='bear_dense', density=10000)`:
-  - Creates a native `CURVES` hair system attached to the creature body.
-  - Attaches procedural Geometry Nodes modifier executing:
-    - Guide strand interpolation with clumping and tapering.
-    - Growth flow vector field radiating from dorsal spine downward across torso and limbs.
-    - Dual-layer composition: dense fine undercoat (65% length) and coarse guard hairs (100% length).
-  - Provides automatic mesh-ribbon evaluation during glTF export so that `Armored_War_Bear_HD.glb` retains visible fur volume.
+    allowed = set(CREATURE_TOOL_NAMES)
+    human_flag = os.environ.get("MORPHOMESH_INCLUDE_HUMAN_TOOLS", "").strip().lower()
+    if human_flag in ("1", "true", "yes", "all"):
+        allowed |= HUMAN_TOOL_NAMES
 
-### Pillar 3: Organic PBR Shader Suite
-- Implement high-fidelity Principled BSDF v2 shader materials:
-  - `Mat_Organic_Fur`: High roughness (0.75), sheen weight (0.4), subtle subsurface scattering.
-  - `Mat_Wet_Mucosa`: Low roughness (0.08), high specular IOR level (0.6), coat weight (0.9) on nose and corneas.
-  - `Mat_Sharp_Keratin`: Roughness (0.28), anisotropic (0.35) for claws and horns.
-  - `Mat_Weathered_Steel`: Metallic (0.92), roughness (0.35), micro-scratches on armor plates.
-  - `Mat_Bronze_Accents`: Metallic (0.88), roughness (0.42), warm bronze tint on armor trims.
+    insp_flag = os.environ.get("MORPHOMESH_INCLUDE_INSPECTION_TOOLS", "").strip().lower()
+    if insp_flag in ("1", "true", "yes", "all"):
+        allowed |= INSPECTION_TOOL_NAMES
 
-### Pillar 4: Canonical Benchmark & Automated Verification Harness
-- Generate and export:
-  - `examples/Armored_War_Bear_HD.glb` (Production glTF 2.0 container with full geometry, armor, pads, claws, and baked fur volume).
-  - `examples/Armored_War_Bear_HD.blend` (Production Blender project file with native Hair Curves system, shaders, studio lighting, and multi-camera rig).
-- Implement `tests/verify_bear_anatomy.py`:
-  - Asserts claw orientation: $\mathbf{v}_{\text{tip}} \cdot \mathbf{v}_{\text{fwd}} > 0.6$ and $\mathbf{v}_{\text{tip}} \cdot \mathbf{v}_{\text{down}} > 0.2$ across all 20 claws.
-  - Asserts facial landmark geometric entities: nostrils, mouth cavity, teeth, eyelids, ears.
-  - Asserts fur curve strand metrics: count $\ge 10,000$ strands.
-  - Asserts non-destructive armor fit (zero severe clipping through torso).
-- Render 4 high-resolution beauty renders via EEVEE Next:
-  1. Front 3/4 perspective beauty hero shot.
-  2. Head & facial anatomy close-up (nostrils, mouth cavity, teeth, eyes, eyelids).
-  3. Front paw & claw curvature close-up (pads and forward-curving claws).
-  4. Full body side/dorsal view showing fur grooming flow and shoulder armor fit.
+    return allowed
+```
+
+### 3.3 Two-Tier Protocol Interception
+1. **High-Level FastMCP Interception**:
+   `mcp.list_tools = _filtered_list_tools` filters the registered tool list returned to high-level callers.
+2. **Low-Level JSON-RPC Interception**:
+   Wraps `mcp._mcp_server.request_handlers[mcp_types.ListToolsRequest]` to intercept raw protocol discovery packets, guaranteeing that external MCP clients (such as Google Antigravity, Claude Desktop, or custom JSON-RPC clients over stdio/SSE) receive only the active allowed schemas.
+
+### 3.4 Gating Matrix Permutations & Backward Compatibility Guarantees
+
+| `MORPHOMESH_INCLUDE_ALL_TOOLS` | `MORPHOMESH_INCLUDE_HUMAN_TOOLS` | `MORPHOMESH_INCLUDE_INSPECTION_TOOLS` | Discovered Tools Count | Active Discovered Sets | Backward Compatibility Status |
+|---|---|---|---|---|---|
+| *Unset / 0* | *Unset / 0* | *Unset / 0* | **7** | `CREATURE_TOOL_NAMES` | **Default Mode**: 100% legacy compatible with `test_tools_schema.py`. Zero tool leakage. |
+| *Unset / 0* | *Unset / 0* | `1` / `true` | **10** | `CREATURE` + `INSPECTION` | Dedicated visual QA mode. |
+| *Unset / 0* | `1` / `true` | *Unset / 0* | **14** | `CREATURE` + `HUMAN` | Dedicated character pipeline mode. |
+| *Unset / 0* | `1` / `true` | `1` / `true` | **17** | `ALL_TOOL_NAMES` | Dual enabled mode. |
+| `1` / `true` | *Any* | *Any* | **17** | `ALL_TOOL_NAMES` | Full production mode. Overrides individual flags. |
+
+### 3.5 Direct Invocation Resilience (`mcp.call_tool`)
+The gating filter specifically controls **tool discovery** (`tools/list` / `ListToolsRequest`). Direct tool invocation via `mcp.call_tool("tool_name", ...)` remains fully active for all 17 tools regardless of environment flags. This ensures agents with static knowledge can invoke tools directly without breaking schema discovery constraints.
 
 ---
 
-## 9. Verification & Invalidation Conditions
+## 4. Gap Analysis: Imports, Schema Definitions & Tool Wrappers in `server.py`
 
-| Metric / Claim | Verification Command | Expected Value | Invalidation Condition |
-|---|---|---|---|
-| Blender CLI Availability | `/Applications/Blender.app/Contents/MacOS/Blender --version` | `Blender 5.2.1 LTS` | Non-zero exit code or missing binary |
-| Headless BPY Execution | `Blender --background --python-expr "import bpy; print(bpy.app.version)"` | `(5, 2, 1)` | Crash or missing dynamic libraries |
-| Pytest Test Suite Integrity | `pytest -v tests/` | `195 passed` in < 3s | Any test failure or exit code != 0 |
-| FastMCP Server Tool Count | Inspect `src/morphomesh/server.py` | 7 tools registered | Missing tools or registration syntax error |
-| Interactive Socket Probe | `nc -zv 127.0.0.1 9876` | Connection succeeded | Connection refused or port closed |
-| AST Security Validation | `pytest tests/test_blender_bridge.py` | AST tests pass | Arbitrary subprocess or dangerous call permitted |
+### 4.1 Missing Top-Level Schema Imports
+In `src/morphomesh/server.py` (lines 25–57), the module imports models for creature and human tools, but **omits** the inspection models defined in `src/morphomesh/models.py`:
+- **Defined in `models.py` but NOT imported in `server.py`**:
+  * `SetupInspectorCameraInput` (line 717)
+  * `SetupInspectorCameraOutput` (line 741)
+  * `CaptureViewportInput` (line 757)
+  * `CaptureViewportOutput` (line 793)
+  * `VisualCritiqueInput` (line 1067)
+  * `VisualCritiqueOutput` (line 1126)
+  * `BoundingBox3D` (line 708)
+  * `DefectItem` (line 969)
+  * `DefectSeverity` (line 861)
+  * `DefectCategory` (line 888)
+  * `ActionableRecommendation` (line 923)
+
+### 4.2 Inconsistent Validation Patterns
+- In creature tools (e.g. `morphomesh_generate_concept`, `morphomesh_create_3d_asset`) and human tools (e.g. `morphomesh_create_human_asset`, `morphomesh_auto_rig_human`), arguments are immediately packed into a Pydantic model:
+  ```python
+  req = GenerateConceptInput(prompt=prompt, ...)
+  res = inference_adapter.generate_concept(req)
+  return res.model_dump()
+  ```
+- In contrast, inspection tools (`morphomesh_setup_inspector_camera_rig`, `morphomesh_capture_viewport`, `morphomesh_critique_visual_quality`) currently perform **manual defensive `if` validation** against module-level sets (`VALID_INSPECTOR_VIEWPOINTS`, `VALID_SHADING_MODES`, `VALID_COLOR_TYPES`, `VALID_TARGET_PRESETS`).
+- **Opportunity for Worker**: Refactoring inspection tools to pass arguments through `SetupInspectorCameraInput`, `CaptureViewportInput`, and `VisualCritiqueInput` would:
+  1. Automatically enforce Pydantic v2 field validators and numeric bounds (`focal_length` in [10.0, 300.0], `margin` in [0.0, 1.0], `clearance_tolerance` >= 0.0).
+  2. Handle automatic parameter alias resolution (e.g., `char_name` -> `character_name`, `clearance_threshold` -> `clearance_tolerance`).
+  3. Eliminate duplicated pre-flight validation code.
+
+### 4.3 Missing Input/Output Models for Tools 13 & 14
+`morphomesh_assemble_master_character` and `morphomesh_export_production_character` currently do not have dedicated `AssembleMasterCharacterInput/Output` or `ExportProductionCharacterInput/Output` classes in `models.py`. Instead, they pass raw keyword arguments to `blender_bridge.assemble_master_character` and `export_production_assets`. While operational, creating dedicated Pydantic models in `models.py` would bring them into complete structural alignment with the other 15 tools.
 
 ---
 
-## 10. Conclusion & Handoff Readiness
+## 5. Verification & Test Suite Matrix
 
-The MorphoMesh repository and Blender 5.2.1 LTS execution infrastructure are thoroughly surveyed, healthy, and operational. All required tools, headless renderers, Python libraries, and test suites are verified. The architecture and engine upgrades required to deliver the photorealistic Armored War Bear benchmark have been identified with precise code locations and remediation steps.
+To guarantee absolute backward compatibility and empirical soundness, all relevant test suites were executed:
 
-Explorer 1 is ready to hand off findings to the Orchestrator.
+| Test Suite | Test Count | Status | Execution Duration | Scope Verified |
+|---|---|---|---|---|
+| `tests/test_tools_schema.py` | 31 | **PASS** (31/31) | 0.04s | Default 7-tool schema discovery, parameter constraints, Pydantic bounds |
+| `tests/test_fastmcp_inspection_tools.py` | 21 | **PASS** (21/21) | 0.82s | Inspection tools registration, input schemas, direct and `call_tool` execution, offline fallback |
+| `tests/test_fastmcp_human_tools.py` | 17 | **PASS** (17/17) | 1.15s | Human tools registration, input schemas, parameter bounds, direct execution |
+| `tests/test_adversarial_m4_gating.py` | 121 | **PASS** (121/121) | 19.25s | Full 5-permutation gating matrix, fuzzing of truthy/falsy values, low-level JSON-RPC protocol |
+| `tests/test_adversarial_fastmcp_bridge_human.py` | 68 | **PASS** (68/68) | 14.22s | Parameter boundary fuzzing, Unicode resilience, AST containment |
+| `tests/test_inspector_camera.py` | 40 | **PASS** (40/40) | 0.35s | Hierarchical AABB math, optical framing distance, sub-region centers, 6 viewpoints |
+| `tests/test_visual_critic.py` | 28 | **PASS** (28/28) | 0.32s | `PurePythonBVHTree`, defect injection fixtures, >95% benchmark detection accuracy |
+| `tests/test_bridge_socket_parity.py` | 21 | **PASS** (21/21) | 15.40s | NDJSON framing, timer immortality guard, client-server method parity |
+| **Total Test Suite** | **347** | **PASS** (347/347) | **51.55s** | **100% Pass Rate, 0 Failures, 0 Regressions** |
+
+---
+
+## 6. Action Plan for Implementation Worker
+
+To finalize R1 and transition smoothly into subsequent Milestones M4 and M5 without regressions:
+
+1. **Step 1: Synchronize Top-Level Imports in `src/morphomesh/server.py`**:
+   - Add imports from `morphomesh.models`:
+     ```python
+     CaptureViewportInput,
+     CaptureViewportOutput,
+     SetupInspectorCameraInput,
+     SetupInspectorCameraOutput,
+     VisualCritiqueInput,
+     VisualCritiqueOutput,
+     ```
+2. **Step 2: Streamline Parameter Validation via Pydantic Models**:
+   - In `morphomesh_setup_inspector_camera_rig`: wrap incoming arguments in `SetupInspectorCameraInput` before forwarding to bridge.
+   - In `morphomesh_capture_viewport`: wrap incoming arguments in `CaptureViewportInput`.
+   - In `morphomesh_critique_visual_quality`: wrap incoming arguments in `VisualCritiqueInput`.
+   - Maintain `ToolError` mapping on `ValidationError` to preserve existing client error contract:
+     ```python
+     except ValidationError as e:
+         raise ToolError(f"MorphoMesh Parameter Validation Error: {e}")
+     ```
+3. **Step 3 (Optional / Polishing): Add Pydantic Models for Tools 13 & 14**:
+   - Define `AssembleMasterCharacterInput` / `AssembleMasterCharacterOutput` and `ExportProductionCharacterInput` / `ExportProductionCharacterOutput` in `src/morphomesh/models.py`.
+4. **Step 4: Regression Testing**:
+   - Run `uv run pytest tests/test_tools_schema.py tests/test_fastmcp_inspection_tools.py tests/test_fastmcp_human_tools.py tests/test_adversarial_m4_gating.py` to confirm 100% pass rate.

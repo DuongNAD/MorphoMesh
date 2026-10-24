@@ -1,0 +1,14 @@
+{
+  "species_id": "veg_tree_willow_01",
+  "preview_task_id": "01a08b29-658d-7558-b491-3922db1d84c4",
+  "refine_task_id": "01a08b2e-197f-7415-90bb-f9408b01bca9",
+  "vertex_count": 99096,
+  "face_count": 80179,
+  "source": "meshy",
+  "textures": {
+    "albedo": "textures/albedo.png",
+    "normal": "textures/normal.png",
+    "roughness": "textures/roughness.png",
+    "metallic": "textures/metallic.png"
+  }
+}

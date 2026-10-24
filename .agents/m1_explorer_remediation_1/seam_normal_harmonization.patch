@@ -1,0 +1,172 @@
+--- a/anime_pipeline/mesh/generator.py
++++ b/anime_pipeline/mesh/generator.py
+@@ -29,6 +29,11 @@ from typing import Any, Dict, List, Optional, Set, Tuple, Union
+ # MorphoMesh base imports
+ repo_root = Path(__file__).resolve().parent.parent.parent.parent
+ if str(repo_root / "src") not in sys.path:
+     sys.path.insert(0, str(repo_root / "src"))
+ 
++try:
++    from .topology_cleaner import NormalHarmonizer
++except ImportError:
++    from anime_pipeline.mesh.topology_cleaner import NormalHarmonizer
++
+ try:
+@@ -135,7 +140,7 @@ class AnimeSubMesh:
+             for v in self.vertices:
+                 f.write(f"v {v[0]:.6f} {v[1]:.6f} {v[2]:.6f}\n")
+             if self.normals and len(self.normals) == len(self.vertices):
+                 for vn in self.normals:
+-                    f.write(f"vn {vn[0]:.6f} {vn[1]:.6f} {vn[2]:.6f}\n")
++                    f.write(f"vn {vn[0]:.8f} {vn[1]:.8f} {vn[2]:.8f}\n")
+             if self.uvs and len(self.uvs) == len(self.vertices):
+                 for vt in self.uvs:
+                     f.write(f"vt {vt[0]:.6f} {vt[1]:.6f}\n")
+@@ -198,11 +203,26 @@ class AnimeModelResult:
+         with open(p, "w", encoding="utf-8") as f:
+             f.write("# Anime Character Modular Master OBJ\n")
+             v_offset = 0
++            vt_offset = 0
++            vn_offset = 0
+             for name, sm in self.submeshes.items():
+                 f.write(f"o {name}\n")
+                 f.write(f"g {name}\n")
+                 for v in sm.vertices:
+                     f.write(f"v {v[0]:.6f} {v[1]:.6f} {v[2]:.6f}\n")
++                has_vn = sm.normals and len(sm.normals) == len(sm.vertices)
++                if has_vn:
++                    for vn in sm.normals:
++                        f.write(f"vn {vn[0]:.8f} {vn[1]:.8f} {vn[2]:.8f}\n")
++                has_vt = sm.uvs and len(sm.uvs) == len(sm.vertices)
++                if has_vt:
++                    for vt in sm.uvs:
++                        f.write(f"vt {vt[0]:.6f} {vt[1]:.6f}\n")
+                 for q in sm.quads:
+-                    f.write(
+-                        f"f {q[0]+1+v_offset} {q[1]+1+v_offset} "
+-                        f"{q[2]+1+v_offset} {q[3]+1+v_offset}\n"
+-                    )
++                    if has_vt and has_vn:
++                        f.write(
++                            f"f {q[0]+1+v_offset}/{q[0]+1+vt_offset}/{q[0]+1+vn_offset} "
++                            f"{q[1]+1+v_offset}/{q[1]+1+vt_offset}/{q[1]+1+vn_offset} "
++                            f"{q[2]+1+v_offset}/{q[2]+1+vt_offset}/{q[2]+1+vn_offset} "
++                            f"{q[3]+1+v_offset}/{q[3]+1+vt_offset}/{q[3]+1+vn_offset}\n"
++                        )
++                    elif has_vn:
++                        f.write(
++                            f"f {q[0]+1+v_offset}//{q[0]+1+vn_offset} "
++                            f"{q[1]+1+v_offset}//{q[1]+1+vn_offset} "
++                            f"{q[2]+1+v_offset}//{q[2]+1+vn_offset} "
++                            f"{q[3]+1+v_offset}//{q[3]+1+vn_offset}\n"
++                        )
++                    elif has_vt:
++                        f.write(
++                            f"f {q[0]+1+v_offset}/{q[0]+1+vt_offset} "
++                            f"{q[1]+1+v_offset}/{q[1]+1+vt_offset} "
++                            f"{q[2]+1+v_offset}/{q[2]+1+vt_offset} "
++                            f"{q[3]+1+v_offset}/{q[3]+1+vt_offset}\n"
++                        )
++                    else:
++                        f.write(
++                            f"f {q[0]+1+v_offset} {q[1]+1+v_offset} "
++                            f"{q[2]+1+v_offset} {q[3]+1+v_offset}\n"
++                        )
+                 v_offset += sm.vertex_count
++                if has_vt:
++                    vt_offset += len(sm.uvs)
++                if has_vn:
++                    vn_offset += len(sm.normals)
+         return p
+@@ -226,6 +246,12 @@ class AnimeModelResult:
+         temp_dir = target_blend.parent / "_temp_objs"
+         self.export_all_obj(temp_dir)
+ 
++        import json
++        normals_data = {name: sm.normals for name, sm in self.submeshes.items() if sm.normals}
++        with open(temp_dir / "_normals.json", "w", encoding="utf-8") as nf:
++            json.dump(normals_data, nf)
++
+         if glb_filepath is None:
+@@ -262,7 +288,7 @@ class AnimeModelResult:
+         with open(builder_script, "w", encoding="utf-8") as f:
+-            f.write(f"""import bpy, os
++            f.write(f"""import bpy, os, json
+ 
+ # Initialize pristine scene
+ bpy.ops.wm.read_factory_settings(use_empty=True)
+@@ -270,6 +296,12 @@ bpy.ops.wm.read_factory_settings(use_empty=True)
+ temp_dir = r"{temp_dir_esc}"
+ obj_names = {list(self.submeshes.keys())}
+ submesh_mats = {submesh_materials}
+ 
++# Load precomputed harmonized normals
++normals_dict = {{}}
++norm_file = os.path.join(temp_dir, "_normals.json")
++if os.path.exists(norm_file):
++    with open(norm_file, "r", encoding="utf-8") as nf:
++        normals_dict = json.load(nf)
++
+ # Create character collection
+ char_col = bpy.data.collections.new("Anime_Character_Meshes")
+@@ -296,6 +328,10 @@ for name in obj_names:
+     # Set smooth shading
+     for poly in obj.data.polygons:
+         poly.use_smooth = True
+ 
++    # Apply custom split normals from harmonized vertex normals
++    if name in normals_dict and normals_dict[name]:
++        obj.data.normals_split_custom_set_from_vertices(normals_dict[name])
++
+     # Assign material slots
+     for mname in submesh_mats.get(name, []):
+@@ -330,6 +366,28 @@ class AnimeMeshGenerator:
+     def __init__(self, config: Optional[AnimeMeshConfig] = None):
+         self.cfg = config or AnimeMeshConfig()
+ 
++    @staticmethod
++    def _compute_submesh_normals(
++        vertices: List[Tuple[float, float, float]],
++        quads: List[Tuple[int, int, int, int]],
++    ) -> List[Tuple[float, float, float]]:
++        acc = [[0.0, 0.0, 0.0] for _ in range(len(vertices))]
++        for q in quads:
++            p0, p1, p2 = vertices[q[0]], vertices[q[1]], vertices[q[2]]
++            v1 = (p1[0] - p0[0], p1[1] - p0[1], p1[2] - p0[2])
++            v2 = (p2[0] - p0[0], p2[1] - p0[1], p2[2] - p0[2])
++            cx = v1[1] * v2[2] - v1[2] * v2[1]
++            cy = v1[2] * v2[0] - v1[0] * v2[2]
++            cz = v1[0] * v2[1] - v1[1] * v2[0]
++            for vi in q:
++                acc[vi][0] += cx
++                acc[vi][1] += cy
++                acc[vi][2] += cz
++        res_normals: List[Tuple[float, float, float]] = []
++        for nx, ny, nz in acc:
++            nl = math.sqrt(nx * nx + ny * ny + nz * nz)
++            if nl < 1e-12:
++                res_normals.append((0.0, 0.0, 1.0))
++            else:
++                res_normals.append((nx / nl, ny / nl, nz / nl))
++        return res_normals
++
+     def generate(self) -> AnimeModelResult:
+@@ -409,6 +467,17 @@ class AnimeMeshGenerator:
+             "Anime_Shoes": shoes_mesh,
+         }
+ 
++        # 4. Compute baseline area-weighted normals for all submeshes
++        for sm in submeshes.values():
++            sm.normals = self._compute_submesh_normals(sm.vertices, sm.quads)
++
++        # 5. Harmonize seam normals across coincident modular seams
++        seam_overrides = NormalHarmonizer.harmonize_all_modular_seams(submeshes)
++        for name, overrides in seam_overrides.items():
++            if name in submeshes and submeshes[name].normals:
++                for vi, unified_n in overrides.items():
++                    submeshes[name].normals[vi] = unified_n
++
+-        # 4. Extract landmarks and configure default vertex groups
++        # 6. Extract landmarks and configure default vertex groups
+         landmarks = self._extract_landmarks(s)
+         self._assign_default_vertex_groups(submeshes, landmarks, s)

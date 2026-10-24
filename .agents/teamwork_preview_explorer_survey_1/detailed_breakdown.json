@@ -1,0 +1,6131 @@
+{
+  "src/morphomesh/blender_bridge.py": {
+    "size_bytes": 155140,
+    "size_kb": 151.5,
+    "line_count": 3454,
+    "mod_name": "morphomesh.blender_bridge",
+    "classes": [
+      {
+        "name": "SecurityException",
+        "start": 85,
+        "end": 93,
+        "lines": 9,
+        "bases": [
+          "MorphoMeshException"
+        ],
+        "methods": [
+          {
+            "name": "__init__",
+            "start": 88,
+            "end": 93,
+            "lines": 6,
+            "args": [
+              "self",
+              "message",
+              "details"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "BlenderExecutionError",
+        "start": 96,
+        "end": 104,
+        "lines": 9,
+        "bases": [
+          "MorphoMeshException"
+        ],
+        "methods": [
+          {
+            "name": "__init__",
+            "start": 99,
+            "end": 104,
+            "lines": 6,
+            "args": [
+              "self",
+              "message",
+              "details"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "BpyCodeValidator",
+        "start": 107,
+        "end": 265,
+        "lines": 159,
+        "bases": [
+          "ast.NodeVisitor"
+        ],
+        "methods": [
+          {
+            "name": "validate",
+            "start": 195,
+            "end": 215,
+            "lines": 21,
+            "args": [
+              "self",
+              "script_code"
+            ]
+          },
+          {
+            "name": "visit_Import",
+            "start": 217,
+            "end": 225,
+            "lines": 9,
+            "args": [
+              "self",
+              "node"
+            ]
+          },
+          {
+            "name": "visit_ImportFrom",
+            "start": 227,
+            "end": 235,
+            "lines": 9,
+            "args": [
+              "self",
+              "node"
+            ]
+          },
+          {
+            "name": "visit_Call",
+            "start": 237,
+            "end": 243,
+            "lines": 7,
+            "args": [
+              "self",
+              "node"
+            ]
+          },
+          {
+            "name": "visit_Attribute",
+            "start": 245,
+            "end": 254,
+            "lines": 10,
+            "args": [
+              "self",
+              "node"
+            ]
+          },
+          {
+            "name": "visit_Name",
+            "start": 256,
+            "end": 265,
+            "lines": 10,
+            "args": [
+              "self",
+              "node"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "BlenderBridge",
+        "start": 272,
+        "end": 3453,
+        "lines": 3182,
+        "bases": [],
+        "methods": [
+          {
+            "name": "__init__",
+            "start": 281,
+            "end": 292,
+            "lines": 12,
+            "args": [
+              "self",
+              "host",
+              "port",
+              "blender_bin_path",
+              "socket_timeout"
+            ]
+          },
+          {
+            "name": "_resolve_blender_binary",
+            "start": 295,
+            "end": 316,
+            "lines": 22,
+            "args": [
+              "explicit_path"
+            ]
+          },
+          {
+            "name": "is_interactive_connected",
+            "start": 318,
+            "end": 324,
+            "lines": 7,
+            "args": [
+              "self"
+            ]
+          },
+          {
+            "name": "send_socket_request",
+            "start": 326,
+            "end": 426,
+            "lines": 101,
+            "args": [
+              "self",
+              "method",
+              "params",
+              "timeout"
+            ]
+          },
+          {
+            "name": "run_headless_script",
+            "start": 428,
+            "end": 517,
+            "lines": 90,
+            "args": [
+              "self",
+              "script_content",
+              "timeout_seconds"
+            ]
+          },
+          {
+            "name": "execute",
+            "start": 523,
+            "end": 564,
+            "lines": 42,
+            "args": [
+              "self",
+              "method",
+              "params",
+              "timeout"
+            ]
+          },
+          {
+            "name": "_generate_interactive_script",
+            "start": 566,
+            "end": 783,
+            "lines": 218,
+            "args": [
+              "self",
+              "method",
+              "params"
+            ]
+          },
+          {
+            "name": "_dispatch_headless",
+            "start": 785,
+            "end": 793,
+            "lines": 9,
+            "args": [
+              "self",
+              "method",
+              "params",
+              "timeout"
+            ]
+          },
+          {
+            "name": "_generate_create_human_asset_script",
+            "start": 795,
+            "end": 896,
+            "lines": 102,
+            "args": [
+              "self",
+              "params"
+            ]
+          },
+          {
+            "name": "_generate_auto_rig_human_script",
+            "start": 898,
+            "end": 957,
+            "lines": 60,
+            "args": [
+              "self",
+              "params"
+            ]
+          },
+          {
+            "name": "_generate_headless_script",
+            "start": 959,
+            "end": 2554,
+            "lines": 1596,
+            "args": [
+              "self",
+              "method",
+              "params"
+            ]
+          },
+          {
+            "name": "ping",
+            "start": 2560,
+            "end": 2562,
+            "lines": 3,
+            "args": [
+              "self"
+            ]
+          },
+          {
+            "name": "get_scene_status",
+            "start": 2564,
+            "end": 2599,
+            "lines": 36,
+            "args": [
+              "self",
+              "scene_name",
+              "include_mesh_stats",
+              "include_hierarchy",
+              "include_materials",
+              "include_armatures",
+              "include_cameras_lights"
+            ]
+          },
+          {
+            "name": "execute_custom_script",
+            "start": 2601,
+            "end": 2635,
+            "lines": 35,
+            "args": [
+              "self",
+              "script",
+              "timeout_seconds",
+              "target_scene",
+              "save_after",
+              "save_path",
+              "return_variables"
+            ]
+          },
+          {
+            "name": "optimize_topology",
+            "start": 2637,
+            "end": 2658,
+            "lines": 22,
+            "args": [
+              "self",
+              "input_mesh_path",
+              "target_poly_count",
+              "topology_type",
+              "preserve_uvs",
+              "preserve_sharp_edges",
+              "method",
+              "output_format"
+            ]
+          },
+          {
+            "name": "create_armature",
+            "start": 2660,
+            "end": 2681,
+            "lines": 22,
+            "args": [
+              "self",
+              "input_mesh_path",
+              "creature_type",
+              "rig_type",
+              "skinning_method",
+              "symmetry",
+              "generate_test_animation",
+              "load_into_scene"
+            ]
+          },
+          {
+            "name": "render_preview",
+            "start": 2683,
+            "end": 2722,
+            "lines": 40,
+            "args": [
+              "self",
+              "camera_name",
+              "resolution_width",
+              "resolution_height",
+              "render_engine",
+              "samples",
+              "view_angle",
+              "transparent_background",
+              "lighting_preset",
+              "save_to_disk",
+              "output_dir"
+            ]
+          },
+          {
+            "name": "capture_viewport",
+            "start": 2724,
+            "end": 2788,
+            "lines": 65,
+            "args": [
+              "self",
+              "output_path",
+              "camera_name",
+              "resolution",
+              "shading_mode",
+              "color_type"
+            ]
+          },
+          {
+            "name": "setup_inspector_camera",
+            "start": 2790,
+            "end": 2850,
+            "lines": 61,
+            "args": [
+              "self",
+              "viewpoint",
+              "target_center",
+              "framing_radius",
+              "focal_length",
+              "camera_name",
+              "target_object",
+              "margin",
+              "resolution"
+            ]
+          },
+          {
+            "name": "capture_multi_angle_inspection",
+            "start": 2852,
+            "end": 2895,
+            "lines": 44,
+            "args": [
+              "self",
+              "viewpoints",
+              "target_object",
+              "output_dir",
+              "resolution",
+              "shading_mode",
+              "color_type",
+              "focal_length",
+              "camera_name",
+              "include_base64"
+            ]
+          },
+          {
+            "name": "critique_visual_quality",
+            "start": 2897,
+            "end": 2950,
+            "lines": 54,
+            "args": [
+              "self",
+              "character_name",
+              "target_object",
+              "camera_angles",
+              "clearance_threshold",
+              "clearance_tolerance",
+              "target_preset",
+              "evaluate_penetration",
+              "evaluate_proportions",
+              "evaluate_skinning",
+              "evaluate_grooming",
+              "capture_images"
+            ]
+          },
+          {
+            "name": "setup_creature_fur",
+            "start": 2952,
+            "end": 2986,
+            "lines": 35,
+            "args": [
+              "self",
+              "mesh_object_name",
+              "undercoat_strands",
+              "guard_hair_strands",
+              "flow_vertex_group",
+              "clump_factor",
+              "taper_shape",
+              "generate_gltf_ribbons",
+              "max_ribbon_strands",
+              "input_mesh_path",
+              "blend_file_path",
+              "save_after",
+              "save_path"
+            ]
+          },
+          {
+            "name": "evaluate_fur_ribbons",
+            "start": 2988,
+            "end": 3003,
+            "lines": 16,
+            "args": [
+              "self",
+              "mesh_object_name",
+              "fur_system_names",
+              "max_export_strands"
+            ]
+          },
+          {
+            "name": "setup_creature_materials",
+            "start": 3005,
+            "end": 3028,
+            "lines": 24,
+            "args": [
+              "self",
+              "mesh_object_name",
+              "armor_object_names",
+              "claws_object_names",
+              "blend_file_path",
+              "input_mesh_path",
+              "save_after",
+              "save_path"
+            ]
+          },
+          {
+            "name": "generate_war_armor",
+            "start": 3030,
+            "end": 3054,
+            "lines": 25,
+            "args": [
+              "self",
+              "base_mesh_name",
+              "clearance_offset",
+              "scale",
+              "blend_file_path",
+              "input_mesh_path",
+              "save_after",
+              "save_path"
+            ]
+          },
+          {
+            "name": "create_human_asset",
+            "start": 3056,
+            "end": 3149,
+            "lines": 94,
+            "args": [
+              "self",
+              "character_name",
+              "prompt",
+              "gender",
+              "height",
+              "head_ratio",
+              "style",
+              "poly_budget",
+              "include_blendshapes",
+              "export_format",
+              "load_into_scene",
+              "chest_girth",
+              "waist_girth",
+              "hip_girth",
+              "config"
+            ]
+          },
+          {
+            "name": "auto_rig_human",
+            "start": 3151,
+            "end": 3211,
+            "lines": 61,
+            "args": [
+              "self",
+              "human_asset_id",
+              "mesh_object_name",
+              "target_object",
+              "rig_type",
+              "skinning_method",
+              "include_face_rig",
+              "include_finger_rig",
+              "pose",
+              "export_format"
+            ]
+          },
+          {
+            "name": "setup_human_materials",
+            "start": 3213,
+            "end": 3271,
+            "lines": 59,
+            "args": [
+              "self",
+              "mesh_object_name",
+              "target_object",
+              "material_preset",
+              "skin_tone",
+              "subsurface_scattering",
+              "refractive_eyes",
+              "render_engine",
+              "save_after",
+              "save_path"
+            ]
+          },
+          {
+            "name": "groom_human",
+            "start": 3273,
+            "end": 3331,
+            "lines": 59,
+            "args": [
+              "self",
+              "mesh_object_name",
+              "target_object",
+              "hair_style",
+              "hairstyle",
+              "hair_color",
+              "strand_count",
+              "include_eyebrows",
+              "include_eyelashes",
+              "generate_ribbons",
+              "save_after",
+              "save_path"
+            ]
+          },
+          {
+            "name": "dress_human",
+            "start": 3333,
+            "end": 3389,
+            "lines": 57,
+            "args": [
+              "self",
+              "human_object_name",
+              "target_object",
+              "outfit",
+              "outfit_preset",
+              "include_sandals",
+              "include_red_threads",
+              "include_glowing_butterflies",
+              "butterfly_count",
+              "clearance_offset",
+              "save_after",
+              "save_path"
+            ]
+          },
+          {
+            "name": "assemble_master_character",
+            "start": 3391,
+            "end": 3453,
+            "lines": 63,
+            "args": [
+              "self",
+              "character_name",
+              "height",
+              "head_ratio",
+              "include_hair",
+              "include_wardrobe",
+              "include_props",
+              "include_armature",
+              "include_lighting",
+              "render_engine",
+              "samples",
+              "save_blend",
+              "output_path"
+            ]
+          }
+        ]
+      }
+    ],
+    "functions": [],
+    "str_templates": [
+      {
+        "start": 967,
+        "end": 2554,
+        "lines": 1588,
+        "preview": "import bpy import json import os import math import mathutils import uuid import tempfile  params = json.loads("
+      },
+      {
+        "start": 967,
+        "end": 2554,
+        "lines": 1588,
+        "preview": "\")  def ensure_auto_camera(scene=None):     if scene is None:         scene = bpy.context.scene     if scene.camera and"
+      },
+      {
+        "start": 967,
+        "end": 2554,
+        "lines": 1588,
+        "preview": "arm_data = bpy.data.armatures.new(name=f\"Armature_{creature_type.title()}\")         arm_obj = bpy.data.objects."
+      },
+      {
+        "start": 569,
+        "end": 783,
+        "lines": 215,
+        "preview": "import bpy import json import math import mathutils  _params = json.loads("
+      },
+      {
+        "start": 569,
+        "end": 783,
+        "lines": 215,
+        "preview": "_morphomesh_result = {\"status\": \"success\", \"method\": _method}  if _method in (\"morphomesh.ping\", \"ping\"):     _morphome"
+      },
+      {
+        "start": 828,
+        "end": 895,
+        "lines": 68,
+        "preview": "import tempfile import os import uuid import json  obj = bpy.data.objects.get(\""
+      },
+      {
+        "start": 828,
+        "end": 895,
+        "lines": 68,
+        "preview": "\") me = obj.data  # Calculate quad dominance dynamically tot_polys = len(me.polygons) quad_count = sum(1 for p in me.pol"
+      },
+      {
+        "start": 828,
+        "end": 895,
+        "lines": 68,
+        "preview": "\" == \"fbx\":     bpy.ops.export_scene.fbx(filepath=out_mesh, use_selection=True) else:     with open(out_mesh, \"wb\") as f"
+      }
+    ]
+  },
+  "src/morphomesh/character_assembler.py": {
+    "size_bytes": 107667,
+    "size_kb": 105.14,
+    "line_count": 2431,
+    "mod_name": "morphomesh.character_assembler",
+    "classes": [
+      {
+        "name": "MasterAssemblyConfig",
+        "start": 205,
+        "end": 254,
+        "lines": 50,
+        "bases": [],
+        "methods": [
+          {
+            "name": "to_dict",
+            "start": 253,
+            "end": 254,
+            "lines": 2,
+            "args": [
+              "self"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "YuNianAnAssembler",
+        "start": 1505,
+        "end": 1874,
+        "lines": 370,
+        "bases": [],
+        "methods": [
+          {
+            "name": "__init__",
+            "start": 1531,
+            "end": 1543,
+            "lines": 13,
+            "args": [
+              "self",
+              "config"
+            ]
+          },
+          {
+            "name": "get_collection_hierarchy",
+            "start": 1549,
+            "end": 1553,
+            "lines": 5,
+            "args": [
+              "self"
+            ]
+          },
+          {
+            "name": "get_all_collection_names",
+            "start": 1555,
+            "end": 1557,
+            "lines": 3,
+            "args": [
+              "self"
+            ]
+          },
+          {
+            "name": "get_materials_manifest",
+            "start": 1559,
+            "end": 1563,
+            "lines": 5,
+            "args": [
+              "self"
+            ]
+          },
+          {
+            "name": "get_rigging_manifest",
+            "start": 1565,
+            "end": 1580,
+            "lines": 16,
+            "args": [
+              "self"
+            ]
+          },
+          {
+            "name": "get_props_manifest",
+            "start": 1582,
+            "end": 1595,
+            "lines": 14,
+            "args": [
+              "self"
+            ]
+          },
+          {
+            "name": "get_lighting_camera_manifest",
+            "start": 1597,
+            "end": 1629,
+            "lines": 33,
+            "args": [
+              "self"
+            ]
+          },
+          {
+            "name": "get_hair_manifest",
+            "start": 1631,
+            "end": 1644,
+            "lines": 14,
+            "args": [
+              "self"
+            ]
+          },
+          {
+            "name": "get_wardrobe_manifest",
+            "start": 1646,
+            "end": 1669,
+            "lines": 24,
+            "args": [
+              "self"
+            ]
+          },
+          {
+            "name": "get_assembly_script",
+            "start": 1675,
+            "end": 1677,
+            "lines": 3,
+            "args": [
+              "self",
+              "output_blend_path"
+            ]
+          },
+          {
+            "name": "assemble",
+            "start": 1679,
+            "end": 1761,
+            "lines": 83,
+            "args": [
+              "self",
+              "clean_scene",
+              "output_path"
+            ]
+          },
+          {
+            "name": "verify_scene_integrity",
+            "start": 1763,
+            "end": 1817,
+            "lines": 55,
+            "args": [
+              "self"
+            ]
+          },
+          {
+            "name": "export_production_packages",
+            "start": 1819,
+            "end": 1843,
+            "lines": 25,
+            "args": [
+              "self",
+              "output_dir",
+              "master_blend_path",
+              "export_fbx",
+              "export_glb",
+              "generate_textures",
+              "generate_docs",
+              "texture_resolution"
+            ]
+          },
+          {
+            "name": "assemble_and_export",
+            "start": 1845,
+            "end": 1874,
+            "lines": 30,
+            "args": [
+              "self",
+              "output_path",
+              "export_dir",
+              "export_fbx",
+              "export_glb",
+              "generate_textures",
+              "generate_docs",
+              "texture_resolution"
+            ]
+          }
+        ]
+      }
+    ],
+    "functions": [
+      {
+        "name": "_get_uv_unwrapping_script_snippet",
+        "start": 258,
+        "end": 453,
+        "lines": 196,
+        "args": []
+      },
+      {
+        "name": "assign_texture_atlas_uvs",
+        "start": 456,
+        "end": 462,
+        "lines": 7,
+        "args": [
+          "s_scale"
+        ]
+      },
+      {
+        "name": "get_master_assembly_script",
+        "start": 469,
+        "end": 1498,
+        "lines": 1030,
+        "args": [
+          "config",
+          "output_blend_path"
+        ]
+      },
+      {
+        "name": "assemble_master_character",
+        "start": 1885,
+        "end": 1922,
+        "lines": 38,
+        "args": [
+          "character_name",
+          "height",
+          "head_ratio",
+          "include_hair",
+          "include_wardrobe",
+          "include_props",
+          "include_armature",
+          "include_lighting",
+          "render_engine",
+          "samples",
+          "save_blend",
+          "output_path"
+        ]
+      },
+      {
+        "name": "_resolve_blender_binary",
+        "start": 1929,
+        "end": 1950,
+        "lines": 22,
+        "args": [
+          "explicit_path"
+        ]
+      },
+      {
+        "name": "get_export_script",
+        "start": 1953,
+        "end": 2066,
+        "lines": 114,
+        "args": [
+          "blend_path",
+          "output_fbx_path",
+          "output_glb_path",
+          "export_collections"
+        ]
+      },
+      {
+        "name": "generate_yu_nian_an_pbr_textures",
+        "start": 2069,
+        "end": 2341,
+        "lines": 273,
+        "args": [
+          "output_dir",
+          "resolution"
+        ]
+      },
+      {
+        "name": "export_production_assets",
+        "start": 2344,
+        "end": 2430,
+        "lines": 87,
+        "args": [
+          "blend_path",
+          "output_dir",
+          "character_name",
+          "export_fbx",
+          "export_glb",
+          "generate_textures",
+          "generate_docs",
+          "texture_resolution"
+        ]
+      }
+    ],
+    "str_templates": [
+      {
+        "start": 551,
+        "end": 1497,
+        "lines": 947,
+        "preview": "# ============================================================================== # MORPHOMESH MASTER ASSET ASSEMBLY SCRI"
+      },
+      {
+        "start": 551,
+        "end": 1497,
+        "lines": 947,
+        "preview": "body_obj = bpy.data.objects.get(\""
+      },
+      {
+        "start": 551,
+        "end": 1497,
+        "lines": 947,
+        "preview": "# Ensure all created materials have fake user so Blender never purges them all_mat_names = [     \"Mat_Human_Skin_SSS\","
+      },
+      {
+        "start": 551,
+        "end": 1497,
+        "lines": 947,
+        "preview": "/ 1.65 if body_obj and body_obj.type == 'MESH':     mat_scalp = bpy.data.materials.get(\"Mat_Human_Scalp\") or bpy.data.m"
+      },
+      {
+        "start": 551,
+        "end": 1497,
+        "lines": 947,
+        "preview": "/ 1.65 ipd = 0.062 * s eye_z = 1.520 * s eye_y = -0.118 * s  eye_left_cornea = create_uv_sphere_mesh(\"Mesh_Eye_Left_Cor"
+      },
+      {
+        "start": 551,
+        "end": 1497,
+        "lines": 947,
+        "preview": "arm_obj = bpy.data.objects.get(\"Armature_Yu_Nian_An_Rigify\") or bpy.data.objects.get(\"rig\") if arm_obj:     organize_o"
+      },
+      {
+        "start": 551,
+        "end": 1497,
+        "lines": 947,
+        "preview": "hair_layer_names = [     \"Hair_Hime_Bangs\",     \"Hair_Hime_Sidelocks\",     \"Hair_Scalp_Crown\",     \"Hair_Back_Cascade\""
+      },
+      {
+        "start": 551,
+        "end": 1497,
+        "lines": 947,
+        "preview": "# Move wardrobe meshes (dress, sash, and sandals) to 03_Wardrobe wardrobe_mesh_names = [     \"Dress_Bodice\",     \"Dres"
+      }
+    ]
+  },
+  "src/morphomesh/inference_adapter.py": {
+    "size_bytes": 98993,
+    "size_kb": 96.67,
+    "line_count": 2357,
+    "mod_name": "morphomesh.inference_adapter",
+    "classes": [
+      {
+        "name": "BaseInferenceAdapter",
+        "start": 58,
+        "end": 93,
+        "lines": 36,
+        "bases": [
+          "ABC"
+        ],
+        "methods": [
+          {
+            "name": "generate_concept",
+            "start": 62,
+            "end": 64,
+            "lines": 3,
+            "args": [
+              "self",
+              "request"
+            ]
+          },
+          {
+            "name": "generate_3d_asset",
+            "start": 67,
+            "end": 69,
+            "lines": 3,
+            "args": [
+              "self",
+              "request"
+            ]
+          },
+          {
+            "name": "optimize_topology_with_connector",
+            "start": 71,
+            "end": 79,
+            "lines": 9,
+            "args": [
+              "self",
+              "mesh_path",
+              "method",
+              "target_faces"
+            ]
+          },
+          {
+            "name": "create_animal_rig_with_connector",
+            "start": 81,
+            "end": 89,
+            "lines": 9,
+            "args": [
+              "self",
+              "mesh_path",
+              "creature_type",
+              "species"
+            ]
+          },
+          {
+            "name": "get_connector_status",
+            "start": 91,
+            "end": 93,
+            "lines": 3,
+            "args": [
+              "self"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "MeshGeometry",
+        "start": 101,
+        "end": 1208,
+        "lines": 1108,
+        "bases": [],
+        "methods": [
+          {
+            "name": "__init__",
+            "start": 104,
+            "end": 109,
+            "lines": 6,
+            "args": [
+              "self"
+            ]
+          },
+          {
+            "name": "add_vertex",
+            "start": 111,
+            "end": 121,
+            "lines": 11,
+            "args": [
+              "self",
+              "pos",
+              "normal",
+              "uv"
+            ]
+          },
+          {
+            "name": "add_triangle",
+            "start": 123,
+            "end": 124,
+            "lines": 2,
+            "args": [
+              "self",
+              "i0",
+              "i1",
+              "i2"
+            ]
+          },
+          {
+            "name": "add_quad",
+            "start": 126,
+            "end": 129,
+            "lines": 4,
+            "args": [
+              "self",
+              "i0",
+              "i1",
+              "i2",
+              "i3"
+            ]
+          },
+          {
+            "name": "add_box",
+            "start": 131,
+            "end": 162,
+            "lines": 32,
+            "args": [
+              "self",
+              "center",
+              "size"
+            ]
+          },
+          {
+            "name": "add_cylinder",
+            "start": 164,
+            "end": 251,
+            "lines": 88,
+            "args": [
+              "self",
+              "base_center",
+              "radius",
+              "height",
+              "segments",
+              "axis",
+              "cap_ends",
+              "cap_bottom",
+              "cap_top"
+            ]
+          },
+          {
+            "name": "add_sphere",
+            "start": 254,
+            "end": 314,
+            "lines": 61,
+            "args": [
+              "self",
+              "center",
+              "radius",
+              "rings",
+              "sectors"
+            ]
+          },
+          {
+            "name": "add_to_vertex_group",
+            "start": 316,
+            "end": 323,
+            "lines": 8,
+            "args": [
+              "self",
+              "group_name",
+              "vertex_indices"
+            ]
+          },
+          {
+            "name": "add_ellipsoid",
+            "start": 325,
+            "end": 398,
+            "lines": 74,
+            "args": [
+              "self",
+              "center",
+              "radii",
+              "rings",
+              "sectors"
+            ]
+          },
+          {
+            "name": "add_cone",
+            "start": 400,
+            "end": 469,
+            "lines": 70,
+            "args": [
+              "self",
+              "base_center",
+              "apex",
+              "base_radius",
+              "segments"
+            ]
+          },
+          {
+            "name": "add_curved_claw",
+            "start": 471,
+            "end": 639,
+            "lines": 169,
+            "args": [
+              "self",
+              "base_pos",
+              "forward_dir",
+              "downward_dir",
+              "length",
+              "base_radius",
+              "curve_factor",
+              "segments",
+              "radial_segments",
+              "splay_dir",
+              "splay_factor"
+            ]
+          },
+          {
+            "name": "add_plantigrade_paw",
+            "start": 641,
+            "end": 767,
+            "lines": 127,
+            "args": [
+              "self",
+              "heel_pos",
+              "forward_dir",
+              "is_front",
+              "scale"
+            ]
+          },
+          {
+            "name": "add_articulated_head",
+            "start": 769,
+            "end": 943,
+            "lines": 175,
+            "args": [
+              "self",
+              "head_center",
+              "forward_dir",
+              "scale"
+            ]
+          },
+          {
+            "name": "add_anatomical_torso",
+            "start": 945,
+            "end": 1017,
+            "lines": 73,
+            "args": [
+              "self",
+              "center",
+              "forward_dir",
+              "scale"
+            ]
+          },
+          {
+            "name": "compute_bounding_box",
+            "start": 1019,
+            "end": 1043,
+            "lines": 25,
+            "args": [
+              "self"
+            ]
+          },
+          {
+            "name": "export_obj",
+            "start": 1045,
+            "end": 1062,
+            "lines": 18,
+            "args": [
+              "self",
+              "filepath"
+            ]
+          },
+          {
+            "name": "export_glb",
+            "start": 1064,
+            "end": 1208,
+            "lines": 145,
+            "args": [
+              "self",
+              "filepath"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "EnhancedCreate3DAssetOutput",
+        "start": 1282,
+        "end": 1289,
+        "lines": 8,
+        "bases": [
+          "Create3DAssetOutput"
+        ],
+        "methods": []
+      },
+      {
+        "name": "MockInferenceAdapter",
+        "start": 1296,
+        "end": 2210,
+        "lines": 915,
+        "bases": [
+          "BaseInferenceAdapter"
+        ],
+        "methods": [
+          {
+            "name": "__init__",
+            "start": 1304,
+            "end": 1307,
+            "lines": 4,
+            "args": [
+              "self",
+              "cache_dir"
+            ]
+          },
+          {
+            "name": "generate_concept",
+            "start": 1309,
+            "end": 1325,
+            "lines": 17,
+            "args": [
+              "self",
+              "request"
+            ]
+          },
+          {
+            "name": "_generate_concept_via_gemini",
+            "start": 1327,
+            "end": 1376,
+            "lines": 50,
+            "args": [
+              "self",
+              "request"
+            ]
+          },
+          {
+            "name": "generate_turnaround_sheet",
+            "start": 1378,
+            "end": 1395,
+            "lines": 18,
+            "args": [
+              "self",
+              "prompt",
+              "creature_type"
+            ]
+          },
+          {
+            "name": "synthesize_textures_with_gemini",
+            "start": 1397,
+            "end": 1414,
+            "lines": 18,
+            "args": [
+              "self",
+              "prompt",
+              "texture_resolution"
+            ]
+          },
+          {
+            "name": "_generate_concept_mock",
+            "start": 1416,
+            "end": 1501,
+            "lines": 86,
+            "args": [
+              "self",
+              "request"
+            ]
+          },
+          {
+            "name": "generate_3d_asset",
+            "start": 1503,
+            "end": 1528,
+            "lines": 26,
+            "args": [
+              "self",
+              "request"
+            ]
+          },
+          {
+            "name": "_resolve_or_create_concept_image",
+            "start": 1531,
+            "end": 1551,
+            "lines": 21,
+            "args": [
+              "self",
+              "request"
+            ]
+          },
+          {
+            "name": "_synthesize_pbr_textures",
+            "start": 1553,
+            "end": 1602,
+            "lines": 50,
+            "args": [
+              "self",
+              "asset_id",
+              "tex_res",
+              "creature_name"
+            ]
+          },
+          {
+            "name": "_generate_via_trellis",
+            "start": 1604,
+            "end": 1678,
+            "lines": 75,
+            "args": [
+              "self",
+              "request"
+            ]
+          },
+          {
+            "name": "_generate_via_hunyuan",
+            "start": 1680,
+            "end": 1744,
+            "lines": 65,
+            "args": [
+              "self",
+              "request"
+            ]
+          },
+          {
+            "name": "_generate_via_anycreature",
+            "start": 1746,
+            "end": 1800,
+            "lines": 55,
+            "args": [
+              "self",
+              "request"
+            ]
+          },
+          {
+            "name": "_generate_via_tripo",
+            "start": 1802,
+            "end": 1887,
+            "lines": 86,
+            "args": [
+              "self",
+              "request"
+            ]
+          },
+          {
+            "name": "_generate_via_meshy",
+            "start": 1889,
+            "end": 1985,
+            "lines": 97,
+            "args": [
+              "self",
+              "request"
+            ]
+          },
+          {
+            "name": "_generate_3d_asset_mock",
+            "start": 1987,
+            "end": 2085,
+            "lines": 99,
+            "args": [
+              "self",
+              "request"
+            ]
+          },
+          {
+            "name": "optimize_topology_with_connector",
+            "start": 2087,
+            "end": 2121,
+            "lines": 35,
+            "args": [
+              "self",
+              "mesh_path",
+              "method",
+              "target_faces"
+            ]
+          },
+          {
+            "name": "_fallback_retopology",
+            "start": 2123,
+            "end": 2156,
+            "lines": 34,
+            "args": [
+              "self",
+              "mesh_path",
+              "target_faces",
+              "method"
+            ]
+          },
+          {
+            "name": "create_animal_rig_with_connector",
+            "start": 2158,
+            "end": 2185,
+            "lines": 28,
+            "args": [
+              "self",
+              "mesh_path",
+              "creature_type",
+              "species"
+            ]
+          },
+          {
+            "name": "_fallback_animal_rig",
+            "start": 2187,
+            "end": 2201,
+            "lines": 15,
+            "args": [
+              "self",
+              "mesh_path",
+              "creature_type"
+            ]
+          },
+          {
+            "name": "get_connector_status",
+            "start": 2203,
+            "end": 2210,
+            "lines": 8,
+            "args": [
+              "self"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "CircuitBreaker",
+        "start": 2217,
+        "end": 2245,
+        "lines": 29,
+        "bases": [],
+        "methods": [
+          {
+            "name": "__init__",
+            "start": 2220,
+            "end": 2225,
+            "lines": 6,
+            "args": [
+              "self",
+              "failure_threshold",
+              "recovery_timeout"
+            ]
+          },
+          {
+            "name": "record_success",
+            "start": 2227,
+            "end": 2229,
+            "lines": 3,
+            "args": [
+              "self"
+            ]
+          },
+          {
+            "name": "record_failure",
+            "start": 2231,
+            "end": 2235,
+            "lines": 5,
+            "args": [
+              "self"
+            ]
+          },
+          {
+            "name": "can_attempt",
+            "start": 2237,
+            "end": 2245,
+            "lines": 9,
+            "args": [
+              "self"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "ReplicateInferenceAdapter",
+        "start": 2248,
+        "end": 2278,
+        "lines": 31,
+        "bases": [
+          "BaseInferenceAdapter"
+        ],
+        "methods": [
+          {
+            "name": "__init__",
+            "start": 2251,
+            "end": 2254,
+            "lines": 4,
+            "args": [
+              "self",
+              "api_token"
+            ]
+          },
+          {
+            "name": "generate_concept",
+            "start": 2256,
+            "end": 2268,
+            "lines": 13,
+            "args": [
+              "self",
+              "request"
+            ]
+          },
+          {
+            "name": "generate_3d_asset",
+            "start": 2270,
+            "end": 2278,
+            "lines": 9,
+            "args": [
+              "self",
+              "request"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "HuggingFaceInferenceAdapter",
+        "start": 2281,
+        "end": 2305,
+        "lines": 25,
+        "bases": [
+          "BaseInferenceAdapter"
+        ],
+        "methods": [
+          {
+            "name": "__init__",
+            "start": 2284,
+            "end": 2287,
+            "lines": 4,
+            "args": [
+              "self",
+              "api_token"
+            ]
+          },
+          {
+            "name": "generate_concept",
+            "start": 2289,
+            "end": 2296,
+            "lines": 8,
+            "args": [
+              "self",
+              "request"
+            ]
+          },
+          {
+            "name": "generate_3d_asset",
+            "start": 2298,
+            "end": 2305,
+            "lines": 8,
+            "args": [
+              "self",
+              "request"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "InferenceAdapter",
+        "start": 2312,
+        "end": 2320,
+        "lines": 9,
+        "bases": [
+          "MockInferenceAdapter"
+        ],
+        "methods": []
+      }
+    ],
+    "functions": [
+      {
+        "name": "get_inference_adapter",
+        "start": 2323,
+        "end": 2333,
+        "lines": 11,
+        "args": [
+          "mode"
+        ]
+      }
+    ],
+    "str_templates": [
+      {
+        "start": 1,
+        "end": 13,
+        "lines": 13,
+        "preview": "MorphoMesh: AI Inference Adapter Module.  Provides an extensible abstraction for 3D creature generative inference: 1. B"
+      },
+      {
+        "start": 1504,
+        "end": 1514,
+        "lines": 11,
+        "preview": "Reconstruct 3D textured mesh with multi-backend connector routing.                  Routes dynamically based on"
+      }
+    ]
+  },
+  "src/morphomesh/visual_critic.py": {
+    "size_bytes": 95343,
+    "size_kb": 93.11,
+    "line_count": 2295,
+    "mod_name": "morphomesh.visual_critic",
+    "classes": [
+      {
+        "name": "PurePythonAABB",
+        "start": 424,
+        "end": 461,
+        "lines": 38,
+        "bases": [],
+        "methods": [
+          {
+            "name": "distance_squared",
+            "start": 428,
+            "end": 436,
+            "lines": 9,
+            "args": [
+              "self",
+              "p"
+            ]
+          },
+          {
+            "name": "intersects_ray",
+            "start": 438,
+            "end": 455,
+            "lines": 18,
+            "args": [
+              "self",
+              "origin",
+              "direction",
+              "max_dist"
+            ]
+          },
+          {
+            "name": "intersects_aabb",
+            "start": 457,
+            "end": 461,
+            "lines": 5,
+            "args": [
+              "self",
+              "other"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "PurePythonBVHNode",
+        "start": 464,
+        "end": 470,
+        "lines": 7,
+        "bases": [],
+        "methods": [
+          {
+            "name": "__init__",
+            "start": 465,
+            "end": 470,
+            "lines": 6,
+            "args": [
+              "self",
+              "bbox",
+              "tri_indices",
+              "is_leaf"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "PurePythonBVHTree",
+        "start": 473,
+        "end": 721,
+        "lines": 249,
+        "bases": [],
+        "methods": [
+          {
+            "name": "__init__",
+            "start": 483,
+            "end": 492,
+            "lines": 10,
+            "args": [
+              "self",
+              "triangles",
+              "tri_orig_indices"
+            ]
+          },
+          {
+            "name": "FromPolygons",
+            "start": 495,
+            "end": 532,
+            "lines": 38,
+            "args": [
+              "cls",
+              "vertices",
+              "polygons",
+              "all_triangles",
+              "epsilon"
+            ]
+          },
+          {
+            "name": "_compute_bbox",
+            "start": 534,
+            "end": 546,
+            "lines": 13,
+            "args": [
+              "self",
+              "indices"
+            ]
+          },
+          {
+            "name": "_build_tree",
+            "start": 548,
+            "end": 581,
+            "lines": 34,
+            "args": [
+              "self"
+            ]
+          },
+          {
+            "name": "find_nearest",
+            "start": 583,
+            "end": 633,
+            "lines": 51,
+            "args": [
+              "self",
+              "co",
+              "max_dist"
+            ]
+          },
+          {
+            "name": "ray_cast",
+            "start": 635,
+            "end": 681,
+            "lines": 47,
+            "args": [
+              "self",
+              "origin",
+              "direction",
+              "distance"
+            ]
+          },
+          {
+            "name": "overlap",
+            "start": 683,
+            "end": 721,
+            "lines": 39,
+            "args": [
+              "self",
+              "other_tree"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "AnthropometricMetrics",
+        "start": 1365,
+        "end": 1378,
+        "lines": 14,
+        "bases": [],
+        "methods": []
+      },
+      {
+        "name": "JointDeformationMetrics",
+        "start": 1547,
+        "end": 1556,
+        "lines": 10,
+        "bases": [],
+        "methods": []
+      }
+    ],
+    "functions": [
+      {
+        "name": "_cross_product",
+        "start": 66,
+        "end": 71,
+        "lines": 6,
+        "args": [
+          "a",
+          "b"
+        ]
+      },
+      {
+        "name": "_dot_product",
+        "start": 74,
+        "end": 75,
+        "lines": 2,
+        "args": [
+          "a",
+          "b"
+        ]
+      },
+      {
+        "name": "_sub_vec",
+        "start": 78,
+        "end": 79,
+        "lines": 2,
+        "args": [
+          "a",
+          "b"
+        ]
+      },
+      {
+        "name": "_add_vec",
+        "start": 82,
+        "end": 83,
+        "lines": 2,
+        "args": [
+          "a",
+          "b"
+        ]
+      },
+      {
+        "name": "_scale_vec",
+        "start": 86,
+        "end": 87,
+        "lines": 2,
+        "args": [
+          "a",
+          "s"
+        ]
+      },
+      {
+        "name": "_norm_vec",
+        "start": 90,
+        "end": 94,
+        "lines": 5,
+        "args": [
+          "a"
+        ]
+      },
+      {
+        "name": "_vec_len",
+        "start": 97,
+        "end": 98,
+        "lines": 2,
+        "args": [
+          "a"
+        ]
+      },
+      {
+        "name": "point_to_triangle_distance_eberly",
+        "start": 101,
+        "end": 197,
+        "lines": 97,
+        "args": [
+          "point",
+          "v0",
+          "v1",
+          "v2"
+        ]
+      },
+      {
+        "name": "ray_triangle_intersection_moller_trumbore",
+        "start": 200,
+        "end": 237,
+        "lines": 38,
+        "args": [
+          "origin",
+          "direction",
+          "v0",
+          "v1",
+          "v2",
+          "max_dist"
+        ]
+      },
+      {
+        "name": "_segments_intersect_2d",
+        "start": 240,
+        "end": 275,
+        "lines": 36,
+        "args": [
+          "a",
+          "b",
+          "c",
+          "d",
+          "eps"
+        ]
+      },
+      {
+        "name": "_point_in_triangle_2d",
+        "start": 278,
+        "end": 296,
+        "lines": 19,
+        "args": [
+          "p",
+          "v0",
+          "v1",
+          "v2",
+          "eps"
+        ]
+      },
+      {
+        "name": "_coplanar_triangle_triangle_intersection_2d",
+        "start": 299,
+        "end": 349,
+        "lines": 51,
+        "args": [
+          "t1_v0",
+          "t1_v1",
+          "t1_v2",
+          "t2_v0",
+          "t2_v1",
+          "t2_v2",
+          "normal"
+        ]
+      },
+      {
+        "name": "triangle_triangle_intersection_moller",
+        "start": 352,
+        "end": 420,
+        "lines": 69,
+        "args": [
+          "t1_v0",
+          "t1_v1",
+          "t1_v2",
+          "t2_v0",
+          "t2_v1",
+          "t2_v2"
+        ]
+      },
+      {
+        "name": "get_bvh_tree",
+        "start": 724,
+        "end": 739,
+        "lines": 16,
+        "args": [
+          "vertices",
+          "polygons",
+          "prefer_blender"
+        ]
+      },
+      {
+        "name": "_compute_vertex_normals",
+        "start": 746,
+        "end": 774,
+        "lines": 29,
+        "args": [
+          "verts",
+          "polys"
+        ]
+      },
+      {
+        "name": "_find_garment_boundary_edges",
+        "start": 777,
+        "end": 823,
+        "lines": 47,
+        "args": [
+          "verts",
+          "polys"
+        ]
+      },
+      {
+        "name": "evaluate_mesh_penetration",
+        "start": 826,
+        "end": 1048,
+        "lines": 223,
+        "args": [
+          "body_obj_name",
+          "garment_obj_names",
+          "clearance_tolerance",
+          "max_search_radius",
+          "body_geo",
+          "garment_geos"
+        ]
+      },
+      {
+        "name": "evaluate_hair_grooming_intersections",
+        "start": 1055,
+        "end": 1294,
+        "lines": 240,
+        "args": [
+          "hair_obj_names",
+          "body_obj_name",
+          "garment_obj_names",
+          "hair_splines",
+          "body_geo",
+          "garment_geos"
+        ]
+      },
+      {
+        "name": "evaluate_body_proportions",
+        "start": 1381,
+        "end": 1539,
+        "lines": 159,
+        "args": [
+          "body_obj_name",
+          "target_preset",
+          "gender",
+          "landmarks",
+          "vertex_groups",
+          "body_geo"
+        ]
+      },
+      {
+        "name": "compute_mesh_signed_volume",
+        "start": 1559,
+        "end": 1580,
+        "lines": 22,
+        "args": [
+          "vertices",
+          "faces"
+        ]
+      },
+      {
+        "name": "compute_bounding_slice_volume",
+        "start": 1583,
+        "end": 1655,
+        "lines": 73,
+        "args": [
+          "vertices",
+          "faces",
+          "axis_point",
+          "axis_direction",
+          "span_min",
+          "span_max",
+          "num_slices"
+        ]
+      },
+      {
+        "name": "compute_mesh_dihedral_creases",
+        "start": 1658,
+        "end": 1710,
+        "lines": 53,
+        "args": [
+          "vertices",
+          "faces",
+          "cos_threshold"
+        ]
+      },
+      {
+        "name": "evaluate_rig_skinning_deformation",
+        "start": 1713,
+        "end": 1816,
+        "lines": 104,
+        "args": [
+          "rest_vertices",
+          "posed_vertices",
+          "faces",
+          "joint_specs",
+          "object_name"
+        ]
+      },
+      {
+        "name": "evaluate_rig_skinning_pinch",
+        "start": 1819,
+        "end": 1840,
+        "lines": 22,
+        "args": [
+          "armature_obj_name",
+          "mesh_obj_name"
+        ]
+      },
+      {
+        "name": "make_procedural_cylinder",
+        "start": 1847,
+        "end": 1871,
+        "lines": 25,
+        "args": [
+          "radius",
+          "height",
+          "num_rings",
+          "num_segments",
+          "center_z"
+        ]
+      },
+      {
+        "name": "create_penetration_fixture",
+        "start": 1874,
+        "end": 1891,
+        "lines": 18,
+        "args": [
+          "defective"
+        ]
+      },
+      {
+        "name": "create_proportion_fixture",
+        "start": 1894,
+        "end": 1924,
+        "lines": 31,
+        "args": [
+          "fixture_type"
+        ]
+      },
+      {
+        "name": "create_skinning_fixture",
+        "start": 1927,
+        "end": 1983,
+        "lines": 57,
+        "args": [
+          "defective"
+        ]
+      },
+      {
+        "name": "create_grooming_fixture",
+        "start": 1986,
+        "end": 2009,
+        "lines": 24,
+        "args": [
+          "defective"
+        ]
+      },
+      {
+        "name": "run_defect_detection_benchmark",
+        "start": 2012,
+        "end": 2106,
+        "lines": 95,
+        "args": []
+      },
+      {
+        "name": "benchmark_defect_detection",
+        "start": 2109,
+        "end": 2116,
+        "lines": 8,
+        "args": []
+      },
+      {
+        "name": "run_visual_critique",
+        "start": 2123,
+        "end": 2268,
+        "lines": 146,
+        "args": [
+          "input_data"
+        ]
+      }
+    ],
+    "str_templates": [
+      {
+        "start": 1,
+        "end": 12,
+        "lines": 12,
+        "preview": "MorphoMesh: Closed-Loop Visual Quality Critique Engine.  Milestone 3 Core Module. Provides automated structural integri"
+      }
+    ]
+  },
+  "src/morphomesh/wardrobe.py": {
+    "size_bytes": 90136,
+    "size_kb": 88.02,
+    "line_count": 2182,
+    "mod_name": "morphomesh.wardrobe",
+    "classes": [
+      {
+        "name": "WardrobeConfig",
+        "start": 84,
+        "end": 106,
+        "lines": 23,
+        "bases": [],
+        "methods": [
+          {
+            "name": "to_dict",
+            "start": 105,
+            "end": 106,
+            "lines": 2,
+            "args": [
+              "self"
+            ]
+          }
+        ]
+      }
+    ],
+    "functions": [
+      {
+        "name": "resolve_finger_def_bone_name",
+        "start": 65,
+        "end": 67,
+        "lines": 3,
+        "args": [
+          "name"
+        ]
+      },
+      {
+        "name": "compute_dress_waist_radii",
+        "start": 113,
+        "end": 134,
+        "lines": 22,
+        "args": [
+          "z",
+          "s",
+          "k_w",
+          "k_c",
+          "clearance"
+        ]
+      },
+      {
+        "name": "assign_dress_pin_weights",
+        "start": 137,
+        "end": 165,
+        "lines": 29,
+        "args": [
+          "mesh",
+          "height"
+        ]
+      },
+      {
+        "name": "assign_bodice_skin_weights",
+        "start": 168,
+        "end": 220,
+        "lines": 53,
+        "args": [
+          "mesh",
+          "height"
+        ]
+      },
+      {
+        "name": "assign_skirt_skin_weights",
+        "start": 223,
+        "end": 283,
+        "lines": 61,
+        "args": [
+          "mesh",
+          "height"
+        ]
+      },
+      {
+        "name": "assign_sash_skin_weights",
+        "start": 286,
+        "end": 353,
+        "lines": 68,
+        "args": [
+          "mesh",
+          "height",
+          "num_band_verts",
+          "knot_start",
+          "knot_count",
+          "loops_start",
+          "loops_count",
+          "streamers_start"
+        ]
+      },
+      {
+        "name": "compute_wardrobe_skin_weights",
+        "start": 356,
+        "end": 375,
+        "lines": 20,
+        "args": [
+          "mesh",
+          "part_name",
+          "height"
+        ]
+      },
+      {
+        "name": "generate_dress_bodice",
+        "start": 378,
+        "end": 621,
+        "lines": 244,
+        "args": [
+          "body_mesh",
+          "landmarks",
+          "height",
+          "clearance",
+          "thickness",
+          "sectors",
+          "rings_count",
+          "waist_girth",
+          "chest_girth",
+          "shoulder_width",
+          "bust_cup_scale",
+          "strap_clearance"
+        ]
+      },
+      {
+        "name": "generate_dress_waist_sash",
+        "start": 624,
+        "end": 916,
+        "lines": 293,
+        "args": [
+          "height",
+          "clearance",
+          "belt_width",
+          "sectors",
+          "waist_girth",
+          "chest_girth"
+        ]
+      },
+      {
+        "name": "generate_dress_organic_skirt",
+        "start": 919,
+        "end": 1035,
+        "lines": 117,
+        "args": [
+          "height",
+          "clearance",
+          "rings_count",
+          "sectors",
+          "waist_girth",
+          "hip_girth",
+          "pleat_count"
+        ]
+      },
+      {
+        "name": "generate_dress_pleated_skirt",
+        "start": 1038,
+        "end": 1056,
+        "lines": 19,
+        "args": [
+          "height",
+          "clearance",
+          "pleat_count",
+          "rings_count",
+          "sectors",
+          "waist_girth"
+        ]
+      },
+      {
+        "name": "generate_organic_dress",
+        "start": 1059,
+        "end": 1092,
+        "lines": 34,
+        "args": [
+          "scale",
+          "k_waist",
+          "k_chest",
+          "k_leg",
+          "bust_cup_scale"
+        ]
+      },
+      {
+        "name": "generate_waist_sash_and_bow",
+        "start": 1095,
+        "end": 1115,
+        "lines": 21,
+        "args": [
+          "dress_waist_bounds",
+          "scale",
+          "k_waist"
+        ]
+      },
+      {
+        "name": "generate_flat_strappy_sandals",
+        "start": 1118,
+        "end": 1448,
+        "lines": 331,
+        "args": [
+          "foot_landmarks",
+          "height",
+          "scale",
+          "k_leg"
+        ]
+      },
+      {
+        "name": "get_butterfly_vortex_positions",
+        "start": 1471,
+        "end": 1510,
+        "lines": 40,
+        "args": [
+          "height",
+          "count",
+          "scale"
+        ]
+      },
+      {
+        "name": "get_butterfly_flutter_positions",
+        "start": 1513,
+        "end": 1522,
+        "lines": 10,
+        "args": [
+          "height",
+          "count",
+          "scale"
+        ]
+      },
+      {
+        "name": "generate_catenary_magic_strings",
+        "start": 1525,
+        "end": 1646,
+        "lines": 122,
+        "args": [
+          "height",
+          "rest_pose",
+          "target_positions",
+          "thread_diameter",
+          "sag_ratio",
+          "count"
+        ]
+      },
+      {
+        "name": "generate_swallowtail_quad_butterfly",
+        "start": 1653,
+        "end": 1769,
+        "lines": 117,
+        "args": [
+          "scale",
+          "wing_angle_deg",
+          "size",
+          "flutter_angle"
+        ]
+      },
+      {
+        "name": "generate_yu_nian_an_wardrobe",
+        "start": 1776,
+        "end": 1823,
+        "lines": 48,
+        "args": [
+          "config"
+        ]
+      },
+      {
+        "name": "get_wardrobe_script",
+        "start": 1830,
+        "end": 2109,
+        "lines": 280,
+        "args": [
+          "target_object",
+          "outfit_preset",
+          "clearance_offset",
+          "include_sandals",
+          "include_red_threads",
+          "include_glowing_butterflies",
+          "butterfly_count",
+          "character_height",
+          "waist_girth",
+          "chest_girth",
+          "hip_girth",
+          "thickness"
+        ]
+      },
+      {
+        "name": "dress_human",
+        "start": 2112,
+        "end": 2182,
+        "lines": 71,
+        "args": [
+          "human_object_name",
+          "target_object",
+          "outfit",
+          "outfit_preset",
+          "include_sandals",
+          "include_red_threads",
+          "include_glowing_butterflies",
+          "butterfly_count",
+          "clearance_offset",
+          "save_after",
+          "save_path"
+        ]
+      }
+    ],
+    "str_templates": [
+      {
+        "start": 1906,
+        "end": 2108,
+        "lines": 203,
+        "preview": "\"\"\" Blender 4.5+ Standalone Wardrobe & Magic Props Generation Script. Yu Nian An (\u4f59\u5ff5\u5b89) Two-Strap Slip Dress, Waist Sash,"
+      },
+      {
+        "start": 1906,
+        "end": 2108,
+        "lines": 203,
+        "preview": "''')  body_obj = bpy.data.objects.get(TARGET_OBJ_NAME) armature_obj = bpy.data.objects.get(\"Armature_Yu_Nian_An_Rigify\")"
+      },
+      {
+        "start": 1906,
+        "end": 2108,
+        "lines": 203,
+        "preview": "for b_i in range(b_count):         bf_obj = create_mesh_obj(f\"Prop_Butterfly_{b_i:02d}\", props_col)         if b_i"
+      },
+      {
+        "start": 1,
+        "end": 24,
+        "lines": 24,
+        "preview": "MorphoMesh: Digital Human Parametric Wardrobe & Magic Props Engine.  Synthesizes tailored clothing and character access"
+      },
+      {
+        "start": 1125,
+        "end": 1135,
+        "lines": 11,
+        "preview": "Synthesizes anatomical flat strappy sandals (Left & Right) conforming to     Yu Nian An's 5-toed articulated feet:"
+      },
+      {
+        "start": 1845,
+        "end": 1855,
+        "lines": 11,
+        "preview": "Generates a standalone Python script executable inside Blender 4.5+ LTS.     The script:     1. Synthesizes tailore"
+      }
+    ]
+  },
+  "src/morphomesh/human_rigging.py": {
+    "size_bytes": 84527,
+    "size_kb": 82.55,
+    "line_count": 1835,
+    "mod_name": "morphomesh.human_rigging",
+    "classes": [
+      {
+        "name": "HumanRigConfig",
+        "start": 250,
+        "end": 263,
+        "lines": 14,
+        "bases": [
+          "BaseModel"
+        ],
+        "methods": []
+      },
+      {
+        "name": "BoneDefinition",
+        "start": 267,
+        "end": 291,
+        "lines": 25,
+        "bases": [],
+        "methods": [
+          {
+            "name": "length",
+            "start": 279,
+            "end": 283,
+            "lines": 5,
+            "args": [
+              "self"
+            ]
+          },
+          {
+            "name": "vector",
+            "start": 286,
+            "end": 291,
+            "lines": 6,
+            "args": [
+              "self"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "MetarigStructure",
+        "start": 295,
+        "end": 335,
+        "lines": 41,
+        "bases": [],
+        "methods": [
+          {
+            "name": "bone_count",
+            "start": 306,
+            "end": 307,
+            "lines": 2,
+            "args": [
+              "self"
+            ]
+          },
+          {
+            "name": "def_bone_count",
+            "start": 310,
+            "end": 311,
+            "lines": 2,
+            "args": [
+              "self"
+            ]
+          },
+          {
+            "name": "get_bone",
+            "start": 313,
+            "end": 314,
+            "lines": 2,
+            "args": [
+              "self",
+              "name"
+            ]
+          },
+          {
+            "name": "verify_prebends",
+            "start": 316,
+            "end": 335,
+            "lines": 20,
+            "args": [
+              "self"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "SkinWeightMap",
+        "start": 340,
+        "end": 385,
+        "lines": 46,
+        "bases": [],
+        "methods": [
+          {
+            "name": "set_weight",
+            "start": 345,
+            "end": 350,
+            "lines": 6,
+            "args": [
+              "self",
+              "vertex_idx",
+              "bone_name",
+              "weight"
+            ]
+          },
+          {
+            "name": "add_weight",
+            "start": 352,
+            "end": 357,
+            "lines": 6,
+            "args": [
+              "self",
+              "vertex_idx",
+              "bone_name",
+              "weight"
+            ]
+          },
+          {
+            "name": "get_vertex_weight",
+            "start": 359,
+            "end": 360,
+            "lines": 2,
+            "args": [
+              "self",
+              "vertex_idx",
+              "bone_name"
+            ]
+          },
+          {
+            "name": "normalize",
+            "start": 362,
+            "end": 370,
+            "lines": 9,
+            "args": [
+              "self",
+              "default_bone"
+            ]
+          },
+          {
+            "name": "verify_normalization",
+            "start": 372,
+            "end": 385,
+            "lines": 14,
+            "args": [
+              "self",
+              "tolerance"
+            ]
+          }
+        ]
+      }
+    ],
+    "functions": [
+      {
+        "name": "_point_to_segment_distance",
+        "start": 51,
+        "end": 63,
+        "lines": 13,
+        "args": [
+          "p",
+          "a",
+          "b"
+        ]
+      },
+      {
+        "name": "_get_canonical_finger_map",
+        "start": 69,
+        "end": 98,
+        "lines": 30,
+        "args": []
+      },
+      {
+        "name": "get_default_human_landmarks",
+        "start": 392,
+        "end": 434,
+        "lines": 43,
+        "args": [
+          "height"
+        ]
+      },
+      {
+        "name": "generate_rigify_human_metarig",
+        "start": 437,
+        "end": 794,
+        "lines": 358,
+        "args": [
+          "landmarks",
+          "config"
+        ]
+      },
+      {
+        "name": "align_rigify_metarig_pivots",
+        "start": 797,
+        "end": 917,
+        "lines": 121,
+        "args": [
+          "armature_obj",
+          "landmarks",
+          "scale"
+        ]
+      },
+      {
+        "name": "calculate_anti_pinch_weights",
+        "start": 924,
+        "end": 1306,
+        "lines": 383,
+        "args": [
+          "mesh",
+          "metarig",
+          "landmarks"
+        ]
+      },
+      {
+        "name": "generate_arkit_52_blendshapes",
+        "start": 1313,
+        "end": 1522,
+        "lines": 210,
+        "args": [
+          "mesh",
+          "landmarks",
+          "scale"
+        ]
+      },
+      {
+        "name": "get_rigging_script",
+        "start": 1529,
+        "end": 1780,
+        "lines": 252,
+        "args": [
+          "mesh_obj_name",
+          "landmarks",
+          "config",
+          "mesh_geometry"
+        ]
+      },
+      {
+        "name": "auto_rig_human",
+        "start": 1787,
+        "end": 1835,
+        "lines": 49,
+        "args": [
+          "mesh",
+          "landmarks",
+          "config",
+          "armature_name",
+          "export_format"
+        ]
+      }
+    ],
+    "str_templates": [
+      {
+        "start": 1588,
+        "end": 1780,
+        "lines": 193,
+        "preview": "import bpy import math import mathutils import json import os import tempfile import uuid  mesh_name ="
+      },
+      {
+        "start": 1588,
+        "end": 1780,
+        "lines": 193,
+        "preview": "# Locate target character mesh obj = bpy.data.objects.get(mesh_name) if not obj:     obj = bpy.context.active_object i"
+      },
+      {
+        "start": 1588,
+        "end": 1780,
+        "lines": 193,
+        "preview": ") for b_name, b_info in metarig_bones.items():     b = eb.new(b_name)     b.head = b_info[\"head\"]     b.tail = b_info[\"t"
+      },
+      {
+        "start": 1588,
+        "end": 1780,
+        "lines": 193,
+        "preview": ")  for b_name in def_bones:     vg = obj.vertex_groups.get(b_name) or obj.vertex_groups.new(name=b_name)  if len(me.vert"
+      },
+      {
+        "start": 1588,
+        "end": 1780,
+        "lines": 193,
+        "preview": ") arkit_52 = list(shape_key_deltas.keys())  for k_name in arkit_52:     kb = obj.data.shape_keys.key_blocks.get(k_name)"
+      },
+      {
+        "start": 1,
+        "end": 19,
+        "lines": 19,
+        "preview": "MorphoMesh: Rigify Human Rigging & 52 ARKit FACS Blendshapes Engine.  Implements Milestone 2 requirements: 1. Rigify Hu"
+      },
+      {
+        "start": 802,
+        "end": 813,
+        "lines": 12,
+        "preview": "Realigns 163 DEF Rigify metarig joint pivots to anatomical skeletal centers (Feature 7 of M1):     - Femoral head h"
+      }
+    ]
+  },
+  "src/morphomesh/connectors/meshy_connector.py": {
+    "size_bytes": 76049,
+    "size_kb": 74.27,
+    "line_count": 1580,
+    "mod_name": "morphomesh.connectors.meshy_connector",
+    "classes": [
+      {
+        "name": "MeshyConfig",
+        "start": 87,
+        "end": 111,
+        "lines": 25,
+        "bases": [
+          "BaseModel"
+        ],
+        "methods": [
+          {
+            "name": "normalize_ai_model",
+            "start": 107,
+            "end": 111,
+            "lines": 5,
+            "args": [
+              "cls",
+              "v"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "MeshyInput",
+        "start": 114,
+        "end": 179,
+        "lines": 66,
+        "bases": [
+          "BaseModel"
+        ],
+        "methods": [
+          {
+            "name": "pre_validate_input",
+            "start": 150,
+            "end": 171,
+            "lines": 22,
+            "args": [
+              "cls",
+              "data"
+            ]
+          },
+          {
+            "name": "normalize_input_model",
+            "start": 175,
+            "end": 179,
+            "lines": 5,
+            "args": [
+              "cls",
+              "v"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "MeshyOutput",
+        "start": 182,
+        "end": 201,
+        "lines": 20,
+        "bases": [
+          "BaseModel"
+        ],
+        "methods": []
+      },
+      {
+        "name": "MeshyRiggingInput",
+        "start": 204,
+        "end": 213,
+        "lines": 10,
+        "bases": [
+          "BaseModel"
+        ],
+        "methods": []
+      },
+      {
+        "name": "MeshyRiggingOutput",
+        "start": 216,
+        "end": 229,
+        "lines": 14,
+        "bases": [
+          "BaseModel"
+        ],
+        "methods": []
+      },
+      {
+        "name": "MeshyAnimationInput",
+        "start": 232,
+        "end": 241,
+        "lines": 10,
+        "bases": [
+          "BaseModel"
+        ],
+        "methods": []
+      },
+      {
+        "name": "MeshyAnimationOutput",
+        "start": 244,
+        "end": 259,
+        "lines": 16,
+        "bases": [
+          "BaseModel"
+        ],
+        "methods": []
+      },
+      {
+        "name": "MeshyConnector",
+        "start": 309,
+        "end": 1580,
+        "lines": 1272,
+        "bases": [
+          "BaseConnector"
+        ],
+        "methods": [
+          {
+            "name": "__init__",
+            "start": 327,
+            "end": 342,
+            "lines": 16,
+            "args": [
+              "self",
+              "config",
+              "circuit_breaker"
+            ]
+          },
+          {
+            "name": "_resolve_api_key",
+            "start": 344,
+            "end": 356,
+            "lines": 13,
+            "args": [
+              "self"
+            ]
+          },
+          {
+            "name": "initialize",
+            "start": 358,
+            "end": 361,
+            "lines": 4,
+            "args": [
+              "self"
+            ]
+          },
+          {
+            "name": "health_check",
+            "start": 363,
+            "end": 446,
+            "lines": 84,
+            "args": [
+              "self"
+            ]
+          },
+          {
+            "name": "check_dependencies",
+            "start": 448,
+            "end": 462,
+            "lines": 15,
+            "args": [
+              "self"
+            ]
+          },
+          {
+            "name": "execute",
+            "start": 464,
+            "end": 567,
+            "lines": 104,
+            "args": [
+              "self",
+              "request"
+            ]
+          },
+          {
+            "name": "_execute_api",
+            "start": 573,
+            "end": 770,
+            "lines": 198,
+            "args": [
+              "self",
+              "inp",
+              "api_key",
+              "asset_id",
+              "out_dir",
+              "start_time"
+            ]
+          },
+          {
+            "name": "_prepare_image_url",
+            "start": 772,
+            "end": 789,
+            "lines": 18,
+            "args": [
+              "self",
+              "image_path"
+            ]
+          },
+          {
+            "name": "_post_json_task",
+            "start": 791,
+            "end": 827,
+            "lines": 37,
+            "args": [
+              "self",
+              "url",
+              "payload",
+              "api_key"
+            ]
+          },
+          {
+            "name": "_poll_task",
+            "start": 829,
+            "end": 894,
+            "lines": 66,
+            "args": [
+              "self",
+              "poll_url",
+              "api_key",
+              "timeout"
+            ]
+          },
+          {
+            "name": "_download_file",
+            "start": 896,
+            "end": 905,
+            "lines": 10,
+            "args": [
+              "self",
+              "url",
+              "target_path"
+            ]
+          },
+          {
+            "name": "_download_pbr_textures",
+            "start": 907,
+            "end": 965,
+            "lines": 59,
+            "args": [
+              "self",
+              "tex_dict",
+              "out_dir",
+              "asset_id"
+            ]
+          },
+          {
+            "name": "_convert_or_export_obj",
+            "start": 967,
+            "end": 976,
+            "lines": 10,
+            "args": [
+              "self",
+              "glb_path",
+              "obj_path"
+            ]
+          },
+          {
+            "name": "_extract_glb_to_obj_buffer",
+            "start": 979,
+            "end": 1053,
+            "lines": 75,
+            "args": [
+              "glb_path",
+              "obj_path"
+            ]
+          },
+          {
+            "name": "_extract_or_generate_pbr_maps",
+            "start": 1055,
+            "end": 1099,
+            "lines": 45,
+            "args": [
+              "self",
+              "out_dir",
+              "asset_id",
+              "generate_pbr"
+            ]
+          },
+          {
+            "name": "_execute_mock",
+            "start": 1105,
+            "end": 1224,
+            "lines": 120,
+            "args": [
+              "self",
+              "inp",
+              "asset_id",
+              "out_dir",
+              "start_time"
+            ]
+          },
+          {
+            "name": "list_animation_library",
+            "start": 1232,
+            "end": 1288,
+            "lines": 57,
+            "args": [
+              "self",
+              "category",
+              "search",
+              "sub_category",
+              "action_ids"
+            ]
+          },
+          {
+            "name": "rig_asset",
+            "start": 1290,
+            "end": 1394,
+            "lines": 105,
+            "args": [
+              "self",
+              "input_data"
+            ]
+          },
+          {
+            "name": "animate_asset",
+            "start": 1396,
+            "end": 1491,
+            "lines": 96,
+            "args": [
+              "self",
+              "input_data"
+            ]
+          },
+          {
+            "name": "_mock_rig_asset",
+            "start": 1493,
+            "end": 1533,
+            "lines": 41,
+            "args": [
+              "self",
+              "inp",
+              "out_dir",
+              "start_time"
+            ]
+          },
+          {
+            "name": "_mock_animate_asset",
+            "start": 1535,
+            "end": 1576,
+            "lines": 42,
+            "args": [
+              "self",
+              "inp",
+              "out_dir",
+              "start_time"
+            ]
+          },
+          {
+            "name": "close",
+            "start": 1578,
+            "end": 1580,
+            "lines": 3,
+            "args": [
+              "self"
+            ]
+          }
+        ]
+      }
+    ],
+    "functions": [],
+    "str_templates": [
+      {
+        "start": 1,
+        "end": 17,
+        "lines": 17,
+        "preview": "MorphoMesh: Meshy AI 3D Foundation Model Connector (Phase 2).  Integrates the Meshy AI generative platform (OpenAPI v2"
+      },
+      {
+        "start": 469,
+        "end": 481,
+        "lines": 13,
+        "preview": "Execute Meshy AI 3D asset generation workload.          Args:             request: MeshyInput, parameter dictio"
+      }
+    ]
+  },
+  "src/morphomesh/human_generator.py": {
+    "size_bytes": 75324,
+    "size_kb": 73.56,
+    "line_count": 1695,
+    "mod_name": "morphomesh.human_generator",
+    "classes": [
+      {
+        "name": "HumanMeshResult",
+        "start": 89,
+        "end": 106,
+        "lines": 18,
+        "bases": [],
+        "methods": []
+      },
+      {
+        "name": "HumanAnatomyGenerator",
+        "start": 773,
+        "end": 1156,
+        "lines": 384,
+        "bases": [],
+        "methods": [
+          {
+            "name": "__init__",
+            "start": 780,
+            "end": 796,
+            "lines": 17,
+            "args": [
+              "self",
+              "config",
+              "height",
+              "gender",
+              "proportion_preset"
+            ]
+          },
+          {
+            "name": "generate_human_body",
+            "start": 799,
+            "end": 821,
+            "lines": 23,
+            "args": [
+              "cls",
+              "height",
+              "gender",
+              "proportion_preset",
+              "config",
+              "character_name"
+            ]
+          },
+          {
+            "name": "generate",
+            "start": 823,
+            "end": 1156,
+            "lines": 334,
+            "args": [
+              "self",
+              "character_name_or_config",
+              "character_name"
+            ]
+          }
+        ]
+      }
+    ],
+    "functions": [
+      {
+        "name": "compute_quad_metrics",
+        "start": 113,
+        "end": 138,
+        "lines": 26,
+        "args": [
+          "mesh"
+        ]
+      },
+      {
+        "name": "add_quad_cap",
+        "start": 141,
+        "end": 158,
+        "lines": 18,
+        "args": [
+          "mesh",
+          "ring_indices",
+          "flip_normal"
+        ]
+      },
+      {
+        "name": "add_quad_ellipsoid",
+        "start": 161,
+        "end": 221,
+        "lines": 61,
+        "args": [
+          "mesh",
+          "center",
+          "radii",
+          "rings",
+          "sectors"
+        ]
+      },
+      {
+        "name": "_get_templates_dir",
+        "start": 238,
+        "end": 250,
+        "lines": 13,
+        "args": []
+      },
+      {
+        "name": "load_anatomical_base_mold",
+        "start": 253,
+        "end": 354,
+        "lines": 102,
+        "args": []
+      },
+      {
+        "name": "extract_makehuman_joint_landmarks",
+        "start": 357,
+        "end": 415,
+        "lines": 59,
+        "args": [
+          "target_height"
+        ]
+      },
+      {
+        "name": "enforce_quad_closure",
+        "start": 418,
+        "end": 438,
+        "lines": 21,
+        "args": [
+          "seed_indices",
+          "quads"
+        ]
+      },
+      {
+        "name": "compute_relaxed_vertex_normals",
+        "start": 441,
+        "end": 498,
+        "lines": 58,
+        "args": [
+          "vertices",
+          "quads"
+        ]
+      },
+      {
+        "name": "compute_standardized_vertex_groups",
+        "start": 501,
+        "end": 604,
+        "lines": 104,
+        "args": [
+          "mesh_vertices",
+          "quads",
+          "landmarks",
+          "scale",
+          "ankle_x"
+        ]
+      },
+      {
+        "name": "resolve_human_anatomy_config",
+        "start": 702,
+        "end": 770,
+        "lines": 69,
+        "args": [
+          "config",
+          "height",
+          "gender",
+          "proportion_preset"
+        ]
+      },
+      {
+        "name": "generate_human_base_mesh",
+        "start": 1159,
+        "end": 1176,
+        "lines": 18,
+        "args": [
+          "config",
+          "character_name",
+          "height",
+          "gender",
+          "proportion_preset"
+        ]
+      },
+      {
+        "name": "generate_human_body",
+        "start": 1179,
+        "end": 1199,
+        "lines": 21,
+        "args": [
+          "height",
+          "gender",
+          "proportion_preset",
+          "config",
+          "character_name"
+        ]
+      },
+      {
+        "name": "get_human_generation_script",
+        "start": 1206,
+        "end": 1695,
+        "lines": 490,
+        "args": [
+          "mesh_obj_name",
+          "config",
+          "height",
+          "gender",
+          "proportion_preset"
+        ]
+      }
+    ],
+    "str_templates": [
+      {
+        "start": 1235,
+        "end": 1695,
+        "lines": 461,
+        "preview": "import bpy import bmesh import math import mathutils  mesh_name ="
+      },
+      {
+        "start": 1235,
+        "end": 1695,
+        "lines": 461,
+        "preview": "scale = target_height / 1.65 s = scale  # Parametric scaling factors k_chest = chest_girth / 0.82 k_waist = waist_girt"
+      },
+      {
+        "start": 1,
+        "end": 12,
+        "lines": 12,
+        "preview": "MorphoMesh: Anthropometric Procedural Human Generator Module.  Synthesizes high-fidelity digital female human anatomy m"
+      }
+    ]
+  },
+  "src/morphomesh/server.py": {
+    "size_bytes": 73670,
+    "size_kb": 71.94,
+    "line_count": 1689,
+    "mod_name": "morphomesh.server",
+    "classes": [],
+    "functions": [
+      {
+        "name": "morphomesh_generate_concept",
+        "start": 112,
+        "end": 164,
+        "lines": 53,
+        "args": [
+          "prompt",
+          "negative_prompt",
+          "creature_type",
+          "view_mode",
+          "pose",
+          "style",
+          "background",
+          "width",
+          "height",
+          "seed",
+          "output_format",
+          "backend",
+          "ctx"
+        ]
+      },
+      {
+        "name": "morphomesh_create_3d_asset",
+        "start": 172,
+        "end": 232,
+        "lines": 61,
+        "args": [
+          "image_path",
+          "concept_id",
+          "prompt",
+          "model_backend",
+          "export_format",
+          "generate_pbr",
+          "texture_resolution",
+          "remove_background",
+          "guidance_scale",
+          "seed",
+          "quality_tier",
+          "backend",
+          "ctx"
+        ]
+      },
+      {
+        "name": "morphomesh_optimize_topology",
+        "start": 240,
+        "end": 323,
+        "lines": 84,
+        "args": [
+          "asset_id",
+          "input_mesh_path",
+          "target_poly_count",
+          "topology_type",
+          "preserve_uvs",
+          "preserve_sharp_edges",
+          "method",
+          "output_format",
+          "ctx"
+        ]
+      },
+      {
+        "name": "morphomesh_auto_rig",
+        "start": 331,
+        "end": 497,
+        "lines": 167,
+        "args": [
+          "asset_id",
+          "input_mesh_path",
+          "creature_type",
+          "rig_type",
+          "skinning_method",
+          "symmetry",
+          "generate_test_animation",
+          "load_into_scene",
+          "backend",
+          "model_task_id",
+          "height_meters",
+          "ctx"
+        ]
+      },
+      {
+        "name": "morphomesh_animate_asset",
+        "start": 505,
+        "end": 573,
+        "lines": 69,
+        "args": [
+          "asset_id",
+          "rig_task_id",
+          "input_mesh_path",
+          "action_id",
+          "action_name",
+          "fps",
+          "output_format",
+          "backend",
+          "ctx"
+        ]
+      },
+      {
+        "name": "morphomesh_list_animations",
+        "start": 581,
+        "end": 613,
+        "lines": 33,
+        "args": [
+          "category",
+          "sub_category",
+          "search",
+          "limit",
+          "ctx"
+        ]
+      },
+      {
+        "name": "morphomesh_blender_execute",
+        "start": 622,
+        "end": 658,
+        "lines": 37,
+        "args": [
+          "script",
+          "timeout_seconds",
+          "target_scene",
+          "save_after",
+          "save_path",
+          "return_variables",
+          "ctx"
+        ]
+      },
+      {
+        "name": "morphomesh_get_scene_status",
+        "start": 666,
+        "end": 697,
+        "lines": 32,
+        "args": [
+          "scene_name",
+          "include_mesh_stats",
+          "include_hierarchy",
+          "include_materials",
+          "include_armatures",
+          "include_cameras_lights",
+          "ctx"
+        ]
+      },
+      {
+        "name": "morphomesh_render_preview",
+        "start": 705,
+        "end": 759,
+        "lines": 55,
+        "args": [
+          "camera_name",
+          "resolution_width",
+          "resolution_height",
+          "render_engine",
+          "samples",
+          "view_angle",
+          "transparent_background",
+          "lighting_preset",
+          "save_to_disk",
+          "output_dir",
+          "ctx"
+        ]
+      },
+      {
+        "name": "create_mcp_server",
+        "start": 762,
+        "end": 764,
+        "lines": 3,
+        "args": []
+      },
+      {
+        "name": "_safe_ctx_info",
+        "start": 767,
+        "end": 772,
+        "lines": 6,
+        "args": [
+          "ctx",
+          "message"
+        ]
+      },
+      {
+        "name": "_safe_ctx_progress",
+        "start": 775,
+        "end": 780,
+        "lines": 6,
+        "args": [
+          "ctx",
+          "progress",
+          "total"
+        ]
+      },
+      {
+        "name": "morphomesh_create_human_asset",
+        "start": 788,
+        "end": 888,
+        "lines": 101,
+        "args": [
+          "character_name",
+          "prompt",
+          "gender",
+          "height",
+          "head_ratio",
+          "style",
+          "chest_girth",
+          "waist_girth",
+          "hip_girth",
+          "poly_budget",
+          "include_blendshapes",
+          "export_format",
+          "load_into_scene",
+          "assemble_master",
+          "config",
+          "ctx"
+        ]
+      },
+      {
+        "name": "morphomesh_auto_rig_human",
+        "start": 896,
+        "end": 951,
+        "lines": 56,
+        "args": [
+          "human_asset_id",
+          "mesh_object_name",
+          "target_object",
+          "rig_type",
+          "skinning_method",
+          "include_face_rig",
+          "include_finger_rig",
+          "pose",
+          "export_format",
+          "ctx"
+        ]
+      },
+      {
+        "name": "morphomesh_setup_human_materials",
+        "start": 959,
+        "end": 1014,
+        "lines": 56,
+        "args": [
+          "mesh_object_name",
+          "target_object",
+          "material_preset",
+          "skin_tone",
+          "subsurface_scattering",
+          "refractive_eyes",
+          "render_engine",
+          "save_after",
+          "save_path",
+          "ctx"
+        ]
+      },
+      {
+        "name": "morphomesh_groom_human",
+        "start": 1022,
+        "end": 1085,
+        "lines": 64,
+        "args": [
+          "mesh_object_name",
+          "target_object",
+          "hair_style",
+          "hairstyle",
+          "hair_color",
+          "strand_count",
+          "include_eyebrows",
+          "include_eyelashes",
+          "generate_ribbons",
+          "save_after",
+          "save_path",
+          "ctx"
+        ]
+      },
+      {
+        "name": "morphomesh_dress_human",
+        "start": 1093,
+        "end": 1156,
+        "lines": 64,
+        "args": [
+          "human_object_name",
+          "target_object",
+          "outfit",
+          "outfit_preset",
+          "include_sandals",
+          "include_red_threads",
+          "include_glowing_butterflies",
+          "butterfly_count",
+          "clearance_offset",
+          "save_after",
+          "save_path",
+          "ctx"
+        ]
+      },
+      {
+        "name": "morphomesh_assemble_master_character",
+        "start": 1164,
+        "end": 1215,
+        "lines": 52,
+        "args": [
+          "character_name",
+          "height",
+          "head_ratio",
+          "include_hair",
+          "include_wardrobe",
+          "include_props",
+          "include_armature",
+          "include_lighting",
+          "render_engine",
+          "samples",
+          "save_blend",
+          "output_path",
+          "ctx"
+        ]
+      },
+      {
+        "name": "morphomesh_export_production_character",
+        "start": 1223,
+        "end": 1268,
+        "lines": 46,
+        "args": [
+          "character_name",
+          "blend_path",
+          "output_dir",
+          "export_fbx",
+          "export_glb",
+          "generate_textures",
+          "generate_docs",
+          "texture_resolution",
+          "ctx"
+        ]
+      },
+      {
+        "name": "morphomesh_setup_inspector_camera_rig",
+        "start": 1300,
+        "end": 1381,
+        "lines": 82,
+        "args": [
+          "viewpoint",
+          "target_center",
+          "sub_region",
+          "focal_length",
+          "camera_name",
+          "mesh_objects",
+          "ctx"
+        ]
+      },
+      {
+        "name": "morphomesh_capture_viewport",
+        "start": 1389,
+        "end": 1513,
+        "lines": 125,
+        "args": [
+          "output_path",
+          "camera_name",
+          "resolution",
+          "shading_mode",
+          "color_type",
+          "ctx"
+        ]
+      },
+      {
+        "name": "morphomesh_critique_visual_quality",
+        "start": 1521,
+        "end": 1595,
+        "lines": 75,
+        "args": [
+          "character_name",
+          "target_object",
+          "camera_angles",
+          "clearance_tolerance",
+          "target_preset",
+          "ctx"
+        ]
+      },
+      {
+        "name": "_get_active_allowed_tool_names",
+        "start": 1636,
+        "end": 1655,
+        "lines": 20,
+        "args": []
+      },
+      {
+        "name": "_filtered_list_tools",
+        "start": 1660,
+        "end": 1673,
+        "lines": 14,
+        "args": []
+      }
+    ],
+    "str_templates": [
+      {
+        "start": 187,
+        "end": 197,
+        "lines": 11,
+        "preview": "Stage 2: Reconstruct a textured 3D mesh with PBR maps from a 2D concept image or prompt.      Consumes the concept"
+      },
+      {
+        "start": 1179,
+        "end": 1189,
+        "lines": 11,
+        "preview": "Stage 6 Master Assembly: Orchestrate complete digital human scene in Blender 4.5+ LTS.      Constructs 7-tier colle"
+      },
+      {
+        "start": 1529,
+        "end": 1539,
+        "lines": 11,
+        "preview": "Stage 8 Closed-Loop Quality Assurance: Automated visual defect critique.      Orchestrates multi-angle inspection a"
+      }
+    ]
+  },
+  "src/morphomesh/models.py": {
+    "size_bytes": 65310,
+    "size_kb": 63.78,
+    "line_count": 1232,
+    "mod_name": "morphomesh.models",
+    "classes": [
+      {
+        "name": "MorphoMeshException",
+        "start": 55,
+        "end": 67,
+        "lines": 13,
+        "bases": [
+          "Exception"
+        ],
+        "methods": [
+          {
+            "name": "__init__",
+            "start": 58,
+            "end": 67,
+            "lines": 10,
+            "args": [
+              "self",
+              "code",
+              "message",
+              "details"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "CreatureType",
+        "start": 74,
+        "end": 86,
+        "lines": 13,
+        "bases": [
+          "str",
+          "Enum"
+        ],
+        "methods": []
+      },
+      {
+        "name": "ViewMode",
+        "start": 89,
+        "end": 97,
+        "lines": 9,
+        "bases": [
+          "str",
+          "Enum"
+        ],
+        "methods": []
+      },
+      {
+        "name": "Pose",
+        "start": 100,
+        "end": 104,
+        "lines": 5,
+        "bases": [
+          "str",
+          "Enum"
+        ],
+        "methods": []
+      },
+      {
+        "name": "Style",
+        "start": 107,
+        "end": 113,
+        "lines": 7,
+        "bases": [
+          "str",
+          "Enum"
+        ],
+        "methods": []
+      },
+      {
+        "name": "QualityTier",
+        "start": 116,
+        "end": 120,
+        "lines": 5,
+        "bases": [
+          "str",
+          "Enum"
+        ],
+        "methods": []
+      },
+      {
+        "name": "TopologyType",
+        "start": 123,
+        "end": 127,
+        "lines": 5,
+        "bases": [
+          "str",
+          "Enum"
+        ],
+        "methods": []
+      },
+      {
+        "name": "RetopoMethod",
+        "start": 130,
+        "end": 135,
+        "lines": 6,
+        "bases": [
+          "str",
+          "Enum"
+        ],
+        "methods": []
+      },
+      {
+        "name": "RigType",
+        "start": 138,
+        "end": 142,
+        "lines": 5,
+        "bases": [
+          "str",
+          "Enum"
+        ],
+        "methods": []
+      },
+      {
+        "name": "SkinningMethod",
+        "start": 145,
+        "end": 148,
+        "lines": 4,
+        "bases": [
+          "str",
+          "Enum"
+        ],
+        "methods": []
+      },
+      {
+        "name": "RenderEngine",
+        "start": 151,
+        "end": 155,
+        "lines": 5,
+        "bases": [
+          "str",
+          "Enum"
+        ],
+        "methods": []
+      },
+      {
+        "name": "LightingPreset",
+        "start": 158,
+        "end": 163,
+        "lines": 6,
+        "bases": [
+          "str",
+          "Enum"
+        ],
+        "methods": []
+      },
+      {
+        "name": "BoundingBox",
+        "start": 170,
+        "end": 174,
+        "lines": 5,
+        "bases": [
+          "BaseModel"
+        ],
+        "methods": []
+      },
+      {
+        "name": "SceneObjectInfo",
+        "start": 177,
+        "end": 190,
+        "lines": 14,
+        "bases": [
+          "BaseModel"
+        ],
+        "methods": []
+      },
+      {
+        "name": "GenerateConceptInput",
+        "start": 197,
+        "end": 217,
+        "lines": 21,
+        "bases": [
+          "BaseModel"
+        ],
+        "methods": [
+          {
+            "name": "validate_dimension_step",
+            "start": 214,
+            "end": 217,
+            "lines": 4,
+            "args": [
+              "cls",
+              "v"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "GenerateConceptOutput",
+        "start": 220,
+        "end": 232,
+        "lines": 13,
+        "bases": [
+          "BaseModel"
+        ],
+        "methods": []
+      },
+      {
+        "name": "Create3DAssetInput",
+        "start": 239,
+        "end": 265,
+        "lines": 27,
+        "bases": [
+          "BaseModel"
+        ],
+        "methods": [
+          {
+            "name": "resolve_backend_alias",
+            "start": 256,
+            "end": 265,
+            "lines": 10,
+            "args": [
+              "cls",
+              "data"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Create3DAssetOutput",
+        "start": 268,
+        "end": 279,
+        "lines": 12,
+        "bases": [
+          "BaseModel"
+        ],
+        "methods": []
+      },
+      {
+        "name": "OptimizeTopologyInput",
+        "start": 286,
+        "end": 295,
+        "lines": 10,
+        "bases": [
+          "BaseModel"
+        ],
+        "methods": []
+      },
+      {
+        "name": "OptimizeTopologyOutput",
+        "start": 298,
+        "end": 309,
+        "lines": 12,
+        "bases": [
+          "BaseModel"
+        ],
+        "methods": []
+      },
+      {
+        "name": "AutoRigInput",
+        "start": 316,
+        "end": 328,
+        "lines": 13,
+        "bases": [
+          "BaseModel"
+        ],
+        "methods": []
+      },
+      {
+        "name": "AutoRigOutput",
+        "start": 331,
+        "end": 346,
+        "lines": 16,
+        "bases": [
+          "BaseModel"
+        ],
+        "methods": []
+      },
+      {
+        "name": "BlenderExecuteInput",
+        "start": 353,
+        "end": 360,
+        "lines": 8,
+        "bases": [
+          "BaseModel"
+        ],
+        "methods": []
+      },
+      {
+        "name": "BlenderExecuteOutput",
+        "start": 363,
+        "end": 370,
+        "lines": 8,
+        "bases": [
+          "BaseModel"
+        ],
+        "methods": []
+      },
+      {
+        "name": "SceneStatusInput",
+        "start": 377,
+        "end": 384,
+        "lines": 8,
+        "bases": [
+          "BaseModel"
+        ],
+        "methods": []
+      },
+      {
+        "name": "SceneStatusOutput",
+        "start": 387,
+        "end": 398,
+        "lines": 12,
+        "bases": [
+          "BaseModel"
+        ],
+        "methods": []
+      },
+      {
+        "name": "RenderPreviewInput",
+        "start": 405,
+        "end": 425,
+        "lines": 21,
+        "bases": [
+          "BaseModel"
+        ],
+        "methods": [
+          {
+            "name": "normalize_engine",
+            "start": 420,
+            "end": 425,
+            "lines": 6,
+            "args": [
+              "cls",
+              "v"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "RenderPreviewOutput",
+        "start": 428,
+        "end": 438,
+        "lines": 11,
+        "bases": [
+          "BaseModel"
+        ],
+        "methods": []
+      },
+      {
+        "name": "HumanAnatomyConfig",
+        "start": 445,
+        "end": 459,
+        "lines": 15,
+        "bases": [
+          "BaseModel"
+        ],
+        "methods": []
+      },
+      {
+        "name": "CreateHumanAssetInput",
+        "start": 463,
+        "end": 493,
+        "lines": 31,
+        "bases": [
+          "BaseModel"
+        ],
+        "methods": [
+          {
+            "name": "resolve_nested_config",
+            "start": 484,
+            "end": 493,
+            "lines": 10,
+            "args": [
+              "cls",
+              "data"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "HumanAssetResult",
+        "start": 496,
+        "end": 514,
+        "lines": 19,
+        "bases": [
+          "BaseModel"
+        ],
+        "methods": []
+      },
+      {
+        "name": "AutoRigHumanInput",
+        "start": 521,
+        "end": 533,
+        "lines": 13,
+        "bases": [
+          "BaseModel"
+        ],
+        "methods": []
+      },
+      {
+        "name": "HumanRigResult",
+        "start": 536,
+        "end": 549,
+        "lines": 14,
+        "bases": [
+          "BaseModel"
+        ],
+        "methods": []
+      },
+      {
+        "name": "SetupHumanMaterialsInput",
+        "start": 556,
+        "end": 568,
+        "lines": 13,
+        "bases": [
+          "BaseModel"
+        ],
+        "methods": []
+      },
+      {
+        "name": "HumanMaterialResult",
+        "start": 571,
+        "end": 582,
+        "lines": 12,
+        "bases": [
+          "BaseModel"
+        ],
+        "methods": []
+      },
+      {
+        "name": "GroomHumanInput",
+        "start": 589,
+        "end": 603,
+        "lines": 15,
+        "bases": [
+          "BaseModel"
+        ],
+        "methods": []
+      },
+      {
+        "name": "HumanGroomingResult",
+        "start": 606,
+        "end": 616,
+        "lines": 11,
+        "bases": [
+          "BaseModel"
+        ],
+        "methods": []
+      },
+      {
+        "name": "DressHumanInput",
+        "start": 623,
+        "end": 637,
+        "lines": 15,
+        "bases": [
+          "BaseModel"
+        ],
+        "methods": []
+      },
+      {
+        "name": "HumanWardrobeResult",
+        "start": 640,
+        "end": 650,
+        "lines": 11,
+        "bases": [
+          "BaseModel"
+        ],
+        "methods": []
+      },
+      {
+        "name": "InspectorViewpoint",
+        "start": 660,
+        "end": 676,
+        "lines": 17,
+        "bases": [
+          "str",
+          "Enum"
+        ],
+        "methods": []
+      },
+      {
+        "name": "AnthropometricPreset",
+        "start": 679,
+        "end": 685,
+        "lines": 7,
+        "bases": [
+          "str",
+          "Enum"
+        ],
+        "methods": []
+      },
+      {
+        "name": "DiagnosticShadingMode",
+        "start": 699,
+        "end": 704,
+        "lines": 6,
+        "bases": [
+          "str",
+          "Enum"
+        ],
+        "methods": []
+      },
+      {
+        "name": "DiagnosticColorType",
+        "start": 707,
+        "end": 712,
+        "lines": 6,
+        "bases": [
+          "str",
+          "Enum"
+        ],
+        "methods": []
+      },
+      {
+        "name": "BoundingBox3D",
+        "start": 715,
+        "end": 721,
+        "lines": 7,
+        "bases": [
+          "BaseModel"
+        ],
+        "methods": []
+      },
+      {
+        "name": "SetupInspectorCameraInput",
+        "start": 724,
+        "end": 745,
+        "lines": 22,
+        "bases": [
+          "BaseModel"
+        ],
+        "methods": [
+          {
+            "name": "validate_viewpoint",
+            "start": 739,
+            "end": 745,
+            "lines": 7,
+            "args": [
+              "cls",
+              "v"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "SetupInspectorCameraOutput",
+        "start": 748,
+        "end": 761,
+        "lines": 14,
+        "bases": [
+          "BaseModel"
+        ],
+        "methods": []
+      },
+      {
+        "name": "CaptureViewportInput",
+        "start": 764,
+        "end": 797,
+        "lines": 34,
+        "bases": [
+          "BaseModel"
+        ],
+        "methods": [
+          {
+            "name": "validate_shading_mode",
+            "start": 779,
+            "end": 786,
+            "lines": 8,
+            "args": [
+              "cls",
+              "v"
+            ]
+          },
+          {
+            "name": "validate_color_type",
+            "start": 790,
+            "end": 797,
+            "lines": 8,
+            "args": [
+              "cls",
+              "v"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "CaptureViewportOutput",
+        "start": 800,
+        "end": 812,
+        "lines": 13,
+        "bases": [
+          "BaseModel"
+        ],
+        "methods": []
+      },
+      {
+        "name": "MultiAngleCaptureFrame",
+        "start": 815,
+        "end": 831,
+        "lines": 17,
+        "bases": [
+          "BaseModel"
+        ],
+        "methods": []
+      },
+      {
+        "name": "CaptureMultiAngleInspectionInput",
+        "start": 834,
+        "end": 851,
+        "lines": 18,
+        "bases": [
+          "BaseModel"
+        ],
+        "methods": []
+      },
+      {
+        "name": "CaptureMultiAngleInspectionOutput",
+        "start": 854,
+        "end": 861,
+        "lines": 8,
+        "bases": [
+          "BaseModel"
+        ],
+        "methods": []
+      },
+      {
+        "name": "DefectSeverity",
+        "start": 868,
+        "end": 892,
+        "lines": 25,
+        "bases": [
+          "str",
+          "Enum"
+        ],
+        "methods": [
+          {
+            "name": "_missing_",
+            "start": 876,
+            "end": 892,
+            "lines": 17,
+            "args": [
+              "cls",
+              "value"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "DefectCategory",
+        "start": 895,
+        "end": 927,
+        "lines": 33,
+        "bases": [
+          "str",
+          "Enum"
+        ],
+        "methods": [
+          {
+            "name": "_missing_",
+            "start": 903,
+            "end": 927,
+            "lines": 25,
+            "args": [
+              "cls",
+              "value"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "ActionableRecommendation",
+        "start": 930,
+        "end": 973,
+        "lines": 44,
+        "bases": [
+          "BaseModel"
+        ],
+        "methods": [
+          {
+            "name": "align_description_and_action",
+            "start": 946,
+            "end": 955,
+            "lines": 10,
+            "args": [
+              "cls",
+              "data"
+            ]
+          },
+          {
+            "name": "normalize_category",
+            "start": 959,
+            "end": 964,
+            "lines": 6,
+            "args": [
+              "cls",
+              "v"
+            ]
+          },
+          {
+            "name": "normalize_priority",
+            "start": 968,
+            "end": 973,
+            "lines": 6,
+            "args": [
+              "cls",
+              "v"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "DefectItem",
+        "start": 976,
+        "end": 1071,
+        "lines": 96,
+        "bases": [
+          "BaseModel"
+        ],
+        "methods": [
+          {
+            "name": "align_defect_fields",
+            "start": 1005,
+            "end": 1053,
+            "lines": 49,
+            "args": [
+              "cls",
+              "data"
+            ]
+          },
+          {
+            "name": "normalize_category",
+            "start": 1057,
+            "end": 1062,
+            "lines": 6,
+            "args": [
+              "cls",
+              "v"
+            ]
+          },
+          {
+            "name": "normalize_severity",
+            "start": 1066,
+            "end": 1071,
+            "lines": 6,
+            "args": [
+              "cls",
+              "v"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "VisualCritiqueInput",
+        "start": 1074,
+        "end": 1130,
+        "lines": 57,
+        "bases": [
+          "BaseModel"
+        ],
+        "methods": [
+          {
+            "name": "validate_target_preset",
+            "start": 1101,
+            "end": 1108,
+            "lines": 8,
+            "args": [
+              "cls",
+              "v"
+            ]
+          },
+          {
+            "name": "resolve_aliases",
+            "start": 1112,
+            "end": 1130,
+            "lines": 19,
+            "args": [
+              "cls",
+              "data"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "VisualCritiqueOutput",
+        "start": 1133,
+        "end": 1163,
+        "lines": 31,
+        "bases": [
+          "BaseModel"
+        ],
+        "methods": [
+          {
+            "name": "sync_defect_count",
+            "start": 1152,
+            "end": 1163,
+            "lines": 12,
+            "args": [
+              "cls",
+              "data"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "AnimationItem",
+        "start": 1170,
+        "end": 1179,
+        "lines": 10,
+        "bases": [
+          "BaseModel"
+        ],
+        "methods": []
+      },
+      {
+        "name": "ListAnimationsInput",
+        "start": 1182,
+        "end": 1190,
+        "lines": 9,
+        "bases": [
+          "BaseModel"
+        ],
+        "methods": []
+      },
+      {
+        "name": "ListAnimationsOutput",
+        "start": 1193,
+        "end": 1199,
+        "lines": 7,
+        "bases": [
+          "BaseModel"
+        ],
+        "methods": []
+      },
+      {
+        "name": "AnimateAssetInput",
+        "start": 1202,
+        "end": 1213,
+        "lines": 12,
+        "bases": [
+          "BaseModel"
+        ],
+        "methods": []
+      },
+      {
+        "name": "AnimateAssetOutput",
+        "start": 1216,
+        "end": 1229,
+        "lines": 14,
+        "bases": [
+          "BaseModel"
+        ],
+        "methods": []
+      }
+    ],
+    "functions": [],
+    "str_templates": []
+  },
+  "src/morphomesh/human_grooming.py": {
+    "size_bytes": 51992,
+    "size_kb": 50.77,
+    "line_count": 1188,
+    "mod_name": "morphomesh.human_grooming",
+    "classes": [
+      {
+        "name": "HairLayerConfig",
+        "start": 50,
+        "end": 68,
+        "lines": 19,
+        "bases": [],
+        "methods": [
+          {
+            "name": "to_dict",
+            "start": 67,
+            "end": 68,
+            "lines": 2,
+            "args": [
+              "self"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "HairGroomConfig",
+        "start": 72,
+        "end": 96,
+        "lines": 25,
+        "bases": [],
+        "methods": [
+          {
+            "name": "__post_init__",
+            "start": 83,
+            "end": 85,
+            "lines": 3,
+            "args": [
+              "self"
+            ]
+          },
+          {
+            "name": "to_dict",
+            "start": 87,
+            "end": 96,
+            "lines": 10,
+            "args": [
+              "self"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "HairCurveSpline",
+        "start": 251,
+        "end": 257,
+        "lines": 7,
+        "bases": [],
+        "methods": []
+      }
+    ],
+    "functions": [
+      {
+        "name": "get_6_stratum_hime_cut_layers",
+        "start": 99,
+        "end": 165,
+        "lines": 67,
+        "args": [
+          "total_guides"
+        ]
+      },
+      {
+        "name": "get_default_hime_cut_layers",
+        "start": 168,
+        "end": 243,
+        "lines": 76,
+        "args": [
+          "total_guides",
+          "pure_strata"
+        ]
+      },
+      {
+        "name": "_calc_spline_length",
+        "start": 260,
+        "end": 265,
+        "lines": 6,
+        "args": [
+          "pts"
+        ]
+      },
+      {
+        "name": "generate_hime_cut_splines",
+        "start": 268,
+        "end": 555,
+        "lines": 288,
+        "args": [
+          "config",
+          "height",
+          "sample_density_scale"
+        ]
+      },
+      {
+        "name": "generate_6_stratum_hime_cut_splines",
+        "start": 558,
+        "end": 569,
+        "lines": 12,
+        "args": [
+          "height",
+          "sample_density_scale"
+        ]
+      },
+      {
+        "name": "convert_curves_to_ribbon_mesh",
+        "start": 572,
+        "end": 653,
+        "lines": 82,
+        "args": [
+          "splines",
+          "ribbon_width"
+        ]
+      },
+      {
+        "name": "build_hair_geom_node_tree",
+        "start": 660,
+        "end": 771,
+        "lines": 112,
+        "args": [
+          "tree",
+          "cfg",
+          "mat_hair"
+        ]
+      },
+      {
+        "name": "get_grooming_script",
+        "start": 778,
+        "end": 1131,
+        "lines": 354,
+        "args": [
+          "target_object",
+          "hair_style",
+          "hair_color",
+          "strand_count",
+          "include_eyebrows",
+          "include_eyelashes",
+          "generate_ribbons"
+        ]
+      },
+      {
+        "name": "groom_human",
+        "start": 1134,
+        "end": 1188,
+        "lines": 55,
+        "args": [
+          "mesh_object_name",
+          "target_object",
+          "hair_style",
+          "hairstyle",
+          "hair_color",
+          "strand_count",
+          "include_eyebrows",
+          "include_eyelashes",
+          "generate_ribbons",
+          "save_after",
+          "save_path"
+        ]
+      }
+    ],
+    "str_templates": [
+      {
+        "start": 846,
+        "end": 1130,
+        "lines": 285,
+        "preview": "\"\"\" Blender 4.5+ Standalone Geometry Nodes Hair Curves Grooming Script. Yu Nian An (\u4f59\u5ff5\u5b89) Hime Cut Long Signature Hairsty"
+      },
+      {
+        "start": 846,
+        "end": 1130,
+        "lines": 285,
+        "preview": "''')  body_obj = bpy.data.objects.get(TARGET_OBJ_NAME)  # Ensure hair shader exists mat_hair = bpy.data.materials.get(\"M"
+      },
+      {
+        "start": 1,
+        "end": 24,
+        "lines": 24,
+        "preview": "MorphoMesh: Digital Human Geometry Nodes Hair Curves Grooming Engine.  Implements high-fidelity Curves-based hair groom"
+      },
+      {
+        "start": 788,
+        "end": 803,
+        "lines": 16,
+        "preview": "Generates a standalone Python script executable inside Blender 4.5+ LTS.     The script:     1. Creates modern Blen"
+      }
+    ]
+  },
+  "src/morphomesh/camera_rig.py": {
+    "size_bytes": 47229,
+    "size_kb": 46.12,
+    "line_count": 1166,
+    "mod_name": "morphomesh.camera_rig",
+    "classes": [],
+    "functions": [
+      {
+        "name": "encode_image_to_base64",
+        "start": 34,
+        "end": 51,
+        "lines": 18,
+        "args": [
+          "image_path"
+        ]
+      },
+      {
+        "name": "_collect_hierarchy_meshes",
+        "start": 434,
+        "end": 489,
+        "lines": 56,
+        "args": [
+          "items",
+          "scene"
+        ]
+      },
+      {
+        "name": "calculate_hierarchy_bounds",
+        "start": 492,
+        "end": 633,
+        "lines": 142,
+        "args": [
+          "mesh_objects",
+          "scene",
+          "use_evaluated_depsgraph"
+        ]
+      },
+      {
+        "name": "calculate_optical_framing_distance",
+        "start": 644,
+        "end": 688,
+        "lines": 45,
+        "args": [
+          "radius",
+          "focal_length",
+          "sensor_width",
+          "resolution",
+          "margin",
+          "sensor_fit"
+        ]
+      },
+      {
+        "name": "get_anatomical_subregion_center",
+        "start": 695,
+        "end": 773,
+        "lines": 79,
+        "args": [
+          "subregion",
+          "global_center",
+          "global_radius",
+          "min_corner",
+          "max_corner",
+          "scene"
+        ]
+      },
+      {
+        "name": "calculate_spherical_camera_position",
+        "start": 780,
+        "end": 811,
+        "lines": 32,
+        "args": [
+          "center",
+          "distance",
+          "azimuth_deg",
+          "elevation_deg"
+        ]
+      },
+      {
+        "name": "setup_inspector_camera",
+        "start": 818,
+        "end": 917,
+        "lines": 100,
+        "args": [
+          "viewpoint",
+          "target_center",
+          "framing_radius",
+          "focal_length",
+          "camera_name",
+          "margin",
+          "resolution",
+          "target_object",
+          "scene"
+        ]
+      },
+      {
+        "name": "capture_viewport_image",
+        "start": 924,
+        "end": 1093,
+        "lines": 170,
+        "args": [
+          "output_path",
+          "camera_name",
+          "resolution",
+          "shading_mode",
+          "color_type",
+          "scene"
+        ]
+      },
+      {
+        "name": "capture_multi_angle_inspection",
+        "start": 1100,
+        "end": 1166,
+        "lines": 67,
+        "args": [
+          "viewpoints",
+          "target_object",
+          "output_dir",
+          "resolution",
+          "shading_mode",
+          "color_type",
+          "focal_length",
+          "camera_name",
+          "include_base64",
+          "scene"
+        ]
+      }
+    ],
+    "str_templates": [
+      {
+        "start": 497,
+        "end": 508,
+        "lines": 12,
+        "preview": "Calculate world-space AABB and circumscribing bounding sphere across multi-mesh hierarchy.     Traverses parent Emp"
+      },
+      {
+        "start": 786,
+        "end": 796,
+        "lines": 11,
+        "preview": "Calculate camera location and Euler rotation using spherical orbit angles.      Coordinates:         x = C_x + d *"
+      }
+    ]
+  },
+  "src/morphomesh/connectors/tripo_connector.py": {
+    "size_bytes": 47193,
+    "size_kb": 46.09,
+    "line_count": 1110,
+    "mod_name": "morphomesh.connectors.tripo_connector",
+    "classes": [
+      {
+        "name": "TripoConfig",
+        "start": 92,
+        "end": 117,
+        "lines": 26,
+        "bases": [
+          "BaseModel"
+        ],
+        "methods": [
+          {
+            "name": "normalize_model_name",
+            "start": 112,
+            "end": 117,
+            "lines": 6,
+            "args": [
+              "cls",
+              "v"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "TripoInput",
+        "start": 120,
+        "end": 170,
+        "lines": 51,
+        "bases": [
+          "BaseModel"
+        ],
+        "methods": [
+          {
+            "name": "pre_validate_input",
+            "start": 149,
+            "end": 162,
+            "lines": 14,
+            "args": [
+              "cls",
+              "data"
+            ]
+          },
+          {
+            "name": "normalize_input_model",
+            "start": 166,
+            "end": 170,
+            "lines": 5,
+            "args": [
+              "cls",
+              "v"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "TripoOutput",
+        "start": 173,
+        "end": 189,
+        "lines": 17,
+        "bases": [
+          "BaseModel"
+        ],
+        "methods": []
+      },
+      {
+        "name": "TripoConnector",
+        "start": 405,
+        "end": 1110,
+        "lines": 706,
+        "bases": [
+          "BaseConnector"
+        ],
+        "methods": [
+          {
+            "name": "__init__",
+            "start": 423,
+            "end": 438,
+            "lines": 16,
+            "args": [
+              "self",
+              "config",
+              "circuit_breaker"
+            ]
+          },
+          {
+            "name": "_resolve_api_key",
+            "start": 440,
+            "end": 452,
+            "lines": 13,
+            "args": [
+              "self"
+            ]
+          },
+          {
+            "name": "initialize",
+            "start": 454,
+            "end": 457,
+            "lines": 4,
+            "args": [
+              "self"
+            ]
+          },
+          {
+            "name": "health_check",
+            "start": 459,
+            "end": 531,
+            "lines": 73,
+            "args": [
+              "self"
+            ]
+          },
+          {
+            "name": "check_dependencies",
+            "start": 533,
+            "end": 547,
+            "lines": 15,
+            "args": [
+              "self"
+            ]
+          },
+          {
+            "name": "execute",
+            "start": 549,
+            "end": 652,
+            "lines": 104,
+            "args": [
+              "self",
+              "request"
+            ]
+          },
+          {
+            "name": "_execute_api",
+            "start": 658,
+            "end": 792,
+            "lines": 135,
+            "args": [
+              "self",
+              "inp",
+              "api_key",
+              "asset_id",
+              "out_dir",
+              "start_time"
+            ]
+          },
+          {
+            "name": "_upload_image_if_needed",
+            "start": 794,
+            "end": 843,
+            "lines": 50,
+            "args": [
+              "self",
+              "image_path",
+              "api_key"
+            ]
+          },
+          {
+            "name": "_post_json_task",
+            "start": 845,
+            "end": 875,
+            "lines": 31,
+            "args": [
+              "self",
+              "url",
+              "payload",
+              "api_key"
+            ]
+          },
+          {
+            "name": "_poll_task",
+            "start": 877,
+            "end": 929,
+            "lines": 53,
+            "args": [
+              "self",
+              "task_id",
+              "api_key",
+              "start_time"
+            ]
+          },
+          {
+            "name": "_download_file",
+            "start": 931,
+            "end": 940,
+            "lines": 10,
+            "args": [
+              "self",
+              "url",
+              "target_path"
+            ]
+          },
+          {
+            "name": "_convert_or_export_obj",
+            "start": 942,
+            "end": 947,
+            "lines": 6,
+            "args": [
+              "self",
+              "glb_path",
+              "obj_path"
+            ]
+          },
+          {
+            "name": "_extract_or_generate_pbr_maps",
+            "start": 949,
+            "end": 993,
+            "lines": 45,
+            "args": [
+              "self",
+              "out_dir",
+              "asset_id",
+              "generate_pbr"
+            ]
+          },
+          {
+            "name": "_execute_mock",
+            "start": 999,
+            "end": 1106,
+            "lines": 108,
+            "args": [
+              "self",
+              "inp",
+              "asset_id",
+              "out_dir",
+              "start_time"
+            ]
+          },
+          {
+            "name": "close",
+            "start": 1108,
+            "end": 1110,
+            "lines": 3,
+            "args": [
+              "self"
+            ]
+          }
+        ]
+      }
+    ],
+    "functions": [
+      {
+        "name": "parse_glb_metrics",
+        "start": 196,
+        "end": 253,
+        "lines": 58,
+        "args": [
+          "glb_path"
+        ]
+      },
+      {
+        "name": "extract_glb_textures",
+        "start": 256,
+        "end": 398,
+        "lines": 143,
+        "args": [
+          "glb_path",
+          "out_dir",
+          "prefix"
+        ]
+      }
+    ],
+    "str_templates": [
+      {
+        "start": 1,
+        "end": 16,
+        "lines": 16,
+        "preview": "MorphoMesh: Tripo3D Foundation Model Connector (Phase 2).  Integrates the Tripo3D generative platform (v3 / v2 API) for"
+      },
+      {
+        "start": 554,
+        "end": 566,
+        "lines": 13,
+        "preview": "Execute Tripo 3D asset generation workload.                  Args:             request: TripoInput, parameter d"
+      }
+    ]
+  },
+  "src/morphomesh/connectors/gemini_image_connector.py": {
+    "size_bytes": 40147,
+    "size_kb": 39.21,
+    "line_count": 909,
+    "mod_name": "morphomesh.connectors.gemini_image_connector",
+    "classes": [
+      {
+        "name": "GeminiImageConfig",
+        "start": 66,
+        "end": 79,
+        "lines": 14,
+        "bases": [
+          "BaseModel"
+        ],
+        "methods": []
+      },
+      {
+        "name": "GeminiImageInput",
+        "start": 82,
+        "end": 127,
+        "lines": 46,
+        "bases": [
+          "BaseModel"
+        ],
+        "methods": [
+          {
+            "name": "validate_prompt_not_empty",
+            "start": 108,
+            "end": 112,
+            "lines": 5,
+            "args": [
+              "cls",
+              "v"
+            ]
+          },
+          {
+            "name": "normalize_aspect_ratio",
+            "start": 116,
+            "end": 127,
+            "lines": 12,
+            "args": [
+              "cls",
+              "v"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "GeminiImageOutput",
+        "start": 130,
+        "end": 146,
+        "lines": 17,
+        "bases": [
+          "BaseModel"
+        ],
+        "methods": []
+      },
+      {
+        "name": "GeminiImageConnector",
+        "start": 153,
+        "end": 909,
+        "lines": 757,
+        "bases": [
+          "BaseConnector"
+        ],
+        "methods": [
+          {
+            "name": "__init__",
+            "start": 171,
+            "end": 188,
+            "lines": 18,
+            "args": [
+              "self",
+              "config",
+              "circuit_breaker"
+            ]
+          },
+          {
+            "name": "_resolve_api_key",
+            "start": 190,
+            "end": 199,
+            "lines": 10,
+            "args": [
+              "self"
+            ]
+          },
+          {
+            "name": "initialize",
+            "start": 201,
+            "end": 215,
+            "lines": 15,
+            "args": [
+              "self"
+            ]
+          },
+          {
+            "name": "health_check",
+            "start": 217,
+            "end": 258,
+            "lines": 42,
+            "args": [
+              "self"
+            ]
+          },
+          {
+            "name": "check_dependencies",
+            "start": 260,
+            "end": 277,
+            "lines": 18,
+            "args": [
+              "self"
+            ]
+          },
+          {
+            "name": "close",
+            "start": 279,
+            "end": 282,
+            "lines": 4,
+            "args": [
+              "self"
+            ]
+          },
+          {
+            "name": "_execute_mock_fallback",
+            "start": 288,
+            "end": 305,
+            "lines": 18,
+            "args": [
+              "self",
+              "request"
+            ]
+          },
+          {
+            "name": "_execute_live",
+            "start": 307,
+            "end": 368,
+            "lines": 62,
+            "args": [
+              "self",
+              "request"
+            ]
+          },
+          {
+            "name": "execute_with_resilience",
+            "start": 370,
+            "end": 388,
+            "lines": 19,
+            "args": [
+              "self",
+              "request"
+            ]
+          },
+          {
+            "name": "execute",
+            "start": 390,
+            "end": 438,
+            "lines": 49,
+            "args": [
+              "self",
+              "request"
+            ]
+          },
+          {
+            "name": "_normalize_request",
+            "start": 444,
+            "end": 498,
+            "lines": 55,
+            "args": [
+              "self",
+              "request"
+            ]
+          },
+          {
+            "name": "_build_enhanced_prompt",
+            "start": 500,
+            "end": 530,
+            "lines": 31,
+            "args": [
+              "self",
+              "inp"
+            ]
+          },
+          {
+            "name": "_generate_via_sdk",
+            "start": 536,
+            "end": 595,
+            "lines": 60,
+            "args": [
+              "self",
+              "inp",
+              "enhanced_prompt",
+              "api_key"
+            ]
+          },
+          {
+            "name": "_generate_via_rest",
+            "start": 597,
+            "end": 662,
+            "lines": 66,
+            "args": [
+              "self",
+              "inp",
+              "enhanced_prompt",
+              "api_key"
+            ]
+          },
+          {
+            "name": "_generate_mock_image",
+            "start": 668,
+            "end": 759,
+            "lines": 92,
+            "args": [
+              "self",
+              "inp",
+              "enhanced_prompt"
+            ]
+          },
+          {
+            "name": "_extract_clean_alpha",
+            "start": 766,
+            "end": 781,
+            "lines": 16,
+            "args": [
+              "img",
+              "background"
+            ]
+          },
+          {
+            "name": "_derive_pbr_from_albedo",
+            "start": 784,
+            "end": 812,
+            "lines": 29,
+            "args": [
+              "albedo_img",
+              "res"
+            ]
+          },
+          {
+            "name": "_process_and_save_workload",
+            "start": 814,
+            "end": 909,
+            "lines": 96,
+            "args": [
+              "self",
+              "inp",
+              "base_img",
+              "asset_id",
+              "out_dir",
+              "enhanced_prompt",
+              "effective_mode",
+              "duration"
+            ]
+          }
+        ]
+      }
+    ],
+    "functions": [],
+    "str_templates": [
+      {
+        "start": 1,
+        "end": 13,
+        "lines": 13,
+        "preview": "MorphoMesh: Google Gemini & Imagen 3 Image Connector.  Integrates Google Gemini / Imagen 3 foundation models for:   1."
+      }
+    ]
+  },
+  "src/morphomesh/human_materials.py": {
+    "size_bytes": 37227,
+    "size_kb": 36.35,
+    "line_count": 920,
+    "mod_name": "morphomesh.human_materials",
+    "classes": [
+      {
+        "name": "HumanMaterialConfig",
+        "start": 45,
+        "end": 81,
+        "lines": 37,
+        "bases": [],
+        "methods": [
+          {
+            "name": "to_dict",
+            "start": 80,
+            "end": 81,
+            "lines": 2,
+            "args": [
+              "self"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "HumanPBRSuite",
+        "start": 317,
+        "end": 328,
+        "lines": 12,
+        "bases": [],
+        "methods": [
+          {
+            "name": "__init__",
+            "start": 320,
+            "end": 322,
+            "lines": 3,
+            "args": [
+              "self",
+              "preset"
+            ]
+          },
+          {
+            "name": "get_material",
+            "start": 324,
+            "end": 325,
+            "lines": 2,
+            "args": [
+              "self",
+              "name"
+            ]
+          },
+          {
+            "name": "list_materials",
+            "start": 327,
+            "end": 328,
+            "lines": 2,
+            "args": [
+              "self"
+            ]
+          }
+        ]
+      }
+    ],
+    "functions": [
+      {
+        "name": "build_principled_bsdf_v2_material",
+        "start": 331,
+        "end": 498,
+        "lines": 168,
+        "args": [
+          "cfg",
+          "bpy_module"
+        ]
+      },
+      {
+        "name": "_build_inner_iris_node_tree",
+        "start": 501,
+        "end": 544,
+        "lines": 44,
+        "args": [
+          "nodes",
+          "links",
+          "cfg_dict",
+          "bsdf"
+        ]
+      },
+      {
+        "name": "_set_bsdf_socket",
+        "start": 547,
+        "end": 561,
+        "lines": 15,
+        "args": [
+          "node",
+          "v2_name",
+          "val",
+          "v1_name"
+        ]
+      },
+      {
+        "name": "get_material_setup_script",
+        "start": 568,
+        "end": 879,
+        "lines": 312,
+        "args": [
+          "target_object",
+          "material_preset",
+          "assign_slots",
+          "skin_tone",
+          "render_engine"
+        ]
+      },
+      {
+        "name": "setup_human_materials",
+        "start": 882,
+        "end": 920,
+        "lines": 39,
+        "args": [
+          "target_object",
+          "material_preset",
+          "skin_tone",
+          "subsurface_scattering",
+          "refractive_eyes",
+          "render_engine",
+          "assign_slots"
+        ]
+      }
+    ],
+    "str_templates": [
+      {
+        "start": 589,
+        "end": 878,
+        "lines": 290,
+        "preview": "\"\"\" Blender 4.5+ Standalone PBR Shader Setup Script for Digital Human (Yu Nian An). Generated by MorphoMesh. \"\"\" import"
+      },
+      {
+        "start": 589,
+        "end": 878,
+        "lines": 290,
+        "preview": "''')  def set_socket(node, v2_name, val, v1_name=None):     inp = node.inputs.get(v2_name)     if inp is None and v1_nam"
+      },
+      {
+        "start": 589,
+        "end": 878,
+        "lines": 290,
+        "preview": "\" in bpy.data.scenes[0].render.engine:     pass else:     bpy.data.scenes[0].render.engine = \""
+      },
+      {
+        "start": 589,
+        "end": 878,
+        "lines": 290,
+        "preview": "\" body_obj = bpy.data.objects.get(target_name)  if"
+      },
+      {
+        "start": 589,
+        "end": 878,
+        "lines": 290,
+        "preview": "and body_obj and body_obj.type == 'MESH':     slot_order = [         \"Mat_Human_Skin_SSS\",         \"Mat_Human_Eye_Outer"
+      },
+      {
+        "start": 1,
+        "end": 22,
+        "lines": 22,
+        "preview": "MorphoMesh: High-End Digital Human PBR Material Suite & Shader Engine.  Implements production-grade PBR shaders for Ble"
+      }
+    ]
+  },
+  "src/morphomesh/armor.py": {
+    "size_bytes": 37093,
+    "size_kb": 36.22,
+    "line_count": 868,
+    "mod_name": "morphomesh.armor",
+    "classes": [
+      {
+        "name": "ArmorPlateConfig",
+        "start": 50,
+        "end": 60,
+        "lines": 11,
+        "bases": [],
+        "methods": []
+      },
+      {
+        "name": "ProceduralArmorEngine",
+        "start": 67,
+        "end": 845,
+        "lines": 779,
+        "bases": [],
+        "methods": [
+          {
+            "name": "__init__",
+            "start": 73,
+            "end": 74,
+            "lines": 2,
+            "args": [
+              "self",
+              "bridge"
+            ]
+          },
+          {
+            "name": "generate_pauldron",
+            "start": 79,
+            "end": 201,
+            "lines": 123,
+            "args": [
+              "self",
+              "side",
+              "clearance_offset",
+              "scale",
+              "bear_mesh"
+            ]
+          },
+          {
+            "name": "generate_gorget",
+            "start": 206,
+            "end": 314,
+            "lines": 109,
+            "args": [
+              "self",
+              "clearance_offset",
+              "scale",
+              "bear_mesh"
+            ]
+          },
+          {
+            "name": "generate_bracer",
+            "start": 319,
+            "end": 404,
+            "lines": 86,
+            "args": [
+              "self",
+              "side",
+              "clearance_offset",
+              "scale",
+              "bear_mesh"
+            ]
+          },
+          {
+            "name": "generate_backplate",
+            "start": 409,
+            "end": 504,
+            "lines": 96,
+            "args": [
+              "self",
+              "clearance_offset",
+              "scale",
+              "bear_mesh"
+            ]
+          },
+          {
+            "name": "generate_all_armor_plates",
+            "start": 509,
+            "end": 526,
+            "lines": 18,
+            "args": [
+              "self",
+              "clearance_offset",
+              "scale",
+              "bear_mesh"
+            ]
+          },
+          {
+            "name": "compute_clearance_metrics",
+            "start": 532,
+            "end": 552,
+            "lines": 21,
+            "args": [
+              "armor_mesh",
+              "base_mesh"
+            ]
+          },
+          {
+            "name": "verify_2_manifold",
+            "start": 555,
+            "end": 567,
+            "lines": 13,
+            "args": [
+              "armor_mesh"
+            ]
+          },
+          {
+            "name": "get_armor_blender_script",
+            "start": 572,
+            "end": 794,
+            "lines": 223,
+            "args": [
+              "self",
+              "base_mesh_name",
+              "clearance_offset",
+              "scale"
+            ]
+          },
+          {
+            "name": "fit_war_armor",
+            "start": 800,
+            "end": 845,
+            "lines": 46,
+            "args": [
+              "self",
+              "base_mesh_name",
+              "shoulder_group",
+              "wrist_group",
+              "clearance_offset"
+            ]
+          }
+        ]
+      }
+    ],
+    "functions": [
+      {
+        "name": "fit_war_armor",
+        "start": 852,
+        "end": 868,
+        "lines": 17,
+        "args": [
+          "base_mesh_name",
+          "shoulder_group",
+          "wrist_group",
+          "clearance_offset"
+        ]
+      }
+    ],
+    "str_templates": [
+      {
+        "start": 583,
+        "end": 794,
+        "lines": 212,
+        "preview": "import bpy import math  base_name = \""
+      },
+      {
+        "start": 583,
+        "end": 794,
+        "lines": 212,
+        "preview": "eff_cl = max(0.015, clearance * sc)  mat_steel = bpy.data.materials.get(\"Mat_Armor_WeatheredSteel\") mat_brass = bpy.dat"
+      },
+      {
+        "start": 1,
+        "end": 27,
+        "lines": 27,
+        "preview": "MorphoMesh: Procedural War Armor Engine & Anatomical Fitting Pipeline.  Implements procedural generation and non-inters"
+      }
+    ]
+  },
+  "src/morphomesh/grooming.py": {
+    "size_bytes": 33494,
+    "size_kb": 32.71,
+    "line_count": 870,
+    "mod_name": "morphomesh.grooming",
+    "classes": [
+      {
+        "name": "FurLayerConfig",
+        "start": 80,
+        "end": 106,
+        "lines": 27,
+        "bases": [],
+        "methods": [
+          {
+            "name": "to_dict",
+            "start": 105,
+            "end": 106,
+            "lines": 2,
+            "args": [
+              "self"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "CreatureGroomingEngine",
+        "start": 233,
+        "end": 824,
+        "lines": 592,
+        "bases": [],
+        "methods": [
+          {
+            "name": "__init__",
+            "start": 245,
+            "end": 246,
+            "lines": 2,
+            "args": [
+              "self",
+              "bridge"
+            ]
+          },
+          {
+            "name": "build_density_mask_weights",
+            "start": 249,
+            "end": 300,
+            "lines": 52,
+            "args": [
+              "vertex_groups_map",
+              "total_vertices"
+            ]
+          },
+          {
+            "name": "get_grooming_blender_script",
+            "start": 302,
+            "end": 548,
+            "lines": 247,
+            "args": [
+              "self",
+              "mesh_obj_name",
+              "undercoat_strands",
+              "guard_hair_strands",
+              "flow_vertex_group",
+              "clump_factor",
+              "taper_shape",
+              "generate_ribbons",
+              "max_ribbon_strands"
+            ]
+          },
+          {
+            "name": "setup_volumetric_fur",
+            "start": 550,
+            "end": 630,
+            "lines": 81,
+            "args": [
+              "self",
+              "mesh_object_name",
+              "undercoat_strands",
+              "guard_hair_strands",
+              "flow_vertex_group",
+              "clump_factor",
+              "taper_shape",
+              "generate_gltf_ribbons",
+              "max_ribbon_strands"
+            ]
+          },
+          {
+            "name": "evaluate_fur_ribbons_for_gltf",
+            "start": 632,
+            "end": 746,
+            "lines": 115,
+            "args": [
+              "self",
+              "mesh_object_name",
+              "fur_system_names",
+              "max_export_strands",
+              "root_width",
+              "tip_width"
+            ]
+          },
+          {
+            "name": "generate_ribbon_geometry_pure_python",
+            "start": 749,
+            "end": 824,
+            "lines": 76,
+            "args": [
+              "strands",
+              "root_width",
+              "tip_width",
+              "taper_shape"
+            ]
+          }
+        ]
+      }
+    ],
+    "functions": [
+      {
+        "name": "get_default_undercoat_config",
+        "start": 109,
+        "end": 136,
+        "lines": 28,
+        "args": [
+          "strand_count"
+        ]
+      },
+      {
+        "name": "get_default_guard_hair_config",
+        "start": 139,
+        "end": 166,
+        "lines": 28,
+        "args": [
+          "strand_count"
+        ]
+      },
+      {
+        "name": "compute_biological_flow_vector",
+        "start": 173,
+        "end": 226,
+        "lines": 54,
+        "args": [
+          "pos",
+          "normal",
+          "dorsal_spine_y_range",
+          "gravity_weight",
+          "normal_loft_weight"
+        ]
+      },
+      {
+        "name": "setup_volumetric_fur",
+        "start": 831,
+        "end": 852,
+        "lines": 22,
+        "args": [
+          "mesh_object_name",
+          "undercoat_strands",
+          "guard_hair_strands",
+          "flow_vertex_group",
+          "clump_factor",
+          "taper_shape",
+          "bridge"
+        ]
+      },
+      {
+        "name": "evaluate_fur_ribbons_for_gltf",
+        "start": 855,
+        "end": 870,
+        "lines": 16,
+        "args": [
+          "mesh_object_name",
+          "fur_system_names",
+          "max_export_strands",
+          "bridge"
+        ]
+      }
+    ],
+    "str_templates": [
+      {
+        "start": 330,
+        "end": 548,
+        "lines": 219,
+        "preview": "import bpy import math import mathutils  mesh_obj_name ="
+      },
+      {
+        "start": 330,
+        "end": 548,
+        "lines": 219,
+        "preview": "obj = bpy.data.objects.get(mesh_obj_name) if not obj or obj.type != 'MESH':     raise ValueError(f\"Mesh object '{mesh_"
+      },
+      {
+        "start": 330,
+        "end": 548,
+        "lines": 219,
+        "preview": "zero_indices = set() for gname in zero_group_names:     if gname in obj.vertex_groups:         gid = obj.vertex_groups"
+      },
+      {
+        "start": 330,
+        "end": 548,
+        "lines": 219,
+        "preview": ", ]  configured_systems = []  for l_cfg in layers_data:     sys_name = l_cfg[\"name\"]     # Remove existing modifier if p"
+      },
+      {
+        "start": 648,
+        "end": 731,
+        "lines": 84,
+        "preview": "import bpy import math import mathutils  mesh_obj_name ="
+      },
+      {
+        "start": 648,
+        "end": 731,
+        "lines": 84,
+        "preview": "obj = bpy.data.objects.get(mesh_obj_name) if not obj:     raise ValueError(f\"Mesh object '{mesh_obj_name}' not found.\""
+      },
+      {
+        "start": 1,
+        "end": 25,
+        "lines": 25,
+        "preview": "MorphoMesh: Creature Volumetric Fur Grooming Engine & Pipeline.  Implements multi-layer biological fur grooming for cre"
+      }
+    ]
+  }
+}

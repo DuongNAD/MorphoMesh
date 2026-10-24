@@ -1,0 +1,14 @@
+{
+  "species_id": "veg_conifer_pine_01",
+  "preview_task_id": "01a08b22-c779-7694-9ed6-7b447b1df915",
+  "refine_task_id": "01a08b25-62e4-7570-971e-158568a03cab",
+  "vertex_count": 67308,
+  "face_count": 58409,
+  "source": "meshy",
+  "textures": {
+    "albedo": "textures/albedo.png",
+    "normal": "textures/normal.png",
+    "roughness": "textures/roughness.png",
+    "metallic": "textures/metallic.png"
+  }
+}

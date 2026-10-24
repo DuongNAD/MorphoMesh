@@ -1,0 +1,14 @@
+{
+  "species_id": "veg_tree_beech_01",
+  "preview_task_id": "01a08b29-71e9-73b1-9a43-be813db2f190",
+  "refine_task_id": "01a08b2d-e11a-74cc-988a-d41a08eaf0f5",
+  "vertex_count": 69592,
+  "face_count": 57751,
+  "source": "meshy",
+  "textures": {
+    "albedo": "textures/albedo.png",
+    "normal": "textures/normal.png",
+    "roughness": "textures/roughness.png",
+    "metallic": "textures/metallic.png"
+  }
+}

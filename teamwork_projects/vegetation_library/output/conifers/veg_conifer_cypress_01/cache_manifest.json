@@ -1,0 +1,14 @@
+{
+  "species_id": "veg_conifer_cypress_01",
+  "preview_task_id": "01a08b30-e58f-76d7-a85d-3bf99d948649",
+  "refine_task_id": "01a08b32-4e91-7488-b6e0-efa5b65b2945",
+  "vertex_count": 40634,
+  "face_count": 45581,
+  "source": "meshy",
+  "textures": {
+    "albedo": "textures/albedo.png",
+    "normal": "textures/normal.png",
+    "roughness": "textures/roughness.png",
+    "metallic": "textures/metallic.png"
+  }
+}

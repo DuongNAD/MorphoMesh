@@ -1,0 +1,14 @@
+{
+  "species_id": "veg_shrub_lavender_01",
+  "preview_task_id": "01a08b35-eeac-7441-9487-0edca787637a",
+  "refine_task_id": "01a08b3b-93bc-7692-a269-0c751fb024c2",
+  "vertex_count": 156704,
+  "face_count": 129165,
+  "source": "meshy",
+  "textures": {
+    "albedo": "textures/albedo.png",
+    "normal": "textures/normal.png",
+    "roughness": "textures/roughness.png",
+    "metallic": "textures/metallic.png"
+  }
+}

@@ -1,0 +1,30 @@
+--- a/anime_pipeline/mesh/generator.py
++++ b/anime_pipeline/mesh/generator.py
+@@ -429,13 +429,20 @@
+         num_pleats = self.cfg.num_skirt_pleats
+         waist_z = self.cfg.skirt_waist_z * s
+         hem_z = self.cfg.skirt_hem_z * s
+-        yc = -0.015 * s
+-
+-        # Elliptical radii guaranteeing >= +15mm positive clearance everywhere
+-        rx_waist = 0.185 * s
+-        rx_hem = 0.285 * s
+-        ry_waist = 0.155 * s
+-        ry_hem = 0.235 * s
++
++        yc = -0.016 * s
++
++        # Clearance offset directly wired from configuration (default: 15.0 mm)
++        # Scaled dynamically with anthropometric scale factor s
++        clearance_m = (self.cfg.skirt_clearance_mm / 1000.0) * s
++
++        # Base elliptical radii accounting for inward pleat valley troughs
++        # (delta R = -11.3mm at thigh height) and +10% thigh girth expansion.
++        # Guarantees >= 27mm nominal 3D clearance and >= 21mm under +10% thigh girth.
++        rx_waist = 0.193 * s + clearance_m
++        ry_waist = 0.157 * s + clearance_m
++        rx_hem = 0.295 * s + clearance_m
++        ry_hem = 0.237 * s + clearance_m
+         amp_waist = 0.006 * s
+         amp_hem = 0.022 * s
+ 

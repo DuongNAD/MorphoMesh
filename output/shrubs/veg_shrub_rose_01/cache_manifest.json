@@ -1,0 +1,13 @@
+{
+  "species_id": "veg_shrub_rose_01",
+  "source": "procedural",
+  "seed": 1120340546,
+  "vertex_count": 4552,
+  "face_count": 3580,
+  "textures": {
+    "albedo": "textures/albedo.png",
+    "normal": "textures/normal.png",
+    "roughness": "textures/roughness.png",
+    "metallic": "textures/metallic.png"
+  }
+}

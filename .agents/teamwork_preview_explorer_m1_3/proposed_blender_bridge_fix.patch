@@ -1,0 +1,11 @@
+--- a/src/morphomesh/blender_bridge.py
++++ b/src/morphomesh/blender_bridge.py
+@@ -690,7 +690,7 @@
+         _bones = ["root", "spine_01", "neck", "head"]
+         if _creature_type in ("quadruped", "winged_quadruped", "hybrid"):
+             for _side, _sign in [("L", 1.0), ("R", -1.0)]:
+-                _fl = _eb.new(f"front_thigh.{{_side}}")
++                _fl = _eb.new(f"front_thigh.{{_side}}")  # front_thigh.L, front_thigh.R
+                 _fl.head = (_mid_x + _sign * 0.32 * _span_x, _mid_y + 0.25 * _span_y, _min_z + 0.68 * _h)
+                 _fl.tail = (_mid_x + _sign * 0.32 * _span_x, _mid_y + 0.18 * _span_y, _min_z + 0.44 * _h)
+                 _fl.parent = _spine

@@ -1,0 +1,132 @@
+{
+  "schema_version": "1.0.0",
+  "species_id": "veg_ground_ostrich_01",
+  "taxonomy": {
+    "common_name": "Ostrich Fern",
+    "scientific_name": "Matteuccia struthiopteris",
+    "family": "Onocleaceae",
+    "category": "ferns_grasses_groundcover",
+    "category_id": "ferns_grasses_groundcover",
+    "category_name": "Ferns, Grasses & Groundcover",
+    "short_category": "groundcover",
+    "biome": "Temperate Riparian Woodland & Moist Bottomlands",
+    "growth_habit": "Stately architectural vase-shaped rosette crown (shuttlecock)",
+    "branching_pattern": "Strictly erect-arching sterile fronds radiating from a central vertical rootstock mound",
+    "foliage_density": "dense"
+  },
+  "geometry": {
+    "vertex_count": 51815,
+    "face_count": 68246,
+    "triangle_count": 68246,
+    "has_armature": false,
+    "has_skins": false,
+    "pivot_grounded": true,
+    "ground_contact_z": 0.0,
+    "ground_z_min_m": 0.0,
+    "base_centroid_xy": [
+      -0.0,
+      0.0
+    ],
+    "bounding_box": {
+      "min_point": [
+        -1.6584,
+        -0.021,
+        0.0
+      ],
+      "max_point": [
+        1.7026,
+        6.3724,
+        1.4
+      ],
+      "dimensions": [
+        3.3611,
+        6.3934,
+        1.4
+      ]
+    },
+    "dimensions_m": {
+      "height_m": 1.4,
+      "canopy_spread_m": 6.3934,
+      "width_m": 3.3611,
+      "depth_m": 6.3934,
+      "target_height_m": 1.4,
+      "target_canopy_spread_m": 1.2
+    }
+  },
+  "normalization": {
+    "target_height_m": 1.4,
+    "target_canopy_spread_m": 1.2,
+    "scale_factor": 3.369654,
+    "normalized_height_m": 1.4,
+    "normalized_canopy_spread_m": 6.3934,
+    "strategy": "uniform_height"
+  },
+  "materials": {
+    "workflow": "Metallic-Roughness PBR",
+    "double_sided": true,
+    "channels": [
+      "albedo",
+      "normal",
+      "roughness",
+      "metallic"
+    ],
+    "texture_format": "PNG"
+  },
+  "files": {
+    "glb": "veg_ground_ostrich_01.glb",
+    "obj": "veg_ground_ostrich_01.obj",
+    "mtl": "veg_ground_ostrich_01.mtl",
+    "textures": {
+      "albedo": "textures/albedo.png",
+      "normal": "textures/normal.png",
+      "roughness": "textures/roughness.png",
+      "metallic": "textures/metallic.png"
+    }
+  },
+  "provenance": {
+    "source": "meshy",
+    "task_id": "01a08b41-7c5c-71fe-b564-863753864ec2",
+    "preview_task_id": "01a08b41-7c5c-71fe-b564-863753864ec2",
+    "model_type": "standard",
+    "refine_status": "SUCCEEDED",
+    "remote_urls": {
+      "model_urls": {
+        "glb": "https://assets.meshy.ai/280758b0-9c97-47ea-9298-e637b11d0e3b/tasks/01a08b41-7c5c-71fe-b564-863753864ec2/output/model.glb"
+      }
+    },
+    "export_timestamp": "2026-09-10T12:50:23.514065+00:00",
+    "generator_metadata": {
+      "task_id": "01a08b41-7c5c-71fe-b564-863753864ec2",
+      "mode": "preview",
+      "provenance": {
+        "source": "meshy",
+        "task_id": "01a08b41-7c5c-71fe-b564-863753864ec2",
+        "preview_task_id": "01a08b41-7c5c-71fe-b564-863753864ec2",
+        "model_type": "standard",
+        "refine_status": "SUCCEEDED",
+        "remote_urls": {
+          "model_urls": {
+            "glb": "https://assets.meshy.ai/280758b0-9c97-47ea-9298-e637b11d0e3b/tasks/01a08b41-7c5c-71fe-b564-863753864ec2/output/model.glb"
+          }
+        }
+      }
+    }
+  },
+  "metadata": {
+    "scale_factor": 3.3696536310861527,
+    "task_id": "01a08b41-7c5c-71fe-b564-863753864ec2",
+    "mode": "preview",
+    "provenance": {
+      "source": "meshy",
+      "task_id": "01a08b41-7c5c-71fe-b564-863753864ec2",
+      "preview_task_id": "01a08b41-7c5c-71fe-b564-863753864ec2",
+      "model_type": "standard",
+      "refine_status": "SUCCEEDED",
+      "remote_urls": {
+        "model_urls": {
+          "glb": "https://assets.meshy.ai/280758b0-9c97-47ea-9298-e637b11d0e3b/tasks/01a08b41-7c5c-71fe-b564-863753864ec2/output/model.glb"
+        }
+      }
+    }
+  }
+}

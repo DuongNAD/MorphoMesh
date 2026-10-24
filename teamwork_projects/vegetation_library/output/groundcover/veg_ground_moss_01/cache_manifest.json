@@ -1,0 +1,14 @@
+{
+  "species_id": "veg_ground_moss_01",
+  "preview_task_id": "01a08b3d-ef8f-7518-8021-0fb760316740",
+  "refine_task_id": "01a08b3f-fbf4-71ca-b2e6-a333d3d9ff43",
+  "vertex_count": 25574,
+  "face_count": 36466,
+  "source": "meshy",
+  "textures": {
+    "albedo": "textures/albedo.png",
+    "normal": "textures/normal.png",
+    "roughness": "textures/roughness.png",
+    "metallic": "textures/metallic.png"
+  }
+}

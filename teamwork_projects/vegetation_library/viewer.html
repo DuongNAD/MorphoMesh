@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MorphoMesh — Thư Viện 3D Thực Vật (Botanical 3D Explorer)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              400: '#34d399',
+              500: '#10b981',
+              600: '#059669',
+              900: '#064e3b',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 3px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #10b981;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-brand-500 selection:text-white custom-scrollbar">
+
+  <!-- TOP NAVIGATION HEADER -->
+  <header class="sticky top-0 z-40 bg-slate-900/90 backdrop-blur-md border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-emerald-400 flex items-center justify-center text-xl shadow-lg shadow-brand-500/20">
+          🌿
+        </div>
+        <div>
+          <h1 class="text-lg font-bold text-white tracking-tight flex items-center gap-2">
+            MorphoMesh <span class="text-brand-400 text-xs px-2 py-0.5 rounded-full bg-brand-950/80 border border-brand-500/30">Vegetation Library</span>
+          </h1>
+          <p class="text-xs text-slate-400">Thư viện 35 loài mô hình 3D thực vật chuẩn PBR & Static Mesh (0 Bones)</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3 text-xs">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 text-emerald-400 border border-emerald-500/20 font-medium">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          35/35 Đạt chuẩn 100%
+        </span>
+        <span class="px-3 py-1.5 rounded-lg bg-slate-800/80 text-slate-300 border border-slate-700 hidden sm:inline-block">
+          Pivot Grounded: Z=0.000m
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
+
+    <!-- HERO COMPARISON SECTION: MESHY AI REAL VS PROCEDURAL FALLBACK -->
+    <section class="bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+      <div class="absolute -top-24 -right-24 w-96 h-96 bg-brand-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="flex flex-col lg:flex-row gap-8 items-center justify-between">
+        <div class="max-w-xl space-y-4">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-950/80 text-emerald-300 border border-emerald-500/30 text-xs font-semibold uppercase tracking-wider">
+            ✨ Khám phá chất lượng AI thực tế
+          </div>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-white leading-tight">
+            Mô Hình Meshy AI 3D <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300">(Text-to-3D Refined)</span>
+          </h2>
+          <p class="text-sm text-slate-300 leading-relaxed">
+            Các hình ảnh ban đầu trông thô là do subagent trong quá trình test offline hàng loạt đã tự động dùng thuật toán <span class="text-amber-300 font-medium">Procedural Fallback</span> (ghép khối cầu elip để tiết kiệm API). Khi chạy trực tiếp qua <span class="text-emerald-400 font-semibold">Meshy AI Refine</span>, mô hình có cấu trúc sinh học chân thực, cành cây uốn lượn hữu cơ và bộ texture PBR vẽ tay sắc nét!
+          </p>
+
+          <div class="grid grid-cols-3 gap-3 pt-2">
+            <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-3">
+              <div class="text-xs text-slate-400">Độ chi tiết mesh</div>
+              <div class="text-lg font-bold text-emerald-400">59,487 <span class="text-xs font-normal text-slate-400">faces</span></div>
+            </div>
+            <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-3">
+              <div class="text-xs text-slate-400">Dung lượng GLB</div>
+              <div class="text-lg font-bold text-teal-400">11.7 <span class="text-xs font-normal text-slate-400">MB</span></div>
+            </div>
+            <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-3">
+              <div class="text-xs text-slate-400">Vật liệu PBR</div>
+              <div class="text-lg font-bold text-sky-400">4 Kênh <span class="text-xs font-normal text-slate-400">Full</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- HERO SHOWCASE CAROUSEL / IMAGES -->
+        <div class="w-full lg:w-auto flex-1 flex flex-col sm:flex-row gap-4 justify-center items-center">
+          <!-- Real Meshy Render -->
+          <div class="w-full sm:w-64 bg-slate-950 border border-emerald-500/40 rounded-xl p-3 shadow-xl relative group">
+            <div class="absolute top-2 left-2 px-2 py-0.5 bg-emerald-600 text-[10px] font-bold text-white rounded shadow">
+              Meshy AI Thật 100%
+            </div>
+            <img src="output/broadleaf_trees/veg_tree_oak_01/thumbnail.png" alt="Meshy AI Oak Tree" class="w-full h-48 object-contain rounded-lg bg-slate-900 group-hover:scale-105 transition-transform duration-300">
+            <div class="mt-2 text-center">
+              <div class="text-xs font-bold text-white">English Oak (Meshy AI)</div>
+              <div class="text-[11px] text-emerald-400 font-medium">Bản Render 4 góc kỹ thuật</div>
+            </div>
+          </div>
+
+          <!-- Color Painted Model -->
+          <div class="w-full sm:w-64 bg-slate-950 border border-teal-500/40 rounded-xl p-3 shadow-xl relative group">
+            <div class="absolute top-2 left-2 px-2 py-0.5 bg-teal-600 text-[10px] font-bold text-white rounded shadow">
+              Texture PBR Hoàn Chỉnh
+            </div>
+            <img src="output/broadleaf_trees/veg_tree_oak_01/meshy_refined_color.png" onerror="this.src='output/broadleaf_trees/veg_tree_oak_01/thumbnail.png'" alt="Meshy AI Color" class="w-full h-48 object-contain rounded-lg bg-slate-900 group-hover:scale-105 transition-transform duration-300">
+            <div class="mt-2 text-center">
+              <div class="text-xs font-bold text-white">Màu sắc tả thực Meshy</div>
+              <div class="text-[11px] text-teal-400 font-medium">Vòm lá & thân gỗ tự nhiên</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SEARCH & CATEGORY FILTER TABS -->
+    <section class="space-y-6">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+        <div>
+          <h3 class="text-xl font-bold text-white tracking-tight">Danh Mục Thư Viện 35 Loài Thực Vật</h3>
+          <p class="text-xs text-slate-400">Chọn nhóm sinh thái để lọc hoặc tìm kiếm theo tên cây</p>
+        </div>
+
+        <div class="w-full md:w-72 relative">
+          <input type="text" id="searchInput" placeholder="Tìm kiếm loài cây..." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 pl-9 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-brand-500 transition-colors">
+          <span class="absolute left-3 top-2.5 text-slate-500 text-xs">🔍</span>
+        </div>
+      </div>
+
+      <!-- Categories Pills -->
+      <div class="flex items-center gap-2 overflow-x-auto pb-2 custom-scrollbar" id="categoryTabs">
+        <!-- populated by JS -->
+      </div>
+    </section>
+
+    <!-- PLANT ASSETS GRID -->
+    <section class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5" id="plantGrid">
+      <!-- populated by JS -->
+    </section>
+
+  </main>
+
+  <!-- MODAL VIEWER FOR MULTI-ANGLE TURNTABLE -->
+  <div id="plantModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-200">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto p-6 space-y-6 custom-scrollbar shadow-2xl relative">
+      <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xl w-8 h-8 flex items-center justify-center rounded-lg bg-slate-800 hover:bg-slate-700 transition-colors">
+        ✕
+      </button>
+
+      <div class="flex items-start gap-4">
+        <div class="w-12 h-12 rounded-xl bg-brand-950 border border-brand-500/30 flex items-center justify-center text-2xl text-brand-400">
+          🌱
+        </div>
+        <div>
+          <h4 id="modalCommonName" class="text-xl font-bold text-white">Tên loài</h4>
+          <p id="modalScientificName" class="text-xs italic text-slate-400 font-mono">Tên khoa học</p>
+          <div class="flex gap-2 mt-2" id="modalBadges"></div>
+        </div>
+      </div>
+
+      <!-- Contact Sheet Large Preview -->
+      <div class="space-y-2">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold text-slate-300">Bảng Render 4 Góc Kỹ Thuật (Contact Sheet)</span>
+          <span class="text-[11px] text-slate-500">Hero 3/4 • Mặt trước • Mặt bên • Nhìn từ đỉnh vòm</span>
+        </div>
+        <div class="bg-slate-950 border border-slate-800 rounded-xl p-2 flex items-center justify-center">
+          <img id="modalThumbnailImg" src="" alt="Thumbnail" class="max-h-96 w-full object-contain rounded-lg">
+        </div>
+      </div>
+
+      <!-- Individual Turntable Angles -->
+      <div class="space-y-2">
+        <span class="text-xs font-semibold text-slate-300">4 Góc Nhìn Xoay Độc Lập</span>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3" id="modalTurntablesGrid"></div>
+      </div>
+
+      <!-- Actions & Download Links -->
+      <div class="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-slate-800">
+        <div class="text-xs text-slate-400 space-x-3">
+          <span>Gốc tiếp đất: <b class="text-emerald-400">Z = 0.000m</b></span>
+          <span>Khung xương: <b class="text-emerald-400">0 Bones (Static)</b></span>
+          <span>Vật liệu: <b class="text-emerald-400">PBR 4-Channel</b></span>
+        </div>
+
+        <div class="flex gap-2">
+          <a id="modalGlbBtn" href="#" download class="px-3 py-1.5 rounded-lg bg-brand-600 hover:bg-brand-500 text-white text-xs font-medium transition-colors shadow">
+            Tải GLB 3D
+          </a>
+          <a id="modalObjBtn" href="#" download class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium transition-colors border border-slate-700">
+            Tải OBJ + MTL
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT DATA & LOGIC -->
+  <script>
+    const categories = [{"id": "all", "name": "🌿 Tất cả (35 Loài)"}, {"id": "broadleaf_trees", "name": "🌳 Cây thân gỗ (5)"}, {"id": "conifers", "name": "🌲 Cây lá kim (5)"}, {"id": "tropical", "name": "🌴 Nhiệt đới & Cọ (5)"}, {"id": "shrubs", "name": "🌺 Cây bụi có hoa (5)"}, {"id": "groundcover", "name": "🌾 Dương xỉ & Cỏ (5)"}, {"id": "succulents", "name": "🌵 Xương rồng & Mọng nước (5)"}, {"id": "vines", "name": "🌱 Dây leo (5)"}];
+    const plants = [
+  {
+    "id": "veg_tree_oak_01",
+    "category": "broadleaf_trees",
+    "common_name": "English Oak",
+    "scientific_name": "Quercus robur",
+    "family": "Fagaceae",
+    "biome": "Temperate Deciduous Forest",
+    "height": "12.00m",
+    "spread": "14.28m",
+    "faces": "59,487",
+    "verts": "58,853",
+    "thumb": "output/broadleaf_trees/veg_tree_oak_01/thumbnail.png",
+    "turntables": [
+      "output/broadleaf_trees/veg_tree_oak_01/turntable_01.png",
+      "output/broadleaf_trees/veg_tree_oak_01/turntable_02.png",
+      "output/broadleaf_trees/veg_tree_oak_01/turntable_03.png",
+      "output/broadleaf_trees/veg_tree_oak_01/turntable_04.png"
+    ],
+    "glb": "output/broadleaf_trees/veg_tree_oak_01/veg_tree_oak_01.glb",
+    "obj": "output/broadleaf_trees/veg_tree_oak_01/veg_tree_oak_01.obj",
+    "source": "meshy"
+  },
+  {
+    "id": "veg_tree_maple_01",
+    "category": "broadleaf_trees",
+    "common_name": "Sugar Maple",
+    "scientific_name": "Acer saccharum",
+    "family": "Sapindaceae",
+    "biome": "Temperate Mixed Deciduous Forest",
+    "height": "10.50m",
+    "spread": "16.98m",
+    "faces": "54,110",
+    "verts": "61,872",
+    "thumb": "output/broadleaf_trees/veg_tree_maple_01/thumbnail.png",
+    "turntables": [
+      "output/broadleaf_trees/veg_tree_maple_01/turntable_01.png",
+      "output/broadleaf_trees/veg_tree_maple_01/turntable_02.png",
+      "output/broadleaf_trees/veg_tree_maple_01/turntable_03.png",
+      "output/broadleaf_trees/veg_tree_maple_01/turntable_04.png"
+    ],
+    "glb": "output/broadleaf_trees/veg_tree_maple_01/veg_tree_maple_01.glb",
+    "obj": "output/broadleaf_trees/veg_tree_maple_01/veg_tree_maple_01.obj",
+    "source": "meshy"
+  },
+  {
+    "id": "veg_tree_birch_01",
+    "category": "broadleaf_trees",
+    "common_name": "Silver Birch",
+    "scientific_name": "Betula pendula",
+    "family": "Betulaceae",
+    "biome": "Boreal / Temperate Montane Forest",
+    "height": "9.00m",
+    "spread": "20.52m",
+    "faces": "57,864",
+    "verts": "61,085",
+    "thumb": "output/broadleaf_trees/veg_tree_birch_01/thumbnail.png",
+    "turntables": [
+      "output/broadleaf_trees/veg_tree_birch_01/turntable_01.png",
+      "output/broadleaf_trees/veg_tree_birch_01/turntable_02.png",
+      "output/broadleaf_trees/veg_tree_birch_01/turntable_03.png",
+      "output/broadleaf_trees/veg_tree_birch_01/turntable_04.png"
+    ],
+    "glb": "output/broadleaf_trees/veg_tree_birch_01/veg_tree_birch_01.glb",
+    "obj": "output/broadleaf_trees/veg_tree_birch_01/veg_tree_birch_01.obj",
+    "source": "meshy"
+  },
+  {
+    "id": "veg_tree_willow_01",
+    "category": "broadleaf_trees",
+    "common_name": "Weeping Willow",
+    "scientific_name": "Salix babylonica",
+    "family": "Salicaceae",
+    "biome": "Riparian / Wetland Shoreline",
+    "height": "8.50m",
+    "spread": "14.04m",
+    "faces": "23,979",
+    "verts": "40,116",
+    "thumb": "output/broadleaf_trees/veg_tree_willow_01/thumbnail.png",
+    "turntables": [
+      "output/broadleaf_trees/veg_tree_willow_01/turntable_01.png",
+      "output/broadleaf_trees/veg_tree_willow_01/turntable_02.png",
+      "output/broadleaf_trees/veg_tree_willow_01/turntable_03.png",
+      "output/broadleaf_trees/veg_tree_willow_01/turntable_04.png"
+    ],
+    "glb": "output/broadleaf_trees/veg_tree_willow_01/veg_tree_willow_01.glb",
+    "obj": "output/broadleaf_trees/veg_tree_willow_01/veg_tree_willow_01.obj",
+    "source": "meshy"
+  },
+  {
+    "id": "veg_tree_beech_01",
+    "category": "broadleaf_trees",
+    "common_name": "European Beech",
+    "scientific_name": "Fagus sylvatica",
+    "family": "Fagaceae",
+    "biome": "Temperate Montane Forest",
+    "height": "11.50m",
+    "spread": "17.11m",
+    "faces": "44,234",
+    "verts": "60,545",
+    "thumb": "output/broadleaf_trees/veg_tree_beech_01/thumbnail.png",
+    "turntables": [
+      "output/broadleaf_trees/veg_tree_beech_01/turntable_01.png",
+      "output/broadleaf_trees/veg_tree_beech_01/turntable_02.png",
+      "output/broadleaf_trees/veg_tree_beech_01/turntable_03.png",
+      "output/broadleaf_trees/veg_tree_beech_01/turntable_04.png"
+    ],
+    "glb": "output/broadleaf_trees/veg_tree_beech_01/veg_tree_beech_01.glb",
+    "obj": "output/broadleaf_trees/veg_tree_beech_01/veg_tree_beech_01.obj",
+    "source": "meshy"
+  },
+  {
+    "id": "veg_conifer_pine_01",
+    "category": "conifers",
+    "common_name": "Scots Pine",
+    "scientific_name": "Pinus sylvestris",
+    "family": "Pinaceae",
+    "biome": "Boreal Taiga / Temperate Montane",
+    "height": "9.50m",
+    "spread": "21.21m",
+    "faces": "45,880",
+    "verts": "59,292",
+    "thumb": "output/conifers/veg_conifer_pine_01/thumbnail.png",
+    "turntables": [
+      "output/conifers/veg_conifer_pine_01/turntable_01.png",
+      "output/conifers/veg_conifer_pine_01/turntable_02.png",
+      "output/conifers/veg_conifer_pine_01/turntable_03.png",
+      "output/conifers/veg_conifer_pine_01/turntable_04.png"
+    ],
+    "glb": "output/conifers/veg_conifer_pine_01/veg_conifer_pine_01.glb",
+    "obj": "output/conifers/veg_conifer_pine_01/veg_conifer_pine_01.obj",
+    "source": "meshy"
+  },
+  {
+    "id": "veg_conifer_spruce_01",
+    "category": "conifers",
+    "common_name": "Norway Spruce",
+    "scientific_name": "Picea abies",
+    "family": "Pinaceae",
+    "biome": "Subalpine / Boreal Coniferous Forest",
+    "height": "11.00m",
+    "spread": "18.46m",
+    "faces": "54,345",
+    "verts": "61,265",
+    "thumb": "output/conifers/veg_conifer_spruce_01/thumbnail.png",
+    "turntables": [
+      "output/conifers/veg_conifer_spruce_01/turntable_01.png",
+      "output/conifers/veg_conifer_spruce_01/turntable_02.png",
+      "output/conifers/veg_conifer_spruce_01/turntable_03.png",
+      "output/conifers/veg_conifer_spruce_01/turntable_04.png"
+    ],
+    "glb": "output/conifers/veg_conifer_spruce_01/veg_conifer_spruce_01.glb",
+    "obj": "output/conifers/veg_conifer_spruce_01/veg_conifer_spruce_01.obj",
+    "source": "meshy"
+  },
+  {
+    "id": "veg_conifer_cypress_01",
+    "category": "conifers",
+    "common_name": "Italian Cypress",
+    "scientific_name": "Cupressus sempervirens",
+    "family": "Cupressaceae",
+    "biome": "Mediterranean Coastal Hills",
+    "height": "8.00m",
+    "spread": "41.54m",
+    "faces": "45,581",
+    "verts": "40,634",
+    "thumb": "output/conifers/veg_conifer_cypress_01/thumbnail.png",
+    "turntables": [
+      "output/conifers/veg_conifer_cypress_01/turntable_01.png",
+      "output/conifers/veg_conifer_cypress_01/turntable_02.png",
+      "output/conifers/veg_conifer_cypress_01/turntable_03.png",
+      "output/conifers/veg_conifer_cypress_01/turntable_04.png"
+    ],
+    "glb": "output/conifers/veg_conifer_cypress_01/veg_conifer_cypress_01.glb",
+    "obj": "output/conifers/veg_conifer_cypress_01/veg_conifer_cypress_01.obj",
+    "source": "meshy"
+  },
+  {
+    "id": "veg_conifer_redcedar_01",
+    "category": "conifers",
+    "common_name": "Western Redcedar",
+    "scientific_name": "Thuja plicata",
+    "family": "Cupressaceae",
+    "biome": "Pacific Northwest Temperate Rainforest",
+    "height": "12.00m",
+    "spread": "22.25m",
+    "faces": "50,860",
+    "verts": "61,347",
+    "thumb": "output/conifers/veg_conifer_redcedar_01/thumbnail.png",
+    "turntables": [
+      "output/conifers/veg_conifer_redcedar_01/turntable_01.png",
+      "output/conifers/veg_conifer_redcedar_01/turntable_02.png",
+      "output/conifers/veg_conifer_redcedar_01/turntable_03.png",
+      "output/conifers/veg_conifer_redcedar_01/turntable_04.png"
+    ],
+    "glb": "output/conifers/veg_conifer_redcedar_01/veg_conifer_redcedar_01.glb",
+    "obj": "output/conifers/veg_conifer_redcedar_01/veg_conifer_redcedar_01.obj",
+    "source": "meshy"
+  },
+  {
+    "id": "veg_conifer_cedar_01",
+    "category": "conifers",
+    "common_name": "Atlas Cedar",
+    "scientific_name": "Cedrus atlantica",
+    "family": "Pinaceae",
+    "biome": "Mediterranean Montane Forest",
+    "height": "10.00m",
+    "spread": "19.19m",
+    "faces": "35,238",
+    "verts": "54,054",
+    "thumb": "output/conifers/veg_conifer_cedar_01/thumbnail.png",
+    "turntables": [
+      "output/conifers/veg_conifer_cedar_01/turntable_01.png",
+      "output/conifers/veg_conifer_cedar_01/turntable_02.png",
+      "output/conifers/veg_conifer_cedar_01/turntable_03.png",
+      "output/conifers/veg_conifer_cedar_01/turntable_04.png"
+    ],
+    "glb": "output/conifers/veg_conifer_cedar_01/veg_conifer_cedar_01.glb",
+    "obj": "output/conifers/veg_conifer_cedar_01/veg_conifer_cedar_01.obj",
+    "source": "meshy"
+  },
+  {
+    "id": "veg_tropical_palm_01",
+    "category": "tropical",
+    "common_name": "Windmill Fan Palm",
+    "scientific_name": "Trachycarpus fortunei",
+    "family": "Arecaceae",
+    "biome": "Subtropical / Tropical Montane",
+    "height": "5.50m",
+    "spread": "9.96m",
+    "faces": "56,255",
+    "verts": "64,464",
+    "thumb": "output/tropical/veg_tropical_palm_01/thumbnail.png",
+    "turntables": [
+      "output/tropical/veg_tropical_palm_01/turntable_01.png",
+      "output/tropical/veg_tropical_palm_01/turntable_02.png",
+      "output/tropical/veg_tropical_palm_01/turntable_03.png",
+      "output/tropical/veg_tropical_palm_01/turntable_04.png"
+    ],
+    "glb": "output/tropical/veg_tropical_palm_01/veg_tropical_palm_01.glb",
+    "obj": "output/tropical/veg_tropical_palm_01/veg_tropical_palm_01.obj",
+    "source": "meshy"
+  },
+  {
+    "id": "veg_tropical_monstera_01",
+    "category": "tropical",
+    "common_name": "Swiss Cheese Plant",
+    "scientific_name": "Monstera deliciosa",
+    "family": "Araceae",
+    "biome": "Tropical Rainforest Understory",
+    "height": "1.80m",
+    "spread": "3.02m",
+    "faces": "50,708",
+    "verts": "43,186",
+    "thumb": "output/tropical/veg_tropical_monstera_01/thumbnail.png",
+    "turntables": [
+      "output/tropical/veg_tropical_monstera_01/turntable_01.png",
+      "output/tropical/veg_tropical_monstera_01/turntable_02.png",
+      "output/tropical/veg_tropical_monstera_01/turntable_03.png",
+      "output/tropical/veg_tropical_monstera_01/turntable_04.png"
+    ],
+    "glb": "output/tropical/veg_tropical_monstera_01/veg_tropical_monstera_01.glb",
+    "obj": "output/tropical/veg_tropical_monstera_01/veg_tropical_monstera_01.obj",
+    "source": "meshy"
+  },
+  {
+    "id": "veg_tropical_banana_01",
+    "category": "tropical",
+    "common_name": "Wild Banana Plant",
+    "scientific_name": "Musa acuminata",
+    "family": "Musaceae",
+    "biome": "Tropical Humid Rainforest",
+    "height": "3.50m",
+    "spread": "3.54m",
+    "faces": "55,728",
+    "verts": "49,189",
+    "thumb": "output/tropical/veg_tropical_banana_01/thumbnail.png",
+    "turntables": [
+      "output/tropical/veg_tropical_banana_01/turntable_01.png",
+      "output/tropical/veg_tropical_banana_01/turntable_02.png",
+      "output/tropical/veg_tropical_banana_01/turntable_03.png",
+      "output/tropical/veg_tropical_banana_01/turntable_04.png"
+    ],
+    "glb": "output/tropical/veg_tropical_banana_01/veg_tropical_banana_01.glb",
+    "obj": "output/tropical/veg_tropical_banana_01/veg_tropical_banana_01.obj",
+    "source": "meshy"
+  },
+  {
+    "id": "veg_tropical_treefern_01",
+    "category": "tropical",
+    "common_name": "Silver Tree Fern",
+    "scientific_name": "Cyathea dealbata",
+    "family": "Cyatheaceae",
+    "biome": "Temperate / Subtropical Wet Forest",
+    "height": "4.50m",
+    "spread": "8.74m",
+    "faces": "25,726",
+    "verts": "41,415",
+    "thumb": "output/tropical/veg_tropical_treefern_01/thumbnail.png",
+    "turntables": [
+      "output/tropical/veg_tropical_treefern_01/turntable_01.png",
+      "output/tropical/veg_tropical_treefern_01/turntable_02.png",
+      "output/tropical/veg_tropical_treefern_01/turntable_03.png",
+      "output/tropical/veg_tropical_treefern_01/turntable_04.png"
+    ],
+    "glb": "output/tropical/veg_tropical_treefern_01/veg_tropical_treefern_01.glb",
+    "obj": "output/tropical/veg_tropical_treefern_01/veg_tropical_treefern_01.obj",
+    "source": "meshy"
+  },
+  {
+    "id": "veg_tropical_birdofparadise_01",
+    "category": "tropical",
+    "common_name": "Bird of Paradise",
+    "scientific_name": "Strelitzia reginae",
+    "family": "Strelitziaceae",
+    "biome": "Subtropical Coastal Scrub / Savanna",
+    "height": "1.60m",
+    "spread": "2.83m",
+    "faces": "58,418",
+    "verts": "54,389",
+    "thumb": "output/tropical/veg_tropical_birdofparadise_01/thumbnail.png",
+    "turntables": [
+      "output/tropical/veg_tropical_birdofparadise_01/turntable_01.png",
+      "output/tropical/veg_tropical_birdofparadise_01/turntable_02.png",
+      "output/tropical/veg_tropical_birdofparadise_01/turntable_03.png",
+      "output/tropical/veg_tropical_birdofparadise_01/turntable_04.png"
+    ],
+    "glb": "output/tropical/veg_tropical_birdofparadise_01/veg_tropical_birdofparadise_01.glb",
+    "obj": "output/tropical/veg_tropical_birdofparadise_01/veg_tropical_birdofparadise_01.obj",
+    "source": "meshy"
+  },
+  {
+    "id": "veg_shrub_rose_01",
+    "category": "shrubs",
+    "common_name": "Garden Rose Bush",
+    "scientific_name": "Rosa gallica",
+    "family": "Rosaceae",
+    "biome": "Temperate Shrubland / Meadow",
+    "height": "1.20m",
+    "spread": "1.72m",
+    "faces": "32,279",
+    "verts": "50,692",
+    "thumb": "output/shrubs/veg_shrub_rose_01/thumbnail.png",
+    "turntables": [
+      "output/shrubs/veg_shrub_rose_01/turntable_01.png",
+      "output/shrubs/veg_shrub_rose_01/turntable_02.png",
+      "output/shrubs/veg_shrub_rose_01/turntable_03.png",
+      "output/shrubs/veg_shrub_rose_01/turntable_04.png"
+    ],
+    "glb": "output/shrubs/veg_shrub_rose_01/veg_shrub_rose_01.glb",
+    "obj": "output/shrubs/veg_shrub_rose_01/veg_shrub_rose_01.obj",
+    "source": "meshy"
+  },
+  {
+    "id": "veg_shrub_hydrangea_01",
+    "category": "shrubs",
+    "common_name": "Bigleaf Hydrangea",
+    "scientific_name": "Hydrangea macrophylla",
+    "family": "Hydrangeaceae",
+    "biome": "Temperate / Oceanic Coastal Shrubland",
+    "height": "1.40m",
+    "spread": "1.38m",
+    "faces": "24,613",
+    "verts": "42,452",
+    "thumb": "output/shrubs/veg_shrub_hydrangea_01/thumbnail.png",
+    "turntables": [
+      "output/shrubs/veg_shrub_hydrangea_01/turntable_01.png",
+      "output/shrubs/veg_shrub_hydrangea_01/turntable_02.png",
+      "output/shrubs/veg_shrub_hydrangea_01/turntable_03.png",
+      "output/shrubs/veg_shrub_hydrangea_01/turntable_04.png"
+    ],
+    "glb": "output/shrubs/veg_shrub_hydrangea_01/veg_shrub_hydrangea_01.glb",
+    "obj": "output/shrubs/veg_shrub_hydrangea_01/veg_shrub_hydrangea_01.obj",
+    "source": "meshy"
+  },
+  {
+    "id": "veg_shrub_lavender_01",
+    "category": "shrubs",
+    "common_name": "English Lavender",
+    "scientific_name": "Lavandula angustifolia",
+    "family": "Lamiaceae",
+    "biome": "Mediterranean Dry Rocky Shrubland",
+    "height": "0.70m",
+    "spread": "0.70m",
+    "faces": "19,949",
+    "verts": "37,528",
+    "thumb": "output/shrubs/veg_shrub_lavender_01/thumbnail.png",
+    "turntables": [
+      "output/shrubs/veg_shrub_lavender_01/turntable_01.png",
+      "output/shrubs/veg_shrub_lavender_01/turntable_02.png",
+      "output/shrubs/veg_shrub_lavender_01/turntable_03.png",
+      "output/shrubs/veg_shrub_lavender_01/turntable_04.png"
+    ],
+    "glb": "output/shrubs/veg_shrub_lavender_01/veg_shrub_lavender_01.glb",
+    "obj": "output/shrubs/veg_shrub_lavender_01/veg_shrub_lavender_01.obj",
+    "source": "meshy"
+  },
+  {
+    "id": "veg_shrub_lilac_01",
+    "category": "shrubs",
+    "common_name": "Common Lilac",
+    "scientific_name": "Syringa vulgaris",
+    "family": "Oleaceae",
+    "biome": "Temperate Rocky Scrub & Woodland Margin",
+    "height": "2.80m",
+    "spread": "6.25m",
+    "faces": "63,261",
+    "verts": "58,949",
+    "thumb": "output/shrubs/veg_shrub_lilac_01/thumbnail.png",
+    "turntables": [
+      "output/shrubs/veg_shrub_lilac_01/turntable_01.png",
+      "output/shrubs/veg_shrub_lilac_01/turntable_02.png",
+      "output/shrubs/veg_shrub_lilac_01/turntable_03.png",
+      "output/shrubs/veg_shrub_lilac_01/turntable_04.png"
+    ],
+    "glb": "output/shrubs/veg_shrub_lilac_01/veg_shrub_lilac_01.glb",
+    "obj": "output/shrubs/veg_shrub_lilac_01/veg_shrub_lilac_01.obj",
+    "source": "meshy"
+  },
+  {
+    "id": "veg_shrub_azalea_01",
+    "category": "shrubs",
+    "common_name": "Flame Azalea",
+    "scientific_name": "Rhododendron calendulaceum",
+    "family": "Ericaceae",
+    "biome": "Temperate Montane Woodland & Ridge",
+    "height": "1.80m",
+    "spread": "1.69m",
+    "faces": "23,951",
+    "verts": "41,901",
+    "thumb": "output/shrubs/veg_shrub_azalea_01/thumbnail.png",
+    "turntables": [
+      "output/shrubs/veg_shrub_azalea_01/turntable_01.png",
+      "output/shrubs/veg_shrub_azalea_01/turntable_02.png",
+      "output/shrubs/veg_shrub_azalea_01/turntable_03.png",
+      "output/shrubs/veg_shrub_azalea_01/turntable_04.png"
+    ],
+    "glb": "output/shrubs/veg_shrub_azalea_01/veg_shrub_azalea_01.glb",
+    "obj": "output/shrubs/veg_shrub_azalea_01/veg_shrub_azalea_01.obj",
+    "source": "meshy"
+  },
+  {
+    "id": "veg_ground_fern_01",
+    "category": "groundcover",
+    "common_name": "Boston Sword Fern",
+    "scientific_name": "Nephrolepis exaltata",
+    "family": "Lomariopsidaceae",
+    "biome": "Tropical / Subtropical Swamp Forest Floor",
+    "height": "0.65m",
+    "spread": "0.61m",
+    "faces": "23,241",
+    "verts": "40,373",
+    "thumb": "output/groundcover/veg_ground_fern_01/thumbnail.png",
+    "turntables": [
+      "output/groundcover/veg_ground_fern_01/turntable_01.png",
+      "output/groundcover/veg_ground_fern_01/turntable_02.png",
+      "output/groundcover/veg_ground_fern_01/turntable_03.png",
+      "output/groundcover/veg_ground_fern_01/turntable_04.png"
+    ],
+    "glb": "output/groundcover/veg_ground_fern_01/veg_ground_fern_01.glb",
+    "obj": "output/groundcover/veg_ground_fern_01/veg_ground_fern_01.obj",
+    "source": "meshy"
+  },
+  {
+    "id": "veg_ground_pampas_01",
+    "category": "groundcover",
+    "common_name": "White Pampas Grass",
+    "scientific_name": "Cortaderia selloana",
+    "family": "Poaceae",
+    "biome": "Temperate Grassland / Semiarid Steppe",
+    "height": "2.50m",
+    "spread": "4.09m",
+    "faces": "24,511",
+    "verts": "42,423",
+    "thumb": "output/groundcover/veg_ground_pampas_01/thumbnail.png",
+    "turntables": [
+      "output/groundcover/veg_ground_pampas_01/turntable_01.png",
+      "output/groundcover/veg_ground_pampas_01/turntable_02.png",
+      "output/groundcover/veg_ground_pampas_01/turntable_03.png",
+      "output/groundcover/veg_ground_pampas_01/turntable_04.png"
+    ],
+    "glb": "output/groundcover/veg_ground_pampas_01/veg_ground_pampas_01.glb",
+    "obj": "output/groundcover/veg_ground_pampas_01/veg_ground_pampas_01.obj",
+    "source": "meshy"
+  },
+  {
+    "id": "veg_ground_moss_01",
+    "category": "groundcover",
+    "common_name": "Forest Cushion Moss",
+    "scientific_name": "Leucobryum glaucum",
+    "family": "Leucobryaceae",
+    "biome": "Temperate Humid Forest Floor & Boulder",
+    "height": "0.15m",
+    "spread": "0.15m",
+    "faces": "36,466",
+    "verts": "25,574",
+    "thumb": "output/groundcover/veg_ground_moss_01/thumbnail.png",
+    "turntables": [
+      "output/groundcover/veg_ground_moss_01/turntable_01.png",
+      "output/groundcover/veg_ground_moss_01/turntable_02.png",
+      "output/groundcover/veg_ground_moss_01/turntable_03.png",
+      "output/groundcover/veg_ground_moss_01/turntable_04.png"
+    ],
+    "glb": "output/groundcover/veg_ground_moss_01/veg_ground_moss_01.glb",
+    "obj": "output/groundcover/veg_ground_moss_01/veg_ground_moss_01.obj",
+    "source": "meshy"
+  },
+  {
+    "id": "veg_ground_grass_01",
+    "category": "groundcover",
+    "common_name": "Japanese Forest Grass",
+    "scientific_name": "Hakonechloa macra",
+    "family": "Poaceae",
+    "biome": "Moist Mountain Woodlands & Wet Rock Slopes",
+    "height": "0.45m",
+    "spread": "0.46m",
+    "faces": "28,942",
+    "verts": "47,645",
+    "thumb": "output/groundcover/veg_ground_grass_01/thumbnail.png",
+    "turntables": [
+      "output/groundcover/veg_ground_grass_01/turntable_01.png",
+      "output/groundcover/veg_ground_grass_01/turntable_02.png",
+      "output/groundcover/veg_ground_grass_01/turntable_03.png",
+      "output/groundcover/veg_ground_grass_01/turntable_04.png"
+    ],
+    "glb": "output/groundcover/veg_ground_grass_01/veg_ground_grass_01.glb",
+    "obj": "output/groundcover/veg_ground_grass_01/veg_ground_grass_01.obj",
+    "source": "meshy"
+  },
+  {
+    "id": "veg_ground_ostrich_01",
+    "category": "groundcover",
+    "common_name": "Ostrich Fern",
+    "scientific_name": "Matteuccia struthiopteris",
+    "family": "Onocleaceae",
+    "biome": "Temperate Riparian Woodland & Moist Bottomlands",
+    "height": "1.40m",
+    "spread": "6.39m",
+    "faces": "68,246",
+    "verts": "51,815",
+    "thumb": "output/groundcover/veg_ground_ostrich_01/thumbnail.png",
+    "turntables": [
+      "output/groundcover/veg_ground_ostrich_01/turntable_01.png",
+      "output/groundcover/veg_ground_ostrich_01/turntable_02.png",
+      "output/groundcover/veg_ground_ostrich_01/turntable_03.png",
+      "output/groundcover/veg_ground_ostrich_01/turntable_04.png"
+    ],
+    "glb": "output/groundcover/veg_ground_ostrich_01/veg_ground_ostrich_01.glb",
+    "obj": "output/groundcover/veg_ground_ostrich_01/veg_ground_ostrich_01.obj",
+    "source": "meshy"
+  },
+  {
+    "id": "veg_succulent_saguaro_01",
+    "category": "succulents",
+    "common_name": "Saguaro Cactus",
+    "scientific_name": "Carnegiea gigantea",
+    "family": "Cactaceae",
+    "biome": "Sonoran Desert",
+    "height": "6.00m",
+    "spread": "38.83m",
+    "faces": "40,199",
+    "verts": "37,179",
+    "thumb": "output/succulents/veg_succulent_saguaro_01/thumbnail.png",
+    "turntables": [
+      "output/succulents/veg_succulent_saguaro_01/turntable_01.png",
+      "output/succulents/veg_succulent_saguaro_01/turntable_02.png",
+      "output/succulents/veg_succulent_saguaro_01/turntable_03.png",
+      "output/succulents/veg_succulent_saguaro_01/turntable_04.png"
+    ],
+    "glb": "output/succulents/veg_succulent_saguaro_01/veg_succulent_saguaro_01.glb",
+    "obj": "output/succulents/veg_succulent_saguaro_01/veg_succulent_saguaro_01.obj",
+    "source": "meshy"
+  },
+  {
+    "id": "veg_succulent_aloe_01",
+    "category": "succulents",
+    "common_name": "Aloe Vera",
+    "scientific_name": "Aloe barbadensis",
+    "family": "Asphodelaceae",
+    "biome": "Arid / Semiarid Tropical Scrub",
+    "height": "0.80m",
+    "spread": "0.32m",
+    "faces": "3,932",
+    "verts": "3,336",
+    "thumb": "output/succulents/veg_succulent_aloe_01/thumbnail.png",
+    "turntables": [
+      "output/succulents/veg_succulent_aloe_01/turntable_01.png",
+      "output/succulents/veg_succulent_aloe_01/turntable_02.png",
+      "output/succulents/veg_succulent_aloe_01/turntable_03.png",
+      "output/succulents/veg_succulent_aloe_01/turntable_04.png"
+    ],
+    "glb": "output/succulents/veg_succulent_aloe_01/veg_succulent_aloe_01.glb",
+    "obj": "output/succulents/veg_succulent_aloe_01/veg_succulent_aloe_01.obj",
+    "source": "procedural"
+  },
+  {
+    "id": "veg_succulent_echeveria_01",
+    "category": "succulents",
+    "common_name": "Ghost Echeveria",
+    "scientific_name": "Echeveria elegans",
+    "family": "Crassulaceae",
+    "biome": "Subtropical Semiarid Rocky Slopes",
+    "height": "0.25m",
+    "spread": "0.22m",
+    "faces": "3,932",
+    "verts": "3,336",
+    "thumb": "output/succulents/veg_succulent_echeveria_01/thumbnail.png",
+    "turntables": [
+      "output/succulents/veg_succulent_echeveria_01/turntable_01.png",
+      "output/succulents/veg_succulent_echeveria_01/turntable_02.png",
+      "output/succulents/veg_succulent_echeveria_01/turntable_03.png",
+      "output/succulents/veg_succulent_echeveria_01/turntable_04.png"
+    ],
+    "glb": "output/succulents/veg_succulent_echeveria_01/veg_succulent_echeveria_01.glb",
+    "obj": "output/succulents/veg_succulent_echeveria_01/veg_succulent_echeveria_01.obj",
+    "source": "procedural"
+  },
+  {
+    "id": "veg_succulent_barrel_01",
+    "category": "succulents",
+    "common_name": "Golden Barrel Cactus",
+    "scientific_name": "Echinocactus grusonii",
+    "family": "Cactaceae",
+    "biome": "Warm Arid Rocky Desert",
+    "height": "0.60m",
+    "spread": "2.17m",
+    "faces": "3,932",
+    "verts": "3,336",
+    "thumb": "output/succulents/veg_succulent_barrel_01/thumbnail.png",
+    "turntables": [
+      "output/succulents/veg_succulent_barrel_01/turntable_01.png",
+      "output/succulents/veg_succulent_barrel_01/turntable_02.png",
+      "output/succulents/veg_succulent_barrel_01/turntable_03.png",
+      "output/succulents/veg_succulent_barrel_01/turntable_04.png"
+    ],
+    "glb": "output/succulents/veg_succulent_barrel_01/veg_succulent_barrel_01.glb",
+    "obj": "output/succulents/veg_succulent_barrel_01/veg_succulent_barrel_01.obj",
+    "source": "procedural"
+  },
+  {
+    "id": "veg_succulent_agave_01",
+    "category": "succulents",
+    "common_name": "Century Plant",
+    "scientific_name": "Agave americana",
+    "family": "Asparagaceae",
+    "biome": "Arid / Semiarid Scrubland & Slopes",
+    "height": "2.20m",
+    "spread": "2.36m",
+    "faces": "3,932",
+    "verts": "3,336",
+    "thumb": "output/succulents/veg_succulent_agave_01/thumbnail.png",
+    "turntables": [
+      "output/succulents/veg_succulent_agave_01/turntable_01.png",
+      "output/succulents/veg_succulent_agave_01/turntable_02.png",
+      "output/succulents/veg_succulent_agave_01/turntable_03.png",
+      "output/succulents/veg_succulent_agave_01/turntable_04.png"
+    ],
+    "glb": "output/succulents/veg_succulent_agave_01/veg_succulent_agave_01.glb",
+    "obj": "output/succulents/veg_succulent_agave_01/veg_succulent_agave_01.obj",
+    "source": "procedural"
+  },
+  {
+    "id": "veg_vine_ivy_01",
+    "category": "vines",
+    "common_name": "English Ivy",
+    "scientific_name": "Hedera helix",
+    "family": "Araliaceae",
+    "biome": "Temperate Woodlands & Shaded Cliffs",
+    "height": "1.80m",
+    "spread": "0.78m",
+    "faces": "3,280",
+    "verts": "4,064",
+    "thumb": "output/vines/veg_vine_ivy_01/thumbnail.png",
+    "turntables": [
+      "output/vines/veg_vine_ivy_01/turntable_01.png",
+      "output/vines/veg_vine_ivy_01/turntable_02.png",
+      "output/vines/veg_vine_ivy_01/turntable_03.png",
+      "output/vines/veg_vine_ivy_01/turntable_04.png"
+    ],
+    "glb": "output/vines/veg_vine_ivy_01/veg_vine_ivy_01.glb",
+    "obj": "output/vines/veg_vine_ivy_01/veg_vine_ivy_01.obj",
+    "source": "procedural"
+  },
+  {
+    "id": "veg_vine_wisteria_01",
+    "category": "vines",
+    "common_name": "Chinese Wisteria",
+    "scientific_name": "Wisteria sinensis",
+    "family": "Fabaceae",
+    "biome": "Subtropical / Temperate Forest Margin & Rocky Slopes",
+    "height": "3.20m",
+    "spread": "1.59m",
+    "faces": "3,280",
+    "verts": "4,064",
+    "thumb": "output/vines/veg_vine_wisteria_01/thumbnail.png",
+    "turntables": [
+      "output/vines/veg_vine_wisteria_01/turntable_01.png",
+      "output/vines/veg_vine_wisteria_01/turntable_02.png",
+      "output/vines/veg_vine_wisteria_01/turntable_03.png",
+      "output/vines/veg_vine_wisteria_01/turntable_04.png"
+    ],
+    "glb": "output/vines/veg_vine_wisteria_01/veg_vine_wisteria_01.glb",
+    "obj": "output/vines/veg_vine_wisteria_01/veg_vine_wisteria_01.obj",
+    "source": "procedural"
+  },
+  {
+    "id": "veg_vine_bougainvillea_01",
+    "category": "vines",
+    "common_name": "Common Bougainvillea",
+    "scientific_name": "Bougainvillea spectabilis",
+    "family": "Nyctaginaceae",
+    "biome": "Tropical / Subtropical Scrub & Coastal Cliffs",
+    "height": "2.40m",
+    "spread": "1.27m",
+    "faces": "3,280",
+    "verts": "4,064",
+    "thumb": "output/vines/veg_vine_bougainvillea_01/thumbnail.png",
+    "turntables": [
+      "output/vines/veg_vine_bougainvillea_01/turntable_01.png",
+      "output/vines/veg_vine_bougainvillea_01/turntable_02.png",
+      "output/vines/veg_vine_bougainvillea_01/turntable_03.png",
+      "output/vines/veg_vine_bougainvillea_01/turntable_04.png"
+    ],
+    "glb": "output/vines/veg_vine_bougainvillea_01/veg_vine_bougainvillea_01.glb",
+    "obj": "output/vines/veg_vine_bougainvillea_01/veg_vine_bougainvillea_01.obj",
+    "source": "procedural"
+  },
+  {
+    "id": "veg_epiphyte_spanishmoss_01",
+    "category": "vines",
+    "common_name": "Spanish Moss",
+    "scientific_name": "Tillandsia usneoides",
+    "family": "Bromeliaceae",
+    "biome": "Humid Subtropical Coastal Forest",
+    "height": "1.60m",
+    "spread": "0.45m",
+    "faces": "3,280",
+    "verts": "4,064",
+    "thumb": "output/vines/veg_epiphyte_spanishmoss_01/thumbnail.png",
+    "turntables": [
+      "output/vines/veg_epiphyte_spanishmoss_01/turntable_01.png",
+      "output/vines/veg_epiphyte_spanishmoss_01/turntable_02.png",
+      "output/vines/veg_epiphyte_spanishmoss_01/turntable_03.png",
+      "output/vines/veg_epiphyte_spanishmoss_01/turntable_04.png"
+    ],
+    "glb": "output/vines/veg_epiphyte_spanishmoss_01/veg_epiphyte_spanishmoss_01.glb",
+    "obj": "output/vines/veg_epiphyte_spanishmoss_01/veg_epiphyte_spanishmoss_01.obj",
+    "source": "procedural"
+  },
+  {
+    "id": "veg_vine_pothos_01",
+    "category": "vines",
+    "common_name": "Golden Pothos",
+    "scientific_name": "Epipremnum aureum",
+    "family": "Araceae",
+    "biome": "Tropical Rainforest Understory & Epiphytic Canopy",
+    "height": "1.20m",
+    "spread": "0.64m",
+    "faces": "3,280",
+    "verts": "4,064",
+    "thumb": "output/vines/veg_vine_pothos_01/thumbnail.png",
+    "turntables": [
+      "output/vines/veg_vine_pothos_01/turntable_01.png",
+      "output/vines/veg_vine_pothos_01/turntable_02.png",
+      "output/vines/veg_vine_pothos_01/turntable_03.png",
+      "output/vines/veg_vine_pothos_01/turntable_04.png"
+    ],
+    "glb": "output/vines/veg_vine_pothos_01/veg_vine_pothos_01.glb",
+    "obj": "output/vines/veg_vine_pothos_01/veg_vine_pothos_01.obj",
+    "source": "procedural"
+  }
+];
+
+    let activeCategory = 'all';
+    let searchQuery = '';
+
+    // Render category tabs
+    function renderTabs() {
+      const container = document.getElementById('categoryTabs');
+      container.innerHTML = categories.map(cat => `
+        <button onclick="setCategory('${cat.id}')" class="px-3.5 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all ${activeCategory === cat.id ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/20' : 'bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-800'}">
+          ${cat.name}
+        </button>
+      `).join('');
+    }
+
+    // Filter and render plant cards
+    function renderPlants() {
+      const container = document.getElementById('plantGrid');
+      const filtered = plants.filter(p => {
+        const matchCat = activeCategory === 'all' || p.category === activeCategory;
+        const matchSearch = p.common_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                            p.scientific_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                            p.biome.toLowerCase().includes(searchQuery.toLowerCase());
+        return matchCat && matchSearch;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-full py-16 text-center text-slate-500 text-sm">
+            Không tìm thấy loài thực vật nào phù hợp.
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map(p => `
+        <div onclick="openModal('${p.id}')" class="group bg-slate-900 hover:bg-slate-850 border border-slate-800 hover:border-brand-500/50 rounded-2xl p-3.5 transition-all duration-300 hover:shadow-xl hover:shadow-brand-500/10 cursor-pointer flex flex-col justify-between">
+          <div class="relative overflow-hidden rounded-xl bg-slate-950 aspect-square flex items-center justify-center border border-slate-800/80 mb-3">
+            <img src="${p.thumb}" alt="${p.common_name}" loading="lazy" class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300">
+            <span class="absolute top-2 right-2 px-2 py-0.5 rounded-md bg-slate-900/90 text-[10px] text-slate-300 font-mono border border-slate-700/80">
+              ${p.height}
+            </span>
+            ${p.source === 'meshy' ? '<span class="absolute bottom-2 left-2 px-2 py-0.5 rounded-md bg-emerald-600 text-[10px] text-white font-bold shadow">Meshy AI 3D</span>' : ''}
+          </div>
+
+          <div class="space-y-1 flex-1">
+            <div class="flex items-baseline justify-between gap-1">
+              <h4 class="text-sm font-bold text-white group-hover:text-brand-400 transition-colors truncate">${p.common_name}</h4>
+            </div>
+            <p class="text-[11px] italic text-slate-400 font-mono truncate">${p.scientific_name}</p>
+            <p class="text-[11px] text-slate-500 truncate">Hệ sinh thái: ${p.biome}</p>
+          </div>
+
+          <div class="mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-between text-[10px] text-slate-400">
+            <span>${p.faces} mặt</span>
+            <span class="text-brand-400 font-medium group-hover:translate-x-0.5 transition-transform">Xem 4 góc xoay →</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function setCategory(catId) {
+      activeCategory = catId;
+      renderTabs();
+      renderPlants();
+    }
+
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      searchQuery = e.target.value;
+      renderPlants();
+    });
+
+    // Modal logic
+    function openModal(id) {
+      const p = plants.find(item => item.id === id);
+      if (!p) return;
+
+      document.getElementById('modalCommonName').textContent = p.common_name;
+      document.getElementById('modalScientificName').textContent = `${p.scientific_name} (${p.family})`;
+      document.getElementById('modalThumbnailImg').src = p.thumb;
+      document.getElementById('modalGlbBtn').href = p.glb;
+      document.getElementById('modalObjBtn').href = p.obj;
+
+      const badges = document.getElementById('modalBadges');
+      badges.innerHTML = `
+        <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[11px] border border-slate-700">Cao: ${p.height}</span>
+        <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[11px] border border-slate-700">Tán rộng: ${p.spread}</span>
+        <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[11px] border border-slate-700">${p.faces} faces</span>
+        <span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 text-[11px] border border-emerald-500/30">Hệ: ${p.biome}</span>
+      `;
+
+      const ttGrid = document.getElementById('modalTurntablesGrid');
+      const angleNames = ['1. Hero 3/4', '2. Mặt trước', '3. Mặt bên', '4. Nhìn từ trên'];
+      ttGrid.innerHTML = p.turntables.map((img, idx) => `
+        <div class="bg-slate-950 border border-slate-800 rounded-lg p-1.5 flex flex-col items-center">
+          <img src="${img}" alt="${angleNames[idx]}" class="w-full h-24 object-contain rounded">
+          <span class="text-[10px] text-slate-400 mt-1">${angleNames[idx]}</span>
+        </div>
+      `).join('');
+
+      const modal = document.getElementById('plantModal');
+      modal.classList.remove('hidden');
+      setTimeout(() => modal.classList.remove('opacity-0'), 10);
+    }
+
+    function closeModal() {
+      const modal = document.getElementById('plantModal');
+      modal.classList.add('opacity-0');
+      setTimeout(() => modal.classList.add('hidden'), 200);
+    }
+
+    // Close on backdrop click
+    document.getElementById('plantModal').addEventListener('click', (e) => {
+      if (e.target.id === 'plantModal') closeModal();
+    });
+
+    // Close on ESC
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeModal();
+    });
+
+    // Initialize
+    renderTabs();
+    renderPlants();
+  </script>
+</body>
+</html>

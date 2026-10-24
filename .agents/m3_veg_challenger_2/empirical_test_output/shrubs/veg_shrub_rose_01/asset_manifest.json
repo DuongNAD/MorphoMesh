@@ -1,0 +1,113 @@
+{
+  "schema_version": "1.0.0",
+  "species_id": "veg_shrub_rose_01",
+  "taxonomy": {
+    "common_name": "Garden Rose Bush",
+    "scientific_name": "Rosa gallica",
+    "family": "Rosaceae",
+    "category": "flowering_shrubs_ornamentals",
+    "category_id": "flowering_shrubs_ornamentals",
+    "category_name": "Flowering Shrubs & Ornamental Plants",
+    "short_category": "shrubs",
+    "biome": "Temperate Shrubland / Meadow",
+    "growth_habit": "Multi-stemmed suckering deciduous shrub with arching prickly canes",
+    "branching_pattern": "Erect and outward-arching woody cane stems forming an intertwined rounded thicket",
+    "foliage_density": "dense"
+  },
+  "geometry": {
+    "vertex_count": 4552,
+    "face_count": 3580,
+    "triangle_count": 3580,
+    "has_armature": false,
+    "has_skins": false,
+    "pivot_grounded": true,
+    "ground_contact_z": 0.0,
+    "ground_z_min_m": 0.0,
+    "base_centroid_xy": [
+      0.0,
+      0.0
+    ],
+    "bounding_box": {
+      "min_point": [
+        -0.7091,
+        -0.668,
+        0.0
+      ],
+      "max_point": [
+        0.7734,
+        0.8224,
+        1.2
+      ],
+      "dimensions": [
+        1.4826,
+        1.4903,
+        1.2
+      ]
+    },
+    "dimensions_m": {
+      "height_m": 1.2,
+      "canopy_spread_m": 1.4903,
+      "width_m": 1.4826,
+      "depth_m": 1.4903,
+      "target_height_m": 1.2,
+      "target_canopy_spread_m": 1.1
+    }
+  },
+  "normalization": {
+    "target_height_m": 1.2,
+    "target_canopy_spread_m": 1.1,
+    "scale_factor": 0.7628,
+    "normalized_height_m": 1.2,
+    "normalized_canopy_spread_m": 1.4903,
+    "strategy": "uniform_height"
+  },
+  "materials": {
+    "workflow": "Metallic-Roughness PBR",
+    "double_sided": true,
+    "channels": [
+      "albedo",
+      "normal",
+      "roughness",
+      "metallic"
+    ],
+    "texture_format": "PNG"
+  },
+  "files": {
+    "glb": "veg_shrub_rose_01.glb",
+    "obj": "veg_shrub_rose_01.obj",
+    "mtl": "veg_shrub_rose_01.mtl",
+    "textures": {
+      "albedo": "textures/albedo.png",
+      "normal": "textures/normal.png",
+      "roughness": "textures/roughness.png",
+      "metallic": "textures/metallic.png"
+    }
+  },
+  "provenance": {
+    "source": "procedural",
+    "export_timestamp": "2026-09-10T06:39:18.047077+00:00",
+    "generator_metadata": {
+      "species_id": "veg_shrub_rose_01",
+      "category_id": "flowering_shrubs_ornamentals",
+      "source": "procedural",
+      "seed": 1120340546,
+      "vertex_count": 4552,
+      "face_count": 3580,
+      "quad_count": 1790,
+      "tri_count": 0,
+      "quad_ratio": 1.0
+    }
+  },
+  "metadata": {
+    "scale_factor": 0.7628003084456023,
+    "species_id": "veg_shrub_rose_01",
+    "category_id": "flowering_shrubs_ornamentals",
+    "source": "procedural",
+    "seed": 1120340546,
+    "vertex_count": 4552,
+    "face_count": 3580,
+    "quad_count": 1790,
+    "tri_count": 0,
+    "quad_ratio": 1.0
+  }
+}
